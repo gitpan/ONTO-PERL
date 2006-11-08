@@ -1,0 +1,77 @@
+# $Id: onto-perl.pod 291 2006-06-01 16:21:45Z erant $
+#
+# see also - http://www.cellcycleontology.org
+#
+# This library is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself, either Perl version 5.8.7 or,
+# at your option, any later version of Perl 5 you may have available.
+
+=head1 NAME
+
+onto-perl           - perl modules for CCO
+
+=head1 DESCRIPTION
+
+The Cell-Cycle Ontology
+=======================
+
+The CCO is an effort for formalizing the controled vocabulary 
+in the Cell Cycle domain (http://www.cellcycleontology.org). 
+CCO is based on existing ontologies such as GO 
+(http://www.geneontology.org), DC (dublincore.org/),
+and RO (http://obo.sourceforge.net/relationship/).
+
+Files in http://www.cellcycleontology.org
+=========================================
+
+cco.obo						The CCO in OBO format.
+
+cco.owl						The CCO in OWL format.
+
+cco.xml						The CCO in XML format.
+
+cco.dot						The CCO in DOT format.
+
+cco.ids						IDs from CCO.
+
+go_cco.ids					Equivalent IDs in GO and CCO.
+
+cco_x.x.tar.gz				Archives from CCO.
+
+onto-perl-x.y.tar.gz			CCO API version x.y
+
+onto-perl-latest.tar.gz		CCO API: latest version
+
+ChangeLog.txt				Description about the changes in CCO.
+
+Remark
+======
+
+The CCO is provided "as-is". The current version of CCO is 
+experimental. Major changes are expected until version 1.0. 
+Please visit contantly this repository for checking up-to-date 
+versions of the ontology.
+
+Any comments, suggestions can be addressed to: 
+
+	Erick Antezana <erant@psb.ugent.be>
+	Computational Biology Division
+	http://www.psb.ugent.be/cbd/
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006 by erant
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
+package onto-perl;
+$VERSION='0.23';
+1;

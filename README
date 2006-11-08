@@ -1,0 +1,39 @@
+CCO perl modules
+================
+
+'onto-perl' a collection of perl modules for dealing with the Cell
+Cycle Ontology (CCO) and in general with OBO ontologies (like the
+Gene Ontology). The code contains both modules, and scripts (for 
+format conversion for instance: obo2owl, and so forth).
+
+See also:
+
+  perldoc onto-perl.pod
+
+Visit the following URL:
+
+http://www.cellcycleontology.org/
+
+For installing this collection of modules:
+
+	see the file INSTALL
+
+or follow the standard CPAN prodecure:
+
+type the following:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
+
+DEPENDENCIES
+
+This modules do not require any other modules nor libraries:
+
+COPYRIGHT AND LICENCE
+
+Copyright (c) 2006 Erick Antezana. All rights reserved.
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+

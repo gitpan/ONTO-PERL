@@ -1,0 +1,51 @@
+INSTALL
+=======
+
+There are two ways:
+
+Using CPAN.  
+==========
+
+You'll want to use CPAN to install the modules by performing the 
+following steps:
+
+From the root prompt on your server, invoke the CPAN shell:
+
+# perl -MCPAN -e shell
+
+Once the Perl interpreter has loaded (and been configured), you can 
+install modules by issuing the command install MODULENAME.
+
+The first thing you should do is upgrade your CPAN:
+
+cpan> install Bundle::CPAN
+
+Once it's done, type:
+
+cpan> reload cpan
+
+Now, enter the following command to retrieve all of the required modules:
+
+cpan> install CCO
+
+Manually
+========
+
+By typing the following:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
+	
+Documentation
+=============
+
+For more information about these modules, check:
+
+http://www.cellcycleontology.org/
+
+Mailing List
+============
+
+https://maillist.psb.ugent.be/mailman/listinfo/ccofriends
