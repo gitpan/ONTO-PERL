@@ -95,7 +95,7 @@ sub subnamespace {
 =cut
 sub code {
 	my $self = shift;
-	$self->{ID} =~ /:[A-Z]?(.*)/ if ($self->{ID});	
+	$self->{ID} =~ /:[A-Z]?(.*)/ if ($self->{ID});
 	return $1 || '0000000';
 }
 

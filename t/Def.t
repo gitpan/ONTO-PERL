@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 14;
+    plan tests => 12;
 }
 
 #########################
@@ -39,9 +39,6 @@ my $ref3 = CCO::Core::Dbxref->new();
 $ref1->name("CCO:vm");
 $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
-
-ok($ref3->db() eq "CCO");
-ok($ref3->acc() eq "ea");
 
 my $dbxref_set1 = CCO::Util::DbxrefSet->new();
 $dbxref_set1->add($ref1);

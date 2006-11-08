@@ -17,7 +17,7 @@ BEGIN {
 use CCO::Parser::OBOParser;
 use strict;
 
-my $my_parser = CCO::Parser::OBOParser->new();
+my $my_parser = CCO::Parser::OBOParser->new;
 ok(1);
 
 my $ontology = $my_parser->work("./t/data/fake_ulo_cco.obo");

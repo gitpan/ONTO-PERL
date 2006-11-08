@@ -52,27 +52,9 @@ sub work {
 	chomp(@chunks);
 	close OBO_FILE;
 	
-	# treat OBO file header tags
+	# treat OBO file header
 	my @header = split (/\n/,$chunks[0]);
-	my $format_version = $1 if ($chunks[0] =~ /format-version:\s*(.*)\n/); # required tag
-	my $data_version = $1 if ($chunks[0] =~ /data-version:\s*(.*)\n/);
-	my $date = $1 if ($chunks[0] =~ /date:\s*(.*)\n/);
-	my $saved_by = $1 if ($chunks[0] =~ /saved-by:\s*(.*)\n/);
-	my $auto_generated_by = $1 if ($chunks[0] =~ /auto-generated-by:\s*(.*\n)/);
-	my $import = $1 if ($chunks[0] =~ /import:\s*(.*)\n/);
-	my $subsetdef = $1 if ($chunks[0] =~ /subsetdef:\s*(.*)\n/);
-	my $synonymtypedef = $1 if ($chunks[0] =~ /synonymtypedef:\s*(.*)\n/);
-	my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)\n/);
-	my $remark = $1 if ($chunks[0] =~ /remark:\s*(.*)/);
-	
-	croak "The OBO file does not have a correct header, please verify it." if (!defined $format_version);
-	$result->data_version($data_version) if ($data_version);
-	$result->date($date) if ($date);
-	$result->saved_by($saved_by) if ($saved_by);
-	#$result->auto_generated_by($auto_generated_by) if ($auto_generated_by);
-	$result->namespace($default_namespace) if ($default_namespace);
-	$result->remark($remark) if ($remark);
-	# todo consider the rest of the header tags like 'import'
+	croak "The OBO file does not have a correct header, please verify it." if ($header[0] !~ /format-version:/);
 	
 	foreach my $chunk (@chunks) {
 		my @entry = split (/\n/, $chunk);

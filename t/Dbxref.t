@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 16;
+    plan tests => 14;
 }
 
 #########################
@@ -28,11 +28,8 @@ $ref1->modifier("{opt=123}");
 ok($ref1->name() eq "CCO:vm");
 $ref2->name("CCO:ls");
 ok($ref2->name() eq "CCO:ls");
-$ref3->db("CCO");
-$ref3->acc("ea");
+$ref3->name("CCO:ea");
 ok($ref3->name() eq "CCO:ea");
-ok($ref3->db() eq "CCO");
-ok($ref3->acc() eq "ea");
 
 ok(!$ref2->equals($ref3));
 ok(!$ref1->equals($ref3));
