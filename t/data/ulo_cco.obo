@@ -9,14 +9,14 @@ remark: <p>This file holds the Upper Level Ontology in CCO.</p>
 id: CCO:U0000000
 name: cell-cycle entity
 def: "A process or continuant." [CCO:ea]
-synonym: "cell cycle entity" EXACT [CCO:ea]
+synonym: "cell cycle entity" [CCO:ea] {scope="exact"}
 
 [Term]
 id: CCO:U0000001
 name: continuant
 def: "Entities which endure, or continue to exist, through time while undergoing different sort of changes, including changes of place." [PMID:15892874]
-synonym: "endurant" EXACT [PMID:15892874]
-synonym: "thing" BROAD [PMID:15892874]
+synonym: "endurant" [PMID:15892874] {scope="exact"}
+synonym: "thing" [PMID:15892874] {scope="broad"}
 disjoint_from: CCO:U0000002 ! process
 is_a: CCO:U0000000 ! cell-cycle entity
 
@@ -24,8 +24,8 @@ is_a: CCO:U0000000 ! cell-cycle entity
 id: CCO:U0000002
 name: process
 def: "Entities that unfold themselves in successive temporal phases." [PMID:15892874]
-synonym: "perdurant" EXACT [PMID:15892874]
-synonym: "ocurrent" BROAD [PMID:15892874]
+synonym: "perdurant" [PMID:15892874] {scope="exact"}
+synonym: "ocurrent" [PMID:15892874] {scope="broad"}
 disjoint_from: CCO:U0000001 ! continuant
 is_a: CCO:U0000000 ! cell-cycle entity
 
@@ -33,7 +33,7 @@ is_a: CCO:U0000000 ! cell-cycle entity
 id: CCO:U0000003
 name: biopolymer
 def: "A polymer, such as a protein, nucleic acid, or transcript, ocurring in, or formed by, living systems." [CCO:ea]
-synonym: "bio-polymer" EXACT [CCO:ea]
+synonym: "bio-polymer" [CCO:ea] {scope="exact"}
 is_a: CCO:U0000001 ! continuant
 
 [Term]

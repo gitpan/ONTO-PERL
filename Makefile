@@ -55,11 +55,11 @@ AR_STATIC_ARGS = cr
 DIRFILESEP = /
 NAME = CCO
 NAME_SYM = CCO
-VERSION = 0.22
+VERSION = 0.1
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_22
+VERSION_SYM = 0_1
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.22
+XS_VERSION = 0.1
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -160,18 +160,16 @@ O_FILES  =
 H_FILES  = 
 MAN1PODS = 
 MAN3PODS = CCO/Core/Dbxref.pm \
+	CCO/Core/DbxrefSet.pm \
 	CCO/Core/Def.pm \
 	CCO/Core/Ontology.pm \
 	CCO/Core/Relationship.pm \
 	CCO/Core/RelationshipType.pm \
 	CCO/Core/Synonym.pm \
 	CCO/Core/Term.pm \
-	CCO/Parser/NCBIParser.pm \
+	CCO/Core/TermSet.pm \
 	CCO/Parser/OBOParser.pm \
-	CCO/Util/DbxrefSet.pm \
 	CCO/Util/Set.pm \
-	CCO/Util/SynonymSet.pm \
-	CCO/Util/TermSet.pm \
 	onto-perl.pod
 
 # Where is the Config information that we are using/depend on
@@ -195,36 +193,30 @@ PERL_ARCHIVE_AFTER =
 
 
 TO_INST_PM = CCO/Core/Dbxref.pm \
+	CCO/Core/DbxrefSet.pm \
 	CCO/Core/Def.pm \
 	CCO/Core/Ontology.pm \
 	CCO/Core/Relationship.pm \
 	CCO/Core/RelationshipType.pm \
 	CCO/Core/Synonym.pm \
 	CCO/Core/Term.pm \
-	CCO/Parser/NCBIParser.pm \
+	CCO/Core/TermSet.pm \
 	CCO/Parser/OBOParser.pm \
-	CCO/Util/DbxrefSet.pm \
 	CCO/Util/Set.pm \
-	CCO/Util/SynonymSet.pm \
-	CCO/Util/TermSet.pm \
 	onto-perl.pod
 
 PM_TO_BLIB = onto-perl.pod \
 	$(INST_LIB)/onto-perl.pod \
 	CCO/Core/Dbxref.pm \
 	$(INST_LIB)/CCO/Core/Dbxref.pm \
-	CCO/Util/DbxrefSet.pm \
-	$(INST_LIB)/CCO/Util/DbxrefSet.pm \
 	CCO/Core/Relationship.pm \
 	$(INST_LIB)/CCO/Core/Relationship.pm \
-	CCO/Util/TermSet.pm \
-	$(INST_LIB)/CCO/Util/TermSet.pm \
 	CCO/Core/RelationshipType.pm \
 	$(INST_LIB)/CCO/Core/RelationshipType.pm \
-	CCO/Util/SynonymSet.pm \
-	$(INST_LIB)/CCO/Util/SynonymSet.pm \
 	CCO/Core/Ontology.pm \
 	$(INST_LIB)/CCO/Core/Ontology.pm \
+	CCO/Core/TermSet.pm \
+	$(INST_LIB)/CCO/Core/TermSet.pm \
 	CCO/Core/Def.pm \
 	$(INST_LIB)/CCO/Core/Def.pm \
 	CCO/Core/Synonym.pm \
@@ -233,8 +225,8 @@ PM_TO_BLIB = onto-perl.pod \
 	$(INST_LIB)/CCO/Util/Set.pm \
 	CCO/Core/Term.pm \
 	$(INST_LIB)/CCO/Core/Term.pm \
-	CCO/Parser/NCBIParser.pm \
-	$(INST_LIB)/CCO/Parser/NCBIParser.pm \
+	CCO/Core/DbxrefSet.pm \
+	$(INST_LIB)/CCO/Core/DbxrefSet.pm \
 	CCO/Parser/OBOParser.pm \
 	$(INST_LIB)/CCO/Parser/OBOParser.pm
 
@@ -299,7 +291,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = all tardist
 DISTNAME = onto-perl
-DISTVNAME = onto-perl-0.22
+DISTVNAME = onto-perl-0.1
 
 
 # --- MakeMaker macro section:
@@ -442,46 +434,40 @@ POD2MAN = $(POD2MAN_EXE)
 manifypods : pure_all  \
 	onto-perl.pod \
 	CCO/Core/Dbxref.pm \
-	CCO/Util/DbxrefSet.pm \
 	CCO/Core/Relationship.pm \
-	CCO/Util/TermSet.pm \
 	CCO/Core/RelationshipType.pm \
-	CCO/Util/SynonymSet.pm \
 	CCO/Core/Ontology.pm \
+	CCO/Core/TermSet.pm \
 	CCO/Core/Def.pm \
 	CCO/Core/Synonym.pm \
 	CCO/Util/Set.pm \
 	CCO/Core/Term.pm \
-	CCO/Parser/NCBIParser.pm \
+	CCO/Core/DbxrefSet.pm \
 	CCO/Parser/OBOParser.pm \
 	onto-perl.pod \
 	CCO/Core/Dbxref.pm \
-	CCO/Util/DbxrefSet.pm \
 	CCO/Core/Relationship.pm \
-	CCO/Util/TermSet.pm \
 	CCO/Core/RelationshipType.pm \
-	CCO/Util/SynonymSet.pm \
 	CCO/Core/Ontology.pm \
+	CCO/Core/TermSet.pm \
 	CCO/Core/Def.pm \
 	CCO/Core/Synonym.pm \
 	CCO/Util/Set.pm \
 	CCO/Core/Term.pm \
-	CCO/Parser/NCBIParser.pm \
+	CCO/Core/DbxrefSet.pm \
 	CCO/Parser/OBOParser.pm
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW)\
 	  onto-perl.pod $(INST_MAN3DIR)/onto-perl.$(MAN3EXT) \
 	  CCO/Core/Dbxref.pm $(INST_MAN3DIR)/CCO::Core::Dbxref.$(MAN3EXT) \
-	  CCO/Util/DbxrefSet.pm $(INST_MAN3DIR)/CCO::Util::DbxrefSet.$(MAN3EXT) \
 	  CCO/Core/Relationship.pm $(INST_MAN3DIR)/CCO::Core::Relationship.$(MAN3EXT) \
-	  CCO/Util/TermSet.pm $(INST_MAN3DIR)/CCO::Util::TermSet.$(MAN3EXT) \
 	  CCO/Core/RelationshipType.pm $(INST_MAN3DIR)/CCO::Core::RelationshipType.$(MAN3EXT) \
-	  CCO/Util/SynonymSet.pm $(INST_MAN3DIR)/CCO::Util::SynonymSet.$(MAN3EXT) \
 	  CCO/Core/Ontology.pm $(INST_MAN3DIR)/CCO::Core::Ontology.$(MAN3EXT) \
+	  CCO/Core/TermSet.pm $(INST_MAN3DIR)/CCO::Core::TermSet.$(MAN3EXT) \
 	  CCO/Core/Def.pm $(INST_MAN3DIR)/CCO::Core::Def.$(MAN3EXT) \
 	  CCO/Core/Synonym.pm $(INST_MAN3DIR)/CCO::Core::Synonym.$(MAN3EXT) \
 	  CCO/Util/Set.pm $(INST_MAN3DIR)/CCO::Util::Set.$(MAN3EXT) \
 	  CCO/Core/Term.pm $(INST_MAN3DIR)/CCO::Core::Term.$(MAN3EXT) \
-	  CCO/Parser/NCBIParser.pm $(INST_MAN3DIR)/CCO::Parser::NCBIParser.$(MAN3EXT) \
+	  CCO/Core/DbxrefSet.pm $(INST_MAN3DIR)/CCO::Core::DbxrefSet.$(MAN3EXT) \
 	  CCO/Parser/OBOParser.pm $(INST_MAN3DIR)/CCO::Parser::OBOParser.$(MAN3EXT) 
 
 
@@ -496,17 +482,15 @@ POD2HTML = $(POD2HTML_EXE)
 htmlifypods :  \
 	onto-perl.pod \
 	CCO/Core/Dbxref.pm \
-	CCO/Util/DbxrefSet.pm \
 	CCO/Core/Relationship.pm \
-	CCO/Util/TermSet.pm \
 	CCO/Core/RelationshipType.pm \
-	CCO/Util/SynonymSet.pm \
 	CCO/Core/Ontology.pm \
+	CCO/Core/TermSet.pm \
 	CCO/Core/Def.pm \
 	CCO/Core/Synonym.pm \
 	CCO/Util/Set.pm \
 	CCO/Core/Term.pm \
-	CCO/Parser/NCBIParser.pm \
+	CCO/Core/DbxrefSet.pm \
 	CCO/Parser/OBOParser.pm
 	$(NOECHO) $(POD2HTML)
 
@@ -548,9 +532,9 @@ realclean_subdirs :
 realclean purge ::  clean realclean_subdirs
 	$(RM_RF) $(INST_AUTODIR) $(INST_ARCHAUTODIR)
 	$(RM_RF) $(DISTVNAME)
-	$(RM_F)  $(INST_LIB)/CCO/Util/DbxrefSet.pm $(INST_LIB)/CCO/Core/Relationship.pm $(INST_LIB)/CCO/Core/RelationshipType.pm $(MAKEFILE_OLD) $(INST_LIB)/CCO/Parser/OBOParser.pm $(INST_LIB)/CCO/Core/Dbxref.pm
-	$(RM_F) $(INST_LIB)/CCO/Parser/NCBIParser.pm $(INST_LIB)/CCO/Core/Def.pm $(INST_LIB)/onto-perl.pod $(INST_LIB)/CCO/Util/SynonymSet.pm $(INST_LIB)/CCO/Core/Synonym.pm $(FIRST_MAKEFILE)
-	$(RM_F) $(INST_LIB)/CCO/Util/TermSet.pm $(INST_LIB)/CCO/Core/Ontology.pm $(INST_LIB)/CCO/Core/Term.pm $(INST_LIB)/CCO/Util/Set.pm
+	$(RM_F)  $(INST_LIB)/CCO/Core/Relationship.pm $(INST_LIB)/CCO/Core/RelationshipType.pm $(MAKEFILE_OLD) $(INST_LIB)/CCO/Core/TermSet.pm $(INST_LIB)/CCO/Parser/OBOParser.pm $(INST_LIB)/CCO/Core/Dbxref.pm
+	$(RM_F) $(INST_LIB)/CCO/Core/Def.pm $(INST_LIB)/onto-perl.pod $(INST_LIB)/CCO/Core/Synonym.pm $(FIRST_MAKEFILE) $(INST_LIB)/CCO/Core/DbxrefSet.pm $(INST_LIB)/CCO/Core/Ontology.pm $(INST_LIB)/CCO/Core/Term.pm
+	$(RM_F) $(INST_LIB)/CCO/Util/Set.pm
 
 
 # --- MakeMaker metafile section:
@@ -558,7 +542,7 @@ metafile :
 	$(NOECHO) $(ECHO) '# http://module-build.sourceforge.net/META-spec.html' > META.yml
 	$(NOECHO) $(ECHO) '#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#' >> META.yml
 	$(NOECHO) $(ECHO) 'name:         onto-perl' >> META.yml
-	$(NOECHO) $(ECHO) 'version:      0.22' >> META.yml
+	$(NOECHO) $(ECHO) 'version:      0.1' >> META.yml
 	$(NOECHO) $(ECHO) 'version_from: onto-perl.pod' >> META.yml
 	$(NOECHO) $(ECHO) 'installdirs:  site' >> META.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META.yml
@@ -832,7 +816,7 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd:
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0,22,0,0">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0,1,0,0">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <TITLE>$(DISTNAME)</TITLE>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>CCO Perl</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Erick Antezana &lt;erant@psb.ugent.be&gt;</AUTHOR>' >> $(DISTNAME).ppd
@@ -850,17 +834,15 @@ pm_to_blib: $(TO_INST_PM)
 	$(NOECHO) $(PERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', '\''$(PM_FILTER)'\'')'\
 	  onto-perl.pod $(INST_LIB)/onto-perl.pod \
 	  CCO/Core/Dbxref.pm $(INST_LIB)/CCO/Core/Dbxref.pm \
-	  CCO/Util/DbxrefSet.pm $(INST_LIB)/CCO/Util/DbxrefSet.pm \
 	  CCO/Core/Relationship.pm $(INST_LIB)/CCO/Core/Relationship.pm \
-	  CCO/Util/TermSet.pm $(INST_LIB)/CCO/Util/TermSet.pm \
 	  CCO/Core/RelationshipType.pm $(INST_LIB)/CCO/Core/RelationshipType.pm \
-	  CCO/Util/SynonymSet.pm $(INST_LIB)/CCO/Util/SynonymSet.pm \
 	  CCO/Core/Ontology.pm $(INST_LIB)/CCO/Core/Ontology.pm \
+	  CCO/Core/TermSet.pm $(INST_LIB)/CCO/Core/TermSet.pm \
 	  CCO/Core/Def.pm $(INST_LIB)/CCO/Core/Def.pm \
 	  CCO/Core/Synonym.pm $(INST_LIB)/CCO/Core/Synonym.pm \
 	  CCO/Util/Set.pm $(INST_LIB)/CCO/Util/Set.pm \
 	  CCO/Core/Term.pm $(INST_LIB)/CCO/Core/Term.pm \
-	  CCO/Parser/NCBIParser.pm $(INST_LIB)/CCO/Parser/NCBIParser.pm \
+	  CCO/Core/DbxrefSet.pm $(INST_LIB)/CCO/Core/DbxrefSet.pm \
 	  CCO/Parser/OBOParser.pm $(INST_LIB)/CCO/Parser/OBOParser.pm 
 	$(NOECHO) $(TOUCH) $@
 

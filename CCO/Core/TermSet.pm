@@ -1,13 +1,13 @@
-# $Id: DbxrefSet.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: TermSet.pm 291 2006-06-01 16:21:45Z erant $
 #
-# Module  : DbxrefSet.pm
-# Purpose : Reference structure set.
+# Module  : TermSet.pm
+# Purpose : Term set.
 # License : Copyright (c) 2006 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
-package CCO::Util::DbxrefSet;
+package CCO::Core::TermSet;
 use strict;
 use warnings;
 use Carp;
@@ -17,7 +17,7 @@ sub new {
         my $self                    = {};
         
         # todo pensar en usar un mapa para acceder rapidamente a los elementos en remove por ej.
-        $self->{SET}                = (); # the set
+        $self->{SET}	                = (); # the set
         
         bless ($self, $class);
         return $self;
@@ -26,9 +26,9 @@ sub new {
 
 =head2 add
 
-  Usage    - $set->add($dbxref)
+  Usage    - $set->add()
   Returns  - true if the element was successfully added
-  Args     - the element (CCO::Core::Dbxref) to be added
+  Args     - the element to be added
   Function - adds an element to this set
   
 =cut
@@ -37,7 +37,7 @@ sub add {
 	my $result = 0; # nothing added
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be added must be a CCO::Core::Dbxref object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Dbxref'));
+		croak "The element to be added must be a CCO::Core::Term object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Term'));
 		if ( !$self -> contains($ele) ) {
 			push @{$self->{SET}}, $ele;
 			$result = 1; # successfully added
@@ -49,8 +49,8 @@ sub add {
 =head2 remove
 
   Usage    - $set->remove($element)
-  Returns  - the removed element (CCO::Core::Dbxref)
-  Args     - the element to be removed (CCO::Core::Dbxref)
+  Returns  - the removed element
+  Args     - the element to be removed
   Function - removes an element from this set
   
 =cut
@@ -59,7 +59,7 @@ sub remove {
 	my $result = undef;
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be removed must be a CCO::Core::Dbxref object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Dbxref'));
+		croak "The element to be removed must be a CCO::Core::Term object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Term'));
 		if ($self->size() > 0) {
 			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
 				my $e = ${$self->{SET}}[$i];
@@ -81,9 +81,9 @@ sub remove {
 
 =head2 add_all
 
-  Usage    - $set->add_all($ele1, $ele2, $ele3, ...)
+  Usage    - $set->add_all()
   Returns  - true if the elements were successfully added
-  Args     - the elements to be added (CCO::Core::Dbxref)
+  Args     - the elements to be added
   Function - adds the given elements to this set
   
 =cut
@@ -111,9 +111,9 @@ sub get_set {
 
 =head2 contains
 
-  Usage    - $set->contains($dbxref)
-  Returns  - either 1(true) or 0 (false)
-  Args     - the element (CCO::Core::Dbxref) to be checked
+  Usage    - $set->contains()
+  Returns  - true if this set contains the given element
+  Args     - the element to be checked
   Function - checks if this set constains the given element
   
 =cut
@@ -123,14 +123,14 @@ sub contains {
 	if (@_){
 		my $target = shift;
 		
-		croak "The element to be tested must be a CCO::Core::Dbxref object" if (!UNIVERSAL::isa($target, 'CCO::Core::Dbxref'));
+		croak "The element to be tested must be a CCO::Core::Term object" if (!UNIVERSAL::isa($target, 'CCO::Core::Term'));
 		
 		foreach my $ele (@{$self->{SET}}){
 			if ($target->equals($ele)) {
 				$result = 1;
 				last;
 			}
-		} 
+		}
 	}
 	return $result;
 }
@@ -139,7 +139,7 @@ sub contains {
 
   Usage    - print $set->size()
   Returns  - the size of this set
-  Args     - none
+  Args     - 
   Function - tells the number of elements held by this set
   
 =cut
@@ -164,7 +164,7 @@ sub clear {
 =head2 is_empty
 
   Usage    - $set->is_empty()
-  Returns  - either 1(true) or 0 (false)
+  Returns  - 1 (true) if this set is empty
   Args     - none
   Function - checks if this set is empty
   
@@ -176,40 +176,36 @@ sub is_empty{
 
 =head2 equals
 
-  Usage    - $set->equals($another_dbxref_set)
-  Returns  - either 1 (true) or 0 (false)
-  Args     - the set (CCO::Util::DbxrefSet) to compare with
+  Usage    - $set->equals()
+  Returns  - true or false
+  Args     - the set to compare with
   Function - tells whether this set is equal to the given one
   
 =cut
 sub equals {
 	my $self = shift;
 	my $result = 0; # I guess they'are NOT identical
-	
 	if (@_) {
 		my $other_set = shift;
-		croak "The element to be tested must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::DbxrefSet'));
+		
+		croak "The element to be tested must be a CCO::Core::TermSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Core::TermSet'));
 		
 		my %count = ();
+# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' anivel de dbxref...los tests pasan...raro...	
+		my @this = map ({scalar $_;} @{$self->{SET}});
+		my @that = map ({scalar $_;} $other_set->get_set());
 		
-		my @this = @{$self->{SET}};
-		my @that = $other_set->get_set();
-
 		if ($#this == $#that) {
-			if ($#this != -1) {
-				foreach (@this, @that) {
-					$count{$_->name().$_->description().$_->modifier()}++;
+			foreach (@this, @that) {
+				$count{$_}++;
+			}
+			foreach my $count (values %count) {
+				if ($count != 2) {
+					$result = 0;
+					last;
+				} else {
+					$result = 1;
 				}
-				foreach my $count (values %count) {
-					if ($count != 2) {
-						$result = 0;
-						last;
-					} else {
-						$result = 1;
-					}
-				}
-			} else {
-				$result = 1; # they are equal: empty arrays
 			}
 		}
 	}
@@ -219,62 +215,72 @@ sub equals {
 1;
 
 =head1 NAME
-    CCO::Util::DbxrefSet  - a DbxrefSet implementation
+    CCO::Core::TermSet  - a Set implementation
 =head1 SYNOPSIS
 
-use CCO::Util::DbxrefSet;
-use CCO::Core::Dbxref;
+use CCO::Core::TermSet;
+use CCO::Core::Term;
 use strict;
 
-my $my_set = CCO::Util::DbxrefSet->new;
+my $my_set = CCO::Core::TermSet->new;
 
-# three new dbxref's
-my $ref1 = CCO::Core::Dbxref->new;
-my $ref2 = CCO::Core::Dbxref->new;
-my $ref3 = CCO::Core::Dbxref->new;
+my @arr = $my_set->get_set();
 
-$ref1->name("CCO:vm");
-$ref2->name("CCO:ls");
-$ref3->name("CCO:ea");
+# three new terms
+my $n1 = CCO::Core::Term->new;
+my $n2 = CCO::Core::Term->new;
+my $n3 = CCO::Core::Term->new;
+
+$n1->id("CCO:P0000001");
+$n2->id("CCO:P0000002");
+$n3->id("CCO:P0000003");
+
+$n1->name("One");
+$n2->name("Two");
+$n3->name("Three");
 
 # remove from my_set
-$my_set->remove($ref1);
-$my_set->add($ref1);
-$my_set->remove($ref1);
+$my_set->remove($n1);
+$my_set->add($n1);
+$my_set->remove($n1);
 
 ### set versions ###
-$my_set->add($ref1);
-$my_set->add($ref2);
-$my_set->add($ref3);
+$my_set->add($n1);
+$my_set->add($n2);
+$my_set->add($n3);
 
-my $ref4 = CCO::Core::Dbxref->new;
-my $ref5 = CCO::Core::Dbxref->new;
-my $ref6 = CCO::Core::Dbxref->new;
+my $n4 = CCO::Core::Term->new;
+my $n5 = CCO::Core::Term->new;
+my $n6 = CCO::Core::Term->new;
 
-$ref4->name("CCO:ef");
-$ref5->name("CCO:sz");
-$ref6->name("CCO:qa");
+$n4->id("CCO:P0000004");
+$n5->id("CCO:P0000005");
+$n6->id("CCO:P0000006");
 
-$my_set->add_all($ref4, $ref5, $ref6);
+$n4->name("Four");
+$n5->name("Five");
+$n6->name("Six");
 
-$my_set->add_all($ref4, $ref5, $ref6);
+$my_set->add_all($n4, $n5, $n6);
+
+$my_set->add_all($n4, $n5, $n6);
 
 # remove from my_set
-$my_set->remove($ref4);
+$my_set->remove($n4);
 
-my $ref7 = $ref4;
-my $ref8 = $ref5;
-my $ref9 = $ref6;
+my $n7 = $n4;
+my $n8 = $n5;
+my $n9 = $n6;
 
-my $my_set2 = CCO::Util::DbxrefSet->new;
+my $my_set2 = CCO::Core::TermSet->new;
 
-$my_set->add_all($ref4, $ref5, $ref6);
-$my_set2->add_all($ref7, $ref8, $ref9, $ref1, $ref2, $ref3);
+$my_set->add_all($n4, $n5, $n6);
+$my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
 
 $my_set2->clear();
 
 =head1 DESCRIPTION
-A set of dbxref elements.
+A set of terms.
 
 =head1 AUTHOR
 

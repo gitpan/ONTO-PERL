@@ -10,7 +10,7 @@
 package CCO::Core::RelationshipType;
 use CCO::Core::Dbxref;
 use CCO::Core::Def;
-use CCO::Util::SynonymSet;
+use CCO::Core::SynonymSet;
 use CCO::Util::Set;
 use strict;
 use warnings;
@@ -25,8 +25,8 @@ sub new {
         
         $self->{DEF}                = CCO::Core::Def->new; # (0..1)
         $self->{COMMENT}            = undef; # string (0..1)
-        $self->{SYNONYM_SET}        = CCO::Util::SynonymSet->new(); # set of synonyms (0..N)
-        $self->{XREF_SET}           = CCO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
+        $self->{SYNONYM_SET}        = CCO::Core::SynonymSet->new(); # set of synonyms (0..N)
+        $self->{XREF_SET}           = CCO::Core::DbxrefSet->new(); # set of dbxref's (0..N)
         $self->{DOMAIN}             = undef; # string (0..1)
         $self->{RANGE}              = undef; # string (0..1)
         $self->{INVERSE_OF}         = undef; # string (0..1)
@@ -104,14 +104,15 @@ sub def_as_string {
 		my $dbxref_as_string = shift;
 		$dbxref_as_string =~ s/\[//;
 		$dbxref_as_string =~ s/\]//;
-		my @refs = split(/, /, $dbxref_as_string);
+		$dbxref_as_string =~ s/,\s+/,/g;
+		my @refs = split(/,/, $dbxref_as_string);
     		
 		my $def = CCO::Core::Def->new();
 		$def->text($text);
 		
-		my $dbxref_set = CCO::Util::DbxrefSet->new();
+		my $dbxref_set = CCO::Core::DbxrefSet->new();
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\"\w+\")?(\{\w+\})?/) {
+			if ($ref =~ /([\w-]+:[\w-]+)(\"\w+\")?(\{\w+\})?/) {
 				my $dbxref = CCO::Core::Dbxref->new();
 				$dbxref->name($1);
 				$dbxref->description($2) if (defined $2);
@@ -209,7 +210,7 @@ sub xref_set {
 	my $self = shift;
 	if (@_) {
 		my $xref_set = shift;
-    		croak "The xref must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Util::DbxrefSet'));
+    		croak "The xref must be a CCO::Core::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Core::DbxrefSet'));
 		$self->{XREF_SET} = $xref_set;
     }
     return $self->{XREF_SET};
@@ -229,11 +230,12 @@ sub xref_set_as_string {
 		my $xref_as_string = shift;
 		$xref_as_string =~ s/\[//;
 		$xref_as_string =~ s/\]//;
-		my @refs = split(/, /, $xref_as_string);
+		$xref_as_string =~ s/,\s+/,/g;
+		my @refs = split(/,/, $xref_as_string);
 		
 		my $xref_set = $self->{XREF_SET};
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /([\w-]+:[\w:-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $xref = CCO::Core::Dbxref->new();
 				$xref->name($1);
 				$xref->description($3) if (defined $3);

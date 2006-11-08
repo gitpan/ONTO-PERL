@@ -14,12 +14,12 @@ BEGIN {
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.
 
-use CCO::Util::SynonymSet;
+use CCO::Core::SynonymSet;
 use CCO::Core::Synonym;
 use strict;
 
 # new set
-my $my_set = CCO::Util::SynonymSet->new();
+my $my_set = CCO::Core::SynonymSet->new();
 ok(1);
 ok($my_set->is_empty() == 1);
 
@@ -94,7 +94,7 @@ my $sn8 = $sn5;
 my $sn9 = $sn6;
 
 # a second set
-my $my_set2 = CCO::Util::SynonymSet->new();
+my $my_set2 = CCO::Core::SynonymSet->new();
 ok(1);
 
 ok($my_set2->is_empty());

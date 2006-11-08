@@ -40,13 +40,13 @@ $ref1->name("CCO:vm");
 $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 
-my $dbxref_set1 = CCO::Util::DbxrefSet->new();
+my $dbxref_set1 = CCO::Core::DbxrefSet->new();
 $dbxref_set1->add($ref1);
 
-my $dbxref_set2 = CCO::Util::DbxrefSet->new();
+my $dbxref_set2 = CCO::Core::DbxrefSet->new();
 $dbxref_set2->add($ref2);
 
-my $dbxref_set3 = CCO::Util::DbxrefSet->new();
+my $dbxref_set3 = CCO::Core::DbxrefSet->new();
 $dbxref_set3->add($ref3);
 
 $def1->dbxref_set($dbxref_set1);

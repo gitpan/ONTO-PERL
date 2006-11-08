@@ -17,21 +17,18 @@ The Cell-Cycle Ontology
 =======================
 
 The CCO is an effort for formalizing the controled vocabulary 
-in the Cell Cycle domain (http://www.cellcycleontology.org). 
-CCO is based on existing ontologies such as GO 
-(http://www.geneontology.org), DC (dublincore.org/),
+in the Cell Cycle domain. CCO is based on existing ontologies 
+such as GO (http://www.geneontology.org), DC (dublincore.org/),
 and RO (http://obo.sourceforge.net/relationship/).
 
-Files in http://www.cellcycleontology.org
-=========================================
+Files
+=====
 
 cco.obo						The CCO in OBO format.
 
 cco.owl						The CCO in OWL format.
 
 cco.xml						The CCO in XML format.
-
-cco.dot						The CCO in DOT format.
 
 cco.ids						IDs from CCO.
 
@@ -74,5 +71,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package onto-perl;
-$VERSION='0.22';
+$VERSION='0.21';
 1;

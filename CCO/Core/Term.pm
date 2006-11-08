@@ -10,7 +10,7 @@
 package CCO::Core::Term;
 use CCO::Core::Def;
 use CCO::Core::Synonym;
-use CCO::Util::SynonymSet;
+use CCO::Core::SynonymSet;
 use CCO::Util::Set;
 use strict;
 use warnings;
@@ -27,8 +27,8 @@ sub new {
         $self->{DEF}                = CCO::Core::Def->new(); # (0..1)
         $self->{COMMENT}            = undef; # scalar (0..1)
         $self->{SUBSET}             = CCO::Util::Set->new(); # set of scalars (0..N)
-        $self->{SYNONYM_SET}        = CCO::Util::SynonymSet->new(); # set of synonyms (0..N)
-        $self->{XREF_SET}           = CCO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
+        $self->{SYNONYM_SET}        = CCO::Core::SynonymSet->new(); # set of synonyms (0..N)
+        $self->{XREF_SET}           = CCO::Core::DbxrefSet->new(); # set of dbxref's (0..N)
         #@{$self->{IS_A}}            = (); # (0..N) #delete: the Ontology gives it
         $self->{INTERSECTION_OF}    = CCO::Util::Set->new(); # (0..N)
         $self->{UNION_OF}           = CCO::Util::Set->new(); # (0..N)
@@ -56,49 +56,6 @@ sub id {
 	if (@_) { $self->{ID} = shift }
 	return $self->{ID};
 }
-
-=head2 namespace
-
-  Usage    - print $term->namespace() 
-  Returns  - the namespace of this term (character); otherwise, 'NN'
-  Args     - none
-  Function - gets the namespace of this term
-  
-=cut
-sub namespace {
-	my $self = shift;
-	$self->{ID} =~ /([A-Z]+):/ if ($self->{ID});
-	return $1 || 'NN';
-}
-
-=head2 subnamespace
-
-  Usage    - print $term->subnamespace() 
-  Returns  - the subnamespace of this term (character); otherwise, 'X'
-  Args     - none
-  Function - gets the subnamespace of this term
-  
-=cut
-sub subnamespace {
-	my $self = shift;
-	$self->{ID} =~ /:([A-Z])/ if ($self->{ID});
-	return $1 || 'X';
-}
-
-=head2 code
-
-  Usage    - print $term->code() 
-  Returns  - the code of this term (character); otherwise, '0000000'
-  Args     - none
-  Function - gets the code of this term
-  
-=cut
-sub code {
-	my $self = shift;
-	$self->{ID} =~ /:[A-Z]?(.*)/ if ($self->{ID});
-	return $1 || '0000000';
-}
-
 
 =head2 name
 
@@ -130,7 +87,7 @@ sub is_anonymous {
 
 =head2 alt_id
 
-  Usage    - $term->alt_id() or $term->alt_id($id1, $id2, $id3, ...)
+  Usage    - print $term->alt_id() or $term->alt_id($id1, $id2, $id3, ...)
   Returns  - an array with the alternate id(s) of this term
   Args     - the alternate id(s) of this term
   Function - gets/sets the alternate id(s) of this term
@@ -179,14 +136,15 @@ sub def_as_string {
 		my $dbxref_as_string = shift;
 		$dbxref_as_string =~ s/\[//;
 		$dbxref_as_string =~ s/\]//;
-		my @refs = split(/, /, $dbxref_as_string);
+		$dbxref_as_string =~ s/,\s+/,/g;
+		my @refs = split(/,/, $dbxref_as_string);
     		
 		my $def = $self->{DEF};
 		$def->text($text);
 		
-		my $dbxref_set = CCO::Util::DbxrefSet->new();
+		my $dbxref_set = CCO::Core::DbxrefSet->new();
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /(\w+:\w+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $dbxref = CCO::Core::Dbxref->new();
 				$dbxref->name($1);
 				$dbxref->description($3) if (defined $3);
@@ -224,20 +182,19 @@ sub comment {
 
 =head2 subset
 
-  Usage    - $term->subset() or $term->subset($ss1, $ss2, $ss3, ...)
-  Returns  - an array with the subset to which this term belongs
-  Args     - the subset(s) to which this term belongs
-  Function - gets/sets the subset(s) to which this term belongs
+  Usage    - print $term->subset()
+  Returns  - the subset to which this term belongs
+  Args     - the subset to which this term belongs
+  Function - gets/sets the subset to which this term belongs
   
 =cut
 sub subset {
 	my $self = shift;
-	if (scalar(@_) > 1) {
-   		$self->{SUBSET}->add_all(@_);
-	} elsif (scalar(@_) == 1) {
-		$self->{SUBSET}->add(shift);
-	}
-	return $self->{SUBSET}->get_set();
+    if (@_) { 
+    	# TODO implement "contains" method for the Set.
+    	push @{$self->{SUBSET}}, $self->{SUBSET};
+    }
+    return $self->{SUBSET};
 }
 
 =head2 synonym_set
@@ -303,7 +260,7 @@ sub xref_set {
 	my $self = shift;
 	if (@_) {
 		my $xref_set = shift;
-    		croak "The xref must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Util::DbxrefSet'));
+    		croak "The xref must be a CCO::Core::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Core::DbxrefSet'));
 		$self->{XREF_SET} = $xref_set;
     }
     return $self->{XREF_SET};
@@ -323,11 +280,12 @@ sub xref_set_as_string {
 		my $xref_as_string = shift;
 		$xref_as_string =~ s/\[//;
 		$xref_as_string =~ s/\]//;
-		my @refs = split(/, /, $xref_as_string);
+		$xref_as_string =~ s/,\s+/,/g;
+		my @refs = split(/,/, $xref_as_string);
 		
 		my $xref_set = $self->{XREF_SET};
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /([\w-]+:[\w:-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $xref = CCO::Core::Dbxref->new();
 				$xref->name($1);
 				$xref->description($3) if (defined $3);
@@ -484,7 +442,7 @@ sub equals {
 
 use CCO::Core::Term;
 use CCO::Core::Def;
-use CCO::Util::DbxrefSet;
+use CCO::Core::DbxrefSet;
 use CCO::Core::Dbxref;
 use CCO::Core::Synonym;
 use strict;
@@ -520,7 +478,7 @@ my $def1 = CCO::Core::Def->new();
 $def1->text("Hola mundo1");
 my $sref1 = CCO::Core::Dbxref->new();
 $sref1->name("CCO:vm");
-my $srefs_set1 = CCO::Util::DbxrefSet->new();
+my $srefs_set1 = CCO::Core::DbxrefSet->new();
 $srefs_set1->add($sref1);
 $def1->dbxref_set($srefs_set1);
 $syn1->def($def1);
@@ -533,7 +491,7 @@ $def2->text("Hola mundo2");
 my $sref2 = CCO::Core::Dbxref->new();
 $sref2->name("CCO:ls");
 $srefs_set1->add_all($sref1);
-my $srefs_set2 = CCO::Util::DbxrefSet->new();
+my $srefs_set2 = CCO::Core::DbxrefSet->new();
 $srefs_set2->add_all($sref1, $sref2);
 $def2->dbxref_set($srefs_set2);
 $syn2->def($def2);
@@ -545,7 +503,7 @@ my $def3 = CCO::Core::Def->new();
 $def3->text("Hola mundo2");
 my $sref3 = CCO::Core::Dbxref->new();
 $sref3->name("CCO:ls");
-my $srefs_set3 = CCO::Util::DbxrefSet->new();
+my $srefs_set3 = CCO::Core::DbxrefSet->new();
 $srefs_set3->add_all($sref1, $sref2);
 $def3->dbxref_set($srefs_set3);
 $syn3->def($def3);
@@ -572,7 +530,7 @@ $ref1->name("CCO:vm");
 $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 
-my $refs_set = CCO::Util::DbxrefSet->new();
+my $refs_set = CCO::Core::DbxrefSet->new();
 $refs_set->add_all($ref1,$ref2,$ref3);
 $def->dbxref_set($refs_set);
 $n1->def($def);

@@ -14,12 +14,12 @@ BEGIN {
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.
 
-use CCO::Util::TermSet;
+use CCO::Core::TermSet;
 use CCO::Core::Term;
 use strict;
 
 # new set
-my $my_set = CCO::Util::TermSet->new();
+my $my_set = CCO::Core::TermSet->new();
 ok(1);
 ok($my_set->is_empty() == 1);
 
@@ -88,7 +88,7 @@ my $n7 = $n4;
 my $n8 = $n5;
 my $n9 = $n6;
 
-my $my_set2 = CCO::Util::TermSet->new();
+my $my_set2 = CCO::Core::TermSet->new();
 ok(1);
 
 ok($my_set2->is_empty());

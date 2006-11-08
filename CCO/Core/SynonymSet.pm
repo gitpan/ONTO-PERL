@@ -7,7 +7,7 @@
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
-package CCO::Util::SynonymSet;
+package CCO::Core::SynonymSet;
 use strict;
 use warnings;
 use Carp;
@@ -188,7 +188,7 @@ sub equals {
 	if (@_) {
 		my $other_set = shift;
 		
-		croak "The element to be tested must be a CCO::Util::SynonymSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::SynonymSet'));
+		croak "The element to be tested must be a CCO::Core::SynonymSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Core::SynonymSet'));
 		
 		my %count = ();
 # TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' anivel de synonym...los tests pasan...raro...	
@@ -215,14 +215,14 @@ sub equals {
 1;
 
 =head1 NAME
-    CCO::Util::SynonymSet  - a Set implementation
+    CCO::Core::SynonymSet  - a Set implementation
 =head1 SYNOPSIS
 
-use CCO::Util::SynonymSet;
+use CCO::Core::SynonymSet;
 use CCO::Core::Synonym;
 use strict;
 
-my $my_set = CCO::Util::SynonymSet->new;
+my $my_set = CCO::Core::SynonymSet->new;
 
 my @arr = $my_set->get_set();
 
@@ -272,7 +272,7 @@ my $n7 = $n4;
 my $n8 = $n5;
 my $n9 = $n6;
 
-my $my_set2 = CCO::Util::SynonymSet->new;
+my $my_set2 = CCO::Core::SynonymSet->new;
 
 $my_set->add_all($n4, $n5, $n6);
 $my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);

@@ -93,7 +93,7 @@ sub def_as_string {
 		my $def = CCO::Core::Def->new();
 		$def->text($text);
 		
-		my $dbxref_set = CCO::Util::DbxrefSet->new();
+		my $dbxref_set = CCO::Core::DbxrefSet->new();
 		foreach my $ref (@refs) {
 			if ($ref =~ /([\w-]+:[\w-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $dbxref = CCO::Core::Dbxref->new();
@@ -183,22 +183,22 @@ $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 $ref4->name("CCO:ea");
 
-my $refs_set1 = CCO::Util::DbxrefSet->new();
+my $refs_set1 = CCO::Core::DbxrefSet->new();
 $refs_set1->add_all($ref1,$ref2,$ref3,$ref4);
 $def1->dbxref_set($refs_set1);
 $syn1->def($def1);
 
-my $refs_set2 = CCO::Util::DbxrefSet->new();
+my $refs_set2 = CCO::Core::DbxrefSet->new();
 $refs_set2->add($ref2);
 $def2->dbxref_set($refs_set2);
 $syn2->def($def2);
 
-my $refs_set3 = CCO::Util::DbxrefSet->new();
+my $refs_set3 = CCO::Core::DbxrefSet->new();
 $refs_set3->add($ref3);
 $def3->dbxref_set($refs_set3);
 $syn3->def($def3);
 
-my $refs_set4 = CCO::Util::DbxrefSet->new();
+my $refs_set4 = CCO::Core::DbxrefSet->new();
 $refs_set4->add($ref4);
 $def4->dbxref_set($refs_set4);
 $syn4->def($def4);
