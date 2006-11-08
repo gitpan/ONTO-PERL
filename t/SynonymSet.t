@@ -32,9 +32,9 @@ my $sn2 = CCO::Core::Synonym->new();
 my $sn3 = CCO::Core::Synonym->new();
 
 # type and def
-$sn1->type('EXACT');
-$sn2->type('EXACT');
-$sn3->type('EXACT');
+$sn1->type('exact');
+$sn2->type('exact');
+$sn3->type('exact');
 
 $sn1->def_as_string("This is a dummy synonym1", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
 $sn2->def_as_string("This is a dummy synonym2", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
@@ -63,9 +63,9 @@ my $sn5 = CCO::Core::Synonym->new();
 my $sn6 = CCO::Core::Synonym->new();
 
 # type and def
-$sn4->type('EXACT');
-$sn5->type('EXACT');
-$sn6->type('EXACT');
+$sn4->type('exact');
+$sn5->type('exact');
+$sn6->type('exact');
 
 $sn4->def_as_string("This is a dummy synonym4", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
 $sn5->def_as_string("This is a dummy synonym5", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
@@ -121,8 +121,8 @@ ok($my_set2->size() == 0);
 my $snA = CCO::Core::Synonym->new();
 my $snB = CCO::Core::Synonym->new();
 
-$snA->type('EXACT');
-$snB->type('EXACT');
+$snA->type('exact');
+$snB->type('exact');
 
 $snA->def_as_string("This is a very dummy synonym", "[]");
 $snB->def_as_string("This is a very dummy synonym", "[]");
@@ -136,7 +136,7 @@ ok($my_set2->contains($snA));
 # one more
 #
 my $snC = CCO::Core::Synonym->new();
-$snC->type('EXACT');
+$snC->type('exact');
 $snC->def_as_string("SPCC645.04", "[]");
 $my_set2->clear();
 $my_set2->add($snC);

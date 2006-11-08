@@ -71,7 +71,7 @@ ok($n1->is_anonymous() != 1);
 
 # synonyms
 my $syn1 = CCO::Core::Synonym->new();
-$syn1->type('EXACT');
+$syn1->type('exact');
 my $def1 = CCO::Core::Def->new();
 $def1->text("Hola mundo1");
 my $sref1 = CCO::Core::Dbxref->new();
@@ -83,7 +83,7 @@ $syn1->def($def1);
 $n1->synonym_set($syn1);
 
 my $syn2 = CCO::Core::Synonym->new();
-$syn2->type('BROAD');
+$syn2->type('broad');
 my $def2 = CCO::Core::Def->new();
 $def2->text("Hola mundo2");
 my $sref2 = CCO::Core::Dbxref->new();
@@ -99,7 +99,7 @@ ok(!defined (($n3->synonym_set())[0]));
 ok(!$n3->synonym_set());
 
 my $syn3 = CCO::Core::Synonym->new();
-$syn3->type('BROAD');
+$syn3->type('broad');
 my $def3 = CCO::Core::Def->new();
 $def3->text("Hola mundo2");
 my $sref3 = CCO::Core::Dbxref->new();
@@ -113,13 +113,13 @@ $n3->synonym_set($syn3);
 ok(($n1->synonym_set())[0]->equals($syn1));
 ok(($n2->synonym_set())[0]->equals($syn2));
 ok(($n3->synonym_set())[0]->equals($syn3));
-ok(($n2->synonym_set())[0]->type() eq 'BROAD');
+ok(($n2->synonym_set())[0]->type() eq 'broad');
 ok(($n2->synonym_set())[0]->def()->equals(($n3->synonym_set())[0]->def()));
 ok(($n2->synonym_set())[0]->equals(($n3->synonym_set())[0]));
 
 # synonym as string
 ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:vm, CCO:ls]");
-$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
+$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "exact");
 ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:vm, CCO:ls]");
 ok(($n2->synonym_as_string())[1] eq "\"Hello world2\" [CCO:vm2, CCO:ls2]");
 

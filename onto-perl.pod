@@ -36,7 +36,7 @@ go_cco.ids					Equivalent IDs in GO and CCO.
 
 cco_x.x.tar.gz				Archives from CCO.
 
-onto-perl-x.y.tar.gz			CCO API version x.y
+onto-perlvx.y.tar.gz			CCO API version x.y
 
 onto-perl-latest.tar.gz		CCO API: latest version
 
@@ -71,5 +71,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package onto-perl;
-$VERSION='0.21';
+$VERSION='0.19';
 1;

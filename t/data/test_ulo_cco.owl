@@ -96,19 +96,12 @@
 	<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
 	<is_reflexive rdf:datatype="http://www.w3.org/2001/XMLSchema#string">true</is_reflexive>
 	<is_anti_symmetric rdf:datatype="http://www.w3.org/2001/XMLSchema#string">true</is_anti_symmetric>
-	<xref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">owl:subClassOf</xref>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:ID="has_reference">
 	<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
 	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Describes the reference of the term definition.</rdfs:comment>
 </owl:ObjectProperty>
-
-<owl:DatatypeProperty rdf:ID="alt_id">
-	<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
-	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Defines an alternate id for a term. A term may have any number of alternate ids</rdfs:comment>
-</owl:DatatypeProperty>
 
 <owl:DatatypeProperty rdf:ID="xref">
 	<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
@@ -133,5 +126,5 @@
 </rdf:RDF>
 
 <!--
-Generated with t/OBOParser.t, Mon Aug 21 11:33:11 CEST 2006
+Generated with t/OBOParser.t, Tue Aug  8 10:35:21 CEST 2006
 -->

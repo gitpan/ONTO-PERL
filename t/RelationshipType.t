@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 32;
+    plan tests => 26;
 }
 
 #########################
@@ -69,7 +69,7 @@ ok($r_r2{"CCO:ea"} eq "CCO:ea");
 
 # synonyms
 my $syn1 = CCO::Core::Synonym->new();
-$syn1->type('EXACT');
+$syn1->type('exact');
 my $def1 = CCO::Core::Def->new();
 $def1->text("is_a");
 my $sref1 = CCO::Core::Dbxref->new();
@@ -81,7 +81,7 @@ $syn1->def($def1);
 $r1->synonym_set($syn1);
 
 my $syn2 = CCO::Core::Synonym->new();
-$syn2->type('BROAD');
+$syn2->type('broad');
 my $def2 = CCO::Core::Def->new();
 $def2->text("part_of");
 my $sref2 = CCO::Core::Dbxref->new();
@@ -97,7 +97,7 @@ ok(!defined (($r3->synonym_set())[0]));
 ok(!$r3->synonym_set());
 
 my $syn3 = CCO::Core::Synonym->new();
-$syn3->type('BROAD');
+$syn3->type('broad');
 my $def3 = CCO::Core::Def->new();
 $def3->text("part_of"); # fake synonym
 my $sref3 = CCO::Core::Dbxref->new();
@@ -111,47 +111,14 @@ $r3->synonym_set($syn3);
 ok(($r1->synonym_set())[0]->equals($syn1));
 ok(($r2->synonym_set())[0]->equals($syn2));
 ok(($r3->synonym_set())[0]->equals($syn3));
-ok(($r2->synonym_set())[0]->type() eq 'BROAD');
+ok(($r2->synonym_set())[0]->type() eq 'broad');
 ok(($r2->synonym_set())[0]->def()->equals(($r3->synonym_set())[0]->def()));
 ok(($r2->synonym_set())[0]->equals(($r3->synonym_set())[0]));
 
 # synonym as string
 ok(($r2->synonym_as_string())[0] eq "\"part_of\" [CCO:vm, CCO:ls]");
-$r2->synonym_as_string("part_of", "[CCO:vm2, CCO:ls2]", "EXACT");
+$r2->synonym_as_string("part_of", "[CCO:vm2, CCO:ls2]", "exact");
 ok(($r2->synonym_as_string())[0] eq "\"part_of\" [CCO:vm, CCO:ls]");
 ok(($r2->synonym_as_string())[1] eq "\"part_of\" [CCO:vm2, CCO:ls2]");
-
-# xref
-my $xref1 = CCO::Core::Dbxref->new();
-my $xref2 = CCO::Core::Dbxref->new();
-my $xref3 = CCO::Core::Dbxref->new();
-my $xref4 = CCO::Core::Dbxref->new();
-my $xref5 = CCO::Core::Dbxref->new();
-
-$xref1->name("XCCO:vm");
-$xref2->name("XCCO:ls");
-$xref3->name("XCCO:ea");
-$xref4->name("XCCO:vm");
-$xref5->name("XCCO:ls");
-
-my $xrefs_set = CCO::Core::DbxrefSet->new();
-$xrefs_set->add_all($xref1, $xref2, $xref3, $xref4, $xref5);
-$r1->xref_set($xrefs_set);
-ok($r1->xref_set()->contains($xref3));
-my $xref_length = $r1->xref_set()->size();
-ok($xref_length == 3);
-
-# xref_set_as_string
-my @empty_refs = $r2->xref_set_as_string();
-ok($#empty_refs == -1);
-$r2->xref_set_as_string("[YCCO:vm, YCCO:ls, YCCO:ea \"Erick Antezana\"] {opt=first}");
-my @xrefs_r2 = $r2->xref_set()->get_set();
-my %xr_r2;
-foreach my $xref_r2 (@xrefs_r2) {
-	$xr_r2{$xref_r2->name()} = $xref_r2->name();
-}
-ok($xr_r2{"YCCO:vm"} eq "YCCO:vm");
-ok($xr_r2{"YCCO:ls"} eq "YCCO:ls");
-ok($xr_r2{"YCCO:ea"} eq "YCCO:ea");
 
 ok(1);

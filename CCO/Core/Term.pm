@@ -139,7 +139,7 @@ sub def_as_string {
 		$dbxref_as_string =~ s/,\s+/,/g;
 		my @refs = split(/,/, $dbxref_as_string);
     		
-		my $def = $self->{DEF};
+		my $def = CCO::Core::Def->new();
 		$def->text($text);
 		
 		my $dbxref_set = CCO::Core::DbxrefSet->new();
@@ -210,15 +210,15 @@ sub synonym_set {
 	foreach my $synonym (@_) {
 		croak "The synonym must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($synonym, 'CCO::Core::Synonym'));
 		croak "The name of this term (", $self->id(), ") is undefined" if (!defined($self->name()));
-		# do not add 'EXACT' synonyms with the same 'name':
-		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->type() eq "EXACT" && $synonym->def()->text() eq $self->name()));
+		# do not add 'exact' synonyms with the same 'name':
+		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->type() eq "exact" && $synonym->def()->text() eq $self->name()));
    	}
 	return $self->{SYNONYM_SET}->get_set();
 }
 
 =head2 synonym_as_string
 
-  Usage    - print $term->synonym_as_string() or $term->synonym_as_string("this is a synonym text", "[CCO:ea]", "EXACT")
+  Usage    - print $term->synonym_as_string() or $term->synonym_as_string("this is a synonym text", "[CCO:ea]", "exact")
   Returns  - an array with the synonym(s) of this term
   Args     - the synonym text (string), the dbxrefs (string) and synonym type (string) of this term
   Function - gets/sets the synonym(s) of this term
@@ -283,9 +283,9 @@ sub xref_set_as_string {
 		$xref_as_string =~ s/,\s+/,/g;
 		my @refs = split(/,/, $xref_as_string);
 		
-		my $xref_set = $self->{XREF_SET};
+		my $xref_set = CCO::Core::DbxrefSet->new();
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /([\w-]+:[\w-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $xref = CCO::Core::Dbxref->new();
 				$xref->name($1);
 				$xref->description($3) if (defined $3);
@@ -337,12 +337,9 @@ sub union_of {
   
 =cut
 sub disjoint_from {
-	
 	my $self = shift;
-	if (scalar(@_) > 1) {
-   		$self->{DISJOINT_FROM}->add_all(@_);
-	} elsif (scalar(@_) == 1) {
-		$self->{DISJOINT_FROM}->add(shift);
+	foreach my $disjoint_term_id (@_) {
+		$self->{DISJOINT_FROM}->add($disjoint_term_id);
 	}
 	return $self->{DISJOINT_FROM}->get_set();
 }
@@ -473,7 +470,7 @@ $n1->is_anonymous(0);
 
 # synonyms
 my $syn1 = CCO::Core::Synonym->new();
-$syn1->type('EXACT');
+$syn1->type('exact');
 my $def1 = CCO::Core::Def->new();
 $def1->text("Hola mundo1");
 my $sref1 = CCO::Core::Dbxref->new();
@@ -485,7 +482,7 @@ $syn1->def($def1);
 $n1->synonym($syn1);
 
 my $syn2 = CCO::Core::Synonym->new();
-$syn2->type('BROAD');
+$syn2->type('broad');
 my $def2 = CCO::Core::Def->new();
 $def2->text("Hola mundo2");
 my $sref2 = CCO::Core::Dbxref->new();
@@ -498,7 +495,7 @@ $syn2->def($def2);
 $n2->synonym($syn2);
 
 my $syn3 = CCO::Core::Synonym->new();
-$syn3->type('BROAD');
+$syn3->type('broad');
 my $def3 = CCO::Core::Def->new();
 $def3->text("Hola mundo2");
 my $sref3 = CCO::Core::Dbxref->new();
@@ -510,7 +507,7 @@ $syn3->def($def3);
 $n3->synonym($syn3);
 
 # synonym as string
-$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
+$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "exact");
 
 # xref
 $n1->xref("Uno");

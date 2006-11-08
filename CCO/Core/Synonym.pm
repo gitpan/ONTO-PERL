@@ -28,9 +28,9 @@ sub new {
 
 =head2 type
 
-  Usage    - print $synonym->type() or $synonym->type("EXACT")
+  Usage    - print $synonym->type() or $synonym->type("exact")
   Returns  - the synonym type
-  Args     - the synonym type: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
+  Args     - the synonym type: 'exact', 'broad', 'narrow', 'related'
   Function - gets/sets the synonym name
   
 =cut
@@ -40,11 +40,11 @@ sub type {
 		my $synonym_type = shift;
 		my $possible_types = CCO::Util::Set->new();
 		# todo 'alt_id' is also a valid value?
-		$possible_types->add_all('EXACT', 'BROAD', 'NARROW', 'RELATED');
+		$possible_types->add_all('exact', 'broad', 'narrow', 'related');
 		if ($possible_types->contains($synonym_type)) {
 			$self->{TYPE} = $synonym_type;
 		} else {
-			croak "The synonym type must be one of the following: 'EXACT', 'BROAD', 'NARROW', 'RELATED'";
+			croak "The synonym type must be one of the following: 'exact', 'broad', 'narrow', 'related'";
 		}
 	}
     return $self->{TYPE};
@@ -157,10 +157,10 @@ my $syn3 = CCO::Core::Synonym->new();
 my $syn4 = CCO::Core::Synonym->new();
 
 # type
-$syn1->type('EXACT');
-$syn2->type('BROAD');
-$syn3->type('NARROW');
-$syn4->type('NARROW');
+$syn1->type('exact');
+$syn2->type('broad');
+$syn3->type('narrow');
+$syn4->type('narrow');
 
 # def
 my $def1 = CCO::Core::Def->new();

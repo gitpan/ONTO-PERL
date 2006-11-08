@@ -34,10 +34,9 @@ sub new {
 =cut
 sub name {
 	my $self = shift;
-    if (@_) {
-    	# todo check the name format: 'DB:id'
-		$self->{NAME} = shift;
-	} else { # get-mode
+    if (@_) { 
+    		$self->{NAME} = shift;
+    	} else { # get-mode
 		carp "The name of this 'dbxref' is not defined." if (!defined($self->{NAME}));
     }
     return $self->{NAME};

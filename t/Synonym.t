@@ -25,10 +25,10 @@ my $syn4 = CCO::Core::Synonym->new();
 
 # type
 ok(!defined $syn1->type());
-$syn1->type('EXACT');
-$syn2->type('BROAD');
-$syn3->type('NARROW');
-$syn4->type('NARROW');
+$syn1->type('exact');
+$syn2->type('broad');
+$syn3->type('narrow');
+$syn4->type('narrow');
 
 # def
 my $def1 = CCO::Core::Def->new();

@@ -87,7 +87,7 @@ sub work {
 				} elsif ($line =~ /^is_anonymous:\s*(.*)/) {
 					$term->is_anonymous(($1 =~ /true/)?1:0);
 				} elsif ($line =~ /^alt_id:\s*(.*)/) {
-					$term->alt_id($1);
+					# todo
 				} elsif ($line =~ /^def:\s*\"(.*)\"\s*\[(.*)\]/) { # fill the definition
 					my $def = CCO::Core::Def->new();
 					$def->text($1);
@@ -105,12 +105,12 @@ sub work {
 					$term->comment($1);
 				} elsif ($line =~ /^subset:\s*(.*)/) {
 					# todo
-				} elsif ($line =~ /^(exact|broad|narrow|related)_synonym:\s*\"([\w\. ]+)\"\s+(\[[\w\. ]*\])\s*/) {
-					$term->synonym_as_string($2, $3, uc($1));
-				} elsif ($line =~ /^synonym:\s*\"([\w\. ]+)\"\s+(EXACT|BROAD|NARROW|RELATED)\s+(\[[\w\. ]*\])\s*/) {
-					# OBO flat file spec: v1.2
-					# synonym: "endomitosis" EXACT []
-					$term->synonym_as_string($1, $3, $2);
+				} elsif ($line =~ /^(exact|narrow|broad)_synonym:\s*\"([\w\. ]+)\"\s+(\[[\w\. ]*\])\s*/) {
+					$term->synonym_as_string($2, $3, $1);
+				} elsif ($line =~ /^synonym:\s*\"([\w\. ]+)\"\s+(\[[\w\. ]*\])\s+\{scope=\"(exact|narrow|broad)\"\}/) {
+					# todo mejorar la RE y llamar a la funcion
+					# synonym: "endomitosis" [] {scope="exact"}
+					$term->synonym_as_string($1, $2, $3);
 				} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
 					$term->xref_set_as_string($1);
 				} elsif ($line =~ /^is_a:\s*(CCO:[A-Z][0-9]{7})\s*(\!\s*(.*))?/) {
@@ -214,13 +214,11 @@ sub work {
 				} elsif ($line =~ /^is_metadata_tag:\s*(.*)/) {
 					$type->is_metadata_tag(($1 =~ /true/)?1:0);
 				} elsif ($line =~ /^(exact|narrow|broad)_synonym:\s*\"([\w\. ]+)\"\s+(\[[\w\. ]*\])\s*/) {
-					$type->synonym_as_string($2, $3, uc($1));
-				} elsif ($line =~ /^synonym:\s*\"([\w\. ]+)\"\s+(EXACT|BROAD|NARROW|RELATED)\s+(\[[\w\. ]*\])\s*/) {
-					# OBO flat file spec: v1.2
-					# synonym: "endomitosis" EXACT []
-					$type->synonym_as_string($1, $3, $2);
-				} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
-					$type->xref_set_as_string($1);
+					$type->synonym_as_string($2, $3, $1);
+				} elsif ($line =~ /^synonym:\s*\"([\w\. ]+)\"\s+(\[[\w\. ]*\])\s+\{scope=\"(exact|narrow|broad)\"\}/) {
+					# todo mejorar la RE y llamar a la funcion
+					# synonym: "endomitosis" [] {scope="exact"}
+					$type->synonym_as_string($1, $2, $3);
 				} elsif ($line =~ /^is_a:\s*(CCO:[A-Z][0-9]{7})\s*(\!\s*(.*))?/) { # intrinsic or not???
 					my $rel = CCO::Core::Relationship->new();
 					$rel->id($type->id()."_"."is_a"."_".$1);
