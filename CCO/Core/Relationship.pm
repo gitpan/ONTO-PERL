@@ -67,7 +67,7 @@ sub equals  {
 	my $result = 0;
 	if (@_) {
      	my $target = shift;
-		croak "The term to be compared with must be a CCO::Core::Relationship object" if (!UNIVERSAL::isa($target, "CCO::Core::Relationship"));
+		croak "The element to be compared with must be a CCO::Core::Relationship object" if (!UNIVERSAL::isa($target, "CCO::Core::Relationship"));
 		my $self_id = $self->{'ID'};
 		my $target_id = $target->{'ID'};
 		croak "The ID of this relationship is not defined" if (!defined($self_id));
@@ -80,17 +80,17 @@ sub equals  {
 =head2 head
 
   Usage    - $relationship->head($object)
-  Returns  - the CCO::Core::Term (object or target) targeted by this relationship
-  Args     - the target term (CCO::Core::Term)
-  Function - gets/sets the term attached to the head of the relationship
+  Returns  - the CCO::Core::Term (object or target) or CCO::Core::RelationshipType (object or target) targeted by this relationship
+  Args     - the target term (CCO::Core::Term) or the target relationship type (CCO::Core::RelationshipType)
+  Function - gets/sets the term/relationship type attached to the head of the relationship
   
 =cut
 sub head {
 	my $self = shift;
 	if (@_) {
-		my $term = shift;
-		croak "The term to be bound as head to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($term, "CCO::Core::Term"));
-     	$self->{HEAD} = $term;
+		my $object = shift;
+		croak "The term or relationship type to be bound as head to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($object, "CCO::Core::Term") && !UNIVERSAL::isa($object, "CCO::Core::RelationshipType"));
+     	$self->{HEAD} = $object;
 	}
     return $self->{HEAD};
 }
@@ -98,17 +98,17 @@ sub head {
 =head2 tail
 
   Usage    - $relationship->tail($subject)
-  Returns  - the CCO::Core::Term (subject or source) sourced by this relationship
-  Args     - the source term (CCO::Core::Term)
-  Function - gets/sets the term attached to the tail of the relationship
+  Returns  - the CCO::Core::Term (subject or source) or CCO::Core::RelationshipType (object or target) sourced by this relationship
+  Args     - the source term (CCO::Core::Term) or the source relationship type (CCO::Core::RelationshipType)
+  Function - gets/sets the term/relationship type attached to the tail of the relationship
   
 =cut
 sub tail {
 	my $self = shift;
 	if (@_) {
-		my $term = shift;
-		croak "The term to be bound as tail to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($term, "CCO::Core::Term"));
-		$self->{TAIL} = $term;
+		my $subject = shift;
+		croak "The term or relationship type to be bound as tail to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($subject, "CCO::Core::Term") && !UNIVERSAL::isa($subject, "CCO::Core::RelationshipType"));
+		$self->{TAIL} = $subject;
 	}
     return $self->{TAIL};
 }
@@ -116,18 +116,18 @@ sub tail {
 =head2 link
 
   Usage    - $relationship->link()
-  Returns  - the Terms (subject and source) connected by this relationship
-  Args     - the source(tail) and target(head) term
-  Function - gets/sets the terms attached to this relationship
+  Returns  - the Terms or RelationshipTypes (subject and source) connected by this relationship
+  Args     - the source(tail) and target(head) term/relationship type
+  Function - gets/sets the terms/relationship type attached to this relationship
   
 =cut
 sub link {
 	my $self = shift;
 	if (@_) {
 		my $tail = shift;
-		croak "The term to be bound as tail to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($tail, "CCO::Core::Term"));
+		croak "The term or relationship type to be bound as tail to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($tail, "CCO::Core::Term") && !UNIVERSAL::isa($tail, "CCO::Core::RelationshipType"));
 		my $head = shift;
-		croak "The term to be bound as head to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($head, "CCO::Core::Term"));
+		croak "The term or relationship type to be bound as head to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($head, "CCO::Core::Term") && !UNIVERSAL::isa($head, "CCO::Core::RelationshipType"));
 		$self->{TAIL} = $tail;
 		$self->{HEAD} = $head;
     }
@@ -137,7 +137,7 @@ sub link {
 1;
 
 =head1 NAME
-    Core::Relationship  - a relationship in an ontology
+    Core::Relationship  - a relationship between two terms or two relationships within an ontology.
 =head1 SYNOPSIS
 
 use CCO::Core::Relationship;

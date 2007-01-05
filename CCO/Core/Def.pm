@@ -8,7 +8,7 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Core::Def;
-use CCO::Core::DbxrefSet;
+use CCO::Util::DbxrefSet;
 use strict;
 use warnings;
 use Carp;
@@ -18,7 +18,7 @@ sub new {
         my $self                    = {};
         
         $self->{TEXT}               = undef; # required, scalar (1)
-        $self->{DBXREF_SET}         = CCO::Core::DbxrefSet->new(); # required, Dbxref (0..n)
+        $self->{DBXREF_SET}         = CCO::Util::DbxrefSet->new(); # required, Dbxref (0..n)
         
         bless ($self, $class);
         return $self;
@@ -41,8 +41,8 @@ sub text {
 =head2 dbxref_set
 
   Usage    - $def->dbxref_set() or $def->dbxref_set($dbxref_set)
-  Returns  - the definition dbxref set (CCO::Core::DbxrefSet)
-  Args     - the definition dbxref set (CCO::Core::DbxrefSet)
+  Returns  - the definition dbxref set (CCO::Util::DbxrefSet)
+  Args     - the definition dbxref set (CCO::Util::DbxrefSet)
   Function - gets/sets the definition dbxref set
   
 =cut
@@ -50,7 +50,7 @@ sub dbxref_set {
 	my $self = shift;
 	if (@_) {
 		my $dbxref_set = shift;
-    		croak "The dbxref set must be a CCO::Core::DbxrefSet object" if (!UNIVERSAL::isa($dbxref_set, 'CCO::Core::DbxrefSet'));
+    		croak "The dbxref set must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($dbxref_set, 'CCO::Util::DbxrefSet'));
 		$self->{DBXREF_SET} = $dbxref_set;
     }
     return $self->{DBXREF_SET};
@@ -70,12 +70,11 @@ sub dbxref_set_as_string {
 		my $dbxref_as_string = shift;
 		$dbxref_as_string =~ s/\[//;
 		$dbxref_as_string =~ s/\]//;
-		$dbxref_as_string =~ s/,\s+/,/g;
-		my @refs = split(/,/, $dbxref_as_string);
+		my @refs = split(/, /, $dbxref_as_string);
 		
-		my $dbxref_set = CCO::Core::DbxrefSet->new();
+		my $dbxref_set = CCO::Util::DbxrefSet->new();
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $dbxref = CCO::Core::Dbxref->new();
 				$dbxref->name($1);
 				$dbxref->description($3) if (defined $3);
@@ -144,13 +143,13 @@ $ref1->name("CCO:vm");
 $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 
-my $dbxref_set1 = CCO::Core::DbxrefSet->new();
+my $dbxref_set1 = CCO::Util::DbxrefSet->new();
 $dbxref_set1->add($ref1);
 
-my $dbxref_set2 = CCO::Core::DbxrefSet->new();
+my $dbxref_set2 = CCO::Util::DbxrefSet->new();
 $dbxref_set2->add($ref2);
 
-my $dbxref_set3 = CCO::Core::DbxrefSet->new();
+my $dbxref_set3 = CCO::Util::DbxrefSet->new();
 $dbxref_set3->add($ref3);
 
 $def1->dbxref_set($dbxref_set1);

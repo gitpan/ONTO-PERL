@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 53;
+    plan tests => 66;
 }
 
 #########################
@@ -16,7 +16,7 @@ BEGIN {
 
 use CCO::Core::Term;
 use CCO::Core::Def;
-use CCO::Core::DbxrefSet;
+use CCO::Util::DbxrefSet;
 use CCO::Core::Dbxref;
 use CCO::Core::Synonym;
 use strict;
@@ -26,6 +26,11 @@ my $n1 = CCO::Core::Term->new();
 my $n2 = CCO::Core::Term->new();
 my $n3 = CCO::Core::Term->new();
 
+# name, namespace, code
+ok($n1->namespace() eq "NN");
+ok($n1->subnamespace() eq "X");
+ok($n1->code() eq "0000000");
+
 # id's
 $n1->id("CCO:P0000001");
 ok($n1->id() eq "CCO:P0000001");
@@ -33,6 +38,11 @@ $n2->id("CCO:P0000002");
 ok($n2->id() eq "CCO:P0000002");
 $n3->id("CCO:P0000003");
 ok($n3->id() eq "CCO:P0000003");
+
+# name, namespace, code
+ok($n1->namespace() eq "CCO");
+ok($n1->subnamespace() eq "P");
+ok($n1->code() eq "0000001");
 
 # alt_id
 $n1->alt_id("CCO:P0000001_alt_id");
@@ -44,6 +54,17 @@ ok(($n2->alt_id())[2] eq "CCO:P0000002_alt_id3");
 ok(($n2->alt_id())[3] eq "CCO:P0000002_alt_id4");
 ok(!defined (($n3->alt_id())[0]));
 ok(!$n3->alt_id());
+
+# subset
+$n1->subset("CCO:P0000001_subset");
+ok(($n1->subset())[0] eq "CCO:P0000001_subset");
+$n2->subset("CCO:P0000002_subset1", "CCO:P0000002_subset2", "CCO:P0000002_subset3", "CCO:P0000002_subset4");
+ok(($n2->subset())[0] eq "CCO:P0000002_subset1");
+ok(($n2->subset())[1] eq "CCO:P0000002_subset2");
+ok(($n2->subset())[2] eq "CCO:P0000002_subset3");
+ok(($n2->subset())[3] eq "CCO:P0000002_subset4");
+ok(!defined (($n3->subset())[0]));
+ok(!$n3->subset());
 
 # name
 $n1->name("One");
@@ -71,25 +92,25 @@ ok($n1->is_anonymous() != 1);
 
 # synonyms
 my $syn1 = CCO::Core::Synonym->new();
-$syn1->type('exact');
+$syn1->type('EXACT');
 my $def1 = CCO::Core::Def->new();
 $def1->text("Hola mundo1");
 my $sref1 = CCO::Core::Dbxref->new();
 $sref1->name("CCO:vm");
-my $srefs_set1 = CCO::Core::DbxrefSet->new();
+my $srefs_set1 = CCO::Util::DbxrefSet->new();
 $srefs_set1->add($sref1);
 $def1->dbxref_set($srefs_set1);
 $syn1->def($def1);
 $n1->synonym_set($syn1);
 
 my $syn2 = CCO::Core::Synonym->new();
-$syn2->type('broad');
+$syn2->type('BROAD');
 my $def2 = CCO::Core::Def->new();
 $def2->text("Hola mundo2");
 my $sref2 = CCO::Core::Dbxref->new();
 $sref2->name("CCO:ls");
 $srefs_set1->add_all($sref1);
-my $srefs_set2 = CCO::Core::DbxrefSet->new();
+my $srefs_set2 = CCO::Util::DbxrefSet->new();
 $srefs_set2->add_all($sref1, $sref2);
 $def2->dbxref_set($srefs_set2);
 $syn2->def($def2);
@@ -99,12 +120,12 @@ ok(!defined (($n3->synonym_set())[0]));
 ok(!$n3->synonym_set());
 
 my $syn3 = CCO::Core::Synonym->new();
-$syn3->type('broad');
+$syn3->type('BROAD');
 my $def3 = CCO::Core::Def->new();
 $def3->text("Hola mundo2");
 my $sref3 = CCO::Core::Dbxref->new();
 $sref3->name("CCO:ls");
-my $srefs_set3 = CCO::Core::DbxrefSet->new();
+my $srefs_set3 = CCO::Util::DbxrefSet->new();
 $srefs_set3->add_all($sref1, $sref2);
 $def3->dbxref_set($srefs_set3);
 $syn3->def($def3);
@@ -113,13 +134,13 @@ $n3->synonym_set($syn3);
 ok(($n1->synonym_set())[0]->equals($syn1));
 ok(($n2->synonym_set())[0]->equals($syn2));
 ok(($n3->synonym_set())[0]->equals($syn3));
-ok(($n2->synonym_set())[0]->type() eq 'broad');
+ok(($n2->synonym_set())[0]->type() eq 'BROAD');
 ok(($n2->synonym_set())[0]->def()->equals(($n3->synonym_set())[0]->def()));
 ok(($n2->synonym_set())[0]->equals(($n3->synonym_set())[0]));
 
 # synonym as string
 ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:vm, CCO:ls]");
-$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "exact");
+$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
 ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:vm, CCO:ls]");
 ok(($n2->synonym_as_string())[1] eq "\"Hello world2\" [CCO:vm2, CCO:ls2]");
 
@@ -136,7 +157,7 @@ $xref3->name("XCCO:ea");
 $xref4->name("XCCO:vm");
 $xref5->name("XCCO:ls");
 
-my $xrefs_set = CCO::Core::DbxrefSet->new();
+my $xrefs_set = CCO::Util::DbxrefSet->new();
 $xrefs_set->add_all($xref1, $xref2, $xref3, $xref4, $xref5);
 $n1->xref_set($xrefs_set);
 ok($n1->xref_set()->contains($xref3));
@@ -167,7 +188,7 @@ $ref1->name("CCO:vm");
 $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 
-my $refs_set = CCO::Core::DbxrefSet->new();
+my $refs_set = CCO::Util::DbxrefSet->new();
 $refs_set->add_all($ref1,$ref2,$ref3);
 $def->dbxref_set($refs_set);
 $n1->def($def);

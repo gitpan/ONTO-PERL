@@ -4,7 +4,7 @@
 
  Module  : xml2html.xsl
  Purpose : Transform the XML CCO version into HTML.
- Usage: xslproc xml2html.xsl test2.xml > main.html
+ Usage: xsltproc xml2html.xsl ../t/data/test2.xml > ../t/data/main.html
  License : Copyright (c) 2006 Erick Antezana. All rights reserved.
            This program is free software; you can redistribute it and/or
            modify it under the same terms as Perl itself.
@@ -19,13 +19,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <html>
   <body>
     <h2>Entire list of all the terms from the Cell Cycle Ontology</h2>
-    <b>Version:</b> 0.1 <br/>
+    <b>Version:</b> 0.3 <br/>
     <b>Date:</b> <xsl:value-of select="./cco/header/date"/> <br/> <br/>
     
     <xsl:for-each select="cco/term">
     <xsl:sort select="id"/>
-    <table border="1">
-	
 	<a>
 	<xsl:attribute name="name">
 	<xsl:value-of select="./name"/>
@@ -39,6 +37,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	</xsl:attribute>
 	<!--xsl:value-of select="./id"/-->  
 	</a>
+
+    <table border="1">
 	
     <tr>
       <td><b>id:</b></td>
@@ -103,6 +103,15 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
         <td><xsl:value-of select="."/></td>
         <td><b>scope:</b></td>
         <td><xsl:value-of select="@scope"/></td>
+      </tr>
+      </xsl:for-each>
+    </xsl:if>
+    
+    <xsl:if test="count(xref) > 0">
+      <xsl:for-each select="xref">
+      <tr>
+        <td><b>xref:</b></td>
+        <td colspan="3" width="100%"><xsl:value-of select="."/></td>
       </tr>
       </xsl:for-each>
     </xsl:if>

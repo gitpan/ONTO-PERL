@@ -1,7 +1,6 @@
 # $Id: onto-perl.pod 291 2006-06-01 16:21:45Z erant $
 #
-# see also - http://www.sbcellcycle.org
-#          - http://www.sbcellcycle.org/cco
+# see also - http://www.cellcycleontology.org
 #
 # This library is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -17,12 +16,13 @@ The Cell-Cycle Ontology
 =======================
 
 The CCO is an effort for formalizing the controled vocabulary 
-in the Cell Cycle domain. CCO is based on existing ontologies 
-such as GO (http://www.geneontology.org), DC (dublincore.org/),
+in the Cell Cycle domain (http://www.cellcycleontology.org). 
+CCO is based on existing ontologies such as GO 
+(http://www.geneontology.org), DC (dublincore.org/),
 and RO (http://obo.sourceforge.net/relationship/).
 
-Files
-=====
+Files in http://www.cellcycleontology.org
+=========================================
 
 cco.obo						The CCO in OBO format.
 
@@ -30,13 +30,15 @@ cco.owl						The CCO in OWL format.
 
 cco.xml						The CCO in XML format.
 
+cco.dot						The CCO in DOT format.
+
 cco.ids						IDs from CCO.
 
 go_cco.ids					Equivalent IDs in GO and CCO.
 
 cco_x.x.tar.gz				Archives from CCO.
 
-onto-perlvx.y.tar.gz			CCO API version x.y
+onto-perl-x.y.tar.gz			CCO API version x.y
 
 onto-perl-latest.tar.gz		CCO API: latest version
 
@@ -71,5 +73,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package onto-perl;
-$VERSION='0.19';
+$VERSION='0.24';
 1;

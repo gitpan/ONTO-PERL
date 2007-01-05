@@ -28,9 +28,9 @@ sub new {
 
 =head2 type
 
-  Usage    - print $synonym->type() or $synonym->type("exact")
+  Usage    - print $synonym->type() or $synonym->type("EXACT")
   Returns  - the synonym type
-  Args     - the synonym type: 'exact', 'broad', 'narrow', 'related'
+  Args     - the synonym type: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
   Function - gets/sets the synonym name
   
 =cut
@@ -40,11 +40,11 @@ sub type {
 		my $synonym_type = shift;
 		my $possible_types = CCO::Util::Set->new();
 		# todo 'alt_id' is also a valid value?
-		$possible_types->add_all('exact', 'broad', 'narrow', 'related');
+		$possible_types->add_all('EXACT', 'BROAD', 'NARROW', 'RELATED');
 		if ($possible_types->contains($synonym_type)) {
 			$self->{TYPE} = $synonym_type;
 		} else {
-			croak "The synonym type must be one of the following: 'exact', 'broad', 'narrow', 'related'";
+			croak "The synonym type must be one of the following: 'EXACT', 'BROAD', 'NARROW', 'RELATED'";
 		}
 	}
     return $self->{TYPE};
@@ -93,7 +93,7 @@ sub def_as_string {
 		my $def = CCO::Core::Def->new();
 		$def->text($text);
 		
-		my $dbxref_set = CCO::Core::DbxrefSet->new();
+		my $dbxref_set = CCO::Util::DbxrefSet->new();
 		foreach my $ref (@refs) {
 			if ($ref =~ /([\w-]+:[\w-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $dbxref = CCO::Core::Dbxref->new();
@@ -157,10 +157,10 @@ my $syn3 = CCO::Core::Synonym->new();
 my $syn4 = CCO::Core::Synonym->new();
 
 # type
-$syn1->type('exact');
-$syn2->type('broad');
-$syn3->type('narrow');
-$syn4->type('narrow');
+$syn1->type('EXACT');
+$syn2->type('BROAD');
+$syn3->type('NARROW');
+$syn4->type('NARROW');
 
 # def
 my $def1 = CCO::Core::Def->new();
@@ -183,22 +183,22 @@ $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 $ref4->name("CCO:ea");
 
-my $refs_set1 = CCO::Core::DbxrefSet->new();
+my $refs_set1 = CCO::Util::DbxrefSet->new();
 $refs_set1->add_all($ref1,$ref2,$ref3,$ref4);
 $def1->dbxref_set($refs_set1);
 $syn1->def($def1);
 
-my $refs_set2 = CCO::Core::DbxrefSet->new();
+my $refs_set2 = CCO::Util::DbxrefSet->new();
 $refs_set2->add($ref2);
 $def2->dbxref_set($refs_set2);
 $syn2->def($def2);
 
-my $refs_set3 = CCO::Core::DbxrefSet->new();
+my $refs_set3 = CCO::Util::DbxrefSet->new();
 $refs_set3->add($ref3);
 $def3->dbxref_set($refs_set3);
 $syn3->def($def3);
 
-my $refs_set4 = CCO::Core::DbxrefSet->new();
+my $refs_set4 = CCO::Util::DbxrefSet->new();
 $refs_set4->add($ref4);
 $def4->dbxref_set($refs_set4);
 $syn4->def($def4);

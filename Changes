@@ -3,4 +3,9 @@ Revision history for Perl extension CCO.
 0.01  Wed Jun  7 13:05:23 2006
 	- original version; created by h2xs 1.23 with options
 		-AXc -n CCO
+		
+...
 
+0.22 Improvements in exports
+
+0.23 obo2owl methods were enhanced

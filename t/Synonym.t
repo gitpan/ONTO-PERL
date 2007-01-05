@@ -25,10 +25,10 @@ my $syn4 = CCO::Core::Synonym->new();
 
 # type
 ok(!defined $syn1->type());
-$syn1->type('exact');
-$syn2->type('broad');
-$syn3->type('narrow');
-$syn4->type('narrow');
+$syn1->type('EXACT');
+$syn2->type('BROAD');
+$syn3->type('NARROW');
+$syn4->type('NARROW');
 
 # def
 my $def1 = CCO::Core::Def->new();
@@ -51,14 +51,14 @@ $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 $ref4->name("CCO:ea");
 
-my $refs_set1 = CCO::Core::DbxrefSet->new();
+my $refs_set1 = CCO::Util::DbxrefSet->new();
 $refs_set1->add_all($ref1,$ref2,$ref3,$ref4);
 $def1->dbxref_set($refs_set1);
 $syn1->def($def1);
 ok($syn1->def()->text() eq "Hola mundo1");
 ok($syn1->def()->dbxref_set()->size == 3);
 
-my $refs_set2 = CCO::Core::DbxrefSet->new();
+my $refs_set2 = CCO::Util::DbxrefSet->new();
 ok($syn1->def()->dbxref_set()->size == 3);
 ok($syn2->def()->dbxref_set()->size == 0);
 $refs_set2->add($ref2);
@@ -68,7 +68,7 @@ ok($syn2->def()->text() eq "Hola mundo2");
 ok($syn2->def()->dbxref_set()->size == 1);
 ok(($syn2->def()->dbxref_set()->get_set())[0]->equals($ref2));
 
-my $refs_set3 = CCO::Core::DbxrefSet->new();
+my $refs_set3 = CCO::Util::DbxrefSet->new();
 ok($syn1->def()->dbxref_set()->size == 3);
 ok($syn2->def()->dbxref_set()->size == 1);
 ok($syn3->def()->dbxref_set()->size == 0);
@@ -79,7 +79,7 @@ ok($syn3->def()->text() eq "Hola mundo3");
 ok($syn3->def()->dbxref_set()->size == 1);
 ok(($syn3->def()->dbxref_set()->get_set())[0]->name() eq "CCO:ea");
 
-my $refs_set4 = CCO::Core::DbxrefSet->new();
+my $refs_set4 = CCO::Util::DbxrefSet->new();
 ok($syn1->def()->dbxref_set()->size == 3);
 ok($syn2->def()->dbxref_set()->size == 1);
 ok($syn3->def()->dbxref_set()->size == 1);

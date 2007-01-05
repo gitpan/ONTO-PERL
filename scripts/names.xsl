@@ -4,7 +4,7 @@
 
  Module  : names.xsl
  Purpose : Transform the XML CCO version into HTML.
- Usage: xslproc names.xsl test2.xml > cco-names.html
+ Usage: xsltproc names.xsl ../t/data/test2.xml > ../t/data/cco-names.html
  License : Copyright (c) 2006 Erick Antezana. All rights reserved.
            This program is free software; you can redistribute it and/or
            modify it under the same terms as Perl itself.

@@ -1,27 +1,19 @@
-# $Id: TermSet.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: SynonymSet.pm 291 2006-06-01 16:21:45Z erant $
 #
-# Module  : TermSet.pm
-# Purpose : Term set.
+# Module  : SynonymSet.pm
+# Purpose : Synonym set.
 # License : Copyright (c) 2006 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
-package CCO::Core::TermSet;
+package CCO::Util::SynonymSet;
+our @ISA = qw(CCO::Util::Set);
+use CCO::Util::Set;
 use strict;
 use warnings;
 use Carp;
 
-sub new {
-        my $class                   = shift;
-        my $self                    = {};
-        
-        # todo pensar en usar un mapa para acceder rapidamente a los elementos en remove por ej.
-        $self->{SET}	                = (); # the set
-        
-        bless ($self, $class);
-        return $self;
-}
 
 
 =head2 add
@@ -37,7 +29,7 @@ sub add {
 	my $result = 0; # nothing added
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be added must be a CCO::Core::Term object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Term'));
+		croak "The element to be added must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Synonym'));
 		if ( !$self -> contains($ele) ) {
 			push @{$self->{SET}}, $ele;
 			$result = 1; # successfully added
@@ -59,7 +51,7 @@ sub remove {
 	my $result = undef;
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be removed must be a CCO::Core::Term object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Term'));
+		croak "The element to be removed must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Synonym'));
 		if ($self->size() > 0) {
 			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
 				my $e = ${$self->{SET}}[$i];
@@ -79,35 +71,6 @@ sub remove {
 	return $result;
 }
 
-=head2 add_all
-
-  Usage    - $set->add_all()
-  Returns  - true if the elements were successfully added
-  Args     - the elements to be added
-  Function - adds the given elements to this set
-  
-=cut
-sub add_all {
-	my $self = shift;
-	my $result = 1; # something added
-	foreach (@_) {
-		$result *= $self->add ($_);
-	}
-	return $result;
-}
-
-=head2 get_set
-
-  Usage    - $set->get_set()
-  Returns  - this set
-  Args     - none
-  Function - returns this set
-  
-=cut
-sub get_set {
-	my $self = shift;
-	return (!$self->is_empty())?@{$self->{SET}}:();
-}
 
 =head2 contains
 
@@ -123,7 +86,7 @@ sub contains {
 	if (@_){
 		my $target = shift;
 		
-		croak "The element to be tested must be a CCO::Core::Term object" if (!UNIVERSAL::isa($target, 'CCO::Core::Term'));
+		croak "The element to be tested must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($target, 'CCO::Core::Synonym'));
 		
 		foreach my $ele (@{$self->{SET}}){
 			if ($target->equals($ele)) {
@@ -135,44 +98,7 @@ sub contains {
 	return $result;
 }
 
-=head2 size
 
-  Usage    - print $set->size()
-  Returns  - the size of this set
-  Args     - 
-  Function - tells the number of elements held by this set
-  
-=cut
-sub size {
-	my $self = shift;
-    return $#{$self->{SET}} + 1;
-}
-
-=head2 clear
-
-  Usage    - $set->clear()
-  Returns  - none
-  Args     - none
-  Function - clears this set
-  
-=cut
-sub clear {
-	my $self = shift;
-	@{$self->{SET}} = ();
-}
-
-=head2 is_empty
-
-  Usage    - $set->is_empty()
-  Returns  - 1 (true) if this set is empty
-  Args     - none
-  Function - checks if this set is empty
-  
-=cut
-sub is_empty{
-	my $self = shift;
-	return ($#{$self->{SET}} == -1);
-}
 
 =head2 equals
 
@@ -188,10 +114,10 @@ sub equals {
 	if (@_) {
 		my $other_set = shift;
 		
-		croak "The element to be tested must be a CCO::Core::TermSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Core::TermSet'));
+		croak "The element to be tested must be a CCO::Util::SynonymSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::SynonymSet'));
 		
 		my %count = ();
-# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' anivel de dbxref...los tests pasan...raro...	
+# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' anivel de synonym...los tests pasan...raro...	
 		my @this = map ({scalar $_;} @{$self->{SET}});
 		my @that = map ({scalar $_;} $other_set->get_set());
 		
@@ -215,21 +141,21 @@ sub equals {
 1;
 
 =head1 NAME
-    CCO::Core::TermSet  - a Set implementation
+    CCO::Util::SynonymSet  - a Set implementation
 =head1 SYNOPSIS
 
-use CCO::Core::TermSet;
-use CCO::Core::Term;
+use CCO::Util::SynonymSet;
+use CCO::Core::Synonym;
 use strict;
 
-my $my_set = CCO::Core::TermSet->new;
+my $my_set = CCO::Util::SynonymSet->new;
 
 my @arr = $my_set->get_set();
 
 # three new terms
-my $n1 = CCO::Core::Term->new;
-my $n2 = CCO::Core::Term->new;
-my $n3 = CCO::Core::Term->new;
+my $n1 = CCO::Core::Synonym->new;
+my $n2 = CCO::Core::Synonym->new;
+my $n3 = CCO::Core::Synonym->new;
 
 $n1->id("CCO:P0000001");
 $n2->id("CCO:P0000002");
@@ -249,9 +175,9 @@ $my_set->add($n1);
 $my_set->add($n2);
 $my_set->add($n3);
 
-my $n4 = CCO::Core::Term->new;
-my $n5 = CCO::Core::Term->new;
-my $n6 = CCO::Core::Term->new;
+my $n4 = CCO::Core::Synonym->new;
+my $n5 = CCO::Core::Synonym->new;
+my $n6 = CCO::Core::Synonym->new;
 
 $n4->id("CCO:P0000004");
 $n5->id("CCO:P0000005");
@@ -272,7 +198,7 @@ my $n7 = $n4;
 my $n8 = $n5;
 my $n9 = $n6;
 
-my $my_set2 = CCO::Core::TermSet->new;
+my $my_set2 = CCO::Util::SynonymSet->new;
 
 $my_set->add_all($n4, $n5, $n6);
 $my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
@@ -280,7 +206,7 @@ $my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
 $my_set2->clear();
 
 =head1 DESCRIPTION
-A set of terms.
+A set of synonyms for a term or relationship type.
 
 =head1 AUTHOR
 

@@ -13,15 +13,16 @@ use warnings;
 use Carp;
 
 sub new {
-        my $class                   = shift;
-        my $self                    = {};
+	my $class                   = shift;
+	my $self                    = {};
+
+	$self->{DB}                 = ""; # required, scalar (1)
+	$self->{ACC}                = ""; # required, scalar (1)
+	$self->{DESCRIPTION}        = ""; # scalar (0..1) # todo put undef
+	$self->{MODIFIER}           = ""; # scalar (0..1) # todo put undef
         
-        $self->{NAME}               = ""; # required, scalar (1)
-        $self->{DESCRIPTION}        = ""; # scalar (0..1) # todo put undef
-        $self->{MODIFIER}           = ""; # scalar (0..1) # todo put undef
-        
-        bless ($self, $class);
-        return $self;
+	bless ($self, $class);
+	return $self;
 }
 
 =head2 name
@@ -34,12 +35,48 @@ sub new {
 =cut
 sub name {
 	my $self = shift;
-    if (@_) { 
-    		$self->{NAME} = shift;
-    	} else { # get-mode
-		carp "The name of this 'dbxref' is not defined." if (!defined($self->{NAME}));
+    if (@_) {
+		($self->{DB} = $1, $self->{ACC} = $2) if ($_[0] =~ /([\w-]+):([\w:,\(\)\.-]+)/ || $_[0] =~ /(http):\/\/(.*)/);
+	} else { # get-mode
+		carp "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     }
-    return $self->{NAME};
+    return $self->{DB}.":".$self->{ACC};
+}
+
+=head2 db
+
+  Usage    - print $dbxref->db() or $dbxref->db($db)
+  Returns  - the dbxref db (string)
+  Args     - the dbxref db (string)
+  Function - gets/sets the dbxref db
+  
+=cut
+sub db {
+	my $self = shift;
+    if (@_) {
+		$self->{DB} = shift;
+	} else { # get-mode
+		carp "The database (db) of this 'dbxref' is not defined." if (!defined($self->{DB}));
+    }
+    return $self->{DB};
+}
+
+=head2 acc
+
+  Usage    - print $dbxref->acc() or $dbxref->acc($acc)
+  Returns  - the dbxref acc (string)
+  Args     - the dbxref acc (string)
+  Function - gets/sets the dbxref acc
+  
+=cut
+sub acc {
+	my $self = shift;
+    if (@_) {
+		$self->{ACC} = shift;
+	} else { # get-mode
+		carp "The accession number (acc) of this 'dbxref' is not defined." if (!defined($self->{ACC}));
+    }
+    return $self->{ACC};
 }
 
 =head2 description
@@ -55,7 +92,7 @@ sub description {
     if (@_) { 
 		$self->{DESCRIPTION} = shift;
     } else { # get-mode
-		carp "The name of this 'dbxref' is not defined." if (!defined($self->{NAME}));
+		carp "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     }
     return $self->{DESCRIPTION};
 }
@@ -73,7 +110,7 @@ sub modifier {
     if (@_) { 
 		$self->{MODIFIER} = shift;
     } else { # get-mode
-		carp "The name of this 'dbxref' is not defined." if (!defined($self->{NAME}));
+		carp "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     }
     return $self->{MODIFIER};
 }
@@ -88,7 +125,8 @@ sub modifier {
 =cut
 sub as_string {
 	my $self = shift;
-    my $result = $self->{NAME};
+	carp "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
+    my $result = $self->{DB}.":".$self->{ACC};
     $result .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
     $result .= " ".$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne "");
     return $result;
@@ -108,10 +146,11 @@ sub equals {
 		my $target = shift;
 
 		croak "The element to be tested must be a CCO::Core::Dbxref object" if (!UNIVERSAL::isa($target, 'CCO::Core::Dbxref'));
-		croak "The name of this dbxref is undefined" if (!defined($self->{NAME}));
-		croak "The name of the target dbxref is undefined" if (!defined($target->{NAME}));
+		croak "The name of this dbxref is undefined" if (!defined($self->{DB}) || !defined($self->{ACC}));
+		croak "The name of the target dbxref is undefined" if (!defined($target->{DB}) || !defined($target->{ACC}));
 		
-		return (($self->{NAME} eq $target->{NAME}) && 
+		return (($self->{DB} eq $target->{DB}) &&
+				($self->{ACC} eq $target->{ACC}) &&
 				($self->{DESCRIPTION} eq $target->{DESCRIPTION}) &&
 				($self->{MODIFIER} eq $target->{MODIFIER}));
 	}

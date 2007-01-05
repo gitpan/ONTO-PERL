@@ -17,7 +17,7 @@ BEGIN {
 use CCO::Parser::OBOParser;
 use strict;
 
-my $my_parser = CCO::Parser::OBOParser->new;
+my $my_parser = CCO::Parser::OBOParser->new();
 ok(1);
 
 my $ontology = $my_parser->work("./t/data/fake_ulo_cco.obo");
@@ -39,7 +39,7 @@ $ontology->export(\*FH, 'xml');
 close FH;
 
 my $ontology2 = $my_parser->work("./t/data/pre_cco.obo");
-warn "number of terms: ", $ontology2->get_number_of_terms();
+#warn "number of terms: ", $ontology2->get_number_of_terms();
 
 # export to XML 2
 open (FH, ">./t/data/test2.xml") || die "Run as root the tests: ", $!;

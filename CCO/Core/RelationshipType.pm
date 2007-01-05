@@ -10,7 +10,7 @@
 package CCO::Core::RelationshipType;
 use CCO::Core::Dbxref;
 use CCO::Core::Def;
-use CCO::Core::SynonymSet;
+use CCO::Util::SynonymSet;
 use CCO::Util::Set;
 use strict;
 use warnings;
@@ -25,7 +25,8 @@ sub new {
         
         $self->{DEF}                = CCO::Core::Def->new; # (0..1)
         $self->{COMMENT}            = undef; # string (0..1)
-        $self->{SYNONYM_SET}        = CCO::Core::SynonymSet->new(); # set of synonyms (0..N)
+        $self->{SYNONYM_SET}        = CCO::Util::SynonymSet->new(); # set of synonyms (0..N)
+        $self->{XREF_SET}           = CCO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
         $self->{DOMAIN}             = undef; # string (0..1)
         $self->{RANGE}              = undef; # string (0..1)
         $self->{INVERSE_OF}         = undef; # string (0..1)
@@ -81,8 +82,8 @@ sub name {
 sub def {
 	my $self = shift;
 	if (@_) {
-    		my $def = shift;
-    		croak "The definition must be a CCO::Core::Def object" if (!UNIVERSAL::isa($def, 'CCO::Core::Def'));
+		my $def = shift;
+		croak "The definition must be a CCO::Core::Def object" if (!UNIVERSAL::isa($def, 'CCO::Core::Def'));
 		$self->{DEF} = $def; 
 	}
     return $self->{DEF};
@@ -101,17 +102,16 @@ sub def_as_string {
     if (@_) {
 		my $text = shift;
 		my $dbxref_as_string = shift;
-    		$dbxref_as_string =~ s/\[//;
-    		$dbxref_as_string =~ s/\]//;
-    		$dbxref_as_string =~ s/,\s+/,/g;
-		my @refs = split(/,/, $dbxref_as_string);
+		$dbxref_as_string =~ s/\[//;
+		$dbxref_as_string =~ s/\]//;
+		my @refs = split(/, /, $dbxref_as_string);
     		
 		my $def = CCO::Core::Def->new();
 		$def->text($text);
 		
-		my $dbxref_set = CCO::Core::DbxrefSet->new();
+		my $dbxref_set = CCO::Util::DbxrefSet->new();
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w-]+)(\"\w+\")?(\{\w+\})?/) {
+			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\"\w+\")?(\{\w+\})?/) {
 				my $dbxref = CCO::Core::Dbxref->new();
 				$dbxref->name($1);
 				$dbxref->description($2) if (defined $2);
@@ -159,15 +159,15 @@ sub synonym_set {
 	foreach my $synonym (@_) {		
 		croak "The synonym must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($synonym, 'CCO::Core::Synonym'));
 		croak "The name of this relationship type (", $self->id(), ") is undefined" if (!defined($self->name()));
-		# do not add 'exact' synonyms with the same 'name':
-		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->type() eq "exact" && $synonym->def()->text() eq $self->name()));
+		# do not add 'EXACT' synonyms with the same 'name':
+		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->type() eq "EXACT" && $synonym->def()->text() eq $self->name()));
    	}
 	return $self->{SYNONYM_SET}->get_set();
 }
 
 =head2 synonym_as_string
 
-  Usage    - print $relationship_type->synonym_as_string() or $relationship_type->synonym_as_string("this is a synonym text", "[CCO:ea]", "exact")
+  Usage    - print $relationship_type->synonym_as_string() or $relationship_type->synonym_as_string("this is a synonym text", "[CCO:ea]", "EXACT")
   Returns  - an array with the synonym(s) of this relationship type
   Args     - the synonym text (string), the dbxrefs (string) and synonym type (string) of this relationship type
   Function - gets/sets the synonym(s) of this relationship type
@@ -195,6 +195,58 @@ sub synonym_as_string {
 		push @result, $synonym->def_as_string();
    	}
 	return @result;
+}
+
+=head2 xref_set
+
+  Usage    - $relationship_type->xref_set() or $relationship_type->xref_set($dbxref_set)
+  Returns  - a Dbxref set with the analogous xref(s) of this relationship type in another vocabulary
+  Args     - analogous xref(s) of this relationship type in another vocabulary
+  Function - gets/sets the analogous xref(s) of this relationship type in another vocabulary
+  
+=cut
+sub xref_set {
+	my $self = shift;
+	if (@_) {
+		my $xref_set = shift;
+    		croak "The xref must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Util::DbxrefSet'));
+		$self->{XREF_SET} = $xref_set;
+    }
+    return $self->{XREF_SET};
+}
+
+=head2 xref_set_as_string
+
+  Usage    - $relationship_type->xref_set_as_string() or $relationship_type->xref_set_as_string("[Reactome:20610, EC:2.3.2.12]")
+  Returns  - the dbxref set with the analogous xref(s) of this relationship type; [] if the set is empty
+  Args     - the dbxref set with the analogous xref(s) of this relationship type
+  Function - gets/sets the dbxref set with the analogous xref(s) of this relationship type
+  
+=cut
+sub xref_set_as_string {
+	my $self = shift;
+	if (@_) {
+		my $xref_as_string = shift;
+		$xref_as_string =~ s/\[//;
+		$xref_as_string =~ s/\]//;
+		my @refs = split(/, /, $xref_as_string);
+		
+		my $xref_set = $self->{XREF_SET};
+		foreach my $ref (@refs) {
+			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+				my $xref = CCO::Core::Dbxref->new();
+				$xref->name($1);
+				$xref->description($3) if (defined $3);
+				$xref->modifier($5) if (defined $5);
+				$xref_set->add($xref);
+			} else {
+				croak "There were not defined the references for this definition: ", $self->id(), ". Check the 'dbxref' field.";
+			}
+		}
+		# todo do not overwrite the existing set; add the new elements to the existing set!
+		$self->{XREF_SET} = $xref_set;
+	}
+	my @result = $self->xref_set()->get_set();
 }
 
 =head2 domain

@@ -12,7 +12,8 @@
 use Carp;
 use strict;
 use warnings;
+use CCO::Parser::OBOParser;
 ################################################################################
-my $my_parser = CCO::Parser::OBOParser->new;
+my $my_parser = CCO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
 $ontology->export(\*STDOUT, "xml");

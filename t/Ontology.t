@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 82;
+    plan tests => 108;
 }
 
 #########################
@@ -24,6 +24,7 @@ use CCO::Core::Term;
 use CCO::Core::Relationship;
 use CCO::Core::RelationshipType;
 use strict;
+#use Data::Dumper;
 
 # three new terms
 my $n1 = CCO::Core::Term->new();
@@ -93,27 +94,32 @@ $new_term->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea 
 ok($onto->has_term($new_term) == 1);
 ok($onto->get_term_by_id("CCO:P0000005")->equals($new_term));
 ok($onto->get_number_of_terms() == 5);
+my $n5 = $new_term; 
 
-# three new relationships
+# five new relationships
 my $r12 = CCO::Core::Relationship->new();
 my $r23 = CCO::Core::Relationship->new();
 my $r13 = CCO::Core::Relationship->new();
 my $r14 = CCO::Core::Relationship->new();
+my $r35 = CCO::Core::Relationship->new();
 
 $r12->id("CCO:P0000001_is_a_CCO:P0000002");
 $r23->id("CCO:P0000002_part_of_CCO:P0000003");
 $r13->id("CCO:P0000001_participates_in_CCO:P0000003");
 $r14->id("CCO:P0000001_participates_in_CCO:P0000004");
+$r35->id("CCO:P0000003_part_of_CCO:P0000005");
 
 $r12->type("is_a");
 $r23->type("part_of");
 $r13->type("participates_in");
 $r14->type("participates_in");
+$r35->type("part_of");
 
-$r12->link($n1, $n2);
+$r12->link($n1, $n2); 
 $r23->link($n2, $n3);
 $r13->link($n1, $n3);
 $r14->link($n1, $n4);
+$r35->link($n3, $n5);
 
 # get all terms
 my $c = 0;
@@ -155,9 +161,11 @@ ok($onto->get_relationship_by_id("CCO:P0000001_is_a_CCO:P0000002")->head()->id()
 $onto->add_relationship($r23);
 $onto->add_relationship($r13);
 $onto->add_relationship($r14);
+$onto->add_relationship($r35);
 
 ok($onto->get_number_of_terms() == 5);
-ok($onto->get_number_of_relationships() == 4);
+ok($onto->get_number_of_relationships() == 5);
+
 # add relationships and terms linked by this relationship
 my $n11 = CCO::Core::Term->new();
 my $n21 = CCO::Core::Term->new();
@@ -166,9 +174,9 @@ $n21->id("CCO:P0000021"); $n21->name("Two one"); $n21->def_as_string("Definition
 my $r11_21 = CCO::Core::Relationship->new();
 $r11_21->id("CCO:R0001121"); $r11_21->type("r11-21");
 $r11_21->link($n11, $n21);
-$onto->add_relationship($r11_21); # adds to the ontology the linked terms by this relationship
+$onto->add_relationship($r11_21); # adds to the ontology the terms linked by this relationship
 ok($onto->get_number_of_terms() == 7);
-ok($onto->get_number_of_relationships() == 5);
+ok($onto->get_number_of_relationships() == 6);
 
 # get all relationships
 my %hr;
@@ -184,39 +192,73 @@ ok($hr{"CCO:P0000001_participates_in_CCO:P0000004"}->head()->equals($n4));
 ok($onto->get_relationship_by_id("CCO:P0000001_participates_in_CCO:P0000003")->equals($r13)); 
 
 # get children
-my @children = @{$onto->get_child_terms($n1)};
-ok(scalar(@children) == 3);
+my @children = @{$onto->get_child_terms($n1)}; 
+ok(scalar(@children) == 0);
+
+@children = @{$onto->get_child_terms($n3)}; 
+ok($#{@children} == 1);
 my %ct;
 foreach my $child (@children) {
 	$ct{$child->id()} = $child;
-}
+} 
 ok($ct{"CCO:P0000002"}->equals($n2));
-ok($ct{"CCO:P0000003"}->equals($n3));
-ok($ct{"CCO:P0000004"}->equals($n4));
+ok($ct{"CCO:P0000001"}->equals($n1));
 
-@children = @{$onto->get_child_terms($n3)};
-ok($#{@children} == -1);
 @children = @{$onto->get_child_terms($n2)};
 ok(scalar(@children) == 1);
-ok($children[0]->id eq "CCO:P0000003");
+ok($children[0]->id eq "CCO:P0000001");
 
 # get parents
-my @parents = $onto->get_parent_terms($n3);
-ok(scalar(@parents) == 2);
-@parents = $onto->get_parent_terms($n1);
-ok(scalar(@parents) == 0);
-@parents = $onto->get_parent_terms($n2);
+my @parents = @{$onto->get_parent_terms($n3)};
 ok(scalar(@parents) == 1);
-ok($parents[0]->id eq "CCO:P0000001");
+@parents = @{$onto->get_parent_terms($n1)};
+ok(scalar(@parents) == 3);
+@parents = @{$onto->get_parent_terms($n2)};
+ok(scalar(@parents) == 1);
+ok($parents[0]->id eq "CCO:P0000003");
 
-# get recursive children
-my @rchildren1 = @{$onto->get_recursive_child_terms($n1)};
-#ok(scalar(@rchildren1) == 3);
-my @rchildren2 = @{$onto->get_recursive_child_terms($n2)};
-#ok(scalar(@rchildren2) == 1);
-#ok($rchildren2[0]->id eq "CCO:P0000003");
-my @rchildren3 = @{$onto->get_recursive_child_terms($n3)};
-#ok(scalar(@rchildren3) == 0);
+# get all descendents
+my @descendents1 = @{$onto->get_descendent_terms($n1)};
+ok(scalar(@descendents1) == 0);
+my @descendents2 = @{$onto->get_descendent_terms($n2)};
+ok(scalar(@descendents2) == 1);
+ok($descendents2[0]->id eq "CCO:P0000001");
+my @descendents3 = @{$onto->get_descendent_terms($n3)};
+ok(scalar(@descendents3) == 2);
+my @descendents5 = @{$onto->get_descendent_terms($n5)};
+ok(scalar(@descendents5) == 3);
+
+# get all ancestors
+my @ancestors1 = @{$onto->get_ancestor_terms($n1)};
+ok(scalar(@ancestors1) == 4);
+my @ancestors2 = @{$onto->get_ancestor_terms($n2)};
+ok(scalar(@ancestors2) == 2);
+ok($ancestors2[0]->id eq "CCO:P0000003");
+my @ancestors3 = @{$onto->get_ancestor_terms($n3)};
+ok(scalar(@ancestors3) == 1);
+
+# get descendents by term subnamespace
+@descendents1 = @{$onto->get_descendent_terms_by_subnamespace($n1, 'P')};
+ok(scalar(@descendents1) == 0);
+@descendents2 = @{$onto->get_descendent_terms_by_subnamespace($n2, 'P')}; 
+ok(scalar(@descendents2) == 1);
+ok($descendents2[0]->id eq "CCO:P0000001");
+@descendents3 = @{$onto->get_descendent_terms_by_subnamespace($n3, 'P')};
+ok(scalar(@descendents3) == 2);
+@descendents3 = @{$onto->get_descendent_terms_by_subnamespace($n3, 'R')};
+ok(scalar(@descendents3) == 0);
+
+# get ancestors by term subnamespace
+@ancestors1 = @{$onto->get_ancestor_terms_by_subnamespace($n1, 'P')};
+ok(scalar(@ancestors1) == 4);
+@ancestors2 = @{$onto->get_ancestor_terms_by_subnamespace($n2, 'P')}; 
+ok(scalar(@ancestors2) == 2);
+ok($ancestors2[0]->id eq "CCO:P0000003");
+@ancestors3 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'P')};
+ok(scalar(@ancestors3) == 1);
+@ancestors3 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'R')};
+ok(scalar(@ancestors3) == 0);
+
 
 # three new relationships types
 my $r1 = CCO::Core::RelationshipType->new();
@@ -231,6 +273,9 @@ $r1->name("is_a");
 $r2->name("part_of");
 $r3->name("participates_in");
 
+
+
+
 # add relationship types
 ok($onto->get_number_of_relationship_types() == 0);
 $onto->add_relationship_type($r1);
@@ -240,6 +285,30 @@ ok($onto->has_relationship_type($r2) == 1);
 $onto->add_relationship_type($r3);
 ok($onto->has_relationship_type($r3) == 1);
 ok($onto->get_number_of_relationship_types() == 3);
+
+# get descendents or ancestors linked by a particular relationship type 
+my $rel_type1 = $onto->get_relationship_type_by_name("is_a");
+my $rel_type2 = $onto->get_relationship_type_by_name("part_of");
+my $rel_type3 = $onto->get_relationship_type_by_name("participates_in");
+
+my @descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n5, $rel_type1)};
+ok(scalar(@descendents7) == 0); 
+@descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n5, $rel_type2)};
+ok(scalar(@descendents7) == 2);
+@descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n2, $rel_type1)};
+ok(scalar(@descendents7) == 1);
+@descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n3, $rel_type3)};
+ok(scalar(@descendents7) == 1); 
+
+my @ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type1)};
+ok(scalar(@ancestors7) == 1); 
+@ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type2)};
+ok(scalar(@ancestors7) == 0);
+@ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type3)};
+ok(scalar(@ancestors7) == 2);
+@ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n2, $rel_type2)};
+ok(scalar(@ancestors7) == 2); 
+
 
 # add relationship type as string
 my $relationship_type = $onto->add_relationship_type_as_string("CCO:R0000004", "has_participant");
@@ -288,5 +357,6 @@ ok(@{$onto->get_tail_by_relationship_type($n2, $onto->get_relationship_type_by_n
 
 #export
 #$onto->export(\*STDERR);
+
 
 ok(1);

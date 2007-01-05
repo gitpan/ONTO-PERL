@@ -14,14 +14,14 @@ BEGIN {
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.
 
-use CCO::Core::DbxrefSet;
+use CCO::Util::DbxrefSet;
 use CCO::Core::Dbxref;
 use strict;
 
 #################
 # class methods #
 #################
-my $my_set = CCO::Core::DbxrefSet->new;
+my $my_set = CCO::Util::DbxrefSet->new;
 ok(1);
 
 # three new dbxref's
@@ -87,7 +87,7 @@ my $ref7 = $ref4;
 my $ref8 = $ref5;
 my $ref9 = $ref6;
 
-my $my_set2 = CCO::Core::DbxrefSet->new;
+my $my_set2 = CCO::Util::DbxrefSet->new;
 ok(1);
 
 ok($my_set2->is_empty());

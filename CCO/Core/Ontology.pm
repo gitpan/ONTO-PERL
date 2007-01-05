@@ -8,10 +8,11 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Core::Ontology;
-use CCO::Core::TermSet;
+use CCO::Util::TermSet;
 use strict;
 use warnings;
 use Carp;
+#use Data::Dumper;
 
 sub new {
         my $class                     = shift;
@@ -20,12 +21,16 @@ sub new {
         $self->{ID}                   = undef; # required, (1)
         $self->{NAME}                 = undef; # required, (1)
         $self->{NAMESPACE}            = undef; # required, (1)
-        $self->{COMMENT}              = undef; # string (0..1)
+        $self->{DATA_VERSION}         = undef; # string (0..1)
+        $self->{DATE}				  = undef; # (1) The current date in dd:MM:yyyy HH:mm format
+        $self->{SAVED_BY}             = undef; # string (0..1)
+        $self->{REMARK}               = undef; # string (0..1)
         
         $self->{TERMS}                = {}; # map: term_id vs. term  (0..n)
-        $self->{TERMS_SET}            = CCO::Core::TermSet->new(); # Terms (0..n)
+        $self->{TERMS_SET}            = CCO::Util::TermSet->new(); # Terms (0..n)
         $self->{RELATIONSHIP_TYPES}   = {}; # map: relationship_type_id vs. relationship_type  (0..n)
-        $self->{RELATIONSHIPS}        = {}; # (0..N)
+        $self->{RELATIONSHIPS}        = {}; # (0..N) 
+        # TODO implement RELATIONSHIP_SET
         $self->{TARGET_RELATIONSHIPS} = {}; # (0..N)
         $self->{SOURCE_RELATIONSHIPS} = {}; # (0..N)
         
@@ -61,6 +66,20 @@ sub name {
     return $self->{NAME};
 }
 
+=head2 date
+
+  Usage    - print $ontology->date()
+  Returns  - the current date (in dd:MM:yyyy HH:mm format) of the ontology
+  Args     - the current date (in dd:MM:yyyy HH:mm format) of the ontology
+  Function - gets/sets the date of the ontology
+  
+=cut
+sub date {
+	my $self = shift;
+    if (@_) { $self->{DATE} = shift }
+    return $self->{DATE};
+}
+
 =head2 namespace
 
   Usage    - print $ontology->namespace()
@@ -71,22 +90,50 @@ sub name {
 =cut
 sub namespace {
 	my $self = shift;
-    if (@_) { $self->{NAMESPACE} = shift }
+    if (@_) { $self->{NAMESPACE} = uc(shift) }
     return $self->{NAMESPACE};
 }
 
-=head2 comment
+=head2 data_version
 
-  Usage    - print $ontology->comment()
-  Returns  - the comment (string) of the ontology
-  Args     - the comment (string) of the ontology
-  Function - gets/sets the comment of the ontology
+  Usage    - print $ontology->data_version()
+  Returns  - the data version (string) of this ontology
+  Args     - the data version (string) of this ontology
+  Function - gets/sets the data version of this ontology
   
 =cut
-sub comment {
+sub data_version {
 	my $self = shift;
-    if (@_) { $self->{COMMENT} = shift }
-    return $self->{COMMENT};
+    if (@_) { $self->{DATA_VERSION} = shift }
+    return $self->{DATA_VERSION};
+}
+
+=head2 saved_by
+
+  Usage    - print $ontology->saved_by()
+  Returns  - the username of the person (string) to last save this ontology
+  Args     - the username of the person (string) to last save this ontology
+  Function - gets/sets the username of the person to last save this ontology
+  
+=cut
+sub saved_by {
+	my $self = shift;
+    if (@_) { $self->{SAVED_BY} = shift }
+    return $self->{SAVED_BY};
+}
+
+=head2 remark
+
+  Usage    - print $ontology->remark()
+  Returns  - the remark (string) of this ontology
+  Args     - the remark (string) of this ontology
+  Function - gets/sets the remark of this ontology
+  
+=cut
+sub remark {
+	my $self = shift;
+    if (@_) { $self->{REMARK} = shift }
+    return $self->{REMARK};
 }
 
 =head2 add_term
@@ -434,10 +481,10 @@ sub get_relationship_type_by_name {
 
 =head2 add_relationship
 
-  Usage    - $ontology->add_relationship()
+  Usage    - $ontology->add_relationship($relationship)
   Returns  - none
-  Args     - the relationship (CCO::Core::Relationship) to be added between two existing terms
-  Function - adds a relationship between two terms
+  Args     - the relationship (CCO::Core::Relationship) to be added between two existing terms or relationship types
+  Function - adds a relationship between two terms or relationship types
   
 =cut
 sub add_relationship {
@@ -450,11 +497,20 @@ sub add_relationship {
     $id || croak "The relationship to be added to this ontology does not have an ID";
     $self->{RELATIONSHIPS}->{$id} = $relationship;
     
-    # Are the terms connected by $relationship already in this ontology? if not, add them.
-    my $target_term = $self->{RELATIONSHIPS}->{$id}->head();
-    $self->has_term($target_term) || $self->add_term($target_term);
-    my $source_term = $self->{RELATIONSHIPS}->{$id}->tail();
-    $self->has_term($source_term) || $self->add_term($source_term);
+    #
+    # Are the target and source elements connected by $relationship already in this ontology? if not, add them.
+    #
+    my $target_element = $self->{RELATIONSHIPS}->{$id}->head();
+    my $source_element = $self->{RELATIONSHIPS}->{$id}->tail();
+    if (UNIVERSAL::isa($target_element, "CCO::Core::Term") && UNIVERSAL::isa($source_element, "CCO::Core::Term")) {
+	    $self->has_term($target_element) || $self->add_term($target_element);	
+	    $self->has_term($source_element) || $self->add_term($source_element);	
+    } elsif (UNIVERSAL::isa($target_element, "CCO::Core::RelationshipType") && UNIVERSAL::isa($source_element, "CCO::Core::RelationshipType")) {
+    	$self->has_relationship_type($target_element) || $self->add_relationship_type($target_element);
+    	$self->has_relationship_type($source_element) || $self->add_relationship_type($source_element);
+    } else {
+    	croak "An unrecognized object was found as part of the relationship: ", $id;
+    }
     
     # for getting children and parents
     $self->{TARGET_RELATIONSHIPS}->{$relationship->head()}->{$relationship->tail()} = $relationship;
@@ -489,7 +545,29 @@ sub get_relationship_by_id {
 =cut
 sub get_child_terms {
 	my $self = shift;
-	my $result = CCO::Core::TermSet->new();
+	my $result = CCO::Util::TermSet->new();
+    if (@_) {
+		my $term = shift;
+		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
+		foreach my $rel (@rels) {
+			$result->add($rel->tail());
+		}
+    }
+	my @arr = $result->get_set();
+    return \@arr;
+}
+
+=head2 get_parent_terms
+
+  Usage    - $ontology->get_parent_terms($term)
+  Returns  - a reference to an array with the parent terms (CCO::Core::Term) of the given term
+  Args     - the term (CCO::Core::Term) for which the parents will be found
+  Function - returns the parent terms of the given term
+  
+=cut
+sub get_parent_terms {
+	my $self = shift;
+	my $result = CCO::Util::TermSet->new();
     if (@_) {
 		my $term = shift;
 		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
@@ -497,27 +575,28 @@ sub get_child_terms {
 			$result->add($rel->head());
 		}
     }
-	my @arr = $result->get_set();
+    #return $result->get_set();
+    my @arr = $result->get_set();
     return \@arr;
 }
 
 =head2 get_head_by_relationship_type
 
-  Usage    - $ontology->get_head_by_relationship_type($term, $relationship_type)
-  Returns  - a reference to an array of terms (CCO::Core::Term) pointed out by the relationship of the given type; otherwise undef
-  Args     - the term (CCO::Core::Term) and the relationship type (CCO::Core::RelationshipType)
-  Function - returns the term pointed out by the relationship of the given type
+  Usage    - $ontology->get_head_by_relationship_type($term, $relationship_type) or $ontology->get_head_by_relationship_type($rel_type, $relationship_type)
+  Returns  - a reference to an array of terms (CCO::Core::Term) or relationship types (CCO::Core::RelationshipType) pointed out by the relationship of the given type; otherwise undef
+  Args     - the term (CCO::Core::Term) or relationship type (CCO::Core::RelationshipType) and the pointing relationship type (CCO::Core::RelationshipType)
+  Function - returns the terms or relationship types pointed out by the relationship of the given type
   
 =cut
 sub get_head_by_relationship_type {
 	my $self = shift;
-	my $result = CCO::Core::TermSet->new();
+	my $result = CCO::Util::Set->new();
     if (@_) {
-		my $term = shift;
-		croak "The term must be a CCO::Core::Term object" if (!UNIVERSAL::isa($term, 'CCO::Core::Term'));
+		my $element = shift;
+		croak "The element must be a CCO::Core::Term object" if (!UNIVERSAL::isa($element, 'CCO::Core::Term') && !UNIVERSAL::isa($element, "CCO::Core::RelationshipType"));
 		my $relationship_type = shift;
-		croak "The relationship type of this source term (",$term->id() ,") must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($relationship_type, 'CCO::Core::RelationshipType'));
-		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
+		croak "The relationship type of this source element (term or relationship type): ", $element->id()," must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($relationship_type, 'CCO::Core::RelationshipType'));
+		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
 		foreach my $rel (@rels) {
 			 $result->add($rel->head()) if ($rel->type() eq $relationship_type->name());
 		}
@@ -528,21 +607,21 @@ sub get_head_by_relationship_type {
 
 =head2 get_tail_by_relationship_type
 
-  Usage    - $ontology->get_tail_by_relationship_type($term, $relationship_type)
-  Returns  - a reference to an array of terms (CCO::Core::Term) pointing out the given term by means of the given relationship type; otherwise undef
-  Args     - the term (CCO::Core::Term) and the relationship type (CCO::Core::RelationshipType)
-  Function - returns the term pointing out the given term by means of the given relationship type
+  Usage    - $ontology->get_tail_by_relationship_type($term, $relationship_type) or $ontology->get_tail_by_relationship_type($rel_type, $relationship_type)
+  Returns  - a reference to an array of terms (CCO::Core::Term) or relationship types (CCO::Core::RelationshipType) pointing out the given term by means of the given relationship type; otherwise undef
+  Args     - the term (CCO::Core::Term) or relationship type (CCO::Core::RelationshipType) and the relationship type (CCO::Core::RelationshipType)
+  Function - returns the terms or relationship types pointing out the given term by means of the given relationship type
   
 =cut
 sub get_tail_by_relationship_type {
 	my $self = shift;
-	my $result = CCO::Core::TermSet->new();
+	my $result = CCO::Util::Set->new();
     if (@_) {
-		my $term = shift;
-		croak "The term must be a CCO::Core::Term object" if (!UNIVERSAL::isa($term, 'CCO::Core::Term'));
+		my $element = shift;
+		croak "The element must be a CCO::Core::Term object" if (!UNIVERSAL::isa($element, 'CCO::Core::Term') && !UNIVERSAL::isa($element, "CCO::Core::RelationshipType"));
 		my $relationship_type = shift;
-		croak "The relationship type must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($relationship_type, 'CCO::Core::RelationshipType'));
-		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
+		croak "The relationship type of this target element (term or relationship type): ", $element->id()," must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($relationship_type, 'CCO::Core::RelationshipType'));
+		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
 		foreach my $rel (@rels) {
 			 $result->add($rel->tail()) if ($rel->type() eq $relationship_type->name());
 		}
@@ -551,55 +630,8 @@ sub get_tail_by_relationship_type {
     return \@arr;
 }
 
-=head2 get_recursive_child_terms
 
-  Usage    - $ontology->get_recursive_child_terms($term)
-  Returns  - a set with the child terms (CCO::Core::Term) of the given term
-  Args     - the term (CCO::Core::Term) for which all the children will be found
-  Function - returns all the child terms of the given term
-  
-=cut
-sub get_recursive_child_terms {
-	
-	my $self = shift;
-	my $result = CCO::Core::TermSet->new();
-    if (@_) {
-    	my $term = shift;
-    	my @queue = ();
-    	push @queue, $term;
-    	while (scalar(@queue) > 0) {
-    		my $unqueued = shift @queue;
-    		$result->add($unqueued);
-    		my @children = @{$self->get_child_terms($unqueued)};
-    		for my $child (@children){
-    			push @queue, $child;
-    		}
-    	}
-    }
-	my @arr = $result->get_set();
-    return \@arr;
-}
 
-=head2 get_parent_terms
-
-  Usage    - $ontology->get_parent_terms($term)
-  Returns  - an array with the parent terms (CCO::Core::Term) of the given term
-  Args     - the term (CCO::Core::Term) for which the parents will be found
-  Function - returns the parent terms of the given term
-  
-=cut
-sub get_parent_terms {
-	my $self = shift;
-	my $result = CCO::Core::TermSet->new();
-    if (@_) {
-		my $term = shift;
-		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
-		foreach my $rel (@rels) {
-			$result->add($rel->tail());
-		}
-    }
-    return $result->get_set();
-}
 
 =head2 get_number_of_terms
 
@@ -644,7 +676,7 @@ sub get_number_of_relationship_types {
 
   Usage    - $ontology->export($file_handle, $export_format)
   Returns  - exports this ontology
-  Args     - the file handle (STDOUT, STDERR, ...) and the format: obo (by default), xml, owl, dot. Default file handle: STDOUT.
+  Args     - the file handle (STDOUT, STDERR, ...) and the format: obo (by default), xml, owl, dot, gml, xgmml, sbml. Default file handle: STDOUT.
   Function - exports this ontology
   
 =cut
@@ -654,19 +686,19 @@ sub export {
     my $format = shift || "obo";
     
     my $possible_formats = CCO::Util::Set->new();
-	$possible_formats->add_all('obo', 'xml', 'owl', 'dot');
+	$possible_formats->add_all('obo', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml');
 	if (!$possible_formats->contains($format)) {
-		croak "The format must be one of the following: 'obo', 'xml', 'owl', 'dot'";
+		croak "The format must be one of the following: 'obo', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml";
 	}
     
     if ($format eq "obo") {
 	    
 		# preambule: OBO header tags
 		print $file_handle "format-version: 1.2\n";
-		print $file_handle "date: ", `date '+%d:%m:%Y %H:%M'`;
-		print $file_handle "default-namespace: cco\n";
+		print $file_handle "date: ", (defined $self->date())?$self->date():`date '+%d:%m:%Y %H:%M'`, "\n";
+		print $file_handle "default-namespace: ", $self->namespace(), "\n" if ($self->namespace());
 		print $file_handle "autogenerated-by: onto-perl\n";
-		print $file_handle "remark: The Cell-Cycle Ontology\n";
+		print $file_handle "remark: ", $self->remark(), "\n" if ($self->remark());
 	
 	    # terms
 	    my @all_terms = values(%{$self->{TERMS}});
@@ -689,6 +721,13 @@ sub export {
 	    	} else {
 	    		croak "The term with id: ", $term->id(), " has no name!" ;
 	    	}
+	    	
+	    	#
+			# alt_id:
+			#
+			foreach my $alt_id ($term->alt_id()) {
+				print $file_handle "\nalt_id: ", $alt_id;
+			}
 	    	
 	    	#
 	    	# builtin:
@@ -737,7 +776,7 @@ sub export {
 	    	# synonym:
 	    	#
 	    	foreach my $synonym ($term->synonym_set()) {
-	    		print $file_handle "\nsynonym: ", $synonym->def_as_string(), " {scope=\"", $synonym->type(), "\"}";
+				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
 	    	}
 	    	
 	    	#
@@ -767,15 +806,33 @@ sub export {
 	    	print $file_handle "\ndef: ", $relationship_type->def_as_string() if (defined $relationship_type->def()->text());
 	    	print $file_handle "\ncomment: ", $relationship_type->comment() if (defined $relationship_type->comment());
 	    	foreach my $synonym ($relationship_type->synonym_set()) {
-	    		print $file_handle "\nsynonym: ", $synonym->def_as_string(), " {scope=\"", $synonym->type(), "\"}";
+	    		print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
 	    	}
+	    	
+	    	#
+	    	# is_a: TODO missing function to retieve the rel types 
+	    	#
+	    	my $rt = $self->get_relationship_type_by_name("is_a");
+	    	if (defined $rt)  {
+		    	my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
+		    	foreach my $head (@heads) {
+		    		if (defined $head->name()) {
+			    		print $file_handle "\nis_a: ", $head->id(), " ! ", $head->name();
+			    	} else {
+			    		croak "The relationship type with id: ", $head->id(), " has no name!" ;
+					}
+		    	}
+	    	}
+	    	
 	    	print $file_handle "\nis_cyclic: true" if ($relationship_type->is_cyclic() == 1);
 	    	print $file_handle "\nis_reflexive: true" if ($relationship_type->is_reflexive() == 1);
 	    	print $file_handle "\nis_symmetric: true" if ($relationship_type->is_symmetric() == 1);
 	    	print $file_handle "\nis_anti_symmetric: true" if ($relationship_type->is_anti_symmetric() == 1);
 	    	print $file_handle "\nis_transitive: true" if ($relationship_type->is_transitive() == 1);
 	    	print $file_handle "\nis_metadata_tag: true" if ($relationship_type->is_metadata_tag() == 1);
-	    	
+	    	foreach my $xref ($relationship_type->xref_set_as_string()) {
+	    		print $file_handle "\nxref: ", $xref->as_string();
+	    	}
 	    	print $file_handle "\n";
 	    }
     } elsif ($format eq "xml") {
@@ -788,11 +845,12 @@ sub export {
 		
 		print $file_handle "\t<header>\n";
 		print $file_handle "\t\t<format-version>1.2</format-version>\n";
-		chomp(my $date = `date '+%d:%m:%Y %H:%M'`);
-		print $file_handle "\t\t<date>", $date, "</date>\n";
-		print $file_handle "\t\t<default-namespace>cco</default-namespace>\n";
-		print $file_handle "\t\t<autogenerated-by>$0</autogenerated-by>\n";
-		print $file_handle "\t\t<remark>The Cell-Cycle Ontology</remark>\n";
+		chomp(my $date = (defined $self->date())?$self->date():`date '+%d:%m:%Y %H:%M'`);
+		print $file_handle "\t\t<hasDate>", $date, "</hasDate>\n";
+		print $file_handle "\t\t<savedBy>", $self->saved_by(), "</savedBy>\n" if ($self->saved_by());
+		print $file_handle "\t\t<default-namespace>", $self->namespace(), "</default-namespace>\n" if ($self->namespace());
+		print $file_handle "\t\t<autoGeneratedBy>", $0, "</autoGeneratedBy>\n";
+		print $file_handle "\t\t<remark>", $self->remark(), "</remark>\n" if ($self->remark());
 		print $file_handle "\t</header>\n\n";
 		
 		foreach my $term (@all_terms) {
@@ -816,9 +874,30 @@ sub export {
 	    	}
 	    	
 	    	#
+			# alt_id:
+			#
+			foreach my $alt_id ($term->alt_id()) {
+				print $file_handle "\t\t<hasAlternativeId>", $alt_id, "</hasAlternativeId>\n";
+			}
+
+			#
+			# comment
+			#
+			print $file_handle "\t<comment>", $term->comment(), "</comment>\n" if ($term->comment());
+			
+	    	#
 	    	# def:
 	    	#
-	    	print $file_handle "\t\t<def>", $term->def_as_string(), "</def>\n" if (defined $term->def()->text());
+	    	if (defined $term->def()->text()) {
+				print $file_handle "\t\t<Definition label=\"", $term->def()->text(), "\">\n";				
+				for my $ref ($term->def()->dbxref_set()->get_set()) {
+			        print $file_handle "\t\t\t<DbXref xref=\"", $ref->name(), "\">\n";
+			        print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
+			        print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
+			        print $file_handle "\t\t\t</DbXref>\n";
+				}
+				print $file_handle "\t\t</Definition>\n";
+			}
 
 			#
 			# disjoint_from:
@@ -904,6 +983,9 @@ sub export {
 	    	print $file_handle "\t\t<is_anti_symmetric>true</is_anti_symmetric>" if ($relationship_type->is_anti_symmetric() == 1);
 	    	print $file_handle "\t\t<is_transitive>true</is_transitive>" if ($relationship_type->is_transitive() == 1);
 	    	print $file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>" if ($relationship_type->is_metadata_tag() == 1);
+	    	foreach my $xref ($relationship_type->xref_set_as_string()) {
+	    		print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
+	    	}
 	    	
 	    	print $file_handle "\t</typedef>\n\n";
 	    }
@@ -925,13 +1007,55 @@ sub export {
 		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
 		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
 		print $file_handle "\txmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n";
+		print $file_handle "\txmlns:oboInOwl=\"http://www.cellcycleontology.org/oboInOwl#\"\n";
 		print $file_handle ">\n";
 		
+		#
+		# header: http://oe0.spreadsheets.google.com/ccc?id=o06770842196506107736.4732937099693365844.03735622766900057712.3276521997699206495#
+		#
 		print $file_handle "<owl:Ontology rdf:about=\"\">\n";
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">Cell-Cycle Ontology</rdfs:comment>\n";
-		print $file_handle "\t<owl:versionInfo rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">0.3</owl:versionInfo>\n";
+		print $file_handle "\t<owl:versionInfo rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->data_version(), "</owl:versionInfo>\n" if ($self->data_version());;
+		print $file_handle "\t<hasDate rdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">", $self->date(), "</hasDate>\n" if ($self->date());
+		print $file_handle "\t<savedBy rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->saved_by(), "</savedBy>\n" if ($self->saved_by());
+		print $file_handle "\t<autoGeneratedBy rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $0, "</autoGeneratedBy>\n" if ($0);
+		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->remark(), "</rdfs:comment>\n" if ($self->remark());
 		print $file_handle "\t<owl:imports rdf:resource=\"http://purl.org/dc/elements/1.1/\"/>\n";
 		print $file_handle "</owl:Ontology>\n\n";
+		
+		#
+		# oboInOwl elements
+		#
+		print $file_handle "<owl:DatatypeProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#dbname\">\n";
+		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#FunctionalProperty\"/>\n";
+		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+		print $file_handle "</owl:DatatypeProperty>\n";
+		
+		print $file_handle "<owl:DatatypeProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#acc\">\n";
+		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#FunctionalProperty\"/>\n";
+		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+		print $file_handle "</owl:DatatypeProperty>\n";
+		
+		print $file_handle "<owl:ObjectProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_dbxref\"/>\n";
+		
+		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#DbXref\">\n";
+		print $file_handle "\t<owl:intersectionOf rdf:parseType=\"Collection\">\n";
+		print $file_handle "\t<owl:Restriction>\n";
+		print $file_handle "\t\t<owl:cardinality rdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">1</owl:cardinality>\n";
+		print $file_handle "\t\t<owl:onProperty rdf:resource=\"http://www.cellcycleontology.org/oboInOwl#dbname\"/>\n";
+		print $file_handle "\t</owl:Restriction>\n";
+		print $file_handle "\t<owl:Restriction>\n";
+		print $file_handle "\t\t<owl:cardinality rdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">1</owl:cardinality>\n";
+		print $file_handle "\t\t<owl:onProperty rdf:resource=\"http://www.cellcycleontology.org/oboInOwl#acc\"/>\n";
+		print $file_handle "\t</owl:Restriction>\n";
+		print $file_handle "\t</owl:intersectionOf>\n";
+		print $file_handle "</owl:Class>\n";
+   
+		print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_definition\"/>\n";
+		print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_synonym\"/>\n";
+		
+		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#Definition\"/>\n";
+		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#Synonym\"/>\n";
+		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#IDSpace\"/>\n";
 		
 		#
 		# term
@@ -942,25 +1066,51 @@ sub export {
 			#
 			# Class name
 			#
-			print $file_handle "<owl:Class rdf:ID=\"", obo_id2owl_id($term->id()), "\">\n";;
+			print $file_handle "<owl:Class rdf:ID=\"", obo_id2owl_id($term->id()), "\">\n";
 			
 			#
 			# label name = class name
 			#
 			print $file_handle "\t<rdfs:label xml:lang=\"en\">", $term->name(), "</rdfs:label>\n";
-				
+			
+			#
+			# alt_id:
+			#
+			foreach my $alt_id ($term->alt_id()) {
+				print $file_handle "\t<hasAlternativeId rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $alt_id, "</hasAlternativeId>\n";
+			}
+			
+			#
+			# comment
+			#
+			print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $term->comment(), "</rdfs:comment>\n" if ($term->comment());
+			
 			#
 			# xref's
 			#
 			foreach my $xref ($term->xref_set_as_string()) {
-	    			print $file_handle "\t<xref rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $xref->as_string(), "</xref>\n";
+				print $file_handle "\t<xref rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $xref->as_string(), "</xref>\n";
 	    	}
 			
 			#
 			# Def
-			#
+			#      
 			if (defined $term->def()->text()) {
-				print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $term->def()->text(), "</rdfs:comment>\n";
+				print $file_handle "\t<oboInOwl:has_definition>\n";
+				print $file_handle "\t\t<oboInOwl:Definition>\n";
+				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $term->def()->text(), "</rdfs:label>\n";
+				
+				for my $ref ($term->def()->dbxref_set()->get_set()) {
+					print $file_handle "\t\t\t<oboInOwl:has_dbxref>\n";
+			        print $file_handle "\t\t\t<oboInOwl:DbXref rdf:about=\"xref/", $ref->db(), "#", $ref->acc(),"\">\n";
+			        print $file_handle "\t\t\t\t<oboInOwl:acc>", $ref->acc(),"</oboInOwl:acc>\n";
+			        print $file_handle "\t\t\t\t<oboInOwl:dbname>", $ref->db(),"</oboInOwl:dbname>\n";
+			        print $file_handle "\t\t\t</oboInOwl:DbXref>\n";
+			        print $file_handle "\t\t\t</oboInOwl:has_dbxref>\n";
+				}
+		        	
+				print $file_handle "\t\t</oboInOwl:Definition>\n";
+				print $file_handle "\t</oboInOwl:has_definition>\n";
 			}
 			
 			#
@@ -1094,7 +1244,9 @@ sub export {
 			
 			print $file_handle "\t<is_reflexive rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">true</is_reflexive>\n" if ($relationship_type->is_reflexive());
 			print $file_handle "\t<is_anti_symmetric rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">true</is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric()); # anti-symmetric <> not symmetric
-			
+			foreach my $xref ($relationship_type->xref_set_as_string()) {
+	    		print $file_handle "\t<xref rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $xref->as_string(), "</xref>\n";
+	    	}
 			## There is no way to code these rel's in OBO
 			##print $file_handle "\t<rdf:type rdf:resource=\"&owl;FunctionalProperty\"/>\n" if (${$relationship{$_}}{"TODO"});
 			##print $file_handle "\t<rdf:type rdf:resource=\"&owl;InverseFunctionalProperty\"/>\n" if (${$relationship{$_}}{"TODO"});
@@ -1106,17 +1258,46 @@ sub export {
 		# Datatype annotation properties: todo: AnnotationProperty or not?
 		#
 		
+		
+		
 		# has_reference
 		print $file_handle "<owl:ObjectProperty rdf:ID=\"has_reference\">\n";
 		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
 		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">Describes the reference of the term definition.</rdfs:comment>\n";
 		print $file_handle "</owl:ObjectProperty>\n\n";
 		
+		# alt_id
+		print $file_handle "<owl:DatatypeProperty rdf:ID=\"hasAlternativeId\">\n";
+		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
+		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "Defines an alternate id for a term. A term may have any number of alternate ids", "</rdfs:comment>\n";
+		print $file_handle "</owl:DatatypeProperty>\n\n";
+		
 		# xref
 		print $file_handle "<owl:DatatypeProperty rdf:ID=\"xref\">\n";
 		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
 		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
 		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "Describes an analogous term in another vocabulary. A term may have any number of xref's.", "</rdfs:comment>\n";
+		print $file_handle "</owl:DatatypeProperty>\n\n";
+		
+		# hasDate
+		print $file_handle "<owl:DatatypeProperty rdf:ID=\"hasDate\">\n";
+		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
+		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "Describes the current date in formatdd:MM:yyyy HH:mm.", "</rdfs:comment>\n";
+		print $file_handle "</owl:DatatypeProperty>\n";
+		
+		# savedBy
+		print $file_handle "<owl:DatatypeProperty rdf:ID=\"savedBy\">\n";
+		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
+		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "The username of the person to last save this ontology.", "</rdfs:comment>\n";
+		print $file_handle "</owl:DatatypeProperty>\n\n";
+		
+		# autoGeneratedBy
+		print $file_handle "<owl:DatatypeProperty rdf:ID=\"autoGeneratedBy\">\n";
+		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
+		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "The program that generated this ontology.", "</rdfs:comment>\n";
 		print $file_handle "</owl:DatatypeProperty>\n\n";
 		
 		# synonym
@@ -1197,6 +1378,79 @@ sub export {
 		# end DOT format
 		#
     	print $file_handle "\n}";
+    } elsif ($format eq "gml") {
+    	#
+    	# begin GML format
+    	#
+    	print $file_handle "Creator \"onto-perl\"\n";
+    	print $file_handle "Version	1.0\n";
+    	print $file_handle "graph [\n";
+    	#print $file_handle "\tVendor \"onto-perl\"\n";
+    	#print $file_handle "\tdirected 1\n";
+    	#print $file_handle "\tcomment 1"
+    	#print $file_handle "\tlabel 1"
+    	
+    	my %id = ('C'=>1, 'P'=>2, 'F'=>3, 'R'=>4, 'T'=>5, 'I'=>6, 'B'=>7, 'U'=>8, 'X'=>9);
+    	my %color_id = ('C'=>'fff5f5', 'P'=>'b7ffd4', 'F'=>'d7ffe7', 'R'=>'ceffe1', 'T'=>'ffeaea', 'I'=>'f4fff8', 'B'=>'f0fff6', 'U'=>'e0ffec', 'X'=>'ffcccc');
+    	my %gml_id;
+    	# terms
+	    my @all_terms = values(%{$self->{TERMS}});
+	    foreach my $term (@all_terms) {
+	    	#
+			# Class name
+			#
+			print $file_handle "\tnode [\n";
+			my $term_sns = $term->subnamespace();
+			my $id = $id{$term_sns};
+			$gml_id{$term->id()} = 100000000 * (defined($id)?$id:1) + $term->code();
+			#$id{$term->id()} = $gml_id;
+			print $file_handle "\t\troot_index	-", $gml_id{$term->id()}, "\n";
+			print $file_handle "\t\tid			-", $gml_id{$term->id()}, "\n";
+			print $file_handle "\t\tgraphics	[\n";
+			#print $file_handle "\t\t\tx	1656.0\n";
+			#print $file_handle "\t\t\ty	255.0\n";
+			print $file_handle "\t\t\tw	40.0\n";
+			print $file_handle "\t\t\th	40.0\n";
+			print $file_handle "\t\t\tfill	\"#".$color_id{$term_sns}."\"\n";
+			print $file_handle "\t\t\toutline	\"#000000\"\n";
+			print $file_handle "\t\t\toutline_width	1.0\n";
+			print $file_handle "\t\t]\n";
+			print $file_handle "\t\tlabel		\"", $term->id(), "\"\n";
+			print $file_handle "\t\tname		\"", $term->name(), "\"\n";
+			print $file_handle "\t\tcomment		\"", $term->def()->text(), "\"\n" if (defined $term->def()->text());
+			print $file_handle "\t]\n";
+			
+	    	#
+	    	# relationships: terms1 -> term2
+	    	#
+	    	foreach my $rt (@{$self->get_relationship_types()}) {
+				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
+				foreach my $head (@heads) {
+					if (!defined $term->name()) {
+				   		croak "The term with id: ", $term->id(), " has no name!" ;
+				   	} elsif (!defined $head->name()) {
+				   		croak "The term with id: ", $head->id(), " has no name!" ;
+				   	} else {
+			    		print $file_handle "\tedge [\n";
+			    		print $file_handle "\t\troot_index	-", $gml_id{$term->id()}, "\n";
+		    			print $file_handle "\t\tsource		-", $gml_id{$term->id()}, "\n";
+		    			$gml_id{$head->id()} = 100000000 * (defined($id{$head->subnamespace()})?$id{$head->subnamespace()}:1) + $head->code();
+		    			print $file_handle "\t\ttarget		-", $gml_id{$head->id()}, "\n";
+		    			print $file_handle "\t\tlabel		\"", $rt->name(),"\"\n";
+		    			print $file_handle "\t]\n";
+					}
+				}
+	    	}
+	    }
+	    
+	    #
+		# end GML format
+		#
+    	print $file_handle "\n]";
+	} elsif ($format eq "xgmml") {
+		warn "Not implemented yet";
+	} elsif ($format eq "sbml") {
+		warn "Not implemented yet";
     }
     
     return 0;
@@ -1214,6 +1468,167 @@ sub export {
 sub obo_id2owl_id {
 	$_[0] =~ s/:/_/;
 	return $_[0];
+}
+
+=head2 get_descendent_terms
+
+  Usage    - $ontology->get_descendent_terms($term)
+  Returns  - a set with the descendent terms (CCO::Core::Term) of the given term
+  Args     - the term (CCO::Core::Term) for which all the descendent will be found
+  Function - returns recursively all the child terms of the given term
+  
+=cut
+sub get_descendent_terms {
+	
+	my $self = shift;
+	my $result = CCO::Util::TermSet->new();
+    if (@_) {
+    	my $term = shift;
+    	
+    	my @queue = @{$self->get_child_terms($term)}; 
+    	while (scalar(@queue) > 0) {
+    		my $unqueued = shift @queue;
+    		$result->add($unqueued); 
+    		my @children = @{$self->get_child_terms($unqueued)}; 
+    		@queue = (@queue, @children);
+    		
+    	}
+    }
+	my @arr = $result->get_set();
+	return \@arr;
+}
+
+=head2 get_ancestor_terms
+
+  Usage    - $ontology->get_ancestor_terms($term)
+  Returns  - a set with the ancestor terms (CCO::Core::Term) of the given term
+  Args     - the term (CCO::Core::Term) for which all the ancestors will be found
+  Function - returns recursively all the parent terms of the given term
+  
+=cut
+sub get_ancestor_terms {
+	
+	my $self = shift;
+	my $result = CCO::Util::TermSet->new();
+    if (@_) {
+    	my $term = shift;
+    	my @queue = @{$self->get_parent_terms($term)};
+    	while (scalar(@queue) > 0) {
+    		my $unqueued = shift @queue;
+    		$result->add($unqueued);
+    		my @parents = @{$self->get_parent_terms($unqueued)};
+    		@queue = (@queue, @parents);
+    		
+    	}
+    }
+	my @arr = $result->get_set();
+	return \@arr;
+}
+
+=head2 get_descendent_terms_by_subnamespace
+
+  Usage    - $ontology->get_descendent_terms_by_subnamespace($term, subnamespace)
+  Returns  - a set with the descendent terms (CCO::Core::Term) of the given subnamespace 
+  Args     - the term (CCO::Core::Term), the subnamespace (string, e.g. 'P', 'R' etc)
+  Function - returns recursively the given term's children of the given subnamespace
+  
+=cut
+sub get_descendent_terms_by_subnamespace {
+	
+	my $self = shift;
+	my $result = CCO::Util::TermSet->new();
+    if (@_) {
+    	my ($term, $subnamespace) = @_;
+    	my @queue = @{$self->get_child_terms($term)};
+    	while (scalar(@queue) > 0) {
+    		my $unqueued = shift @queue;
+    		$result->add($unqueued) if substr($unqueued->id(), 4, length($subnamespace)) eq $subnamespace;
+    		my @children = @{$self->get_child_terms($unqueued)};
+    		@queue = (@queue, @children);
+    	}
+    }
+	my @arr = $result->get_set();
+	return \@arr;
+    
+}
+
+=head2 get_ancestor_terms_by_subnamespace
+
+  Usage    - $ontology->get_ancestor_terms_by_subnamespace($term, subnamespace)
+  Returns  - a set with the ancestor terms (CCO::Core::Term) of the given subnamespace 
+  Args     - the term (CCO::Core::Term), the subnamespace (string, e.g. 'P', 'R' etc)
+  Function - returns recursively the given term's parents of the given subnamespace
+  
+=cut
+sub get_ancestor_terms_by_subnamespace {
+	
+	my $self = shift;
+	my $result = CCO::Util::TermSet->new();
+    if (@_) {
+    	my ($term, $subnamespace) = @_;
+    	my @queue = @{$self->get_parent_terms($term)};
+    	while (scalar(@queue) > 0) {
+    		my $unqueued = shift @queue;
+    		$result->add($unqueued) if substr($unqueued->id(), 4, length($subnamespace)) eq $subnamespace;
+    		my @parents = @{$self->get_parent_terms($unqueued)};
+    		@queue = (@queue, @parents);
+    	}
+    }
+	my @arr = $result->get_set();
+	return \@arr;
+    
+}
+
+=head2 get_descendent_terms_by_relationship_type
+
+  Usage    - $ontology->get_descendent_terms_by_relationship_type($term, $rel_type)
+  Returns  - a set with the descendent terms (CCO::Core::Term) of the given term linked by the given relationship type
+  Args     - CCO::Core::Term object, CCO::Core::RelationshipType object
+  Function - returns recursively all the child terms of the given term linked by the given relationship type
+  
+=cut
+sub get_descendent_terms_by_relationship_type {
+	
+	my $self = shift;
+	my $result = CCO::Util::TermSet->new();
+    if (@_) {
+    	my ($term, $type) = @_;
+    	my @queue = @{$self->get_tail_by_relationship_type($term, $type)};
+    	while (scalar(@queue) > 0) {
+    		my $unqueued = shift @queue;
+    		$result->add($unqueued);
+    		my @children = @{$self->get_tail_by_relationship_type($unqueued, $type)}; 
+    		@queue = (@queue, @children);
+    	}
+    }
+	my @arr = $result->get_set();
+	return \@arr;
+}
+
+=head2 get_ancestor_terms_by_relationship_type
+
+  Usage    - $ontology->get_ancestor_terms_by_relationship_type($term, $rel_type)
+  Returns  - a set with the ancestor terms (CCO::Core::Term) of the given term linked by the given relationship type
+  Args     - CCO::Core::Term object, CCO::Core::RelationshipType object
+  Function - returns recursively the parent terms of the given term linked by the given relationship type
+  
+=cut
+sub get_ancestor_terms_by_relationship_type {
+	
+	my $self = shift;
+	my $result = CCO::Util::TermSet->new();
+    if (@_) {
+    	my ($term, $type) = @_;
+    	my @queue = @{$self->get_head_by_relationship_type($term, $type)};
+    	while (scalar(@queue) > 0) {
+    		my $unqueued = shift @queue;
+    		$result->add($unqueued);
+    		my @parents = @{$self->get_head_by_relationship_type($unqueued, $type)};
+    		@queue = (@queue, @parents);
+    	}
+    }
+	my @arr = $result->get_set();
+	return \@arr;
 }
 
 1;
@@ -1258,6 +1673,7 @@ $onto->add_term($n1);
 $onto->add_term($n2);
 $onto->add_term($n3);
 
+
 $onto->delete_term($n1);
 
 $onto->add_term($n1);
@@ -1275,27 +1691,32 @@ $onto->add_term($n4);
 # add term as string
 my $new_term = $onto->add_term_as_string("CCO:P0000005", "Five");
 $new_term->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+my $n5 = $new_term; 
 
-# three new relationships
+# five new relationships
 my $r12 = CCO::Core::Relationship->new();
 my $r23 = CCO::Core::Relationship->new();
 my $r13 = CCO::Core::Relationship->new();
 my $r14 = CCO::Core::Relationship->new();
+my $r35 = CCO::Core::Relationship->new();
 
 $r12->id("CCO:P0000001_is_a_CCO:P0000002");
 $r23->id("CCO:P0000002_part_of_CCO:P0000003");
 $r13->id("CCO:P0000001_participates_in_CCO:P0000003");
 $r14->id("CCO:P0000001_participates_in_CCO:P0000004");
+$r35->id("CCO:P0000003_part_of_CCO:P0000005");
 
 $r12->type("is_a");
 $r23->type("part_of");
 $r13->type("participates_in");
 $r14->type("participates_in");
+$r35->type("part_of");
 
-$r12->link($n1, $n2);
+$r12->link($n1, $n2); 
 $r23->link($n2, $n3);
 $r13->link($n1, $n3);
 $r14->link($n1, $n4);
+$r35->link($n3, $n5);
 
 # get all terms
 my $c = 0;
@@ -1305,11 +1726,22 @@ foreach my $t (@{$onto->get_terms()}) {
 	$c++;
 }
 
+# get terms with argument
+my @processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P.*")};
+my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000[35]")};
+$onto->namespace("CCO");
+my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
+my @no_processes = @{$onto->get_terms_by_subnamespace("p")};
+
+# get terms
+
 # add relationships
 $onto->add_relationship($r12);
 $onto->add_relationship($r23);
 $onto->add_relationship($r13);
 $onto->add_relationship($r14);
+$onto->add_relationship($r35);
+
 
 # add relationships and terms linked by this relationship
 my $n11 = CCO::Core::Term->new();
@@ -1319,7 +1751,7 @@ $n21->id("CCO:P0000021"); $n21->name("Two one"); $n21->def_as_string("Definition
 my $r11_21 = CCO::Core::Relationship->new();
 $r11_21->id("CCO:R0001121"); $r11_21->type("r11-21");
 $r11_21->link($n11, $n21);
-$onto->add_relationship($r11_21); # adds to the ontology the linked terms by this relationship
+$onto->add_relationship($r11_21); # adds to the ontology the terms linked by this relationship
 
 # get all relationships
 my %hr;
@@ -1327,20 +1759,47 @@ foreach my $r (@{$onto->get_relationships()}) {
 	$hr{$r->id()} = $r;
 }
 
+# recover a previously stored relationship
+
 # get children
-my @children = @{$onto->get_child_terms($n1)};
+my @children = @{$onto->get_child_terms($n1)}; 
+
+@children = @{$onto->get_child_terms($n3)}; 
 my %ct;
 foreach my $child (@children) {
 	$ct{$child->id()} = $child;
-}
+} 
 
-@children = @{$onto->get_child_terms($n3)};
 @children = @{$onto->get_child_terms($n2)};
 
 # get parents
-my @parents = $onto->get_parent_terms($n3);
-@parents = $onto->get_parent_terms($n1);
-@parents = $onto->get_parent_terms($n2);
+my @parents = @{$onto->get_parent_terms($n3)};
+@parents = @{$onto->get_parent_terms($n1)};
+@parents = @{$onto->get_parent_terms($n2)};
+
+# get all descendents
+my @descendents1 = @{$onto->get_descendent_terms($n1)};
+my @descendents2 = @{$onto->get_descendent_terms($n2)};
+my @descendents3 = @{$onto->get_descendent_terms($n3)};
+my @descendents5 = @{$onto->get_descendent_terms($n5)};
+
+# get all ancestors
+my @ancestors1 = @{$onto->get_ancestor_terms($n1)};
+my @ancestors2 = @{$onto->get_ancestor_terms($n2)};
+my @ancestors3 = @{$onto->get_ancestor_terms($n3)};
+
+# get descendents by term subnamespace
+my @descendents4 = @{$onto->get_descendent_terms_by_subnamespace($n1, 'P')};
+my @descendents5 = @{$onto->get_descendent_terms_by_subnamespace($n2, 'P')}; 
+my @descendents6 = @{$onto->get_descendent_terms_by_subnamespace($n3, 'P')};
+my @descendents6 = @{$onto->get_descendent_terms_by_subnamespace($n3, 'R')};
+
+# get ancestors by term subnamespace
+my @ancestors4 = @{$onto->get_ancestor_terms_by_subnamespace($n1, 'P')};
+my @ancestors5 = @{$onto->get_ancestor_terms_by_subnamespace($n2, 'P')}; 
+my @ancestors6 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'P')};
+my @ancestors6 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'R')};
+
 
 # three new relationships types
 my $r1 = CCO::Core::RelationshipType->new();
@@ -1355,10 +1814,29 @@ $r1->name("is_a");
 $r2->name("part_of");
 $r3->name("participates_in");
 
+
+
+
 # add relationship types
 $onto->add_relationship_type($r1);
 $onto->add_relationship_type($r2);
 $onto->add_relationship_type($r3);
+
+# get descendents or ancestors linked by a particular relationship type 
+my $rel_type1 = $onto->get_relationship_type_by_name("is_a");
+my $rel_type2 = $onto->get_relationship_type_by_name("part_of");
+my $rel_type3 = $onto->get_relationship_type_by_name("participates_in");
+
+my @descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n5, $rel_type1)};
+@descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n5, $rel_type2)};
+@descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n2, $rel_type1)};
+@descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n3, $rel_type3)};
+
+my @ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type1)};
+@ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type2)};
+@ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type3)};
+@ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n2, $rel_type2)};
+
 
 # add relationship type as string
 my $relationship_type = $onto->add_relationship_type_as_string("CCO:R0000004", "has_participant");
@@ -1369,6 +1847,7 @@ my %rrt;
 foreach my $relt (@rt) {
 	$rrt{$relt->name()} = $relt;
 }
+
 
 my @rtbt = @{$onto->get_relationship_types_by_term($n1)};
 
@@ -1383,6 +1862,7 @@ my %hbrt;
 foreach my $head (@heads_n1) {
 	$hbrt{$head->id()} = $head;
 }
+
 
 =head1 DESCRIPTION
 This module has several methods to cope with the CCO. Basically, it is a

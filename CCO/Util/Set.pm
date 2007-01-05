@@ -7,6 +7,8 @@
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
+# TODO implement function 'eliminate duplicates', see GoaAssociationSet.t
+# TODO implement function 'remove'
 package CCO::Util::Set;
 
 use strict;

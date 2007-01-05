@@ -7,21 +7,14 @@
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
-package CCO::Core::DbxrefSet;
+package CCO::Util::DbxrefSet;
+our @ISA = qw(CCO::Util::Set);
+use CCO::Util::Set;
 use strict;
 use warnings;
 use Carp;
 
-sub new {
-        my $class                   = shift;
-        my $self                    = {};
-        
-        # todo pensar en usar un mapa para acceder rapidamente a los elementos en remove por ej.
-        $self->{SET}                = (); # the set
-        
-        bless ($self, $class);
-        return $self;
-}
+
 
 
 =head2 add
@@ -79,35 +72,7 @@ sub remove {
 	return $result;
 }
 
-=head2 add_all
 
-  Usage    - $set->add_all($ele1, $ele2, $ele3, ...)
-  Returns  - true if the elements were successfully added
-  Args     - the elements to be added (CCO::Core::Dbxref)
-  Function - adds the given elements to this set
-  
-=cut
-sub add_all {
-	my $self = shift;
-	my $result = 1; # something added
-	foreach (@_) {
-		$result *= $self->add ($_);
-	}
-	return $result;
-}
-
-=head2 get_set
-
-  Usage    - $set->get_set()
-  Returns  - this set
-  Args     - none
-  Function - returns this set
-  
-=cut
-sub get_set {
-	my $self = shift;
-	return (!$self->is_empty())?@{$self->{SET}}:();
-}
 
 =head2 contains
 
@@ -135,50 +100,12 @@ sub contains {
 	return $result;
 }
 
-=head2 size
-
-  Usage    - print $set->size()
-  Returns  - the size of this set
-  Args     - none
-  Function - tells the number of elements held by this set
-  
-=cut
-sub size {
-	my $self = shift;
-    return $#{$self->{SET}} + 1;
-}
-
-=head2 clear
-
-  Usage    - $set->clear()
-  Returns  - none
-  Args     - none
-  Function - clears this set
-  
-=cut
-sub clear {
-	my $self = shift;
-	@{$self->{SET}} = ();
-}
-
-=head2 is_empty
-
-  Usage    - $set->is_empty()
-  Returns  - either 1(true) or 0 (false)
-  Args     - none
-  Function - checks if this set is empty
-  
-=cut
-sub is_empty{
-	my $self = shift;
-	return ($#{$self->{SET}} == -1);
-}
 
 =head2 equals
 
   Usage    - $set->equals($another_dbxref_set)
   Returns  - either 1 (true) or 0 (false)
-  Args     - the set (CCO::Core::DbxrefSet) to compare with
+  Args     - the set (CCO::Util::DbxrefSet) to compare with
   Function - tells whether this set is equal to the given one
   
 =cut
@@ -188,7 +115,7 @@ sub equals {
 	
 	if (@_) {
 		my $other_set = shift;
-		croak "The element to be tested must be a CCO::Core::DbxrefSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Core::DbxrefSet'));
+		croak "The element to be tested must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::DbxrefSet'));
 		
 		my %count = ();
 		
@@ -219,14 +146,14 @@ sub equals {
 1;
 
 =head1 NAME
-    CCO::Core::DbxrefSet  - a DbxrefSet implementation
+    CCO::Util::DbxrefSet  - a DbxrefSet implementation
 =head1 SYNOPSIS
 
-use CCO::Core::DbxrefSet;
+use CCO::Util::DbxrefSet;
 use CCO::Core::Dbxref;
 use strict;
 
-my $my_set = CCO::Core::DbxrefSet->new;
+my $my_set = CCO::Util::DbxrefSet->new;
 
 # three new dbxref's
 my $ref1 = CCO::Core::Dbxref->new;
@@ -266,7 +193,7 @@ my $ref7 = $ref4;
 my $ref8 = $ref5;
 my $ref9 = $ref6;
 
-my $my_set2 = CCO::Core::DbxrefSet->new;
+my $my_set2 = CCO::Util::DbxrefSet->new;
 
 $my_set->add_all($ref4, $ref5, $ref6);
 $my_set2->add_all($ref7, $ref8, $ref9, $ref1, $ref2, $ref3);
