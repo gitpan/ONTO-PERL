@@ -17,7 +17,7 @@ sub new {
         my $self                    = {};
         
         $self->{ID}                 = undef; # required, string (1)
-        $self->{TYPE}               = undef; # required, string (1) # todo usar RelationshipType?
+        $self->{TYPE}               = undef; # required, string (1)
         
         $self->{HEAD}               = undef; # required, string (1)
         $self->{TAIL}               = undef; # required, string (1)
@@ -42,15 +42,17 @@ sub id {
 
 =head2 type
 
-  Usage    - print $relationship->type()
-  Returns  - the type of the relationship
-  Args     - the type of the relationship
+  Usage    - $relationship->type("is_a") or print $relationship->type()
+  Returns  - the type of the relationship (string)
+  Args     - the type of the relationship (string)
   Function - gets/sets the type of the relationship
   
 =cut
 sub type {
 	my $self = shift;
-    if (@_) { $self->{TYPE} = shift }
+	if (@_) {
+		$self->{TYPE} = shift;
+    }
     return $self->{TYPE};
 }
 
@@ -79,7 +81,7 @@ sub equals  {
 
 =head2 head
 
-  Usage    - $relationship->head($object)
+  Usage    - $relationship->head($object) or $relationship->head()
   Returns  - the CCO::Core::Term (object or target) or CCO::Core::RelationshipType (object or target) targeted by this relationship
   Args     - the target term (CCO::Core::Term) or the target relationship type (CCO::Core::RelationshipType)
   Function - gets/sets the term/relationship type attached to the head of the relationship
@@ -97,7 +99,7 @@ sub head {
 
 =head2 tail
 
-  Usage    - $relationship->tail($subject)
+  Usage    - $relationship->tail($subject) or $relationship->tail()
   Returns  - the CCO::Core::Term (subject or source) or CCO::Core::RelationshipType (object or target) sourced by this relationship
   Args     - the source term (CCO::Core::Term) or the source relationship type (CCO::Core::RelationshipType)
   Function - gets/sets the term/relationship type attached to the tail of the relationship
@@ -115,9 +117,9 @@ sub tail {
 
 =head2 link
 
-  Usage    - $relationship->link()
-  Returns  - the Terms or RelationshipTypes (subject and source) connected by this relationship
-  Args     - the source(tail) and target(head) term/relationship type
+  Usage    - $relationship->link($tail, $head) or $relationship->link()
+  Returns  - the two Terms or two RelationshipTypes (subject and source) connected by this relationship
+  Args     - the source(tail, CCO::Core::Term) and target(head, CCO::Core::Term) term/relationship type
   Function - gets/sets the terms/relationship type attached to this relationship
   
 =cut
@@ -145,9 +147,9 @@ use CCO::Core::Term;
 use strict;
 
 # three new relationships
-my $r1 = CCO::Core::Relationship->new;
-my $r2 = CCO::Core::Relationship->new;
-my $r3 = CCO::Core::Relationship->new;
+my $r1 = CCO::Core::Relationship->new();
+my $r2 = CCO::Core::Relationship->new();
+my $r3 = CCO::Core::Relationship->new();
 
 $r1->id("CCO:P0000001_is_a_CCO:P0000002");
 $r2->id("CCO:P0000002_part_of_CCO:P0000003");
@@ -157,10 +159,14 @@ $r1->type("is_a");
 $r2->type("part_of");
 $r3->type("has_child");
 
+!$r1->equals($r2);
+!$r2->equals($r3);
+!$r3->equals($r1);
+
 # three new terms
-my $n1 = CCO::Core::Term->new;
-my $n2 = CCO::Core::Term->new;
-my $n3 = CCO::Core::Term->new;
+my $n1 = CCO::Core::Term->new();
+my $n2 = CCO::Core::Term->new();
+my $n3 = CCO::Core::Term->new();
 
 $n1->id("CCO:P0000001");
 $n2->id("CCO:P0000002");
@@ -183,9 +189,9 @@ $r3->head($n3);
 $r3->tail($n1);
 
 # three new relationships
-my $r4 = CCO::Core::Relationship->new;
-my $r5 = CCO::Core::Relationship->new;
-my $r6 = CCO::Core::Relationship->new;
+my $r4 = CCO::Core::Relationship->new();
+my $r5 = CCO::Core::Relationship->new();
+my $r6 = CCO::Core::Relationship->new();
 
 $r4->id("CCO:R0000004");
 $r5->id("CCO:R0000005");

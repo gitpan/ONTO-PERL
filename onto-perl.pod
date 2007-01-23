@@ -8,7 +8,7 @@
 
 =head1 NAME
 
-onto-perl           - perl modules for CCO
+onto-perl           - perl modules for CCO and OBO ontologies
 
 =head1 DESCRIPTION
 
@@ -38,11 +38,11 @@ go_cco.ids					Equivalent IDs in GO and CCO.
 
 cco_x.x.tar.gz				Archives from CCO.
 
-onto-perl-x.y.tar.gz			CCO API version x.y
+onto-perl-x.y.tar.gz		CCO API version x.y
 
 onto-perl-latest.tar.gz		CCO API: latest version
 
-ChangeLog.txt				Description about the changes in CCO.
+Changes						Description about the changes in CCO.
 
 Remark
 ======
@@ -73,5 +73,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package onto-perl;
-$VERSION='0.24';
+$VERSION='0.25';
 1;

@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 15;
+    plan tests => 16;
 }
 
 #########################
@@ -23,7 +23,8 @@ ok(1);
 my $ontology = $my_parser->work("./t/data/fake_ulo_cco.obo");
 
 ok($ontology->has_term($ontology->get_term_by_id("CCO:B9999993")));
-ok($ontology->has_term($ontology->get_term_by_name("small molecule")));
+ok($ontology->get_terms_by_name("small molecule")->size() == 1);
+ok($ontology->has_term(($ontology->get_terms_by_name("small molecule")->get_set())[0]));
 ok($ontology->get_relationship_by_id("CCO:B9999998_is_a_CCO:B0000000")->type() eq "is_a");
 ok($ontology->get_relationship_by_id("CCO:B9999996_part_of_CCO:B9999992")->type() eq "part_of");
 

@@ -28,9 +28,9 @@ my $r1 = CCO::Core::RelationshipType->new();
 my $r2 = CCO::Core::RelationshipType->new();
 my $r3 = CCO::Core::RelationshipType->new();
 
-$r1->id("CCO:R0000001");
-$r2->id("CCO:R0000002");
-$r3->id("CCO:R0000003");
+$r1->id("CCO:L0000001");
+$r2->id("CCO:L0000002");
+$r3->id("CCO:L0000003");
 
 $r1->name("is a");
 $r2->name("part of");
@@ -50,7 +50,7 @@ ok(!$r1->is_transitive());
 
 # inverse
 my $r3_inv = CCO::Core::RelationshipType->new();
-$r3_inv->id("CCO:R0000004");
+$r3_inv->id("CCO:L0000004");
 $r3_inv->name("has participant");
 $r3_inv->inverse_of($r3);
 ok($r3->inverse_of()->equals($r3_inv));

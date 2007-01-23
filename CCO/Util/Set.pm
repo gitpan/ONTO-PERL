@@ -8,7 +8,6 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 # TODO implement function 'eliminate duplicates', see GoaAssociationSet.t
-# TODO implement function 'remove'
 package CCO::Util::Set;
 
 use strict;
@@ -70,7 +69,7 @@ sub add_all {
 
   Usage    - $set->get_set()
   Returns  - this set
-  Args     - 
+  Args     - none
   Function - returns this set
   
 =cut
@@ -104,7 +103,7 @@ sub contains {
 
   Usage    - $set->size()
   Returns  - the size of this set
-  Args     - 
+  Args     - none
   Function - tells the number of elements held by this set
   
 =cut
@@ -116,8 +115,8 @@ sub size {
 =head2 clear
 
   Usage    - $set->clear()
-  Returns  - 
-  Args     - 
+  Returns  - none
+  Args     - none
   Function - clears this list
   
 =cut
@@ -126,11 +125,34 @@ sub clear {
 	@{$self->{SET}} = ();
 }
 
+=head2 remove
+
+  Usage    - $set->remove($element_to_be_removed)
+  Returns  - 1 (true) if this set contained the given element
+  Args     - element to be removed from this set, if present
+  Function - removes an element from this set if it is present
+  
+=cut
+sub remove {
+	my $self = shift;
+	my $element_to_be_removed = shift;
+	my $result = $self->contains($element_to_be_removed);
+	if ($result) {
+		for (my $i = 0; $i <= $#{$self->{SET}}; $i++) {
+			if ($element_to_be_removed eq ${$self->{SET}}[$i]) {
+				splice(@{$self->{SET}}, $i, 1); # erase the slot
+				last;
+			}
+		}
+	}
+	return $result;
+}
+
 =head2 is_empty
 
   Usage    - $set->is_empty()
   Returns  - true if this set is empty
-  Args     - 
+  Args     - none
   Function - checks if this set is empty
   
 =cut
@@ -182,38 +204,47 @@ sub equals {
     Util::Set  - a Set implementation
 =head1 SYNOPSIS
 
-use Set;
+use CCO::Util::Set;
+use strict;
 
-#################
-# class methods #
-#################
-$my_set = Set->new;
+my $my_set = CCO::Util::Set->new();
 
-#######################
-# object data methods #
-#######################
-
-### set versions ###
 $my_set->add("CCO:P0000001");
+print "contains" if ($my_set->contains("CCO:P0000001"));
 $my_set->add_all("CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
+print "contains" if ($my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
 
-### get versions ###
 foreach ($my_set->get_set()) {
 	print $_, "\n";
 }
 
-########################
-# other object methods #
-########################
-
 print "\nContained!\n" if ($my_set->contains("CCO:P0000001"));
 
-$my_set2 = Set->new;
+my $my_set2 = CCO::Util::Set->new();
+
 $my_set2->add_all("CCO:P0000001", "CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
-print $my_set->equals($my_set2);
+print "contains" if ($my_set2->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
+$my_set->equals($my_set2);
+$my_set2->size() == 4;
+
+$my_set2->remove("CCO:P0000003");
+print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
+$my_set2->size() == 3;
+
+$my_set2->remove("CCO:P0000005");
+print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
+$my_set2->size() == 3;
+
+$my_set2->clear();
+print "not contains" if (!$my_set2->contains("CCO:P0000001") || !$my_set->contains("CCO:P0000002") || !$my_set->contains("CCO:P0000004"));
+$my_set2->size() == 0;
+$my_set2->is_empty();
 
 =head1 DESCRIPTION
-A set.
+
+A collection that contains no duplicate elements. More formally, sets contain no 
+pair of elements $e1 and $e2 such that $e1->equals($e2). As implied by its name, 
+this interface models the mathematical set abstraction.
 
 =head1 AUTHOR
 

@@ -9,3 +9,7 @@ Revision history for Perl extension CCO.
 0.22 Improvements in exports
 
 0.23 obo2owl methods were enhanced
+
+0.24 Ontology.pm has many more functionalities
+
+0.25 GOA parser, OBO parser enhanced

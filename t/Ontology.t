@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 108;
+    plan tests => 151;
 }
 
 #########################
@@ -23,8 +23,8 @@ use CCO::Core::Ontology;
 use CCO::Core::Term;
 use CCO::Core::Relationship;
 use CCO::Core::RelationshipType;
+use CCO::Util::TermSet;
 use strict;
-#use Data::Dumper;
 
 # three new terms
 my $n1 = CCO::Core::Term->new();
@@ -32,7 +32,7 @@ my $n2 = CCO::Core::Term->new();
 my $n3 = CCO::Core::Term->new();
 
 # new ontology
-my $onto = CCO::Core::Ontology->new;
+my $onto = CCO::Core::Ontology->new();
 ok($onto->get_number_of_terms() == 0);
 ok($onto->get_number_of_relationships() == 0);
 ok(1);
@@ -50,7 +50,7 @@ $def1->text("Definition of One");
 my $def2 = CCO::Core::Def->new();
 $def2->text("Definition of Two");
 my $def3 = CCO::Core::Def->new();
-$def3->text("Definition of Three");
+$def3->text("Definition of Tres");
 $n1->def($def1);
 $n2->def($def2);
 $n3->def($def3);
@@ -61,6 +61,13 @@ $onto->add_term($n2);
 ok($onto->has_term($n2) == 1);
 $onto->add_term($n3);
 ok($onto->has_term($n3) == 1);
+
+# modifying a term name directly
+$n3->name("Trej");
+ok($onto->get_term_by_id("CCO:P0000003")->name() eq "Trej");
+# modifying a term name via the ontology
+$onto->get_term_by_id("CCO:P0000003")->name("Three");
+ok($onto->get_term_by_id("CCO:P0000003")->name() eq "Three");
 
 ok($onto->get_number_of_terms() == 3);
 ok($onto->get_number_of_relationships() == 0);
@@ -124,16 +131,37 @@ $r35->link($n3, $n5);
 # get all terms
 my $c = 0;
 my %h;
+ok($onto->has_term_id("CCO:P0000003"));
+ok(!$onto->has_term_id("CCO:P0000033"));
 foreach my $t (@{$onto->get_terms()}) {
+	if ($t->id() eq "CCO:P0000003"){
+		ok($onto->has_term($t));
+		$onto->set_term_id($t, "CCO:P0000033");
+		ok($onto->has_term($t));
+		$t = $onto->get_term_by_id("CCO:P0000033");
+	}
+	
+	$t->name("Uj") if ($t->id() eq "CCO:P0000001");
+
 	$h{$t->id()} = $t;
-	$c++;
+	$c++;	
 }
+ok(!$onto->has_term_id("CCO:P0000003"));
+ok($onto->has_term_id("CCO:P0000033"));
+
+ok($onto->get_number_of_terms() == 5);
 ok($c == 5);
-ok($h{"CCO:P0000001"}->name() eq "One");
+ok($h{"CCO:P0000001"}->name() eq "Uj"); # The name has been changed above
 ok($h{"CCO:P0000002"}->name() eq "Two");
-ok($h{"CCO:P0000003"}->name() eq "Three");
+ok($h{"CCO:P0000033"}->name() eq "Three"); # The ID has been changed above
 ok($h{"CCO:P0000004"}->name() eq "Four");
 ok($h{"CCO:P0000005"}->name() eq "Five");
+
+# modifying a term id via the ontology
+ok($onto->set_term_id($onto->get_term_by_id("CCO:P0000033"), "CCO:P0000003")->id() eq "CCO:P0000003");
+ok($onto->has_term_id("CCO:P0000003"));
+ok(!$onto->has_term_id("CCO:P0000033"));
+ok($onto->get_number_of_terms() == 5);
 
 # get terms with argument
 my @processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P.*")};
@@ -148,12 +176,17 @@ ok(@same_processes == @processes);
 my @no_processes = @{$onto->get_terms_by_subnamespace("p")};
 ok($#no_processes == -1);
 
-# get terms
-ok($onto->get_term_by_id("CCO:P0000001")->name() eq "One");
-ok($onto->get_term_by_name("One")->id() eq "CCO:P0000001");
-ok($onto->get_term_by_name("Two")->id() eq "CCO:P0000002");
-ok($onto->get_term_by_name("Three")->id() eq "CCO:P0000003");
-ok($onto->get_term_by_name("Four")->id() eq "CCO:P0000004");
+# get term and terms
+ok($onto->get_term_by_id("CCO:P0000001")->name() eq "Uj");
+ok($onto->get_term_by_name("Uj")->equals($n1));
+ok($onto->get_term_by_name("Two")->equals($n2));
+ok($onto->get_term_by_name("Three")->equals($n3));
+ok($onto->get_term_by_name("Four")->equals($n4));
+
+ok($onto->get_terms_by_name("Uj")->contains($n1));
+ok($onto->get_terms_by_name("Two")->contains($n2));
+ok($onto->get_terms_by_name("Three")->contains($n3));
+ok($onto->get_terms_by_name("Four")->contains($n4));
 
 # add relationships
 $onto->add_relationship($r12);
@@ -172,7 +205,7 @@ my $n21 = CCO::Core::Term->new();
 $n11->id("CCO:P0000011"); $n11->name("One one"); $n11->def_as_string("Definition One one", "");
 $n21->id("CCO:P0000021"); $n21->name("Two one"); $n21->def_as_string("Definition Two one", "");
 my $r11_21 = CCO::Core::Relationship->new();
-$r11_21->id("CCO:R0001121"); $r11_21->type("r11-21");
+$r11_21->id("CCO:L0001121"); $r11_21->type("r11-21");
 $r11_21->link($n11, $n21);
 $onto->add_relationship($r11_21); # adds to the ontology the terms linked by this relationship
 ok($onto->get_number_of_terms() == 7);
@@ -265,29 +298,35 @@ my $r1 = CCO::Core::RelationshipType->new();
 my $r2 = CCO::Core::RelationshipType->new();
 my $r3 = CCO::Core::RelationshipType->new();
 
-$r1->id("CCO:R0000001");
-$r2->id("CCO:R0000002");
-$r3->id("CCO:R0000003");
+$r1->id("is_a");
+$r2->id("part_of");
+$r3->id("participates_in");
 
-$r1->name("is_a");
+$r1->name("is a");
 $r2->name("part_of");
 $r3->name("participates_in");
 
+ok(!$onto->has_relationship_type_id("is_a"));
+ok(!$onto->has_relationship_type_id("part_of"));
+ok(!$onto->has_relationship_type_id("participates_in"));
 
-
-
-# add relationship types
+# add relationship types and test if they were added
 ok($onto->get_number_of_relationship_types() == 0);
 $onto->add_relationship_type($r1);
-ok($onto->has_relationship_type($r1) == 1);
+ok($onto->has_relationship_type($r1));
+ok($onto->has_relationship_type($onto->get_relationship_type_by_id("is_a")));
+ok($onto->has_relationship_type($onto->get_relationship_type_by_name("is a")));
+ok($onto->has_relationship_type_id("is_a"));
 $onto->add_relationship_type($r2);
-ok($onto->has_relationship_type($r2) == 1);
+ok($onto->has_relationship_type($r2));
+ok($onto->has_relationship_type_id("part_of"));
 $onto->add_relationship_type($r3);
-ok($onto->has_relationship_type($r3) == 1);
+ok($onto->has_relationship_type($r3));
+ok($onto->has_relationship_type_id("participates_in"));
 ok($onto->get_number_of_relationship_types() == 3);
 
 # get descendents or ancestors linked by a particular relationship type 
-my $rel_type1 = $onto->get_relationship_type_by_name("is_a");
+my $rel_type1 = $onto->get_relationship_type_by_name("is a");
 my $rel_type2 = $onto->get_relationship_type_by_name("part_of");
 my $rel_type3 = $onto->get_relationship_type_by_name("participates_in");
 
@@ -309,11 +348,10 @@ ok(scalar(@ancestors7) == 2);
 @ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n2, $rel_type2)};
 ok(scalar(@ancestors7) == 2); 
 
-
 # add relationship type as string
-my $relationship_type = $onto->add_relationship_type_as_string("CCO:R0000004", "has_participant");
+my $relationship_type = $onto->add_relationship_type_as_string("has_participant", "has_participant");
 ok($onto->has_relationship_type($relationship_type) == 1);
-ok($onto->get_relationship_type_by_id("CCO:R0000004")->equals($relationship_type));
+ok($onto->get_relationship_type_by_id("has_participant")->equals($relationship_type));
 ok($onto->get_number_of_relationship_types() == 4);
 
 # get relationship types
@@ -323,23 +361,33 @@ my %rrt;
 foreach my $relt (@rt) {
 	$rrt{$relt->name()} = $relt;
 }
-ok($rrt{"is_a"}->name() eq "is_a");
+ok($rrt{"is a"}->name() eq "is a");
 ok($rrt{"part_of"}->name() eq "part_of");
 ok($rrt{"participates_in"}->name() eq "participates_in");
 
-ok($onto->get_relationship_type_by_id("CCO:R0000001")->name() eq "is_a");
-ok($onto->get_relationship_type_by_name("is_a")->id() eq "CCO:R0000001");
-ok($onto->get_relationship_type_by_name("part_of")->id() eq "CCO:R0000002");
-ok($onto->get_relationship_type_by_name("participates_in")->id() eq "CCO:R0000003");
+ok($onto->get_relationship_type_by_id("is_a")->name() eq "is a");
+ok($onto->get_relationship_type_by_name("is a")->id() eq "is_a");
+ok($onto->get_relationship_type_by_name("part_of")->id() eq "part_of");
+ok($onto->get_relationship_type_by_name("participates_in")->id() eq "participates_in");
 
-my @rtbt = @{$onto->get_relationship_types_by_term($n1)};
+# get_relationships_by_(source|target)_term
+my @rtbs = @{$onto->get_relationships_by_source_term($n1)};
+
+my %rtbsh;
+foreach my $rel (@rtbs) {
+	$rtbsh{$rel->type()} = $rel->type();
+}
+ok($rtbsh{"participates_in"} eq "participates_in");
+ok($rtbsh{"is_a"} eq "is_a");
+
+my @rtbt = @{$onto->get_relationships_by_target_term($n3)};
 
 my %rtbth;
-foreach my $relt (@rtbt) {
-	$rtbth{$relt} = $relt;
+foreach my $rel (@rtbt) {
+	$rtbth{$rel->type()} = $rel->type();
 }
 ok($rtbth{"participates_in"} eq "participates_in");
-ok($rtbth{"is_a"} eq "is_a");
+ok($rtbth{"part_of"} eq "part_of");
 
 # get_head_by_relationship_type
 my @heads_n1 = @{$onto->get_head_by_relationship_type($n1, $onto->get_relationship_type_by_name("participates_in"))};
@@ -349,14 +397,45 @@ foreach my $head (@heads_n1) {
 }
 ok($hbrt{"CCO:P0000003"}->equals($n3));
 ok($hbrt{"CCO:P0000004"}->equals($n4));
-ok(@{$onto->get_head_by_relationship_type($n1, $onto->get_relationship_type_by_name("is_a"))}[0]->equals($n2));
+ok(@{$onto->get_head_by_relationship_type($n1, $onto->get_relationship_type_by_name("is a"))}[0]->equals($n2));
 
 # get_tail_by_relationship_type
 ok(@{$onto->get_tail_by_relationship_type($n3, $onto->get_relationship_type_by_name("participates_in"))}[0]->equals($n1));
-ok(@{$onto->get_tail_by_relationship_type($n2, $onto->get_relationship_type_by_name("is_a"))}[0]->equals($n1));
+ok(@{$onto->get_tail_by_relationship_type($n2, $onto->get_relationship_type_by_name("is a"))}[0]->equals($n1));
 
 #export
+$onto->remark("This is a test ontology");
 #$onto->export(\*STDERR);
 
+# subontology_by_terms
+my $terms = CCO::Util::TermSet->new();
+$terms->add_all($n1, $n2, $n3);
+my $so = $onto->subontology_by_terms($terms);
+ok($so->get_number_of_terms() == 3);
+ok($so->has_term($n1));
+ok($so->has_term($n2));
+ok($so->has_term($n3));
+
+$n1->name("mitotic cell cycle");
+$n2->name("cell cycle process");
+$n3->name("re-entry into mitotic cell cycle after pheromone arrest");
+
+ok($onto->get_term_by_name("mitotic cell cycle")->equals($n1));
+ok($onto->get_term_by_name("cell cycle process")->equals($n2));
+ok($onto->get_term_by_name("re-entry into mitotic cell cycle after pheromone arrest")->equals($n3));
+
+ok($onto->get_terms_by_name("mitotic cell cycle")->contains($n1));
+ok($onto->get_terms_by_name("cell cycle process")->contains($n2));
+ok($onto->get_terms_by_name("re-entry into mitotic cell cycle after pheromone arrest")->contains($n3));
+
+ok($onto->get_terms_by_name("mitotic cell cycle")->size() == 2);
+ok($onto->get_terms_by_name("mitotic cell cycle")->contains($n1));
+ok($onto->get_terms_by_name("mitotic cell cycle")->contains($n3));
+
+ok(($onto->get_terms_by_name("cell cycle process")->get_set())[0]->id() eq $n2->id());
+ok(($onto->get_terms_by_name("re-entry into mitotic cell cycle after pheromone arrest")->get_set())[0]->id() eq $n3->id());
+
+ok($onto->get_terms_by_name("cell cycle")->size() == 3);
+#$so->export(\*STDERR);
 
 ok(1);

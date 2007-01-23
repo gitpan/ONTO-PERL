@@ -24,9 +24,9 @@ use CCO::Core::Term;
 use strict;
 
 # three new relationships
-my $r1 = CCO::Core::Relationship->new;
-my $r2 = CCO::Core::Relationship->new;
-my $r3 = CCO::Core::Relationship->new;
+my $r1 = CCO::Core::Relationship->new();
+my $r2 = CCO::Core::Relationship->new();
+my $r3 = CCO::Core::Relationship->new();
 
 $r1->id("CCO:P0000001_is_a_CCO:P0000002");
 $r2->id("CCO:P0000002_part_of_CCO:P0000003");
@@ -41,9 +41,9 @@ ok(!$r2->equals($r3));
 ok(!$r3->equals($r1));
 
 # three new terms
-my $n1 = CCO::Core::Term->new;
-my $n2 = CCO::Core::Term->new;
-my $n3 = CCO::Core::Term->new;
+my $n1 = CCO::Core::Term->new();
+my $n2 = CCO::Core::Term->new();
+my $n3 = CCO::Core::Term->new();
 
 $n1->id("CCO:P0000001");
 $n2->id("CCO:P0000002");
@@ -66,9 +66,9 @@ $r3->head($n3);
 $r3->tail($n1);
 
 # three new relationships
-my $r4 = CCO::Core::Relationship->new;
-my $r5 = CCO::Core::Relationship->new;
-my $r6 = CCO::Core::Relationship->new;
+my $r4 = CCO::Core::Relationship->new();
+my $r5 = CCO::Core::Relationship->new();
+my $r6 = CCO::Core::Relationship->new();
 
 $r4->id("CCO:R0000004");
 $r5->id("CCO:R0000005");

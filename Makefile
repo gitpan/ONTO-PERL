@@ -23,26 +23,26 @@
 
 # --- MakeMaker const_config section:
 
-# These definitions are from config.sh (via /usr/local/perl5.8.5/lib/5.8.5/i686-linux/Config.pm)
+# These definitions are from config.sh (via /usr/local/perl/lib/5.8.7/x86_64-linux/Config.pm)
 
 # They may have been overridden via Makefile.PL or on the command line
 AR = ar
 CC = cc
 CCCDLFLAGS = -fpic
-CCDLFLAGS = -Wl,-E
+CCDLFLAGS = -Wl,-E -Wl,-rpath,/usr/local/perl/lib/5.8.7/x86_64-linux/CORE
 DLEXT = so
 DLSRC = dl_dlopen.xs
 LD = cc
 LDDLFLAGS = -shared -L/usr/local/lib
 LDFLAGS =  -L/usr/local/lib
-LIBC = /lib/libc-2.3.2.so
+LIBC = /lib/libc-2.3.4.so
 LIB_EXT = .a
 OBJ_EXT = .o
 OSNAME = linux
-OSVERS = 2.4.21-15.0.3.elsmp
+OSVERS = 2.6.9-11.elsmp
 RANLIB = :
-SITELIBEXP = /usr/local/perl5.8.5/lib/site_perl/5.8.5
-SITEARCHEXP = /usr/local/perl5.8.5/lib/site_perl/5.8.5/i686-linux
+SITELIBEXP = /usr/local/perl/lib/site_perl/5.8.7
+SITEARCHEXP = /usr/local/perl/lib/site_perl/5.8.7/x86_64-linux
 SO = so
 EXE_EXT = 
 FULL_AR = /usr/bin/ar
@@ -55,11 +55,11 @@ AR_STATIC_ARGS = cr
 DIRFILESEP = /
 NAME = CCO
 NAME_SYM = CCO
-VERSION = 0.24
+VERSION = 0.25
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_24
+VERSION_SYM = 0_25
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.24
+XS_VERSION = 0.25
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -73,18 +73,18 @@ MAN3EXT = 3
 INSTALLDIRS = site
 DESTDIR = 
 PREFIX = 
-PERLPREFIX = /usr/local/perl5.8.5
-SITEPREFIX = /usr/local/perl5.8.5
+PERLPREFIX = /usr/local/perl
+SITEPREFIX = /usr/local/perl
 VENDORPREFIX = 
-INSTALLPRIVLIB = $(PERLPREFIX)/lib/5.8.5
+INSTALLPRIVLIB = $(PERLPREFIX)/lib/5.8.7
 DESTINSTALLPRIVLIB = $(DESTDIR)$(INSTALLPRIVLIB)
-INSTALLSITELIB = $(SITEPREFIX)/lib/site_perl/5.8.5
+INSTALLSITELIB = $(SITEPREFIX)/lib/site_perl/5.8.7
 DESTINSTALLSITELIB = $(DESTDIR)$(INSTALLSITELIB)
 INSTALLVENDORLIB = 
 DESTINSTALLVENDORLIB = $(DESTDIR)$(INSTALLVENDORLIB)
-INSTALLARCHLIB = $(PERLPREFIX)/lib/5.8.5/i686-linux
+INSTALLARCHLIB = $(PERLPREFIX)/lib/5.8.7/x86_64-linux
 DESTINSTALLARCHLIB = $(DESTDIR)$(INSTALLARCHLIB)
-INSTALLSITEARCH = $(SITEPREFIX)/lib/site_perl/5.8.5/i686-linux
+INSTALLSITEARCH = $(SITEPREFIX)/lib/site_perl/5.8.7/x86_64-linux
 DESTINSTALLSITEARCH = $(DESTDIR)$(INSTALLSITEARCH)
 INSTALLVENDORARCH = 
 DESTINSTALLVENDORARCH = $(DESTDIR)$(INSTALLVENDORARCH)
@@ -108,16 +108,16 @@ INSTALLSITEMAN3DIR = $(SITEPREFIX)/man/man3
 DESTINSTALLSITEMAN3DIR = $(DESTDIR)$(INSTALLSITEMAN3DIR)
 INSTALLVENDORMAN3DIR = 
 DESTINSTALLVENDORMAN3DIR = $(DESTDIR)$(INSTALLVENDORMAN3DIR)
-PERL_LIB = /usr/local/perl5.8.5/lib/5.8.5
-PERL_ARCHLIB = /usr/local/perl5.8.5/lib/5.8.5/i686-linux
+PERL_LIB = /usr/local/perl/lib/5.8.7
+PERL_ARCHLIB = /usr/local/perl/lib/5.8.7/x86_64-linux
 LIBPERL_A = libperl.a
 FIRST_MAKEFILE = Makefile
 MAKEFILE_OLD = $(FIRST_MAKEFILE).old
 MAKE_APERL_FILE = $(FIRST_MAKEFILE).aperl
 PERLMAINCC = $(CC)
-PERL_INC = /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE
-PERL = /usr/local/perl5.8.5/bin/perl
-FULLPERL = /usr/local/perl5.8.5/bin/perl
+PERL_INC = /usr/local/perl/lib/5.8.7/x86_64-linux/CORE
+PERL = /usr/local/perl/bin/perl
+FULLPERL = /usr/local/perl/bin/perl
 ABSPERL = $(PERL)
 PERLRUN = $(PERL)
 FULLPERLRUN = $(FULLPERL)
@@ -129,7 +129,7 @@ PERL_CORE = 0
 PERM_RW = 644
 PERM_RWX = 755
 
-MAKEMAKER   = /usr/local/perl5.8.5/lib/5.8.5/ExtUtils/MakeMaker.pm
+MAKEMAKER   = /usr/local/perl/lib/5.8.7/ExtUtils/MakeMaker.pm
 MM_VERSION  = 6.17
 MM_REVISION = 1.133
 
@@ -160,6 +160,7 @@ MAN3PODS = CCO/Core/Dbxref.pm \
 	CCO/Core/RelationshipType.pm \
 	CCO/Core/Synonym.pm \
 	CCO/Core/Term.pm \
+	CCO/Parser/GoaParser.pm \
 	CCO/Parser/NCBIParser.pm \
 	CCO/Parser/OBOParser.pm \
 	CCO/Util/DbxrefSet.pm \
@@ -197,6 +198,7 @@ TO_INST_PM = CCO/Core/Dbxref.pm \
 	CCO/Core/RelationshipType.pm \
 	CCO/Core/Synonym.pm \
 	CCO/Core/Term.pm \
+	CCO/Parser/GoaParser.pm \
 	CCO/Parser/NCBIParser.pm \
 	CCO/Parser/OBOParser.pm \
 	CCO/Util/DbxrefSet.pm \
@@ -232,6 +234,8 @@ PM_TO_BLIB = CCO/Util/DbxrefSet.pm \
 	$(INST_LIB)/CCO/Core/RelationshipType.pm \
 	CCO/Core/Ontology.pm \
 	$(INST_LIB)/CCO/Core/Ontology.pm \
+	CCO/Parser/GoaParser.pm \
+	$(INST_LIB)/CCO/Parser/GoaParser.pm \
 	CCO/Util/SynonymSet.pm \
 	$(INST_LIB)/CCO/Util/SynonymSet.pm \
 	CCO/Util/Set.pm \
@@ -300,7 +304,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = all tardist
 DISTNAME = onto-perl
-DISTVNAME = onto-perl-0.24
+DISTVNAME = onto-perl-0.25
 
 
 # --- MakeMaker macro section:
@@ -368,21 +372,21 @@ config :: $(INST_ARCHAUTODIR)$(DIRFILESEP).exists
 config :: $(INST_AUTODIR)$(DIRFILESEP).exists
 	$(NOECHO) $(NOOP)
 
-$(INST_AUTODIR)/.exists :: /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h
+$(INST_AUTODIR)/.exists :: /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h
 	$(NOECHO) $(MKPATH) $(INST_AUTODIR)
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h $(INST_AUTODIR)/.exists
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h $(INST_AUTODIR)/.exists
 
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_AUTODIR)
 
-$(INST_LIBDIR)/.exists :: /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h
+$(INST_LIBDIR)/.exists :: /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h
 	$(NOECHO) $(MKPATH) $(INST_LIBDIR)
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h $(INST_LIBDIR)/.exists
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h $(INST_LIBDIR)/.exists
 
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_LIBDIR)
 
-$(INST_ARCHAUTODIR)/.exists :: /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h
+$(INST_ARCHAUTODIR)/.exists :: /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h
 	$(NOECHO) $(MKPATH) $(INST_ARCHAUTODIR)
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h $(INST_ARCHAUTODIR)/.exists
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h $(INST_ARCHAUTODIR)/.exists
 
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_ARCHAUTODIR)
 
@@ -390,9 +394,9 @@ config :: $(INST_MAN3DIR)$(DIRFILESEP).exists
 	$(NOECHO) $(NOOP)
 
 
-$(INST_MAN3DIR)/.exists :: /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h
+$(INST_MAN3DIR)/.exists :: /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h
 	$(NOECHO) $(MKPATH) $(INST_MAN3DIR)
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h $(INST_MAN3DIR)/.exists
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h $(INST_MAN3DIR)/.exists
 
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_MAN3DIR)
 
@@ -450,6 +454,7 @@ manifypods : pure_all  \
 	CCO/Core/RelationshipType.pm \
 	CCO/Util/GoaAssociationSet.pm \
 	CCO/Core/Ontology.pm \
+	CCO/Parser/GoaParser.pm \
 	CCO/Util/SynonymSet.pm \
 	CCO/Core/Def.pm \
 	CCO/Core/Synonym.pm \
@@ -466,6 +471,7 @@ manifypods : pure_all  \
 	CCO/Core/RelationshipType.pm \
 	CCO/Util/GoaAssociationSet.pm \
 	CCO/Core/Ontology.pm \
+	CCO/Parser/GoaParser.pm \
 	CCO/Util/SynonymSet.pm \
 	CCO/Core/Def.pm \
 	CCO/Core/Synonym.pm \
@@ -483,6 +489,7 @@ manifypods : pure_all  \
 	  CCO/Core/RelationshipType.pm $(INST_MAN3DIR)/CCO::Core::RelationshipType.$(MAN3EXT) \
 	  CCO/Util/GoaAssociationSet.pm $(INST_MAN3DIR)/CCO::Util::GoaAssociationSet.$(MAN3EXT) \
 	  CCO/Core/Ontology.pm $(INST_MAN3DIR)/CCO::Core::Ontology.$(MAN3EXT) \
+	  CCO/Parser/GoaParser.pm $(INST_MAN3DIR)/CCO::Parser::GoaParser.$(MAN3EXT) \
 	  CCO/Util/SynonymSet.pm $(INST_MAN3DIR)/CCO::Util::SynonymSet.$(MAN3EXT) \
 	  CCO/Core/Def.pm $(INST_MAN3DIR)/CCO::Core::Def.$(MAN3EXT) \
 	  CCO/Core/Synonym.pm $(INST_MAN3DIR)/CCO::Core::Synonym.$(MAN3EXT) \
@@ -530,10 +537,10 @@ realclean_subdirs :
 realclean purge ::  clean realclean_subdirs
 	$(RM_RF) $(INST_AUTODIR) $(INST_ARCHAUTODIR)
 	$(RM_RF) $(DISTVNAME)
-	$(RM_F)  $(INST_LIB)/CCO/Util/DbxrefSet.pm $(INST_LIB)/CCO/Core/Relationship.pm $(MAKEFILE_OLD) $(INST_LIB)/CCO/Core/Dbxref.pm $(INST_LIB)/CCO/Parser/NCBIParser.pm $(FIRST_MAKEFILE)
-	$(RM_F) $(INST_LIB)/CCO/Util/TermSet.pm $(INST_LIB)/CCO/Core/RelationshipType.pm $(INST_LIB)/CCO/Parser/OBOParser.pm $(INST_LIB)/CCO/Core/Def.pm $(INST_LIB)/onto-perl.pod $(INST_LIB)/CCO/Util/SynonymSet.pm
-	$(RM_F) $(INST_LIB)/CCO/Util/GoaAssociationSet.pm $(INST_LIB)/CCO/Core/Synonym.pm $(INST_LIB)/CCO/Core/GoaAssociation.pm $(INST_LIB)/CCO/Core/Ontology.pm $(INST_LIB)/CCO/Core/Term.pm
-	$(RM_F) $(INST_LIB)/CCO/Util/Set.pm
+	$(RM_F)  $(INST_LIB)/CCO/Util/DbxrefSet.pm $(INST_LIB)/CCO/Core/Relationship.pm $(MAKEFILE_OLD) $(INST_LIB)/CCO/Core/Dbxref.pm $(INST_LIB)/CCO/Parser/NCBIParser.pm $(INST_LIB)/CCO/Parser/GoaParser.pm
+	$(RM_F) $(FIRST_MAKEFILE) $(INST_LIB)/CCO/Util/TermSet.pm $(INST_LIB)/CCO/Core/RelationshipType.pm $(INST_LIB)/CCO/Parser/OBOParser.pm $(INST_LIB)/CCO/Core/Def.pm $(INST_LIB)/onto-perl.pod
+	$(RM_F) $(INST_LIB)/CCO/Util/SynonymSet.pm $(INST_LIB)/CCO/Util/GoaAssociationSet.pm $(INST_LIB)/CCO/Core/Synonym.pm $(INST_LIB)/CCO/Core/GoaAssociation.pm $(INST_LIB)/CCO/Core/Ontology.pm
+	$(RM_F) $(INST_LIB)/CCO/Core/Term.pm $(INST_LIB)/CCO/Util/Set.pm
 
 
 # --- MakeMaker metafile section:
@@ -541,7 +548,7 @@ metafile :
 	$(NOECHO) $(ECHO) '# http://module-build.sourceforge.net/META-spec.html' > META.yml
 	$(NOECHO) $(ECHO) '#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#' >> META.yml
 	$(NOECHO) $(ECHO) 'name:         onto-perl' >> META.yml
-	$(NOECHO) $(ECHO) 'version:      0.24' >> META.yml
+	$(NOECHO) $(ECHO) 'version:      0.25' >> META.yml
 	$(NOECHO) $(ECHO) 'version_from: onto-perl.pod' >> META.yml
 	$(NOECHO) $(ECHO) 'installdirs:  site' >> META.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META.yml
@@ -769,7 +776,7 @@ $(FIRST_MAKEFILE) : Makefile.PL $(CONFIGDEP)
 
 # --- MakeMaker makeaperl section ---
 MAP_TARGET    = perl
-FULLPERL      = /usr/local/perl5.8.5/bin/perl
+FULLPERL      = /usr/local/perl/bin/perl
 
 $(MAP_TARGET) :: static $(MAKE_APERL_FILE)
 	$(MAKE) -f $(MAKE_APERL_FILE) $@
@@ -809,13 +816,13 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd:
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0,24,0,0">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0,25,0,0">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <TITLE>$(DISTNAME)</TITLE>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>CCO Perl</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Erick Antezana &lt;erant@psb.ugent.be&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <OS NAME="$(OSNAME)" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="i686-linux" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '</SOFTPKG>' >> $(DISTNAME).ppd
@@ -838,6 +845,7 @@ pm_to_blib: $(TO_INST_PM)
 	  CCO/Core/Relationship.pm $(INST_LIB)/CCO/Core/Relationship.pm \
 	  CCO/Core/RelationshipType.pm $(INST_LIB)/CCO/Core/RelationshipType.pm \
 	  CCO/Core/Ontology.pm $(INST_LIB)/CCO/Core/Ontology.pm \
+	  CCO/Parser/GoaParser.pm $(INST_LIB)/CCO/Parser/GoaParser.pm \
 	  CCO/Util/SynonymSet.pm $(INST_LIB)/CCO/Util/SynonymSet.pm \
 	  CCO/Util/Set.pm $(INST_LIB)/CCO/Util/Set.pm \
 	  CCO/Parser/OBOParser.pm $(INST_LIB)/CCO/Parser/OBOParser.pm 

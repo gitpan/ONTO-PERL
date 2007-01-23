@@ -29,11 +29,11 @@ sub new {
         $self->{SUBSET}             = CCO::Util::Set->new(); # set of scalars (0..N)
         $self->{SYNONYM_SET}        = CCO::Util::SynonymSet->new(); # set of synonyms (0..N)
         $self->{XREF_SET}           = CCO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
-        #@{$self->{IS_A}}            = (); # (0..N) #delete: the Ontology gives it
+        #@{$self->{IS_A}}            = (); # (0..N) #delete: the Ontology provides it
         $self->{INTERSECTION_OF}    = CCO::Util::Set->new(); # (0..N)
         $self->{UNION_OF}           = CCO::Util::Set->new(); # (0..N)
         $self->{DISJOINT_FROM}      = CCO::Util::Set->new(); # (0..N)
-        #@{$self->{RELATIONSHIP}}    = (); # (0..N) # delete: the Ontology gives it
+        #@{$self->{RELATIONSHIP}}    = (); # (0..N) # delete: the Ontology provides it
         $self->{IS_OBSOLETE}        = undef; # [1|0], 0 by default
         $self->{REPLACED_BY}        = undef; # (1)
         $self->{CONSIDER}           = undef; # (1)
@@ -131,8 +131,8 @@ sub is_anonymous {
 =head2 alt_id
 
   Usage    - $term->alt_id() or $term->alt_id($id1, $id2, $id3, ...)
-  Returns  - an array with the alternate id(s) of this term
-  Args     - the alternate id(s) of this term
+  Returns  - a set (CCO::Util::Set) with the alternate id(s) of this term
+  Args     - the alternate id(s) (string) of this term
   Function - gets/sets the alternate id(s) of this term
   
 =cut
@@ -143,7 +143,7 @@ sub alt_id {
 	} elsif (scalar(@_) == 1) {
 		$self->{ALT_ID}->add(shift);
 	}
-	return $self->{ALT_ID}->get_set();
+	return $self->{ALT_ID};
 }
 
 =head2 def
@@ -464,7 +464,8 @@ sub builtin {
 =cut
 sub equals {
 	my $self = shift;
-	my $result = 0;
+	my $result =  0; 
+	
 	if (@_) {
      	my $target = shift;
 		croak "The term to be compared with must be a CCO::Core::Term object" if (!UNIVERSAL::isa($target, "CCO::Core::Term"));

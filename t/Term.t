@@ -46,14 +46,14 @@ ok($n1->code() eq "0000001");
 
 # alt_id
 $n1->alt_id("CCO:P0000001_alt_id");
-ok(($n1->alt_id())[0] eq "CCO:P0000001_alt_id");
+ok(($n1->alt_id()->get_set())[0] eq "CCO:P0000001_alt_id");
 $n2->alt_id("CCO:P0000002_alt_id1", "CCO:P0000002_alt_id2", "CCO:P0000002_alt_id3", "CCO:P0000002_alt_id4");
-ok(($n2->alt_id())[0] eq "CCO:P0000002_alt_id1");
-ok(($n2->alt_id())[1] eq "CCO:P0000002_alt_id2");
-ok(($n2->alt_id())[2] eq "CCO:P0000002_alt_id3");
-ok(($n2->alt_id())[3] eq "CCO:P0000002_alt_id4");
-ok(!defined (($n3->alt_id())[0]));
-ok(!$n3->alt_id());
+ok(($n2->alt_id()->get_set())[0] eq "CCO:P0000002_alt_id1");
+ok(($n2->alt_id()->get_set())[1] eq "CCO:P0000002_alt_id2");
+ok(($n2->alt_id()->get_set())[2] eq "CCO:P0000002_alt_id3");
+ok(($n2->alt_id()->get_set())[3] eq "CCO:P0000002_alt_id4");
+ok(!defined (($n3->alt_id()->get_set())[0]));
+ok(!$n3->alt_id()->get_set());
 
 # subset
 $n1->subset("CCO:P0000001_subset");

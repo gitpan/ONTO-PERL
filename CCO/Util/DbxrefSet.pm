@@ -14,9 +14,6 @@ use strict;
 use warnings;
 use Carp;
 
-
-
-
 =head2 add
 
   Usage    - $set->add($dbxref)
@@ -72,8 +69,6 @@ sub remove {
 	return $result;
 }
 
-
-
 =head2 contains
 
   Usage    - $set->contains($dbxref)
@@ -99,7 +94,6 @@ sub contains {
 	}
 	return $result;
 }
-
 
 =head2 equals
 

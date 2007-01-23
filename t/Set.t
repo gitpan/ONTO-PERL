@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 8;
+    plan tests => 15;
 }
 
 #########################
@@ -17,7 +17,6 @@ BEGIN {
 use CCO::Util::Set;
 use strict;
 
-# new set
 my $my_set = CCO::Util::Set->new();
 ok(1);
 
@@ -37,7 +36,19 @@ ok(1);
 $my_set2->add_all("CCO:P0000001", "CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
 ok($my_set2->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
 ok($my_set->equals($my_set2));
-
 ok($my_set2->size() == 4);
+
+$my_set2->remove("CCO:P0000003");
+ok($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
+ok($my_set2->size() == 3);
+
+$my_set2->remove("CCO:P0000005");
+ok($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
+ok($my_set2->size() == 3);
+
+$my_set2->clear();
+ok(!$my_set2->contains("CCO:P0000001") || !$my_set->contains("CCO:P0000002") || !$my_set->contains("CCO:P0000004"));
+ok($my_set2->size() == 0);
+ok($my_set2->is_empty());
 
 ok(1);

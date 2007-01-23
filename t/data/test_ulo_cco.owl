@@ -46,11 +46,11 @@
 <owl:Class rdf:about="http://www.cellcycleontology.org/oboInOwl#Definition"/>
 <owl:Class rdf:about="http://www.cellcycleontology.org/oboInOwl#Synonym"/>
 <owl:Class rdf:about="http://www.cellcycleontology.org/oboInOwl#IDSpace"/>
-<owl:Class rdf:ID="CCO_U0000003">
-	<rdfs:label xml:lang="en">biopolymer</rdfs:label>
+<owl:Class rdf:ID="CCO_U0000000">
+	<rdfs:label xml:lang="en">cell-cycle entity</rdfs:label>
 	<oboInOwl:has_definition>
 		<oboInOwl:Definition>
-			<rdfs:label xml:lang="en">A polymer, such as a protein, nucleic acid, or transcript, ocurring in, or formed by, living systems.</rdfs:label>
+			<rdfs:label xml:lang="en">A process or continuant.</rdfs:label>
 			<oboInOwl:has_dbxref>
 			<oboInOwl:DbXref rdf:about="xref/CCO#ea">
 				<oboInOwl:acc>ea</oboInOwl:acc>
@@ -59,109 +59,7 @@
 			</oboInOwl:has_dbxref>
 		</oboInOwl:Definition>
 	</oboInOwl:has_definition>
-	<synonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">bio-polymer</synonym>
-	<rdfs:subClassOf rdf:resource="#CCO_U0000001"/>
-</owl:Class>
-
-<owl:Class rdf:ID="CCO_U0000008">
-	<rdfs:label xml:lang="en">pathway</rdfs:label>
-	<oboInOwl:has_definition>
-		<oboInOwl:Definition>
-			<rdfs:label xml:lang="en">A chain of interactions undergone by a given biopolymer or molecular entity in a particular organism.</rdfs:label>
-			<oboInOwl:has_dbxref>
-			<oboInOwl:DbXref rdf:about="xref/CCO#ea">
-				<oboInOwl:acc>ea</oboInOwl:acc>
-				<oboInOwl:dbname>CCO</oboInOwl:dbname>
-			</oboInOwl:DbXref>
-			</oboInOwl:has_dbxref>
-		</oboInOwl:Definition>
-	</oboInOwl:has_definition>
-	<rdfs:subClassOf rdf:resource="#CCO_U0000002"/>
-</owl:Class>
-
-<owl:Class rdf:ID="CCO_U0000010">
-	<rdfs:label xml:lang="en">complex</rdfs:label>
-	<oboInOwl:has_definition>
-		<oboInOwl:Definition>
-			<rdfs:label xml:lang="en">Any distinct chemical species in which two or more identical or nonidentical chemical species are associated.</rdfs:label>
-			<oboInOwl:has_dbxref>
-			<oboInOwl:DbXref rdf:about="xref/CCO#ea">
-				<oboInOwl:acc>ea</oboInOwl:acc>
-				<oboInOwl:dbname>CCO</oboInOwl:dbname>
-			</oboInOwl:DbXref>
-			</oboInOwl:has_dbxref>
-		</oboInOwl:Definition>
-	</oboInOwl:has_definition>
-	<rdfs:subClassOf rdf:resource="#CCO_U0000001"/>
-</owl:Class>
-
-<owl:Class rdf:ID="CCO_U0000004">
-	<rdfs:label xml:lang="en">gene</rdfs:label>
-	<xref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SO:0000704</xref>
-	<oboInOwl:has_definition>
-		<oboInOwl:Definition>
-			<rdfs:label xml:lang="en">A locatable region of genomic sequence, corresponding to a unit of inheritance, which is associated with regulatory regions, transcribed regions and/or other functional sequence regions.</rdfs:label>
-			<oboInOwl:has_dbxref>
-			<oboInOwl:DbXref rdf:about="xref/SO#0000704">
-				<oboInOwl:acc>0000704</oboInOwl:acc>
-				<oboInOwl:dbname>SO</oboInOwl:dbname>
-			</oboInOwl:DbXref>
-			</oboInOwl:has_dbxref>
-		</oboInOwl:Definition>
-	</oboInOwl:has_definition>
-	<owl:disjointWith rdf:resource="#CCO_U0000005"/>
-	<rdfs:subClassOf rdf:resource="#CCO_U0000003"/>
-</owl:Class>
-
-<owl:Class rdf:ID="CCO_U0000006">
-	<rdfs:label xml:lang="en">transcript</rdfs:label>
-	<xref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SO:0000673</xref>
-	<oboInOwl:has_definition>
-		<oboInOwl:Definition>
-			<rdfs:label xml:lang="en">An RNA synthesized on a DNA or RNA template by an RNA polymerase.</rdfs:label>
-			<oboInOwl:has_dbxref>
-			<oboInOwl:DbXref rdf:about="xref/SO#0000673">
-				<oboInOwl:acc>0000673</oboInOwl:acc>
-				<oboInOwl:dbname>SO</oboInOwl:dbname>
-			</oboInOwl:DbXref>
-			</oboInOwl:has_dbxref>
-		</oboInOwl:Definition>
-	</oboInOwl:has_definition>
-	<rdfs:subClassOf rdf:resource="#CCO_U0000003"/>
-</owl:Class>
-
-<owl:Class rdf:ID="CCO_U0000007">
-	<rdfs:label xml:lang="en">interaction</rdfs:label>
-	<oboInOwl:has_definition>
-		<oboInOwl:Definition>
-			<rdfs:label xml:lang="en">Any reciprocal or mutual action or effect between two continuants.</rdfs:label>
-			<oboInOwl:has_dbxref>
-			<oboInOwl:DbXref rdf:about="xref/CCO#ea">
-				<oboInOwl:acc>ea</oboInOwl:acc>
-				<oboInOwl:dbname>CCO</oboInOwl:dbname>
-			</oboInOwl:DbXref>
-			</oboInOwl:has_dbxref>
-		</oboInOwl:Definition>
-	</oboInOwl:has_definition>
-	<rdfs:subClassOf rdf:resource="#CCO_U0000002"/>
-</owl:Class>
-
-<owl:Class rdf:ID="CCO_U0000005">
-	<rdfs:label xml:lang="en">protein</rdfs:label>
-	<xref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SO:0000358</xref>
-	<oboInOwl:has_definition>
-		<oboInOwl:Definition>
-			<rdfs:label xml:lang="en">One or more polypeptides which may, or may not, be covalently bonded, and which assume a native secondary and tertiary structure.</rdfs:label>
-			<oboInOwl:has_dbxref>
-			<oboInOwl:DbXref rdf:about="xref/SO#0000358">
-				<oboInOwl:acc>0000358</oboInOwl:acc>
-				<oboInOwl:dbname>SO</oboInOwl:dbname>
-			</oboInOwl:DbXref>
-			</oboInOwl:has_dbxref>
-		</oboInOwl:Definition>
-	</oboInOwl:has_definition>
-	<owl:disjointWith rdf:resource="#CCO_U0000004"/>
-	<rdfs:subClassOf rdf:resource="#CCO_U0000003"/>
+	<synonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cell cycle entity</synonym>
 </owl:Class>
 
 <owl:Class rdf:ID="CCO_U0000001">
@@ -202,6 +100,108 @@
 	<rdfs:subClassOf rdf:resource="#CCO_U0000000"/>
 </owl:Class>
 
+<owl:Class rdf:ID="CCO_U0000003">
+	<rdfs:label xml:lang="en">biopolymer</rdfs:label>
+	<oboInOwl:has_definition>
+		<oboInOwl:Definition>
+			<rdfs:label xml:lang="en">A polymer, such as a protein, nucleic acid, or transcript, ocurring in, or formed by, living systems.</rdfs:label>
+			<oboInOwl:has_dbxref>
+			<oboInOwl:DbXref rdf:about="xref/CCO#ea">
+				<oboInOwl:acc>ea</oboInOwl:acc>
+				<oboInOwl:dbname>CCO</oboInOwl:dbname>
+			</oboInOwl:DbXref>
+			</oboInOwl:has_dbxref>
+		</oboInOwl:Definition>
+	</oboInOwl:has_definition>
+	<synonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">bio-polymer</synonym>
+	<rdfs:subClassOf rdf:resource="#CCO_U0000001"/>
+</owl:Class>
+
+<owl:Class rdf:ID="CCO_U0000004">
+	<rdfs:label xml:lang="en">gene</rdfs:label>
+	<xref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SO:0000704</xref>
+	<oboInOwl:has_definition>
+		<oboInOwl:Definition>
+			<rdfs:label xml:lang="en">A locatable region of genomic sequence, corresponding to a unit of inheritance, which is associated with regulatory regions, transcribed regions and/or other functional sequence regions.</rdfs:label>
+			<oboInOwl:has_dbxref>
+			<oboInOwl:DbXref rdf:about="xref/SO#0000704">
+				<oboInOwl:acc>0000704</oboInOwl:acc>
+				<oboInOwl:dbname>SO</oboInOwl:dbname>
+			</oboInOwl:DbXref>
+			</oboInOwl:has_dbxref>
+		</oboInOwl:Definition>
+	</oboInOwl:has_definition>
+	<owl:disjointWith rdf:resource="#CCO_U0000005"/>
+	<rdfs:subClassOf rdf:resource="#CCO_U0000003"/>
+</owl:Class>
+
+<owl:Class rdf:ID="CCO_U0000005">
+	<rdfs:label xml:lang="en">protein</rdfs:label>
+	<xref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SO:0000358</xref>
+	<oboInOwl:has_definition>
+		<oboInOwl:Definition>
+			<rdfs:label xml:lang="en">One or more polypeptides which may, or may not, be covalently bonded, and which assume a native secondary and tertiary structure.</rdfs:label>
+			<oboInOwl:has_dbxref>
+			<oboInOwl:DbXref rdf:about="xref/SO#0000358">
+				<oboInOwl:acc>0000358</oboInOwl:acc>
+				<oboInOwl:dbname>SO</oboInOwl:dbname>
+			</oboInOwl:DbXref>
+			</oboInOwl:has_dbxref>
+		</oboInOwl:Definition>
+	</oboInOwl:has_definition>
+	<owl:disjointWith rdf:resource="#CCO_U0000004"/>
+	<rdfs:subClassOf rdf:resource="#CCO_U0000003"/>
+</owl:Class>
+
+<owl:Class rdf:ID="CCO_U0000006">
+	<rdfs:label xml:lang="en">transcript</rdfs:label>
+	<xref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SO:0000673</xref>
+	<oboInOwl:has_definition>
+		<oboInOwl:Definition>
+			<rdfs:label xml:lang="en">An RNA synthesized on a DNA or RNA template by an RNA polymerase.</rdfs:label>
+			<oboInOwl:has_dbxref>
+			<oboInOwl:DbXref rdf:about="xref/SO#0000673">
+				<oboInOwl:acc>0000673</oboInOwl:acc>
+				<oboInOwl:dbname>SO</oboInOwl:dbname>
+			</oboInOwl:DbXref>
+			</oboInOwl:has_dbxref>
+		</oboInOwl:Definition>
+	</oboInOwl:has_definition>
+	<rdfs:subClassOf rdf:resource="#CCO_U0000003"/>
+</owl:Class>
+
+<owl:Class rdf:ID="CCO_U0000007">
+	<rdfs:label xml:lang="en">interaction</rdfs:label>
+	<oboInOwl:has_definition>
+		<oboInOwl:Definition>
+			<rdfs:label xml:lang="en">Any reciprocal or mutual action or effect between two continuants.</rdfs:label>
+			<oboInOwl:has_dbxref>
+			<oboInOwl:DbXref rdf:about="xref/CCO#ea">
+				<oboInOwl:acc>ea</oboInOwl:acc>
+				<oboInOwl:dbname>CCO</oboInOwl:dbname>
+			</oboInOwl:DbXref>
+			</oboInOwl:has_dbxref>
+		</oboInOwl:Definition>
+	</oboInOwl:has_definition>
+	<rdfs:subClassOf rdf:resource="#CCO_U0000002"/>
+</owl:Class>
+
+<owl:Class rdf:ID="CCO_U0000008">
+	<rdfs:label xml:lang="en">pathway</rdfs:label>
+	<oboInOwl:has_definition>
+		<oboInOwl:Definition>
+			<rdfs:label xml:lang="en">A chain of interactions undergone by a given biopolymer or molecular entity in a particular organism.</rdfs:label>
+			<oboInOwl:has_dbxref>
+			<oboInOwl:DbXref rdf:about="xref/CCO#ea">
+				<oboInOwl:acc>ea</oboInOwl:acc>
+				<oboInOwl:dbname>CCO</oboInOwl:dbname>
+			</oboInOwl:DbXref>
+			</oboInOwl:has_dbxref>
+		</oboInOwl:Definition>
+	</oboInOwl:has_definition>
+	<rdfs:subClassOf rdf:resource="#CCO_U0000002"/>
+</owl:Class>
+
 <owl:Class rdf:ID="CCO_U0000009">
 	<rdfs:label xml:lang="en">small molecule</rdfs:label>
 	<oboInOwl:has_definition>
@@ -218,11 +218,11 @@
 	<rdfs:subClassOf rdf:resource="#CCO_U0000001"/>
 </owl:Class>
 
-<owl:Class rdf:ID="CCO_U0000000">
-	<rdfs:label xml:lang="en">cell-cycle entity</rdfs:label>
+<owl:Class rdf:ID="CCO_U0000010">
+	<rdfs:label xml:lang="en">complex</rdfs:label>
 	<oboInOwl:has_definition>
 		<oboInOwl:Definition>
-			<rdfs:label xml:lang="en">A process or continuant.</rdfs:label>
+			<rdfs:label xml:lang="en">Any distinct chemical species in which two or more identical or nonidentical chemical species are associated.</rdfs:label>
 			<oboInOwl:has_dbxref>
 			<oboInOwl:DbXref rdf:about="xref/CCO#ea">
 				<oboInOwl:acc>ea</oboInOwl:acc>
@@ -231,7 +231,7 @@
 			</oboInOwl:has_dbxref>
 		</oboInOwl:Definition>
 	</oboInOwl:has_definition>
-	<synonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cell cycle entity</synonym>
+	<rdfs:subClassOf rdf:resource="#CCO_U0000001"/>
 </owl:Class>
 
 <owl:ObjectProperty rdf:ID="is_a">
@@ -294,5 +294,5 @@
 </rdf:RDF>
 
 <!--
-Generated with t/OBOParser.t, Thu Jan  4 18:46:27 CET 2007
+Generated with t/OBOParser.t, Tue Jan 23 13:24:10 CET 2007
 -->
