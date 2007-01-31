@@ -34,6 +34,14 @@ cco.dot						The CCO in DOT format.
 
 cco.ids						IDs from CCO.
 
+pre_cco_H_sapiens.obo		CCO core ontology for H sapiens
+
+pre_cco_A_thaliana.obo		CCO core ontology for A thaliana
+
+pre_cco_S_cerevisiae.obo	CCO core ontology for S cerevisiae
+
+pre_cco_S_pombe.obo			CCO core ontology for S pombe
+
 go_cco.ids					Equivalent IDs in GO and CCO.
 
 cco_x.x.tar.gz				Archives from CCO.
@@ -73,5 +81,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package onto-perl;
-$VERSION='0.25';
+$VERSION='0.26';
 1;

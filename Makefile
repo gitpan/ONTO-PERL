@@ -23,26 +23,26 @@
 
 # --- MakeMaker const_config section:
 
-# These definitions are from config.sh (via /usr/local/perl/lib/5.8.7/x86_64-linux/Config.pm)
+# These definitions are from config.sh (via /usr/local/perl5.8.5/lib/5.8.5/i686-linux/Config.pm)
 
 # They may have been overridden via Makefile.PL or on the command line
 AR = ar
 CC = cc
 CCCDLFLAGS = -fpic
-CCDLFLAGS = -Wl,-E -Wl,-rpath,/usr/local/perl/lib/5.8.7/x86_64-linux/CORE
+CCDLFLAGS = -Wl,-E
 DLEXT = so
 DLSRC = dl_dlopen.xs
 LD = cc
 LDDLFLAGS = -shared -L/usr/local/lib
 LDFLAGS =  -L/usr/local/lib
-LIBC = /lib/libc-2.3.4.so
+LIBC = /lib/libc-2.3.2.so
 LIB_EXT = .a
 OBJ_EXT = .o
 OSNAME = linux
-OSVERS = 2.6.9-11.elsmp
+OSVERS = 2.4.21-15.0.3.elsmp
 RANLIB = :
-SITELIBEXP = /usr/local/perl/lib/site_perl/5.8.7
-SITEARCHEXP = /usr/local/perl/lib/site_perl/5.8.7/x86_64-linux
+SITELIBEXP = /usr/local/perl5.8.5/lib/site_perl/5.8.5
+SITEARCHEXP = /usr/local/perl5.8.5/lib/site_perl/5.8.5/i686-linux
 SO = so
 EXE_EXT = 
 FULL_AR = /usr/bin/ar
@@ -73,18 +73,18 @@ MAN3EXT = 3
 INSTALLDIRS = site
 DESTDIR = 
 PREFIX = 
-PERLPREFIX = /usr/local/perl
-SITEPREFIX = /usr/local/perl
+PERLPREFIX = /usr/local/perl5.8.5
+SITEPREFIX = /usr/local/perl5.8.5
 VENDORPREFIX = 
-INSTALLPRIVLIB = $(PERLPREFIX)/lib/5.8.7
+INSTALLPRIVLIB = $(PERLPREFIX)/lib/5.8.5
 DESTINSTALLPRIVLIB = $(DESTDIR)$(INSTALLPRIVLIB)
-INSTALLSITELIB = $(SITEPREFIX)/lib/site_perl/5.8.7
+INSTALLSITELIB = $(SITEPREFIX)/lib/site_perl/5.8.5
 DESTINSTALLSITELIB = $(DESTDIR)$(INSTALLSITELIB)
 INSTALLVENDORLIB = 
 DESTINSTALLVENDORLIB = $(DESTDIR)$(INSTALLVENDORLIB)
-INSTALLARCHLIB = $(PERLPREFIX)/lib/5.8.7/x86_64-linux
+INSTALLARCHLIB = $(PERLPREFIX)/lib/5.8.5/i686-linux
 DESTINSTALLARCHLIB = $(DESTDIR)$(INSTALLARCHLIB)
-INSTALLSITEARCH = $(SITEPREFIX)/lib/site_perl/5.8.7/x86_64-linux
+INSTALLSITEARCH = $(SITEPREFIX)/lib/site_perl/5.8.5/i686-linux
 DESTINSTALLSITEARCH = $(DESTDIR)$(INSTALLSITEARCH)
 INSTALLVENDORARCH = 
 DESTINSTALLVENDORARCH = $(DESTDIR)$(INSTALLVENDORARCH)
@@ -108,16 +108,16 @@ INSTALLSITEMAN3DIR = $(SITEPREFIX)/man/man3
 DESTINSTALLSITEMAN3DIR = $(DESTDIR)$(INSTALLSITEMAN3DIR)
 INSTALLVENDORMAN3DIR = 
 DESTINSTALLVENDORMAN3DIR = $(DESTDIR)$(INSTALLVENDORMAN3DIR)
-PERL_LIB = /usr/local/perl/lib/5.8.7
-PERL_ARCHLIB = /usr/local/perl/lib/5.8.7/x86_64-linux
+PERL_LIB = /usr/local/perl5.8.5/lib/5.8.5
+PERL_ARCHLIB = /usr/local/perl5.8.5/lib/5.8.5/i686-linux
 LIBPERL_A = libperl.a
 FIRST_MAKEFILE = Makefile
 MAKEFILE_OLD = $(FIRST_MAKEFILE).old
 MAKE_APERL_FILE = $(FIRST_MAKEFILE).aperl
 PERLMAINCC = $(CC)
-PERL_INC = /usr/local/perl/lib/5.8.7/x86_64-linux/CORE
-PERL = /usr/local/perl/bin/perl
-FULLPERL = /usr/local/perl/bin/perl
+PERL_INC = /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE
+PERL = /usr/local/perl5.8.5/bin/perl
+FULLPERL = /usr/local/perl5.8.5/bin/perl
 ABSPERL = $(PERL)
 PERLRUN = $(PERL)
 FULLPERLRUN = $(FULLPERL)
@@ -129,7 +129,7 @@ PERL_CORE = 0
 PERM_RW = 644
 PERM_RWX = 755
 
-MAKEMAKER   = /usr/local/perl/lib/5.8.7/ExtUtils/MakeMaker.pm
+MAKEMAKER   = /usr/local/perl5.8.5/lib/5.8.5/ExtUtils/MakeMaker.pm
 MM_VERSION  = 6.17
 MM_REVISION = 1.133
 
@@ -372,21 +372,21 @@ config :: $(INST_ARCHAUTODIR)$(DIRFILESEP).exists
 config :: $(INST_AUTODIR)$(DIRFILESEP).exists
 	$(NOECHO) $(NOOP)
 
-$(INST_AUTODIR)/.exists :: /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h
+$(INST_AUTODIR)/.exists :: /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h
 	$(NOECHO) $(MKPATH) $(INST_AUTODIR)
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h $(INST_AUTODIR)/.exists
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h $(INST_AUTODIR)/.exists
 
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_AUTODIR)
 
-$(INST_LIBDIR)/.exists :: /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h
+$(INST_LIBDIR)/.exists :: /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h
 	$(NOECHO) $(MKPATH) $(INST_LIBDIR)
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h $(INST_LIBDIR)/.exists
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h $(INST_LIBDIR)/.exists
 
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_LIBDIR)
 
-$(INST_ARCHAUTODIR)/.exists :: /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h
+$(INST_ARCHAUTODIR)/.exists :: /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h
 	$(NOECHO) $(MKPATH) $(INST_ARCHAUTODIR)
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h $(INST_ARCHAUTODIR)/.exists
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h $(INST_ARCHAUTODIR)/.exists
 
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_ARCHAUTODIR)
 
@@ -394,9 +394,9 @@ config :: $(INST_MAN3DIR)$(DIRFILESEP).exists
 	$(NOECHO) $(NOOP)
 
 
-$(INST_MAN3DIR)/.exists :: /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h
+$(INST_MAN3DIR)/.exists :: /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h
 	$(NOECHO) $(MKPATH) $(INST_MAN3DIR)
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl/lib/5.8.7/x86_64-linux/CORE/perl.h $(INST_MAN3DIR)/.exists
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) /usr/local/perl5.8.5/lib/5.8.5/i686-linux/CORE/perl.h $(INST_MAN3DIR)/.exists
 
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_MAN3DIR)
 
@@ -776,7 +776,7 @@ $(FIRST_MAKEFILE) : Makefile.PL $(CONFIGDEP)
 
 # --- MakeMaker makeaperl section ---
 MAP_TARGET    = perl
-FULLPERL      = /usr/local/perl/bin/perl
+FULLPERL      = /usr/local/perl5.8.5/bin/perl
 
 $(MAP_TARGET) :: static $(MAKE_APERL_FILE)
 	$(MAKE) -f $(MAKE_APERL_FILE) $@
@@ -822,7 +822,7 @@ ppd:
 	$(NOECHO) $(ECHO) '    <AUTHOR>Erick Antezana &lt;erant@psb.ugent.be&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <OS NAME="$(OSNAME)" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="i686-linux" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '</SOFTPKG>' >> $(DISTNAME).ppd

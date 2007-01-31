@@ -74,7 +74,8 @@ sub work {
 		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)\n/);
 		my $remark = $1 if ($chunks[0] =~ /remark:\s*(.*)/);
 	
-		croak "The OBO file does not have a correct header, please verify it." if (!defined $format_version);
+		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it." if (!defined $format_version);
+		
 		$result->data_version($data_version) if ($data_version);
 		$result->date($date) if ($date);
 		$result->saved_by($saved_by) if ($saved_by);
@@ -110,12 +111,12 @@ sub work {
 					} elsif ($line =~ /^name:\s*(.*)/) {
 						# todo check to have only one NAME per entry
 						if (!defined $1) {
-							croak "1. The term with id '", $term->id(), "' has no name.";
+							croak "The term with id '", $term->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 						} else {
 							$term->name($1);
 						}
 					} elsif ($line =~ /^namespace:\s*(.*)/) {
-						# todo
+						# TODO The namespace of this term is different from the namespace used by the Term.pm
 					} elsif ($line =~ /^is_anonymous:\s*(.*)/) {
 						$term->is_anonymous(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^alt_id:\s*(.*)/) {
@@ -158,9 +159,9 @@ sub work {
 						$rel->link($term, $target);
 						$result->add_relationship($rel);
 					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
-						# todo
+						# TODO
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
-						# todo
+						# TODO
 					} elsif ($line =~ /^disjoint_from:\s*(\w+:[A-Z]?[0-9]{7})\s*(\!\s*(.*))?/) {
 						$term->disjoint_from($1);
 					} elsif ($line =~ /^relationship:\s*(\w+)\s*(\w+:[A-Z]?[0-9]{7})\s*(\!\s*(.*))?/) {
@@ -180,22 +181,21 @@ sub work {
 					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
 						$term->is_obsolete(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
-						# todo
+						# TODO
 					} elsif ($line =~ /^consider:\s*(.*)/) {
-						# todo
+						# TODO
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$term->builtin(($1 eq "true")?1:0);
-					} else {
-						# TODO unrecognized token
+					} else { # TODO unrecognized token						
 						warn "A format problem has been detected in: '", $line, "' in the line: ", $file_line_number, " in the file: ", $self->{OBO_FILE};
 					}
 				}
 				# Check for required fields: id and name
 				if (defined $term && !defined $term->id()) {
 					# TODO create a test for getting this croak
-					croak "There is no id for the term: ", @entry;
+					croak "There is no id for the term:\n", $chunk;
 				} elsif (!defined $term->name()) {
-					croak "2. The term with id '", $term->id(), "' has no name in the entry", @entry;;
+					croak "The term with id '", $term->id(), "' has no name in the entry:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 				}				
 			} elsif ($stanza =~ /\[Typedef\]/) { # treat [Typedef]
 				$file_line_number++;
@@ -279,9 +279,9 @@ sub work {
 				# Check for required fields: id and name
 				if (!defined $type->id()) {
 					# todo create a test for getting this croak
-					croak "There is no id for the type:", @entry;
+					croak "There is no id for the type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";;
 				} elsif (!defined $type->name()) {
-					croak "3. The type with id '", $type->id(), "' has no name.";
+					croak "The type with id '", $type->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 				}
 			}
 		}
@@ -298,7 +298,7 @@ sub work {
 		$/ = "\n";
 		
 	} else { # if no header (chunk[0])
-		croak "The OBO file does not have a correct header, please verify it.";
+		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
 	}
 	return $result;
 }

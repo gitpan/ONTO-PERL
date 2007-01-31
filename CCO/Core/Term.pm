@@ -294,19 +294,26 @@ sub synonym_as_string {
 =head2 xref_set
 
   Usage    - $term->xref_set() or $term->xref_set($dbxref_set)
-  Returns  - a Dbxref set with the analogous xref(s) of this term in another vocabulary
-  Args     - analogous xref(s) of this term in another vocabulary
-  Function - gets/sets the analogous xref(s) of this term in another vocabulary
+  Returns  - a Dbxref set (CCO::Util::DbxrefSet) with the analogous xref(s) of this term in another vocabulary
+  Args     - a set of analogous xref(s) (CCO::Util::DbxrefSet) of this term in another vocabulary
+  Function - gets/sets the analogous xref(s) set of this term in another vocabulary
   
 =cut
 sub xref_set {
 	my $self = shift;
 	if (@_) {
 		my $xref_set = shift;
-    		croak "The xref must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Util::DbxrefSet'));
+    	croak "The xref must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Util::DbxrefSet'));
 		$self->{XREF_SET} = $xref_set;
     }
     return $self->{XREF_SET};
+    
+	# TODO change the behaviour of this method as in 'alt_id':
+#    my $self = shift;
+#    foreach my $xref (@_) {
+#		$self->{XREF_SET}->add($xref);
+#	}
+#	return $self->{XREF_SET};
 }
 
 =head2 xref_set_as_string

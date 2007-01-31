@@ -38,6 +38,8 @@ t/Synonym.t
 t/SynonymSet.t
 t/Term.t
 t/TermSet.t
+t/data/cco_b.ids
+t/data/cco_t.ids
 t/data/cco-names.html
 t/data/fake_ulo_cco.obo
 t/data/goa_assoc.txt
@@ -45,5 +47,6 @@ t/data/main.html
 t/data/names_dummy.dmp
 t/data/nodes_dummy.dmp
 t/data/out_cco.obo
+t/data/pre_cco_core.obo
 t/data/pre_cco.obo
 t/data/ulo_cco.obo

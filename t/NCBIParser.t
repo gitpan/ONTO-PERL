@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 2;
+    plan tests => 3;
 }
 
 #########################
@@ -17,10 +17,11 @@ BEGIN {
 use CCO::Parser::NCBIParser;
 use strict;
 
-my $my_parser = CCO::Parser::NCBIParser->new;
+my $my_parser = CCO::Parser::NCBIParser->new();
 ok(1);
 
-my $taxa_ontology=$my_parser->work("./t/data/pre_cco.obo","./t/data/pre_cco_taxa.obo","./t/data/nodes_dummy.dmp","./t/data/names_dummy.dmp","3702","9606");
+my $taxa_ontology = $my_parser->work("./t/data/pre_cco.obo", "./t/data/pre_cco_taxa.obo", "./t/data/cco_t.ids", "./t/data/nodes_dummy.dmp", "./t/data/names_dummy.dmp", "3702", "9606");
+ok($taxa_ontology->has_term($taxa_ontology->get_term_by_name("Mikel organism")));
 ok(1);
 
 

@@ -340,8 +340,8 @@ sub equals {
 		
 		my @this =  (keys %$self);
 		my @that =  (keys %$target);
-		foreach (@this) {croak "The $_ of this association is undefined" if (!defined($self->{$_}));}
-		foreach (@that) {croak "The $_ of this association is undefined" if (!defined($target->{$_}));}
+		foreach (@this) {croak "The value of $_ of this association is undefined" if (!defined($self->{$_}));}
+		foreach (@that) {croak "The value of $_ of this association is undefined" if (!defined($target->{$_}));}
 		if ($#this != $#that){
 			$result = 0;
 		} else {

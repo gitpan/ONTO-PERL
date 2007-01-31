@@ -1,3 +1,12 @@
+# $Id: NCBIParser.pm 291 2006-06-01 16:21:45Z erant $
+#
+# Module  : NCBIParser.pm
+# Purpose : Parse NCBI files: names and nodes
+# License : Copyright (c) 2006 Cell Cycle Ontology. All rights reserved.
+#           This program is free software; you can redistribute it and/or
+#           modify it under the same terms as Perl itself.
+# Contact : CCO <ccofriends@psb.ugent.be>
+#
 package CCO::Parser::NCBIParser;
 use CCO::Parser::OBOParser;
 use CCO::Core::Ontology;
@@ -6,13 +15,17 @@ use CCO::Core::RelationshipType;
 use CCO::Core::Dbxref;
 use CCO::Core::Term;
 
+BEGIN {
+push @INC, '../cco/scripts/pipeline';
+}
+use CCO_ID_Term_Map;
+
 use strict;
 use warnings;
 use Carp;
 
-my %selected_nodes = (); # taxon id=> parent id
+my %selected_nodes = (); # taxon id => parent id
 my %selected_names = (); # taxon id => taxon name
-
 
 sub new {
 	my $class                   = shift;
@@ -26,7 +39,7 @@ sub new {
 
   Usage    - $NCBIParser->work()
   Returns  - the parsed OBO ontology
-  Args     - old OBO file, new OBO file, nodes dump file, names dump file, taxon 1, taxon 2, ...
+  Args     - old OBO file, new OBO file, cco ids file, nodes dump file, names dump file, taxon 1, taxon 2, ...
   Function - converts NCBI taxonomy into an OBO file
   
 =cut
@@ -38,6 +51,7 @@ sub work {
 	# Get the arguments
 	my $old_OBOfileName = shift;
 	my $new_OBOfileName = shift;
+	my $CCO_idsFileName = shift;
 	my $NCBInodesFileName = shift;
 	my $NCBInamesFileName = shift;
 	my @allthetaxa = @_;
@@ -46,18 +60,18 @@ sub work {
 	# %nodes=[child node id] - [parent node id] 
 	# %names=[child node id] - [scientific name]
 	# !!!TODO!!! %ranks=[child node id] - [rank]
-	my %nodes=();
-	my %names=();
+	my %nodes = ();
+	my %names = ();
 
 	# Open and parse the nodes file (We want groups 1 and 2)
 	open(NCBInodesFile, $NCBInodesFileName) || die("can't open file: $!");
 	my @mynodelines =<NCBInodesFile>;
 	foreach my $theline (@mynodelines){
 		if ($theline =~ /(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|/){
-			my $child=$1;
-			my $parent=$2;
-			$child=~ s/\s//g;
-			$parent=~ s/\s//g;
+			my $child = $1;
+			my $parent = $2;
+			$child =~ s/\s//g;
+			$parent =~ s/\s//g;
 			$nodes{$child} = $parent; 
 		}
 	}
@@ -65,12 +79,12 @@ sub work {
 
 	# Open and parse names file (we want groups 1 and 2 only if group 4 is scientific name)
 	open(NCBInamesFile, $NCBInamesFileName) || die("can't open file: $!");
-	my @mynamelines =<NCBInamesFile>;
+	my @mynamelines = <NCBInamesFile>;
 	foreach my $theline (@mynamelines){
 		if ($theline =~ /(.+)\|(.+)\|(.+)\|(.+)\|/){
-			my $childid=$1;
-			my $childname=$2;
-			my $nametype=$4;
+			my $childid = $1;
+			my $childname = $2;
+			my $nametype = $4;
 			$childid =~ s/\s//g;
 			$nametype =~ s/\s//g;
 			if($nametype eq 'scientificname'){
@@ -96,48 +110,59 @@ sub work {
 	foreach my $thetaxon (@allthetaxa){
 		&getParentsRecursively ($thetaxon,\%nodes,\%names,\%selected_nodes,\%selected_names);	
 	}
+	
+	#
+	# NCBI IDs vs. CCO IDs
+	#
+	my %ncbi_cco;
 
 	# Put all the interesting term in the ontology without structure
 	# if the term happens to be "root", add it as "organism"
+	# For the rest of terms, add "organism" at the end of the name
+	# so it is ontologically correct
 	foreach my $el (keys %selected_nodes){
-		#print $el, "-", $selected_nodes{$el},"-",$selected_names{$el},"\n";
-		my $OBO_taxon=CCO::Core::Term->new();
-		my $name=$selected_names{$el};
-		if($name eq "root"){
-			$OBO_taxon->name("organism");
+		my $OBO_taxon = CCO::Core::Term->new();
+		my $name;
+		if($selected_names{$el} eq "root"){
+			$name = "organism";
 		}
 		else{
-			$OBO_taxon->name($selected_names{$el});
+			$name = $selected_names{$el}." organism";
 		}
-		$OBO_taxon->id(&convertToCCO($el));
+		$OBO_taxon->name($name);
+		
+	    # TODO find out automatically the file type: cco_x.ids , la 'x'
+	    my $cco_t_id_map = CCO_ID_Term_Map->new($CCO_idsFileName); # Set of [T]axa IDs
+		my $taxon_id = $cco_t_id_map->get_cco_id_by_term ($name);
+		if (!defined $taxon_id) { # Does this term have an associated ID?
+			$taxon_id = $cco_t_id_map->get_new_cco_id("CCO", "T", $name);
+		}
+		$ncbi_cco{$el} = $taxon_id;
+		$OBO_taxon->id($taxon_id);
 		$OBO_taxon->xref_set_as_string("NCBI:".$el);
+		
+		my $continuant = $ontology->get_term_by_name("continuant");
+		if (defined $continuant && $OBO_taxon->name() eq "organism") { # If the ontology has the ULO and the term is 'organism'
+			my $rel = CCO::Core::Relationship->new(); 
+			$rel->type("is_a");
+			$rel->CCO::Core::Relationship::link($OBO_taxon, $continuant);
+			$rel->id($OBO_taxon->id()."_is_a_".$continuant->id());
+			$ontology->add_relationship($rel); # add "organism is_a continuant"
+		}
 		$ontology->add_term($OBO_taxon);
 	}
 
-	# add "organism is_a continuant"
-	my $OBO_cellular_organisms=$ontology->get_term_by_name("organism");
-	my $OBO_continuant=$ontology->get_term_by_name("continuant");
-	my $is_a_rel = CCO::Core::Relationship->new();
-	$is_a_rel->type("is_a");
-	$is_a_rel->link($OBO_cellular_organisms,$OBO_continuant);
-	my $rel_id=$OBO_cellular_organisms->id()."_is_a_".$OBO_continuant->id();
-	$is_a_rel->id($rel_id);
-	$ontology->add_relationship($is_a_rel); 
-
-	# Put the is_a relationships to each term but not if the child is root (cyclic is_a)
+	# Put the 'is_a' relationships to each term but not if the child is root (cyclic is_a)
 	foreach my $el (keys %selected_nodes){
-		#print "ELEMENT ID: ",$el,"\n";
-		my $OBO_taxon_term=$ontology->get_term_by_id(&convertToCCO($el));
-		my $OBO_taxon_parent=$ontology->get_term_by_id(&convertToCCO($selected_nodes{$el}));
-		#print "CHILD: ", $OBO_taxon_term->name(), " - ", "PARENT: ", $OBO_taxon_parent->name(),"\n";
-		#print "CHILD: ", $OBO_taxon_term->id(), " - ", "PARENT: ", $OBO_taxon_parent->id(),"\n";
-		if($el!=1){
+		my $OBO_taxon_term = $ontology->get_term_by_id($ncbi_cco{$el});
+		croak "The term with id: '", $ncbi_cco{$el}, "' is not defined\n" if (!defined $OBO_taxon_term);
+		my $OBO_taxon_parent = $ontology->get_term_by_id($ncbi_cco{$selected_nodes{$el}});
+		croak "The parent term with id: '", $ncbi_cco{$selected_nodes{$el}}, "' is not defined\n" if (!defined $OBO_taxon_parent);
+		if($el != 1){
 			my $is_a_rel = CCO::Core::Relationship->new();
 			$is_a_rel->type("is_a");
-			$is_a_rel->link($OBO_taxon_term,$OBO_taxon_parent);
-			my $rel_id=$OBO_taxon_term->id()."_is_a_".$OBO_taxon_parent->id();
-			#print $rel_id,"\n";
-			$is_a_rel->id($rel_id);
+			$is_a_rel->link($OBO_taxon_term, $OBO_taxon_parent);
+			$is_a_rel->id($OBO_taxon_term->id()."_is_a_".$OBO_taxon_parent->id());
 			$ontology->add_relationship($is_a_rel); 
 		}
 	}
@@ -146,11 +171,6 @@ sub work {
 	open (FH, ">".$new_OBOfileName) || die "Cannot write OBO file ", $!;
 	$ontology->export(\*FH);
 	close FH;
-	#my $OBO_taxon=CCO::Core::Term->new();
-	#$OBO_taxon->name("Eryc");
-	#$OBO_taxon->id("CCO:Eryc");
-	#$OBO_taxon->xref("NCBI:Eryc");
-	#$ontology->add_term($OBO_taxon);	
 	return $ontology;
 }
 
@@ -159,28 +179,14 @@ sub work {
 ########################################################################
 
 sub getParentsRecursively (){
-	my ($taxon,$nodes,$names,$selected_nodes,$selected_names)=@_;
-	my $child_id=$taxon;
-	my $parent_id=${$nodes}{$taxon};
-	my $child_name=${$names}{$taxon};
-	my $parent_name=${$names}{$taxon};
-	$selected_nodes{$child_id}=$parent_id;
-	$selected_names{$child_id}=$child_name;
-	if($child_id!=1){
-		&getParentsRecursively($parent_id,$nodes,$names,$selected_nodes,$selected_names);
-	}
-}
-
-# Convert a taxon id to a CCO id (27->CCO:T0000027)
-sub convertToCCO (){
-	my ($taxonName)=@_;
-	my $CCObase="CCO:T";
-	my $zero="0";
-	my $amount_zeros=7-length($taxonName);
-	for(my $ind=0;$ind<$amount_zeros;$ind++){
-		$CCObase=$CCObase.$zero;
-	}
-	return $CCObase.$taxonName;
+	my ($taxon, $nodes, $names, $selected_nodes, $selected_names) = @_;
+	my $child_id = $taxon;
+	my $parent_id = ${$nodes}{$taxon};
+	my $child_name = ${$names}{$taxon};
+	my $parent_name = ${$names}{$taxon};
+	$selected_nodes{$child_id} = $parent_id;
+	$selected_names{$child_id} = $child_name;
+	&getParentsRecursively($parent_id, $nodes, $names, $selected_nodes, $selected_names) if($child_id !=1);
 }
 
 1;
@@ -201,9 +207,6 @@ reconstructed in a given OBO ontology, using scientific names.
 The dump files (nodes.dmp and names.dmp) should be obtained from: 
 
 	ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
-
-The parser assumes that there is an already existing OBO term in the ontology 
-called "continuant".
 
 TODO: include ranks and disjoints only in correlating ranks.
 

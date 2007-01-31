@@ -348,6 +348,24 @@ sub has_relationship_type_id {
     return $result;
 }
 
+=head2 equals
+
+  Usage    - print $ontology->equals($another_ontology)
+  Returns  - either 1 (true) or 0 (false)
+  Args     - the ontology (CCO::Core::Ontology) to compare with
+  Function - tells whether this ontology is equal to the parameter
+  
+=cut
+sub equals {
+	my $self = shift;
+	my $result =  0; 
+	
+	# TODO implement this method
+	croak "Method: CCO::Core:Ontology::equals in not implemented yet";
+	
+	return $result;
+}
+
 =head2 get_terms
 
   Usage    - $ontology->get_terms() or $ontology->get_terms("CCO:I.*")

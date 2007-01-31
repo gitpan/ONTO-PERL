@@ -13,3 +13,5 @@ Revision history for Perl extension CCO.
 0.24 Ontology.pm has many more functionalities
 
 0.25 GOA parser, OBO parser enhanced
+
+0.26 Enhanced: NCBIParser.pm, GoaParser.pm and Ontology.pm

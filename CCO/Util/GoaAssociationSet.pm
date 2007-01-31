@@ -7,14 +7,13 @@
 #           modify it under the same terms as Perl itself.
 # Contact : Vladimir Mironov <vlmir@psb.ugent.be>
 #
-package CCO::Core::GoaAssociationSet;
+package CCO::Util::GoaAssociationSet;
 our @ISA = qw(CCO::Util::Set);
 use CCO::Util::Set;
 use strict;
 use warnings;
 use Carp;
 
-#TODO function eliminate_duplicates should be implemented
 
 
 =head2 add
@@ -70,6 +69,32 @@ sub remove {
    return $result;
 }
 
+=head2 remove_duplicates
+
+ Usage    - $set->remove_duplicates()
+ Returns  - a set object (CCO::Util::GoaAssociationSet) 
+ Args     - none 
+ Function - eliminates redundency in a GOA association set object (CCO::Util::GoaAssociationSet)
+
+=cut
+sub remove_duplicates {
+	my $self = shift;
+	my @list = @{$self->{SET}};
+	my @set = ();
+	while (scalar (@list)) {
+		my $ele = pop(@list);
+		my $result = 0;
+		foreach (@list) {
+			if ($ele->equals($_)) {
+				$result = 1; 
+				last; 
+			}
+		}
+		unshift @set, $ele if $result == 0;
+	}
+	@{$self->{SET}} = @set;
+	return $self;
+}
 
 
 =head2 contains
@@ -109,7 +134,7 @@ sub equals {
    my $result = 0; # I guess they'are NOT identical
      if (@_) {
        my $other_set = shift;
-       croak "The element to be tested must be a CCO::Core::GoaAssociationSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Core::GoaAssociationSet'));
+       croak "The element to be tested must be a CCO::Util::GoaAssociationSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::GoaAssociationSet'));
              my %count = ();
              my @this = @{$self->{SET}};
        my @that = $other_set->get_set();

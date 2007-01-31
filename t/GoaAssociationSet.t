@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 30;
+    plan tests => 32;
 }
 
 #########################
@@ -22,7 +22,7 @@ use strict;
 #################
 # class methods #
 #################
-my $my_set = CCO::Core::GoaAssociationSet->new();
+my $my_set = CCO::Util::GoaAssociationSet->new();
 ok(1);
 
 # three new association's
@@ -187,7 +187,7 @@ $my_set->add_all($assc8, $assc9);
 ok($my_set->size() == 5);
 
 
-my $my_set2 = CCO::Core::GoaAssociationSet->new();
+my $my_set2 = CCO::Util::GoaAssociationSet->new();
 ok(1);
 
 ok($my_set2->is_empty());
@@ -223,10 +223,15 @@ $assc5->synonym("synonym1");
 $assc5->taxon("taxon1");
 $assc5->type("type1");
 $assc5->annot_src("annot_src1");
-
-#TODO the size should  be 5 now! implement eliminate duplicates in Set.pm
 ok($my_set->size() == 6);
-ok($my_set2->size() == 6);
+ok($my_set->size() == 6);
+
+# eliminating redundancy
+$my_set->remove_duplicates();
+$my_set2->remove_duplicates();
+ok($my_set->size() == 5);
+ok($my_set2->size() == 5);
+
 
 
 $my_set->clear();
