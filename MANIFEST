@@ -13,6 +13,9 @@ CCO/Core/Term.pm
 CCO/Parser/GoaParser.pm
 CCO/Parser/NCBIParser.pm
 CCO/Parser/OBOParser.pm
+CCO/Util/CCO_ID_Set.pm
+CCO/Util/CCO_ID_Term_Map.pm
+CCO/Util/CCO_ID.pm
 CCO/Util/DbxrefSet.pm
 CCO/Util/GoaAssociationSet.pm
 CCO/Util/Set.pm
@@ -43,7 +46,6 @@ t/data/cco_t.ids
 t/data/cco-names.html
 t/data/fake_ulo_cco.obo
 t/data/goa_assoc.txt
-t/data/main.html
 t/data/names_dummy.dmp
 t/data/nodes_dummy.dmp
 t/data/out_cco.obo

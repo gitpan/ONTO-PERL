@@ -119,7 +119,9 @@ sub equals {
 1;
 
 =head1 NAME
+
     CCO::Core::Def  - Definition structure.
+    
 =head1 SYNOPSIS
 
 use CCO::Core::Def;
@@ -165,7 +167,15 @@ foreach my $ref_def2 (@refs_def2) {
 }
 
 =head1 DESCRIPTION
-A Def object encapsules a definition for a universal.
+
+A Def object encapsules a definition for a universal. There must be zero or one 
+instances of this tag per term description. More than one definition for a term 
+must generate a parse error. The value of this tag should be the quote enclosed 
+definition text, followed by a dbxref set containing dbxrefs that describe the 
+origin of this definition (see CCO::Core::Dbxref for information on how dbxref 
+lists are used).
+
+c.f. OBO flat file specification.
 
 =head1 AUTHOR
 

@@ -435,7 +435,9 @@ sub equals  {
 1;
 
 =head1 NAME
-    Core::RelationshipType  - a type of relationship type in an ontology
+
+    CCO::Core::RelationshipType  - a type of relationship type in an ontology
+    
 =head1 SYNOPSIS
 
 use CCO::Core::RelationshipType;
@@ -469,6 +471,7 @@ foreach my $ref_r2 (@refs_r2) {
 }
 
 =head1 DESCRIPTION
+
 A type of relationship in the ontology.
 
 =head1 AUTHOR

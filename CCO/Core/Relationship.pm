@@ -139,7 +139,9 @@ sub link {
 1;
 
 =head1 NAME
-    Core::Relationship  - a relationship between two terms or two relationships within an ontology.
+
+    CCO::Core::Relationship  - a relationship between two terms or two relationships within an ontology.
+
 =head1 SYNOPSIS
 
 use CCO::Core::Relationship;
@@ -206,7 +208,11 @@ $r5->link($n2, $n3);
 $r6->link($n1, $n3);
 
 =head1 DESCRIPTION
-A Relationship in the ontology.
+
+A Relationship between two terms (CCO::Core::Term) in the ontology (CCO::Core::Ontology).
+
+A relationships must have a unique ID (e.g. "CCO:P0000028_is_a_CCO:P0000005"), 
+a type (e.g. "is_a") and it must known the linking terms (tail and head).
 
 =head1 AUTHOR
 

@@ -557,6 +557,7 @@ sub get_relationship_type_by_id {
   
 =cut
 sub get_term_by_name {
+	# TODO look also for the synonyms?
     my $self = shift;
     my $result;
     if (@_) {
@@ -1130,70 +1131,102 @@ sub export {
 	    
 	    print $file_handle "</cco>\n";
     } elsif ($format eq "owl") {
-		#
-		# preambule
-		#
-		print $file_handle "<?xml version=\"1.0\"?>\n";
-		print $file_handle "<rdf:RDF\n";
-		print $file_handle "\txmlns=\"http://www.sbcellcycle.org/cco/ontology/cco.owl#\"\n";
-		print $file_handle "\txml:base=\"http://www.sbcellcycle.org/cco/ontology/cco.owl\"\n";
-		print $file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
-		print $file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
-		print $file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";         
-		print $file_handle "\txmlns:xsp=\"http://www.owl-ontologies.com/2005/08/07/xsp.owl#\"\n";
-		print $file_handle "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n";
-		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
-		print $file_handle "\txmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n";
-		print $file_handle "\txmlns:oboInOwl=\"http://www.cellcycleontology.org/oboInOwl#\"\n";
-		print $file_handle ">\n";
-		
+                #
+                # preambule
+                #
+                print $file_handle "<?xml version=\"1.0\"?>\n";
+                print $file_handle "<rdf:RDF\n";
+                print $file_handle "\txmlns=\"http://www.cellcycleontology.org/obo/owl/\"\n";
+                print $file_handle "\txml:base=\"http://www.cellcycleontology.org/owl/\"\n";
+                print $file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
+                print $file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
+                print $file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";
+                print $file_handle "\txmlns:xsp=\"http://www.owl-ontologies.com/2005/08/07/xsp.owl#\"\n";
+                print $file_handle "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n";
+                print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
+                print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
+                print $file_handle "\txmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n";
+                print $file_handle "\txmlns:oboInOwl=\"http://www.cellcycleontology.org/formats/oboInOwl#\"\n";
+                print $file_handle "\txmlns:oboContent=\"http://www.cellcycleontology.org/obo/owl/\"\n";
+                print $file_handle ">\n";
+
+                #
+                # meta-data: oboInOwl elements
+                #
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasAlternativeId\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasDate\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasVersion\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasDbXref\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasDefaultNamespace\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasNamespace\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasDefinition\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasExactSynonym\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasNarrowSynonym\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasBroadSynonym\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasRelatedSynonym\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasSynonymType\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasSubset\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#inSubset\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#savedBy\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#replacedBy\"/>\n";
+                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#consider\"/>\n";
+                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#DbXref\"/>\n";
+                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#Definition\"/>\n";
+                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#Subset\"/>\n";
+                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#Synonym\"/>\n";
+                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#SynonymType\"/>\n";
+                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#ObsoleteClass\"/>\n";
+                print $file_handle "<owl:ObjectProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#ObsoleteProperty\"/>\n";
+
 		#
 		# header: http://oe0.spreadsheets.google.com/ccc?id=o06770842196506107736.4732937099693365844.03735622766900057712.3276521997699206495#
 		#
 		print $file_handle "<owl:Ontology rdf:about=\"\">\n";
 		print $file_handle "\t<owl:versionInfo rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->data_version(), "</owl:versionInfo>\n" if ($self->data_version());;
-		print $file_handle "\t<hasDate rdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">", $self->date(), "</hasDate>\n" if ($self->date());
-		print $file_handle "\t<savedBy rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->saved_by(), "</savedBy>\n" if ($self->saved_by());
+		print $file_handle "\t<oboInOwl:hasDate rdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">", $self->date(), "</oboInOwl:hasDate>\n" if ($self->date());
+		print $file_handle "\t<oboInOwl:savedBy rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->saved_by(), "</oboInOwl:savedBy>\n" if ($self->saved_by());
+		# autoGeneratedBy is not supported by oboInOwl
 		print $file_handle "\t<autoGeneratedBy rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $0, "</autoGeneratedBy>\n" if ($0);
 		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->remark(), "</rdfs:comment>\n" if ($self->remark());
 		print $file_handle "\t<owl:imports rdf:resource=\"http://purl.org/dc/elements/1.1/\"/>\n";
+		# TODO Consider subsets like:
+		#    <oboInOwl:hasSubset>
+		#	   <oboInOwl:Subset rdf:about="http://purl.org/obo/owl/gosubset_prok">
+		#        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Prokaryotic GO subset</rdfs:comment>
+		#      </oboInOwl:Subset>
+		#    </oboInOwl:hasSubset>
 		print $file_handle "</owl:Ontology>\n\n";
 		
 		#
-		# oboInOwl elements
+		# OLD: oboInOwl elements
 		#
-		print $file_handle "<owl:DatatypeProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#dbname\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#FunctionalProperty\"/>\n";
-		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-		print $file_handle "</owl:DatatypeProperty>\n";
+#		print $file_handle "<owl:DatatypeProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#dbname\">\n";
+#		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#FunctionalProperty\"/>\n";
+#		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+#		print $file_handle "</owl:DatatypeProperty>\n";
 		
-		print $file_handle "<owl:DatatypeProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#acc\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#FunctionalProperty\"/>\n";
-		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-		print $file_handle "</owl:DatatypeProperty>\n";
+#		print $file_handle "<owl:DatatypeProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#acc\">\n";
+#		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#FunctionalProperty\"/>\n";
+#		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+#		print $file_handle "</owl:DatatypeProperty>\n";
 		
-		print $file_handle "<owl:ObjectProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_dbxref\"/>\n";
+#		print $file_handle "<owl:ObjectProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_dbxref\"/>\n";
 		
-		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#DbXref\">\n";
-		print $file_handle "\t<owl:intersectionOf rdf:parseType=\"Collection\">\n";
-		print $file_handle "\t<owl:Restriction>\n";
-		print $file_handle "\t\t<owl:cardinality rdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">1</owl:cardinality>\n";
-		print $file_handle "\t\t<owl:onProperty rdf:resource=\"http://www.cellcycleontology.org/oboInOwl#dbname\"/>\n";
-		print $file_handle "\t</owl:Restriction>\n";
-		print $file_handle "\t<owl:Restriction>\n";
-		print $file_handle "\t\t<owl:cardinality rdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">1</owl:cardinality>\n";
-		print $file_handle "\t\t<owl:onProperty rdf:resource=\"http://www.cellcycleontology.org/oboInOwl#acc\"/>\n";
-		print $file_handle "\t</owl:Restriction>\n";
-		print $file_handle "\t</owl:intersectionOf>\n";
-		print $file_handle "</owl:Class>\n";
+#		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#DbXref\">\n";
+#		print $file_handle "\t<owl:intersectionOf rdf:parseType=\"Collection\">\n";
+#		print $file_handle "\t<owl:Restriction>\n";
+#		print $file_handle "\t\t<owl:cardinality rdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">1</owl:cardinality>\n";
+#		print $file_handle "\t\t<owl:onProperty rdf:resource=\"http://www.cellcycleontology.org/oboInOwl#dbname\"/>\n";
+#		print $file_handle "\t</owl:Restriction>\n";
+#		print $file_handle "\t<owl:Restriction>\n";
+#		print $file_handle "\t\t<owl:cardinality rdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">1</owl:cardinality>\n";
+#		print $file_handle "\t\t<owl:onProperty rdf:resource=\"http://www.cellcycleontology.org/oboInOwl#acc\"/>\n";
+#		print $file_handle "\t</owl:Restriction>\n";
+#		print $file_handle "\t</owl:intersectionOf>\n";
+#		print $file_handle "</owl:Class>\n";
    
-		print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_definition\"/>\n";
-		print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_synonym\"/>\n";
-		
-		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#Definition\"/>\n";
-		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#Synonym\"/>\n";
-		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#IDSpace\"/>\n";
+#		print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_definition\"/>\n";
+#		print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_synonym\"/>\n";
 		
 		#
 		# term
@@ -1204,7 +1237,8 @@ sub export {
 			#
 			# Class name
 			#
-			print $file_handle "<owl:Class rdf:ID=\"", obo_id2owl_id($term->id()), "\">\n";
+			#print $file_handle "<owl:Class rdf:ID=\"", obo_id2owl_id($term->id()), "\">\n";
+			print $file_handle "<owl:Class rdf:about=\"", obo_id2owl_id($term->id()), "\">\n";
 			
 			#
 			# label name = class name
@@ -1228,27 +1262,27 @@ sub export {
 			#
 			foreach my $xref ($term->xref_set_as_string()) {
 				print $file_handle "\t<xref rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $xref->as_string(), "</xref>\n";
-	    	}
+			}
 			
 			#
 			# Def
 			#      
 			if (defined $term->def()->text()) {
-				print $file_handle "\t<oboInOwl:has_definition>\n";
+				print $file_handle "\t<oboInOwl:hasDefinition>\n";
 				print $file_handle "\t\t<oboInOwl:Definition>\n";
 				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $term->def()->text(), "</rdfs:label>\n";
 				
 				for my $ref ($term->def()->dbxref_set()->get_set()) {
-					print $file_handle "\t\t\t<oboInOwl:has_dbxref>\n";
-			        print $file_handle "\t\t\t<oboInOwl:DbXref rdf:about=\"xref/", $ref->db(), "#", $ref->acc(),"\">\n";
-			        print $file_handle "\t\t\t\t<oboInOwl:acc>", $ref->acc(),"</oboInOwl:acc>\n";
-			        print $file_handle "\t\t\t\t<oboInOwl:dbname>", $ref->db(),"</oboInOwl:dbname>\n";
-			        print $file_handle "\t\t\t</oboInOwl:DbXref>\n";
-			        print $file_handle "\t\t\t</oboInOwl:has_dbxref>\n";
+					print $file_handle "\t\t\t<oboInOwl:hasDbXref>\n";
+			       		print $file_handle "\t\t\t<oboInOwl:DbXref rdf:about=\"/", $ref->db(), "#", $ref->acc(),"\">\n";
+			        #	print $file_handle "\t\t\t\t<oboInOwl:acc>", $ref->acc(),"</oboInOwl:acc>\n";
+			        #	print $file_handle "\t\t\t\t<oboInOwl:dbname>", $ref->db(),"</oboInOwl:dbname>\n";
+			        	print $file_handle "\t\t\t</oboInOwl:DbXref>\n";
+			        	print $file_handle "\t\t\t</oboInOwl:hasDbXref>\n";
 				}
 		        	
 				print $file_handle "\t\t</oboInOwl:Definition>\n";
-				print $file_handle "\t</oboInOwl:has_definition>\n";
+				print $file_handle "\t</oboInOwl:hasDefinition>\n";
 			}
 			
 			#
@@ -1285,21 +1319,35 @@ sub export {
 #				print "\t<has_reference rdf:resource=\"#", $instance_id, "\"/>\n";
 #			}
 			
-			#
-	    	# synonym:
-	    	#
+		#
+		# synonym:
+		#
 	    	foreach my $synonym ($term->synonym_set()) {
-				print $file_handle "\t<synonym rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $synonym->def()->text(), "</synonym>\n";
-				# todo consider the scope as element attribute as in the following line:
-				#print $file_handle "\t<synonym rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\" scope=\"", $synonym->type(), "\">", $synonym->def_as_string(), "</synonym>\n";
+			my $synonym_type;
+			if ($synonym->type() eq "EXACT") {
+				$synonym_type = "hasExactSynonym";
+			} elsif ($synonym->type() eq "BROAD") {
+                                $synonym_type = "hasExactSynonym";
+			} elsif ($synonym->type() eq "NARROW") {
+                                $synonym_type = "hasNarrowSynonym";
+			} elsif ($synonym->type() eq "RELATED") {
+                                $synonym_type = "hasRelatedSynonym";
+			} else {
+				confess "A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED";
+			}
+			print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
+			print $file_handle "\t\t<oboInOwl:Synonym>\n";
+			print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
+			print $file_handle "\t\t</oboInOwl:Synonym>\n";
+			print $file_handle "\t</oboInOwl:", $synonym_type, ">\n";
 	    	}
 	    	
-	    	#
-			# disjoint_from:
-			#
-			foreach my $disjoint_term_id ($term->disjoint_from()) {
-				print $file_handle "\t<owl:disjointWith rdf:resource=\"#", obo_id2owl_id($disjoint_term_id), "\"/>\n";
-			}
+		#
+		# disjoint_from:
+		#
+		foreach my $disjoint_term_id ($term->disjoint_from()) {
+			print $file_handle "\t<owl:disjointWith rdf:resource=\"#", obo_id2owl_id($disjoint_term_id), "\"/>\n";
+		}
 		
 	    	#
 	    	# is_a:
@@ -1332,9 +1380,9 @@ sub export {
 #				#	}
 	    	}
 		
-			#	
-			# relationships:
-			#
+		#	
+		# relationships:
+		#
 	    	foreach $rt (@{$self->get_relationship_types()}) {
 	    		if ($rt->name() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
@@ -1396,8 +1444,6 @@ sub export {
 		# Datatype annotation properties: todo: AnnotationProperty or not?
 		#
 		
-		
-		
 		# has_reference
 		print $file_handle "<owl:ObjectProperty rdf:ID=\"has_reference\">\n";
 		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
@@ -1418,31 +1464,11 @@ sub export {
 		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "Describes an analogous term in another vocabulary. A term may have any number of xref's.", "</rdfs:comment>\n";
 		print $file_handle "</owl:DatatypeProperty>\n\n";
 		
-		# hasDate
-		print $file_handle "<owl:DatatypeProperty rdf:ID=\"hasDate\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "Describes the current date in formatdd:MM:yyyy HH:mm.", "</rdfs:comment>\n";
-		print $file_handle "</owl:DatatypeProperty>\n";
-		
-		# savedBy
-		print $file_handle "<owl:DatatypeProperty rdf:ID=\"savedBy\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "The username of the person to last save this ontology.", "</rdfs:comment>\n";
-		print $file_handle "</owl:DatatypeProperty>\n\n";
-		
 		# autoGeneratedBy
 		print $file_handle "<owl:DatatypeProperty rdf:ID=\"autoGeneratedBy\">\n";
 		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
 		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
 		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "The program that generated this ontology.", "</rdfs:comment>\n";
-		print $file_handle "</owl:DatatypeProperty>\n\n";
-		
-		# synonym
-		print $file_handle "<owl:DatatypeProperty rdf:ID=\"synonym\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "Synonym of the class or relationship.", "</rdfs:comment>\n";
 		print $file_handle "</owl:DatatypeProperty>\n\n";
 		
 		# is_anti_symmetric
@@ -1459,7 +1485,7 @@ sub export {
 		# EOF:
 		#
 		print $file_handle "</rdf:RDF>\n\n";
-		print $file_handle "<!--\nGenerated with ".$0.", ".`date`."-->";
+		print $file_handle "<!--\nGenerated with onto-perl: ".$0.", ".`date`."-->";
 		
     } elsif ($format eq "dot") {
     	#
@@ -1800,10 +1826,34 @@ sub get_ancestor_terms_by_relationship_type {
 	return \@arr;
 }
 
+=head2 get_ancestor_terms_by_relationship_type
+
+  Usage    - $ontology->create_rel->($tail, $head, $type)
+  Returns  - CCO::Core::Ontology object
+  Args     - CCO::Core::(Term|Relationship) object, CCO::Core::(Term|Relationship) object, relationship type string
+  Function - creates and adds to the ontology a new relationship
+  
+=cut
+sub create_rel (){
+	my $self = shift;
+	my($tail, $head, $type) = @_;
+	die "Tail must be a CCO::Core::Term or CCO::Core::Relationship object" unless (UNIVERSAL::isa($tail, 'CCO::Core::Term') || UNIVERSAL::isa($tail, 'CCO::Core::Relationship'));
+	die "Head must be a CCO::Core::Term or CCO::Core::Relationship object" unless (UNIVERSAL::isa($head, 'CCO::Core::Term') || UNIVERSAL::isa($head, 'CCO::Core::Relationship'));
+	die "Not a valid relationship type" unless($self->{RELATIONSHIP_TYPES}->{$type});
+	my $rel = CCO::Core::Relationship->new(); 
+	$rel->type($type);
+	$rel->link($tail,$head);
+	$rel->id($tail->id()."_".$type."_".$head->id());
+	$self->add_relationship($rel);
+	return $self;
+}
+
 1;
 
 =head1 NAME
-    Core::Ontology  - an ontology
+
+    CCO::Core::Ontology  - an ontology 
+    
 =head1 SYNOPSIS
 
 use CCO::Core::Ontology;
@@ -1841,7 +1891,6 @@ $n3->def($def3);
 $onto->add_term($n1);
 $onto->add_term($n2);
 $onto->add_term($n3);
-
 
 $onto->delete_term($n1);
 
@@ -1983,9 +2032,6 @@ $r1->name("is_a");
 $r2->name("part_of");
 $r3->name("participates_in");
 
-
-
-
 # add relationship types
 $onto->add_relationship_type($r1);
 $onto->add_relationship_type($r2);
@@ -2034,10 +2080,12 @@ foreach my $head (@heads_n1) {
 
 
 =head1 DESCRIPTION
-This module has several methods to cope with the CCO. Basically, it is a
-directed acyclic graph (DAG) holding the terms and nodes which in turn are
-linked by relationships. These relationships have an associated relationship 
-type.
+
+This module has several methods to work with Ontologies in OBO and OWL formats, 
+such as the Cell Cycle Ontology (http://www.cellcycleontology.org). Basically, 
+it is a directed acyclic graph (DAG) holding the terms (CCO::Core::Term) which 
+in turn are linked by relationships (CCO::Core::Relationship). These relationships 
+have an associated relationship type (CCO::Core::RelationshipType).
 
 =head1 AUTHOR
 

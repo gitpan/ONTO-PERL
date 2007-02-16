@@ -81,5 +81,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package onto-perl;
-$VERSION='0.26';
+$VERSION='0.27';
 1;

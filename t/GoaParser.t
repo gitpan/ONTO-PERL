@@ -6,7 +6,7 @@
 BEGIN {
 	eval { require Test; };
     use Test;    
-    plan tests => 5;
+    plan tests => 6;
 }
 #########################
 
@@ -25,22 +25,18 @@ my %taxa = (
 	);
 my @files = ("./t/data/pre_cco_core.obo",
 			"./t/data/out_cco.obo",
-			"./t/data/goa_assoc.txt", 
+			"./t/data/goa_assoc_filt.txt", 
+			"./t/data/cco_b_tair.ids",
 			"./t/data/cco_b.ids");
-my $my_parser = CCO::Parser::GoaParser->new;
+my $my_parser = CCO::Parser::GoaParser->new();
 ok(1);
 
 my $start = time;
-my $new_ontology = $my_parser->work(\@files, \%taxa);
+my $ontology = $my_parser->work(\@files, $taxa{'3702'});
 my $end = time;
-print "Processed in ", $end - $start, " seconds\n"; 
+#print "Processed in ", $end - $start, " seconds\n"; 
 ok(1);
-#ok($new_ontology->get_term_by_name("Q6NMC8_ARATH"));
-ok($new_ontology->get_term_by_name("RK20_ARATH"));
-ok($new_ontology->get_term_by_name("Q6XJG8_ARATH"));
-ok($new_ontology->get_term_by_name("Q84JF0_ARATH"));
-
-#ok($goaAssocSet = $my_parser->parse("./t/data/goa_assoc.txt")); #takes too long
-
-
-
+ok($ontology->get_term_by_name("Q6NMC8_ARATH")); #this entry has no synonyms (i.e. no IPI id)
+ok($ontology->get_term_by_name("RK20_ARATH"));
+ok($ontology->get_term_by_name("Q6XJG8_ARATH"));
+ok($ontology->get_term_by_name("Q84JF0_ARATH"));

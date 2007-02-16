@@ -5362,39 +5362,38 @@ comment: http://www.ecogene.org/
 
 [Term]
 id: CCO:T0000001
-name: organism
-is_a: CCO:U0000001 ! continuant
-xref: NCBI:1
-
-[Term]
-id: CCO:T0003702
-name: Mikel
-is_a: CCO:T0335928 ! Xanthobacteraceae
-xref: NCBI:3702
-
-[Term]
-id: CCO:T0009605
-name: Homo
-is_a: CCO:T0335928 ! Xanthobacteraceae
+name: Homo organism
+is_a: CCO:T0000003 ! Xanthobacteraceae organism
 xref: NCBI:9605
 
 [Term]
-id: CCO:T0009606
-name: Homo sapiens
-is_a: CCO:T0009605 ! Homo
+id: CCO:T0000002
+name: organism
+xref: NCBI:1
+
+[Term]
+id: CCO:T0000003
+name: Xanthobacteraceae organism
+is_a: CCO:T0000005 ! biota organism
+xref: NCBI:335928
+
+[Term]
+id: CCO:T0000004
+name: Homo sapiens organism
+is_a: CCO:T0000001 ! Homo organism
 xref: NCBI:9606
 
 [Term]
-id: CCO:T0131567
-name: biota
-is_a: CCO:T0000001 ! organism
+id: CCO:T0000005
+name: biota organism
+is_a: CCO:T0000002 ! organism
 xref: NCBI:131567
 
 [Term]
-id: CCO:T0335928
-name: Xanthobacteraceae
-is_a: CCO:T0131567 ! biota
-xref: NCBI:335928
+id: CCO:T0000006
+name: Mikel organism
+is_a: CCO:T0000003 ! Xanthobacteraceae organism
+xref: NCBI:3702
 
 [Term]
 id: CCO:U0000000

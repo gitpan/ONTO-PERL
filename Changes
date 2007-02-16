@@ -1,10 +1,11 @@
-Revision history for Perl extension CCO.
+Revision history for onto-perl
+==============================
 
 0.01  Wed Jun  7 13:05:23 2006
 	- original version; created by h2xs 1.23 with options
 		-AXc -n CCO
 		
-...
+0.xx ...
 
 0.22 Improvements in exports
 
@@ -15,3 +16,5 @@ Revision history for Perl extension CCO.
 0.25 GOA parser, OBO parser enhanced
 
 0.26 Enhanced: NCBIParser.pm, GoaParser.pm and Ontology.pm
+
+0.27 obo2owl tranformation updated, new modules for dealing with IDs

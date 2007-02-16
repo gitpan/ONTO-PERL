@@ -186,7 +186,7 @@ sub def_as_string {
 		
 		my $dbxref_set = CCO::Util::DbxrefSet->new();
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /([\w-]+:[\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $dbxref = CCO::Core::Dbxref->new();
 				$dbxref->name($1);
 				$dbxref->description($3) if (defined $3);
@@ -334,14 +334,14 @@ sub xref_set_as_string {
 		
 		my $xref_set = $self->{XREF_SET};
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /([\w-]+:[\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $xref = CCO::Core::Dbxref->new();
 				$xref->name($1);
 				$xref->description($3) if (defined $3);
 				$xref->modifier($5) if (defined $5);
 				$xref_set->add($xref);
 			} else {
-				croak "There were not defined the references for this definition: ", $self->id(), ". Check the 'dbxref' field.";
+				croak "There were not defined the references for this term: '", $self->id(), "'. Check the 'dbxref' field.";
 			}
 		}
 		# todo do not overwrite the existing set; add the new elements to the existing set!
@@ -487,7 +487,9 @@ sub equals {
 
 1;
 =head1 NAME
+
     CCO::Core::Term  - a universal in an ontology
+    
 =head1 SYNOPSIS
 
 use CCO::Core::Term;
@@ -595,7 +597,8 @@ foreach my $ref_n2 (@refs_n2) {
 }
 
 =head1 DESCRIPTION
-A Term in the ontology.
+
+A Term in the ontology. c.f. OBO flat file specification.
 
 =head1 AUTHOR
 

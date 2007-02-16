@@ -125,7 +125,7 @@ sub contains {
 
  Usage    - $set->equals($another_goa_assocations_set)
  Returns  - either 1 (true) or 0 (false)
- Args     - the set (CCO::Core::GoaAssociationSet) to compare with
+ Args     - the set (CCO::Util::GoaAssociationSet) to compare with
  Function - tells whether this set is equal to the given one
 
 =cut
@@ -178,14 +178,16 @@ sub equals {
 1;
 
 =head1 NAME
-   CCO::Core::GoaAssociationSet  - a GoaAssociationSet implementation
+
+   CCO::Util::GoaAssociationSet  - a GoaAssociationSet implementation
+   
 =head1 SYNOPSIS
 
-use CCO::Core::GoaAssociationSet;
+use CCO::Util::GoaAssociationSet;
 use CCO::Core::GoaAssociation;
 use strict;
 
-my $my_set = CCO::Core::GoaAssociationSet->new();
+my $my_set = CCO::Util::GoaAssociationSet->new();
 
 # three new goa_association's
 my $goa_association1 = CCO::Core::GoaAssociation->new();
@@ -225,7 +227,7 @@ my $goa_association7 = $goa_association4;
 my $goa_association8 = $goa_association5;
 my $goa_association9 = $goa_association6;
 
-my $my_set2 = CCO::Core::GoaAssociationSet->new();
+my $my_set2 = CCO::Util::GoaAssociationSet->new();
 
 $my_set->add_all($goa_association4, $goa_association5, $goa_association6);
 $my_set2->add_all($goa_association7, $goa_association8, $goa_association9, $goa_association1, $goa_association2, $goa_association3);
@@ -233,7 +235,8 @@ $my_set2->add_all($goa_association7, $goa_association8, $goa_association9, $goa_
 $my_set2->clear();
 
 =head1 DESCRIPTION
-A set of goa_association records.
+
+A set (CCO::Util::Set) of goa_association records.
 
 =head1 AUTHOR
 

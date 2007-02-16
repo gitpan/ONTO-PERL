@@ -14,6 +14,8 @@ use strict;
 use warnings;
 use Carp;
 
+# TODO Values in dbxref lists should be ordered alphabetically on the dbxref name.
+
 =head2 add
 
   Usage    - $set->add($dbxref)
@@ -140,7 +142,9 @@ sub equals {
 1;
 
 =head1 NAME
+
     CCO::Util::DbxrefSet  - a DbxrefSet implementation
+    
 =head1 SYNOPSIS
 
 use CCO::Util::DbxrefSet;
@@ -195,7 +199,8 @@ $my_set2->add_all($ref7, $ref8, $ref9, $ref1, $ref2, $ref3);
 $my_set2->clear();
 
 =head1 DESCRIPTION
-A set of dbxref elements.
+
+A set (CCO::Util::Set) of dbxref (CCO::Core::Dbxref) elements.
 
 =head1 AUTHOR
 

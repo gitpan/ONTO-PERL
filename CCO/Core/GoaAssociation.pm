@@ -359,7 +359,9 @@ sub equals {
 1;
 
 =head1 NAME
+
     CCO::Core::GoaAssociation  - a GOA association record.
+
 =head1 SYNOPSIS
 
 use CCO::Core::GoaAssociation;

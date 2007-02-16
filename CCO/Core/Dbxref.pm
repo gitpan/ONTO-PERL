@@ -160,7 +160,9 @@ sub equals {
 1;
 
 =head1 NAME
+
     CCO::Core::Dbxref  - Reference structure.
+    
 =head1 SYNOPSIS
 
 use CCO::Core::Dbxref;
@@ -185,6 +187,7 @@ $ref5->description("this is a description");
 $ref5->modifier("{opt=123}");
 
 =head1 DESCRIPTION
+
 A dbxref object encapsules a reference for a universal.
 
 =head1 AUTHOR

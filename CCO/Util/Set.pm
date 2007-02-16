@@ -201,7 +201,9 @@ sub equals {
 1;
 
 =head1 NAME
-    Util::Set  - a Set implementation
+
+    CCO::Util::Set  - a Set implementation
+    
 =head1 SYNOPSIS
 
 use CCO::Util::Set;

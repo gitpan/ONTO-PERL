@@ -141,7 +141,9 @@ sub equals {
 1;
 
 =head1 NAME
+
     CCO::Util::SynonymSet  - a Set implementation
+    
 =head1 SYNOPSIS
 
 use CCO::Util::SynonymSet;
@@ -206,7 +208,9 @@ $my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
 $my_set2->clear();
 
 =head1 DESCRIPTION
-A set of synonyms for a term or relationship type.
+
+A set (CCO::Util::Set) of synonyms (CCO::Core::Synonym) for a term (CCO::Core::Term) 
+or relationship type (CCO::Core::RelationshipType).
 
 =head1 AUTHOR
 

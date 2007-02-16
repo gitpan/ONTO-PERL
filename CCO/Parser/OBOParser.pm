@@ -58,7 +58,7 @@ sub work {
 	# treat OBO file header tags
 	if (defined $chunks[0] && $chunks[0] =~ /^format-version:\s*(.*)/) {
 		my @header = split (/\n/,$chunks[0]);
-		$file_line_number = $#header + 1;
+		$file_line_number = $#header + 2; # amount of lines in the header
 		my $format_version = $1 if ($chunks[0] =~ /format-version:\s*(.*)\n/); # required tag
 		my $data_version = $1 if ($chunks[0] =~ /data-version:\s*(.*)\n/);
 		my $date = $1 if ($chunks[0] =~ /date:\s*(.*)\n/);
@@ -85,17 +85,15 @@ sub work {
 		# TODO consider the rest of the header tags like 'import'
 		
 		foreach my $chunk (@chunks) {
-			$file_line_number++;
 			my @entry = split (/\n/, $chunk);
-			$file_line_number = $#entry + 1;
 			my $stanza = shift @entry;
 					
 			if ($stanza =~ /\[Term\]/) { # treat [Term]
 				my $term;
-				
+				$file_line_number++;
 				foreach my $line (@entry) {
 					$file_line_number++;
-					#warn "line: ", $line;
+					#warn "Line: ", $line, "\n";
 					if ($line =~ /^id:\s*((.*):(.*))/) { # get the term id
 						# TODO check to have only one ID field per entry
 						$term = $result->get_term_by_id($1); # does this term is already in the ontology?
@@ -146,7 +144,7 @@ sub work {
 						$term->synonym_as_string($1, $3, $2);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
 						$term->xref_set_as_string($1);
-					} elsif ($line =~ /^is_a:\s*(\w+:[A-Z]?[0-9]{7})\s*(\!\s*(.*))?/) {
+					} elsif ($line =~ /^is_a:\s*(\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?/) {
 						my $rel = CCO::Core::Relationship->new();
 						$rel->id($term->id()."_"."is_a"."_".$1);
 						$rel->type("is_a");
@@ -162,9 +160,9 @@ sub work {
 						# TODO
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
 						# TODO
-					} elsif ($line =~ /^disjoint_from:\s*(\w+:[A-Z]?[0-9]{7})\s*(\!\s*(.*))?/) {
+					} elsif ($line =~ /^disjoint_from:\s*(\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?/) {
 						$term->disjoint_from($1);
-					} elsif ($line =~ /^relationship:\s*(\w+)\s*(\w+:[A-Z]?[0-9]{7})\s*(\!\s*(.*))?/) {
+					} elsif ($line =~ /^relationship:\s*(\w+)\s*(\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?/) {
 						my $rel = CCO::Core::Relationship->new();
 						my $id = $term->id()."_".$1."_".$2; 
 						$id =~ s/\s+/_/g;
@@ -187,7 +185,7 @@ sub work {
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$term->builtin(($1 eq "true")?1:0);
 					} else { # TODO unrecognized token						
-						warn "A format problem has been detected in: '", $line, "' in the line: ", $file_line_number, " in the file: ", $self->{OBO_FILE};
+						confess "A format problem has been detected in: '", $line, "' in the line: ", $file_line_number, " in the file: ", $self->{OBO_FILE};
 					}
 				}
 				# Check for required fields: id and name
@@ -196,9 +194,9 @@ sub work {
 					croak "There is no id for the term:\n", $chunk;
 				} elsif (!defined $term->name()) {
 					croak "The term with id '", $term->id(), "' has no name in the entry:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
-				}				
+				}
+				$file_line_number ++;				
 			} elsif ($stanza =~ /\[Typedef\]/) { # treat [Typedef]
-				$file_line_number++;
 				my $type;
 				foreach my $line (@entry) {
 					if ($line =~ /^id:\s*(.*)/) { # get the type id
@@ -257,7 +255,7 @@ sub work {
 						$type->synonym_as_string($1, $3, $2);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
 						$type->xref_set_as_string($1);
-					} elsif ($line =~ /^is_a:\s*((\w+:[A-Z]?[0-9]{7})\s*(\!\s*(.*))?|([\w_]+))/) { # intrinsic or not???
+					} elsif ($line =~ /^is_a:\s*((\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?|([\w_]+))/) { # intrinsic or not???
 						my $rel = CCO::Core::Relationship->new();
 						$rel->id($type->id()."_"."is_a"."_".$1);
 						$rel->type("is_a");
@@ -283,6 +281,7 @@ sub work {
 				} elsif (!defined $type->name()) {
 					croak "The type with id '", $type->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 				}
+				$file_line_number++;
 			}
 		}
 		
@@ -306,7 +305,9 @@ sub work {
 1;
 
 =head1 NAME
+
     CCO::Parser::OBOParser  - An OBO parser.
+    
 =head1 SYNOPSIS
 
 use CCO::Parser::OBOParser;
@@ -329,6 +330,7 @@ $ontology2->get_relationship_by_id("CCO:P0000274_is_a_CCO:P0000262")->type() eq 
 $ontology2->get_relationship_by_id("CCO:P0000274_part_of_CCO:P0000271")->type() eq "part_of"; 
 
 =head1 DESCRIPTION
+
 An OBOParser object works on parsing an OBO file.
 
 =head1 AUTHOR

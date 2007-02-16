@@ -144,7 +144,9 @@ sub equals {
 1;
 
 =head1 NAME
+
     CCO::Core::Synonym  - A term synonym.
+    
 =head1 SYNOPSIS
 
 use CCO::Core::Synonym;
@@ -212,7 +214,16 @@ foreach my $ref_syn3 (@refs_syn3) {
 }
 
 =head1 DESCRIPTION
-A synonym for a term held by the ontology.
+
+A synonym for a term held by the ontology. This synonym must have a type 
+and definition (CCO::Core::Def) describing the origins of the synonym, and may 
+indicate a synonym category or scope information.
+
+The synonym scope may be one of four values: EXACT, BROAD, NARROW, RELATED. 
+
+A term may have any number of synonyms. 
+
+c.f. OBO flat file specification.
 
 =head1 AUTHOR
 

@@ -16,9 +16,9 @@ use CCO::Core::Dbxref;
 use CCO::Core::Term;
 
 BEGIN {
-push @INC, '../cco/scripts/pipeline';
+push @INC, '..';
 }
-use CCO_ID_Term_Map;
+use CCO::Util::CCO_ID_Term_Map;
 
 use strict;
 use warnings;
@@ -99,7 +99,7 @@ sub work {
 	# Do the work: traverse both hashes and put the interesting taxa into the OBO ontology, with structure
 
 	# Initialize the parser and load the OBO file
-	my $my_parser = CCO::Parser::OBOParser->new;
+	my $my_parser = CCO::Parser::OBOParser->new();
 	my $ontology = $my_parser->work($old_OBOfileName);
 
 	# Create new hashes for the only interesting terms
@@ -116,32 +116,34 @@ sub work {
 	#
 	my %ncbi_cco;
 
+    # TODO find out automatically the file type: cco_x.ids , la 'x'
+    my $cco_t_id_map = CCO::Util::CCO_ID_Term_Map->new($CCO_idsFileName); # Set of [T]axa IDs
+    
 	# Put all the interesting term in the ontology without structure
 	# if the term happens to be "root", add it as "organism"
 	# For the rest of terms, add "organism" at the end of the name
 	# so it is ontologically correct
 	foreach my $el (keys %selected_nodes){
+		my $selected_name = $selected_names{$el};
+
 		my $OBO_taxon = CCO::Core::Term->new();
-		my $name;
-		if($selected_names{$el} eq "root"){
-			$name = "organism";
-		}
-		else{
-			$name = $selected_names{$el}." organism";
-		}
-		$OBO_taxon->name($name);
 		
-	    # TODO find out automatically the file type: cco_x.ids , la 'x'
-	    my $cco_t_id_map = CCO_ID_Term_Map->new($CCO_idsFileName); # Set of [T]axa IDs
-		my $taxon_id = $cco_t_id_map->get_cco_id_by_term ($name);
-		if (!defined $taxon_id) { # Does this term have an associated ID?
-			$taxon_id = $cco_t_id_map->get_new_cco_id("CCO", "T", $name);
+		if($selected_name eq "root"){
+			$selected_name = "organism";
+		} else {
+			$selected_name .= " organism";
 		}
+		$OBO_taxon->name($selected_name);
+		my $taxon_id = $cco_t_id_map->get_cco_id_by_term($selected_name);
+		if (!defined $taxon_id) { # Does this term have an associated ID?
+			$taxon_id = $cco_t_id_map->get_new_cco_id("CCO", "T", $selected_name);
+		}
+		
 		$ncbi_cco{$el} = $taxon_id;
 		$OBO_taxon->id($taxon_id);
 		$OBO_taxon->xref_set_as_string("NCBI:".$el);
 		
-		my $continuant = $ontology->get_term_by_name("continuant");
+		my $continuant = $ontology->get_term_by_name("cell-cycle continuant");
 		if (defined $continuant && $OBO_taxon->name() eq "organism") { # If the ontology has the ULO and the term is 'organism'
 			my $rel = CCO::Core::Relationship->new(); 
 			$rel->type("is_a");
@@ -151,6 +153,7 @@ sub work {
 		}
 		$ontology->add_term($OBO_taxon);
 	}
+	$cco_t_id_map->write_map($CCO_idsFileName);
 
 	# Put the 'is_a' relationships to each term but not if the child is root (cyclic is_a)
 	foreach my $el (keys %selected_nodes){

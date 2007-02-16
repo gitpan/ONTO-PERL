@@ -160,12 +160,37 @@ sub contains_id {
 	}
 	return $result;
 }
+=head2 contains_name
+
+  Usage    - $set->contains_name($element_name)
+  Returns  - true if this set contains an element with the given name
+  Args     - the name to be checked
+  Function - checks if this set constains an element with the given name
+  
+=cut
+sub contains_name {
+	my $self = shift;
+	my $result = 0;
+	if (@_){
+		my $term_id = shift;
+		
+		foreach my $ele (@{$self->{SET}}){
+			if ($ele->name() eq $term_id) {
+				$result = 1;
+				last;
+			}
+		}
+	}
+	return $result;
+}
 
 
 1;
 
 =head1 NAME
+
     CCO::Util::TermSet  - a Set implementation
+    
 =head1 SYNOPSIS
 
 use CCO::Util::TermSet;
@@ -230,7 +255,8 @@ $my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
 $my_set2->clear();
 
 =head1 DESCRIPTION
-A set of terms.
+
+A set (CCO::Util::Set) of terms (CCO::Core::Term).
 
 =head1 AUTHOR
 
