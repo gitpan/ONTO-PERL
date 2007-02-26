@@ -45,6 +45,13 @@ For more information about these modules, check:
 
 http://www.cellcycleontology.org/
 
+Third part modules
+==================
+
+SWISS Knife (v1.65) is used by the 'UniProtParser':
+
+	ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife
+
 Mailing List
 ============
 

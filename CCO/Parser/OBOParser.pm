@@ -271,13 +271,13 @@ sub work {
 						$type->builtin(($1 eq "true")?1:0);
 					} else {
 						# todo unrecognized token
-						warn "A format problem has been detected in: ", $line;
+						warn "A format problem has been detected in: ", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 					}	
 				}
 				# Check for required fields: id and name
 				if (!defined $type->id()) {
 					# todo create a test for getting this croak
-					croak "There is no id for the type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";;
+					croak "There is no id for the type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 				} elsif (!defined $type->name()) {
 					croak "The type with id '", $type->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 				}
@@ -318,15 +318,22 @@ my $my_parser = CCO::Parser::OBOParser->new;
 my $ontology = $my_parser->work("cco.obo");
 
 $ontology->has_term($ontology->get_term_by_id("CCO:B9999993"));
+
 $ontology->has_term($ontology->get_term_by_name("small molecule"));
+
 $ontology->get_relationship_by_id("CCO:B9999998_is_a_CCO:B0000000")->type() eq "is_a";
+
 $ontology->get_relationship_by_id("CCO:B9999996_part_of_CCO:B9999992")->type() eq "part_of"; 
+
 
 my $ontology2 = $my_parser->work("cco.obo");
 
 $ontology2->has_term($ontology2->get_term_by_id("CCO:B9999993"));
+
 $ontology2->has_term($ontology2->get_term_by_name("cell cycle"));
+
 $ontology2->get_relationship_by_id("CCO:P0000274_is_a_CCO:P0000262")->type() eq "is_a";
+
 $ontology2->get_relationship_by_id("CCO:P0000274_part_of_CCO:P0000271")->type() eq "part_of"; 
 
 =head1 DESCRIPTION

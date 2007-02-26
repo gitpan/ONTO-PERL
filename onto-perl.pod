@@ -19,7 +19,8 @@ The CCO is an effort for formalizing the controled vocabulary
 in the Cell Cycle domain (http://www.cellcycleontology.org). 
 CCO is based on existing ontologies such as GO 
 (http://www.geneontology.org), DC (dublincore.org/),
-and RO (http://obo.sourceforge.net/relationship/).
+and RO (http://obo.sourceforge.net/relationship/) and databases
+like UniProt, IntAct.
 
 Files in http://www.cellcycleontology.org
 =========================================
@@ -34,13 +35,13 @@ cco.dot						The CCO in DOT format.
 
 cco.ids						IDs from CCO.
 
-pre_cco_H_sapiens.obo		CCO core ontology for H sapiens
+cco_H_sapiens.obo			CCO ontology for H sapiens
 
-pre_cco_A_thaliana.obo		CCO core ontology for A thaliana
+cco_A_thaliana.obo			CCO ontology for A thaliana
 
-pre_cco_S_cerevisiae.obo	CCO core ontology for S cerevisiae
+cco_S_cerevisiae.obo		CCO ontology for S cerevisiae
 
-pre_cco_S_pombe.obo			CCO core ontology for S pombe
+cco_S_pombe.obo				CCO ontology for S pombe
 
 go_cco.ids					Equivalent IDs in GO and CCO.
 

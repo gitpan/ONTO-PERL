@@ -27,7 +27,8 @@ sub new {
         $self->{REMARK}               = undef; # string (0..1)
         
         $self->{TERMS}                = {}; # map: term_id(string) vs. term(CCO::Core::Term)  (0..n)
-        $self->{TERMS_SET}            = CCO::Util::TermSet->new(); # Terms (0..n)
+	# TERMS_SET will be enabled once the Set is refactored
+        #$self->{TERMS_SET}            = CCO::Util::TermSet->new(); # Terms (0..n)
         $self->{RELATIONSHIP_TYPES}   = {}; # map: relationship_type_id vs. relationship_type  (0..n)
         $self->{RELATIONSHIPS}        = {}; # (0..N) 
         # TODO implement RELATIONSHIP_SET
@@ -132,31 +133,25 @@ sub saved_by {
 =cut
 sub remark {
 	my $self = shift;
-    if (@_) { $self->{REMARK} = shift }
-    return $self->{REMARK};
+	if (@_) { $self->{REMARK} = shift }
+	return $self->{REMARK};
 }
 
 =head2 add_term
 
   Usage    - $ontology->add_term($term)
   Returns  - the just added term (CCO::Core::Term)
-  Args     - the term (CCO::Core::Term) to be added
+  Args     - the term (CCO::Core::Term) to be added. The ID of the term to be added must have already been defined.
   Function - adds a term to this ontology
   
 =cut
 sub add_term {
-    my $self = shift;
-    if (@_) {
-		my $term = shift;
-    
-		croak "A term to be added must be a CCO::Core::Term object" if (!UNIVERSAL::isa($term, 'CCO::Core::Term'));
-		$term->id || croak "The term to be added to this ontology does not have an ID";
-    
-		my $id = $term->id;
-		$self->{TERMS}->{$id} = $term;
-		$self->{TERMS_SET}->add($term);
+	my ($self, $term) = @_;
+	if ($term) {
+		$self->{TERMS}->{$term->id()} = $term;
+		#$self->{TERMS_SET}->add($term);
 		return $term;
-    }
+	}
 }
 
 =head2 add_term_as_string
@@ -190,24 +185,18 @@ sub add_term_as_string {
 
   Usage    - $ontology->add_relationship_type($relationship_type)
   Returns  - the just added relationship type (CCO::Core::RelationshipType)
-  Args     - the relationship type to be added (CCO::Core::RelationshipType)
+  Args     - the relationship type to be added (CCO::Core::RelationshipType). The ID of the relationship type to be added must have already been defined.
   Function - adds a relationship type to this ontology
   
 =cut
 sub add_relationship_type {
-    my $self = shift;
-    if (@_) {
-		my $relationship_type = shift;
-    
-		croak "The relationship type to be added must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($relationship_type, 'CCO::Core::RelationshipType'));
-		$relationship_type->id || croak "The relationship type to be added to this ontology does not have an ID";
-    
-		my $id = $relationship_type->id;
-		$self->{RELATIONSHIP_TYPES}->{$id} = $relationship_type;
+    my ($self, $relationship_type) = @_;
+    if ($relationship_type) {
+		$self->{RELATIONSHIP_TYPES}->{$relationship_type->id()} = $relationship_type;
+		return $relationship_type;
 		
 		# TODO Is necessary to implement a set of rel types? for get_relationship_types()?
 		#$self->{RELATIONSHIP_TYPES_SET}->add($relationship_type);
-		return $relationship_type;
     }
 }
 
@@ -251,13 +240,12 @@ sub delete_term {
     if (@_) {
 		my $term = shift;
     
-		croak "The term to be deleted must be a CCO::Core::Term object" if (!UNIVERSAL::isa($term, 'CCO::Core::Term'));
 		$term->id || croak "The term to be deleted from this ontology does not have an ID";
     
 		my $id = $term->id;
 		if (defined($id) && defined($self->{TERMS}->{$id})) {
 			delete $self->{TERMS}->{$id};
-			$self->{TERMS_SET}->remove($term);
+			#$self->{TERMS_SET}->remove($term);
 		}
 		
 		# TODO delete the relationships: to its parents and children!
@@ -273,19 +261,10 @@ sub delete_term {
   
 =cut
 sub has_term {
-    my $self = shift;
-    my $result = 0;
-    if (@_) {
-		my $term = shift;
-    
-		croak "The term to be checked must be a CCO::Core::Term object" if (!UNIVERSAL::isa($term, "CCO::Core::Term"));
-    
-		my $id = $term->id;
-		# TODO Check the TERMS_SET
-		#$result = 1 if (defined($id) && defined($self->{TERMS}->{$id}) && $self->{TERMS_SET}->contains($term));
-		$result = 1 if (defined($id) && defined($self->{TERMS}->{$id}));
-    }
-    return $result;
+	my ($self, $term) = @_;
+	return (defined $term && defined($self->{TERMS}->{$term->id()}));
+	# TODO Check the TERMS_SET
+	#$result = 1 if (defined($id) && defined($self->{TERMS}->{$id}) && $self->{TERMS_SET}->contains($term));
 }
 
 =head2 has_term_id
@@ -297,15 +276,10 @@ sub has_term {
   
 =cut
 sub has_term_id {
-    my $self = shift;
-    my $result = 0;
-    if (@_) {
-		my $term_id = shift;
-		# TODO Check the TERM_SET
-    	#$result = 1 if (defined($self->{TERMS}->{$term_id}) && $self->{TERMS_SET}->contains($self->get_term_by_id($term_id)));
-    	$result = 1 if (defined($self->{TERMS}->{$term_id}));
-    }
-    return $result;
+	my ($self, $term_id) = @_;
+	return (defined $term_id && defined($self->{TERMS}->{$term_id}));
+	# TODO Check the TERMS_SET
+    	#return (defined $term_id && defined($self->{TERMS}->{$term_id}) && $self->{TERMS_SET}->contains($self->get_term_by_id($term_id)));
 }
 
 =head2 has_relationship_type
@@ -317,17 +291,8 @@ sub has_term_id {
   
 =cut
 sub has_relationship_type {
-    my $self = shift;
-    my $result = 0;
-    if (@_) {
-		my $relationship_type = shift;
-    
-		croak "The relationship type to be checked must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($relationship_type, "CCO::Core::RelationshipType"));
-    
-		my $id = $relationship_type->id();
-		$result = 1 if (defined($id) && defined($self->{RELATIONSHIP_TYPES}->{$id}));
-    }
-    return $result;
+	my ($self, $relationship_type) = @_;    
+	return (defined $relationship_type && defined($self->{RELATIONSHIP_TYPES}->{$relationship_type->id()}));
 }
 
 =head2 has_relationship_type_id
@@ -339,13 +304,8 @@ sub has_relationship_type {
   
 =cut
 sub has_relationship_type_id {
-    my $self = shift;
-    my $result = 0;
-    if (@_) {
-		my $relationship_type_id = shift;
-		$result = 1 if (defined($self->{RELATIONSHIP_TYPES}->{$relationship_type_id}));
-    }
-    return $result;
+	my ($self, $relationship_type_id) = @_;
+        return (defined $relationship_type_id && defined($self->{RELATIONSHIP_TYPES}->{$relationship_type_id}));
 }
 
 =head2 equals
@@ -490,13 +450,8 @@ sub get_relationships_by_target_term {
   
 =cut
 sub get_term_by_id {
-    my $self = shift;
-    my $result;
-    if (@_) {
-		my $id = shift;
-		$result = $self->{TERMS}->{$id};
-    }
-    return $result;
+	my ($self, $id) = @_;
+	return $self->{TERMS}->{$id};
 }
 
 =head2 set_term_id
@@ -622,17 +577,14 @@ sub get_relationship_type_by_name {
   Usage    - $ontology->add_relationship($relationship)
   Returns  - none
   Args     - the relationship (CCO::Core::Relationship) to be added between two existing terms or two relationship types
-  Function - adds a relationship between two terms or relationship types
+  Function - adds a relationship between either two terms or two relationship types. If the terms or relationship types bound by this relationship are not yet in the ontology, they will be added
   
 =cut
 sub add_relationship {
-    my $self = shift;
-    my ($relationship) = @_;
+    my ($self, $relationship) = @_;
     
-    croak "The relationship to be added must be a CCO::Core::Relationship object" if (!UNIVERSAL::isa($relationship, "CCO::Core::Relationship"));
-    
-    my $id = $relationship->id;
-    $id || croak "The relationship to be added to this ontology does not have an ID";
+    my $id = $relationship->id();
+    $id || confess "The relationship to be added to this ontology does not have an ID";
     $self->{RELATIONSHIPS}->{$id} = $relationship;
     
     #
@@ -664,13 +616,8 @@ sub add_relationship {
   
 =cut
 sub get_relationship_by_id {
-	my $self = shift;
-	my $result;
-	if (@_) {
-		my $id   = shift;
-    		$result = $self->{RELATIONSHIPS}->{$id};
-	}
-    return $result;
+	my ($self, $id) = @_;
+	return $self->{RELATIONSHIPS}->{$id};
 }
 
 =head2 get_child_terms
@@ -727,20 +674,27 @@ sub get_parent_terms {
   
 =cut
 sub get_head_by_relationship_type {
-	my $self = shift;
-	my $result = CCO::Util::Set->new();
-    if (@_) {
-		my $element = shift;
-		croak "The element must be a CCO::Core::Term object" if (!UNIVERSAL::isa($element, 'CCO::Core::Term') && !UNIVERSAL::isa($element, "CCO::Core::RelationshipType"));
-		my $relationship_type = shift;
-		croak "The relationship type of this source element (term or relationship type): ", $element->id()," must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($relationship_type, 'CCO::Core::RelationshipType'));
+	my ($self, $element, $relationship_type) = @_;
+	# <EASR> Performance improvement
+	my @heads;
+	if ($element && $relationship_type) {
 		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
-		foreach my $rel (@rels) {
-			 $result->add($rel->head()) if ($rel->type() eq $relationship_type->id());
-		}
-    }
-    my @arr = $result->get_set();
-    return \@arr;
+		my $relationship_type_id = $relationship_type->id();
+                foreach my $rel (@rels) {
+			push @heads, $rel->head() if ($rel->type() eq $relationship_type_id);
+                }
+        }
+	return \@heads;
+	# </EASR>
+#	my $result = CCO::Util::Set->new();
+#	if ($element && $relationship_type) {
+#		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
+#		foreach my $rel (@rels) {
+#			 $result->add($rel->head()) if ($rel->type() eq $relationship_type->id());
+#		}
+#	}
+#	my @arr = $result->get_set();
+#	return \@arr;
 }
 
 =head2 get_tail_by_relationship_type
@@ -752,20 +706,30 @@ sub get_head_by_relationship_type {
   
 =cut
 sub get_tail_by_relationship_type {
-	my $self = shift;
-	my $result = CCO::Util::Set->new();
-    if (@_) {
-		my $element = shift;
-		croak "The element must be a CCO::Core::Term object" if (!UNIVERSAL::isa($element, 'CCO::Core::Term') && !UNIVERSAL::isa($element, "CCO::Core::RelationshipType"));
-		my $relationship_type = shift;
-		croak "The relationship type of this target element (term or relationship type): ", $element->id()," must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($relationship_type, 'CCO::Core::RelationshipType'));
-		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
-		foreach my $rel (@rels) {
-			 $result->add($rel->tail()) if ($rel->type() eq $relationship_type->id());
-		}
-    }
-    my @arr = $result->get_set();
-    return \@arr;
+        # <EASR> Performance improvement
+	my ($self, $element, $relationship_type) = @_;
+        my @tails;
+        if ($element && $relationship_type) {
+                my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
+                my $relationship_type_id = $relationship_type->id();
+                foreach my $rel (@rels) {
+                        push @tails, $rel->tail() if ($rel->type() eq $relationship_type_id);
+                }
+        }
+        return \@tails;
+        # </EASR>
+#	my $self = shift;
+#	my $result = CCO::Util::Set->new();
+#   if (@_) {
+#		my $element = shift;
+#		my $relationship_type = shift;
+#		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
+#		foreach my $rel (@rels) {
+#			 $result->add($rel->tail()) if ($rel->type() eq $relationship_type->id());
+#		}
+#   }
+#    my @arr = $result->get_set();
+#    return \@arr;
 }
 
 
@@ -836,7 +800,7 @@ sub export {
 		chomp(my $local_date = `date '+%d:%m:%Y %H:%M'`);
 		print $file_handle "date: ", (defined $self->date())?$self->date():$local_date, "\n";
 		print $file_handle "default-namespace: ", $self->namespace(), "\n" if ($self->namespace());
-		print $file_handle "autogenerated-by: onto-perl\n"; # TODO store this value?
+		print $file_handle "auto-generated-by: onto-perl\n"; # TODO store this value?
 		print $file_handle "remark: ", $self->remark(), "\n" if ($self->remark());
 	
 	    # terms
@@ -1555,7 +1519,7 @@ sub export {
     	#print $file_handle "\tlabel 1"
     	
     	my %id = ('C'=>1, 'P'=>2, 'F'=>3, 'R'=>4, 'T'=>5, 'I'=>6, 'B'=>7, 'U'=>8, 'X'=>9);
-    	my %color_id = ('C'=>'fff5f5', 'P'=>'b7ffd4', 'F'=>'d7ffe7', 'R'=>'ceffe1', 'T'=>'ffeaea', 'I'=>'f4fff8', 'B'=>'f0fff6', 'U'=>'e0ffec', 'X'=>'ffcccc');
+    	my %color_id = ('C'=>'fff5f5', 'P'=>'b7ffd4', 'F'=>'d7ffe7', 'R'=>'ceffe1', 'T'=>'ffeaea', 'I'=>'f4fff8', 'B'=>'f0fff6', 'U'=>'e0ffec', 'X'=>'ffcccc', 'Y'=>'fecccc');
     	my %gml_id;
     	# terms
 	    my @all_terms = values(%{$self->{TERMS}});
@@ -1631,9 +1595,9 @@ sub export {
 
 sub subontology_by_terms {
 	my $self = shift;
-    my $term_set = shift;
+	my $term_set = shift;
     
-    # TODO improve this algorithm
+	# TODO improve this algorithm
 	my $result = CCO::Core::Ontology->new();
 	foreach my $term ($term_set->get_set()) {
 		$result->has_term($term) || $result->add_term($term);
@@ -1647,7 +1611,6 @@ sub subontology_by_terms {
 			$result->has_term($descendent) || $result->add_term($descendent);
 		}
 	}
-	
 	return $result;
 }
 
@@ -1826,7 +1789,8 @@ sub get_ancestor_terms_by_relationship_type {
 	return \@arr;
 }
 
-=head2 get_ancestor_terms_by_relationship_type
+
+=head2 create_rel
 
   Usage    - $ontology->create_rel->($tail, $head, $type)
   Returns  - CCO::Core::Ontology object
@@ -1836,10 +1800,8 @@ sub get_ancestor_terms_by_relationship_type {
 =cut
 sub create_rel (){
 	my $self = shift;
-	my($tail, $head, $type) = @_;
-	die "Tail must be a CCO::Core::Term or CCO::Core::Relationship object" unless (UNIVERSAL::isa($tail, 'CCO::Core::Term') || UNIVERSAL::isa($tail, 'CCO::Core::Relationship'));
-	die "Head must be a CCO::Core::Term or CCO::Core::Relationship object" unless (UNIVERSAL::isa($head, 'CCO::Core::Term') || UNIVERSAL::isa($head, 'CCO::Core::Relationship'));
-	die "Not a valid relationship type" unless($self->{RELATIONSHIP_TYPES}->{$type});
+	my($tail, $type, $head) = @_;
+	confess "Not a valid relationship type" unless($self->{RELATIONSHIP_TYPES}->{$type});
 	my $rel = CCO::Core::Relationship->new(); 
 	$rel->type($type);
 	$rel->link($tail,$head);
@@ -1857,225 +1819,392 @@ sub create_rel (){
 =head1 SYNOPSIS
 
 use CCO::Core::Ontology;
+
 use CCO::Core::Term;
+
 use CCO::Core::Relationship;
+
 use CCO::Core::RelationshipType;
+
 use strict;
 
+
 # three new terms
+
 my $n1 = CCO::Core::Term->new();
+
 my $n2 = CCO::Core::Term->new();
+
 my $n3 = CCO::Core::Term->new();
 
+
 # new ontology
+
 my $onto = CCO::Core::Ontology->new;
 
+
 $n1->id("CCO:P0000001");
+
 $n2->id("CCO:P0000002");
+
 $n3->id("CCO:P0000003");
 
+
 $n1->name("One");
+
 $n2->name("Two");
+
 $n3->name("Three");
 
+
 my $def1 = CCO::Core::Def->new();
+
 $def1->text("Definition of One");
+
 my $def2 = CCO::Core::Def->new();
+
 $def2->text("Definition of Two");
+
 my $def3 = CCO::Core::Def->new();
+
 $def3->text("Definition of Three");
+
+
 $n1->def($def1);
+
 $n2->def($def2);
+
 $n3->def($def3);
 
+
 $onto->add_term($n1);
+
 $onto->add_term($n2);
+
 $onto->add_term($n3);
 
+
 $onto->delete_term($n1);
+
 
 $onto->add_term($n1);
 
 # new term
+
 my $n4 = CCO::Core::Term->new();
+
 $n4->id("CCO:P0000004");
+
 $n4->name("Four");
+
 my $def4 = CCO::Core::Def->new();
+
 $def4->text("Definition of Four");
+
 $n4->def($def4);
+
 $onto->delete_term($n4);
+
 $onto->add_term($n4);
 
+
 # add term as string
+
 my $new_term = $onto->add_term_as_string("CCO:P0000005", "Five");
+
 $new_term->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+
 my $n5 = $new_term; 
 
+
 # five new relationships
+
 my $r12 = CCO::Core::Relationship->new();
+
 my $r23 = CCO::Core::Relationship->new();
+
 my $r13 = CCO::Core::Relationship->new();
+
 my $r14 = CCO::Core::Relationship->new();
+
 my $r35 = CCO::Core::Relationship->new();
 
+
 $r12->id("CCO:P0000001_is_a_CCO:P0000002");
+
 $r23->id("CCO:P0000002_part_of_CCO:P0000003");
+
 $r13->id("CCO:P0000001_participates_in_CCO:P0000003");
+
 $r14->id("CCO:P0000001_participates_in_CCO:P0000004");
+
 $r35->id("CCO:P0000003_part_of_CCO:P0000005");
 
+
 $r12->type("is_a");
+
 $r23->type("part_of");
+
 $r13->type("participates_in");
+
 $r14->type("participates_in");
+
 $r35->type("part_of");
 
+
 $r12->link($n1, $n2); 
+
 $r23->link($n2, $n3);
+
 $r13->link($n1, $n3);
+
 $r14->link($n1, $n4);
+
 $r35->link($n3, $n5);
 
+
 # get all terms
+
 my $c = 0;
+
 my %h;
+
 foreach my $t (@{$onto->get_terms()}) {
+	
 	$h{$t->id()} = $t;
+	
 	$c++;
+	
 }
 
+
 # get terms with argument
+
 my @processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P.*")};
+
 my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000[35]")};
+
 $onto->namespace("CCO");
+
 my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
+
 my @no_processes = @{$onto->get_terms_by_subnamespace("p")};
 
-# get terms
 
 # add relationships
+
 $onto->add_relationship($r12);
+
 $onto->add_relationship($r23);
+
 $onto->add_relationship($r13);
+
 $onto->add_relationship($r14);
+
 $onto->add_relationship($r35);
 
 
+
 # add relationships and terms linked by this relationship
+
 my $n11 = CCO::Core::Term->new();
+
 my $n21 = CCO::Core::Term->new();
+
 $n11->id("CCO:P0000011"); $n11->name("One one"); $n11->def_as_string("Definition One one", "");
+
 $n21->id("CCO:P0000021"); $n21->name("Two one"); $n21->def_as_string("Definition Two one", "");
+
 my $r11_21 = CCO::Core::Relationship->new();
+
 $r11_21->id("CCO:R0001121"); $r11_21->type("r11-21");
+
 $r11_21->link($n11, $n21);
+
 $onto->add_relationship($r11_21); # adds to the ontology the terms linked by this relationship
 
+
 # get all relationships
+
 my %hr;
+
 foreach my $r (@{$onto->get_relationships()}) {
+	
 	$hr{$r->id()} = $r;
+	
 }
 
-# recover a previously stored relationship
-
 # get children
+
 my @children = @{$onto->get_child_terms($n1)}; 
 
 @children = @{$onto->get_child_terms($n3)}; 
+
 my %ct;
+
 foreach my $child (@children) {
+	
 	$ct{$child->id()} = $child;
+	
 } 
+
 
 @children = @{$onto->get_child_terms($n2)};
 
+
 # get parents
+
 my @parents = @{$onto->get_parent_terms($n3)};
+
 @parents = @{$onto->get_parent_terms($n1)};
+
 @parents = @{$onto->get_parent_terms($n2)};
 
+
 # get all descendents
+
 my @descendents1 = @{$onto->get_descendent_terms($n1)};
+
 my @descendents2 = @{$onto->get_descendent_terms($n2)};
+
 my @descendents3 = @{$onto->get_descendent_terms($n3)};
+
 my @descendents5 = @{$onto->get_descendent_terms($n5)};
 
+
 # get all ancestors
+
 my @ancestors1 = @{$onto->get_ancestor_terms($n1)};
+
 my @ancestors2 = @{$onto->get_ancestor_terms($n2)};
+
 my @ancestors3 = @{$onto->get_ancestor_terms($n3)};
 
+
 # get descendents by term subnamespace
+
 my @descendents4 = @{$onto->get_descendent_terms_by_subnamespace($n1, 'P')};
+
 my @descendents5 = @{$onto->get_descendent_terms_by_subnamespace($n2, 'P')}; 
+
 my @descendents6 = @{$onto->get_descendent_terms_by_subnamespace($n3, 'P')};
+
 my @descendents6 = @{$onto->get_descendent_terms_by_subnamespace($n3, 'R')};
 
+
 # get ancestors by term subnamespace
+
 my @ancestors4 = @{$onto->get_ancestor_terms_by_subnamespace($n1, 'P')};
+
 my @ancestors5 = @{$onto->get_ancestor_terms_by_subnamespace($n2, 'P')}; 
+
 my @ancestors6 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'P')};
+
 my @ancestors6 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'R')};
 
 
+
 # three new relationships types
+
 my $r1 = CCO::Core::RelationshipType->new();
+
 my $r2 = CCO::Core::RelationshipType->new();
+
 my $r3 = CCO::Core::RelationshipType->new();
 
+
 $r1->id("CCO:R0000001");
+
 $r2->id("CCO:R0000002");
+
 $r3->id("CCO:R0000003");
 
+
 $r1->name("is_a");
+
 $r2->name("part_of");
+
 $r3->name("participates_in");
 
+
 # add relationship types
+
 $onto->add_relationship_type($r1);
+
 $onto->add_relationship_type($r2);
+
 $onto->add_relationship_type($r3);
 
+
 # get descendents or ancestors linked by a particular relationship type 
+
 my $rel_type1 = $onto->get_relationship_type_by_name("is_a");
+
 my $rel_type2 = $onto->get_relationship_type_by_name("part_of");
+
 my $rel_type3 = $onto->get_relationship_type_by_name("participates_in");
 
+
 my @descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n5, $rel_type1)};
+
 @descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n5, $rel_type2)};
+
 @descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n2, $rel_type1)};
+
 @descendents7 = @{$onto->get_descendent_terms_by_relationship_type($n3, $rel_type3)};
 
+
 my @ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type1)};
+
 @ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type2)};
+
 @ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type3)};
+
 @ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n2, $rel_type2)};
 
 
+
 # add relationship type as string
+
 my $relationship_type = $onto->add_relationship_type_as_string("CCO:R0000004", "has_participant");
 
+
 # get relationship types
+
 my @rt = @{$onto->get_relationship_types()};
+
 my %rrt;
+
 foreach my $relt (@rt) {
+	
 	$rrt{$relt->name()} = $relt;
+	
 }
+
 
 
 my @rtbt = @{$onto->get_relationship_types_by_term($n1)};
 
+
 my %rtbth;
+
 foreach my $relt (@rtbt) {
+	
 	$rtbth{$relt} = $relt;
+	
 }
 
+
 # get_head_by_relationship_type
+
 my @heads_n1 = @{$onto->get_head_by_relationship_type($n1, $onto->get_relationship_type_by_name("participates_in"))};
+
 my %hbrt;
+
 foreach my $head (@heads_n1) {
+	
 	$hbrt{$head->id()} = $head;
+	
 }
 
 

@@ -69,11 +69,10 @@ sub equals  {
 	my $result = 0;
 	if (@_) {
      	my $target = shift;
-		croak "The element to be compared with must be a CCO::Core::Relationship object" if (!UNIVERSAL::isa($target, "CCO::Core::Relationship"));
 		my $self_id = $self->{'ID'};
 		my $target_id = $target->{'ID'};
-		croak "The ID of this relationship is not defined" if (!defined($self_id));
-		croak "The ID of the target relationship is not defined" if (!defined($target_id));
+		confess "The ID of this relationship is not defined" if (!defined($self_id));
+		confess "The ID of the target relationship is not defined" if (!defined($target_id));
 		$result = ($self_id eq $target_id);
 	}
 	return $result;
@@ -91,8 +90,7 @@ sub head {
 	my $self = shift;
 	if (@_) {
 		my $object = shift;
-		croak "The term or relationship type to be bound as head to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($object, "CCO::Core::Term") && !UNIVERSAL::isa($object, "CCO::Core::RelationshipType"));
-     	$self->{HEAD} = $object;
+		$self->{HEAD} = $object;
 	}
     return $self->{HEAD};
 }
@@ -109,7 +107,6 @@ sub tail {
 	my $self = shift;
 	if (@_) {
 		my $subject = shift;
-		croak "The term or relationship type to be bound as tail to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($subject, "CCO::Core::Term") && !UNIVERSAL::isa($subject, "CCO::Core::RelationshipType"));
 		$self->{TAIL} = $subject;
 	}
     return $self->{TAIL};
@@ -119,7 +116,7 @@ sub tail {
 
   Usage    - $relationship->link($tail, $head) or $relationship->link()
   Returns  - the two Terms or two RelationshipTypes (subject and source) connected by this relationship
-  Args     - the source(tail, CCO::Core::Term) and target(head, CCO::Core::Term) term/relationship type
+  Args     - the source(tail, CCO::Core::Term/CCO::Core::RelationshipType) and target(head, CCO::Core::Term/CCO::Core::RelationshipType) term/relationship type
   Function - gets/sets the terms/relationship type attached to this relationship
   
 =cut
@@ -127,9 +124,7 @@ sub link {
 	my $self = shift;
 	if (@_) {
 		my $tail = shift;
-		croak "The term or relationship type to be bound as tail to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($tail, "CCO::Core::Term") && !UNIVERSAL::isa($tail, "CCO::Core::RelationshipType"));
 		my $head = shift;
-		croak "The term or relationship type to be bound as head to this relationship must be a CCO::Core::Term object" if (!UNIVERSAL::isa($head, "CCO::Core::Term") && !UNIVERSAL::isa($head, "CCO::Core::RelationshipType"));
 		$self->{TAIL} = $tail;
 		$self->{HEAD} = $head;
     }

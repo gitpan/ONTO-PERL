@@ -47,8 +47,7 @@ sub parse {
 	my $self = shift;
 
 	# Get the arguments
-	my $goaAssocFileName = shift;
-	
+	my $goaAssocFileName = shift;	
 	my $goaAssocSet = CCO::Util::GoaAssociationSet->new();
 	
 	# Open the assoc file
@@ -99,17 +98,17 @@ sub work {
 
 	# Get the arguments
 	my ($old_OBO_file, $new_OBO_file, $goa_assoc_file, $short_map_file, $long_map_file) = @{shift @_}; 
-	my $taxon = shift;
+	my $taxon_name = shift;
 	
 	# Initialize the OBO parser, load the OBO file, check the assumptions
 	my $my_parser = CCO::Parser::OBOParser->new();
 	my $ontology = $my_parser->work($old_OBO_file);
-	die "the term 'protein' is not defined" unless (defined $ontology->get_term_by_name('protein')) ;
 	my @rel_types = ('is_a', 'participates_in', 'derives_from');
 	foreach (@rel_types){
 		die "Not a valid relationship type" unless($ontology->{RELATIONSHIP_TYPES}->{$_});
 	}
-	die "the term $taxon is not defined" unless (defined $ontology->get_term_by_name($taxon)) ;
+	my $taxon = $ontology->get_term_by_name($taxon_name) || die "the term $taxon_name is not defined", $!;
+	my $onto_protein = $ontology->get_term_by_name("protein") || die "the term 'protein' is not defined", $!;
 	
 	# Initialize CCO_ID_Map objects
 	my $short_map = CCO::Util::CCO_ID_Term_Map->new($short_map_file); 
@@ -119,6 +118,8 @@ sub work {
 	my $goa_parser = CCO::Parser::GoaParser->new();
 	my $goa_assoc_set = $goa_parser->parse($goa_assoc_file); 
 	foreach my $goaAssoc (@{$goa_assoc_set->{SET}}){
+		my $db = $goaAssoc->obj_src();
+		my $acc = $goaAssoc->obj_id();
 		
 		# retrieve the protein object from ontology if exists
 		my $protein_name = $goaAssoc->obj_symb();
@@ -139,37 +140,11 @@ sub work {
 				$short_map->put($new_protein_id, $protein_name); # TRICK to add the IDs in the other file
 			}
 			# create xref's
-			my $xref_set = CCO::Util::DbxrefSet->new();
-			# create xref to UniProt
-			my $xref1 = CCO::Core::Dbxref->new();
-			$xref1->db($goaAssoc->obj_src());
-			$xref1->acc($goaAssoc->obj_id());
-			$xref_set->add($xref1);
-			
-			# create xref to IPI (taken from the field SYNONYM)
-			my $xref2 = CCO::Core::Dbxref->new();
-			if ($xref2->acc($goaAssoc->synonym())) {
-				$xref2->db('IPI');		
-				$xref_set->add($xref2);						
-			}
-			$protein->xref_set($xref_set);
-			
-			# create definition
-			my $def = CCO::Core::Def->new(); 
-			my @desc = split ': ', $goaAssoc->description();
-			$def->text(pop @desc); 
-			my $dbxref_set = CCO::Util::DbxrefSet->new(); 
-			my $dbxref = CCO::Core::Dbxref->new(); 
-			$dbxref->db($goaAssoc->obj_src()); 
-			$dbxref->acc($goaAssoc->obj_id()); 
-			$dbxref_set ->add($dbxref); 
-			$def->dbxref_set($dbxref_set); 
-			$protein->def($def); 
+			$protein->xref_set_as_string("[$db:$acc]"); #xref to UniProt			
 			
 			$ontology->add_term($protein);
 			
 			# add "new protein is_a protein"
-			#$ontology = &add_rel($ontology, $protein, $ontology->get_term_by_name("protein"), "is_a");
 			my $rel1 = CCO::Core::Relationship->new(); 
 			my($head, $type) = ($ontology->get_term_by_name("protein"), "is_a");
 			$rel1->type($type);
@@ -178,10 +153,8 @@ sub work {
 			$ontology->add_relationship($rel1);		
 			
 			# add "new protein derives_from species" 
-			(my $cco_taxon_term = $ontology->get_term_by_name($taxon)) || die ("taxon mame: ",$taxon," doesn't exist");
-			#$ontology = &add_rel($ontology, $protein, $cco_taxon_term, "derives_from");
 			my $rel2 = CCO::Core::Relationship->new(); 
-			($head, $type) = ($cco_taxon_term, "derives_from");
+			($head, $type) = ($taxon, "derives_from");
 			$rel2->type($type);
 			$rel2->link($protein,$head);
 			$rel2->id($protein->id()."_".$type."_".$head->id());
@@ -194,7 +167,6 @@ sub work {
 		my $prefix = 'CCO:'.$goaAssoc->aspect(); 
 		$id =~ s/GO:/$prefix/; 
 		my $cco_go_term=$ontology->get_term_by_id($id); 
-		#$ontology = &add_rel($ontology, $protein, $cco_go_term, "participates_in");
 		my ($head, $type) = ($cco_go_term, "participates_in");
 		$rel3->type($type);
 		$rel3->link($protein,$head);
@@ -207,58 +179,11 @@ sub work {
 	open (FH, ">".$new_OBO_file) || die "Cannot write OBO file: ", $!;
 	$ontology->export(\*FH);
 	close FH;
-	$short_map -> write_map($short_map_file); 
-	$long_map -> write_map($long_map_file); 
+	$short_map -> write_map(); 
+	$long_map -> write_map(); 
 	return $ontology;
 }
-################################################################################
-#
-# Subroutines
-#
-################################################################################
-#
-# create a new CCO::Core::Synonym object and fill in information from a CCO::Core::GoaAssociation object
-# argument: a CCO::Util::GoaAssociation object
-#
-################################################################################
-# TODO erase this method and move the code up
-# Synonym is either the IPI id or none
-#sub create_synonym (){
-#	if (@_) {
-#		my $goaAssoc = shift; 
-#		my $synonym = CCO::Core::Synonym->new(); 
-#		$synonym ->type('EXACT'); 
-#		my $def = CCO::Core::Def->new(); 
-#		$def->text($goaAssoc->synonym()); 
-#		my $dbxref_set = CCO::Util::DbxrefSet->new(); 
-#		my $dbxref = CCO::Core::Dbxref->new(); 
-#		$dbxref->db('IPI'); 
-#		$dbxref->acc($goaAssoc->synonym()); 
-#		$dbxref_set ->add($dbxref); 
-#		$def -> dbxref_set($dbxref_set); 
-#		$synonym -> def($def); 
-#		return $synonym;
-#	} 
-#}
-################################################################################
-#
-# Add a relationship to ontology
-# Arguments: ontology object, tail object, head object, relationship type (string)
-#
-################################################################################
-#sub add_rel (){
-#	my($ontology, $tail, $head, $type) = @_;
-#	die "Ontology must be a CCO::Core::Ontology object" unless (UNIVERSAL::isa($ontology, 'CCO::Core::Ontology'));
-#	die "Tail must be a CCO::Core::Term or CCO::Core::Relationship object" unless (UNIVERSAL::isa($tail, 'CCO::Core::Term') || UNIVERSAL::isa($tail, 'CCO::Core::Relationship'));
-#	die "Head must be a CCO::Core::Term or CCO::Core::Relationship object" unless (UNIVERSAL::isa($head, 'CCO::Core::Term') || UNIVERSAL::isa($head, 'CCO::Core::Relationship'));
-#	die "Not a valid relationship type" unless($ontology->{RELATIONSHIP_TYPES}->{$type});
-#	my $rel = CCO::Core::Relationship->new(); 
-#	$rel->type($type);
-#	$rel->link($tail,$head);
-#	$rel->id($tail->id()."_".$type."_".$head->id());
-#	$ontology->add_relationship($rel);
-#	return $ontology;
-#}
+
 
 1;
 

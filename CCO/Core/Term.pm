@@ -52,8 +52,8 @@ sub new {
   
 =cut
 sub id {
-	my $self = shift;
-	if (@_) { $self->{ID} = shift }
+	my ($self, $id) = @_;
+	if ($id) { $self->{ID} = $id }
 	return $self->{ID};
 }
 
@@ -109,8 +109,8 @@ sub code {
   
 =cut
 sub name {
-	my $self = shift;
-    if (@_) { $self->{NAME} = shift }
+	my ($self, $name) = @_;
+    if ($name) { $self->{NAME} = $name }
     return $self->{NAME};
 }
 
@@ -155,10 +155,8 @@ sub alt_id {
   
 =cut
 sub def {
-	my $self = shift;
-    if (@_) {
-    		my $def = shift;
-    		croak "The definition must be a CCO::Core::Def object" if (!UNIVERSAL::isa($def, 'CCO::Core::Def'));
+	my ($self, $def) = @_;
+    if ($def) {
 		$self->{DEF} = $def; 
 	}
     return $self->{DEF};
@@ -173,10 +171,8 @@ sub def {
   
 =cut
 sub def_as_string {
-	my $self = shift;
-	if (@_) {
-		my $text = shift;
-		my $dbxref_as_string = shift;
+	my ($self, $text, $dbxref_as_string) = @_;
+	if (defined $text && defined $dbxref_as_string) {
 		$dbxref_as_string =~ s/\[//;
 		$dbxref_as_string =~ s/\]//;
 		my @refs = split(/, /, $dbxref_as_string);
@@ -193,7 +189,7 @@ sub def_as_string {
 				$dbxref->modifier($5) if (defined $5);
 				$dbxref_set->add($dbxref);
 			} else {
-				croak "There were not defined the references for this term: ", $self->id(), ". Check the 'dbxref' field.";
+				confess "There were not defined the references for this term: ", $self->id(), ". Check the 'dbxref' field.";
 			}
 		}
 		$def->dbxref_set($dbxref_set);
@@ -217,8 +213,8 @@ sub def_as_string {
   
 =cut
 sub comment {
-	my $self = shift;
-    if (@_) { $self->{COMMENT} = shift }
+	my ($self, $comment) = @_;
+    if ($comment) { $self->{COMMENT} = $comment }
     return $self->{COMMENT};
 }
 
@@ -244,15 +240,14 @@ sub subset {
 
   Usage    - $term->synonym_set() or $term->synonym_set($synonym1, $synonym2, $synonym3, ...)
   Returns  - an array with the synonym(s) of this term
-  Args     - the synonym(s) of this term
+  Args     - the synonym(s) (CCO::Core::Synonym) of this term
   Function - gets/sets the synonym(s) of this term
   
 =cut
 sub synonym_set {
 	my $self = shift;
 	foreach my $synonym (@_) {
-		croak "The synonym must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($synonym, 'CCO::Core::Synonym'));
-		croak "The name of this term (", $self->id(), ") is undefined" if (!defined($self->name()));
+		confess "The name of this term (", $self->id(), ") is undefined" if (!defined($self->name()));
 		# do not add 'EXACT' synonyms with the same 'name':
 		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->type() eq "EXACT" && $synonym->def()->text() eq $self->name()));
    	}
@@ -269,15 +264,9 @@ sub synonym_set {
 =cut
 sub synonym_as_string {
 	# todo all, check parameters, similar to def_as_string()?
-	my $self = shift;
-	if (@_) {
-		my $synonym_text = shift;
-		my $dbxrefs      = shift;
-		my $type         = shift;
-		$synonym_text || croak "The synonym text for this term (",$self->id() ,") was not defined";
-		$dbxrefs || croak "The dbxrefs for the synonym of this term (",$self->id() ,") was not defined";
-		$type || croak "The synonym type for the synonym of this term (",$self->id() ,") was not defined";
-		
+	my ($self, $synonym_text, $dbxrefs, $type) = @_;
+	if ($synonym_text && $dbxrefs && $type) {
+
 		my $synonym = CCO::Core::Synonym->new();
 		$synonym->def_as_string($synonym_text, $dbxrefs);
 		$synonym->type($type);
@@ -300,11 +289,9 @@ sub synonym_as_string {
   
 =cut
 sub xref_set {
-	my $self = shift;
-	if (@_) {
-		my $xref_set = shift;
-    	croak "The xref must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Util::DbxrefSet'));
-		$self->{XREF_SET} = $xref_set;
+	my ($self, $xref_set) = @_;
+	if ($xref_set) {
+    	$self->{XREF_SET} = $xref_set;
     }
     return $self->{XREF_SET};
     
@@ -325,9 +312,8 @@ sub xref_set {
   
 =cut
 sub xref_set_as_string {
-	my $self = shift;
-	if (@_) {
-		my $xref_as_string = shift;
+	my ($self, $xref_as_string) = @_;
+	if ($xref_as_string) {
 		$xref_as_string =~ s/\[//;
 		$xref_as_string =~ s/\]//;
 		my @refs = split(/, /, $xref_as_string);
@@ -341,10 +327,9 @@ sub xref_set_as_string {
 				$xref->modifier($5) if (defined $5);
 				$xref_set->add($xref);
 			} else {
-				croak "There were not defined the references for this term: '", $self->id(), "'. Check the 'dbxref' field.";
+				confess "There were not defined the references for this term: '", $self->id(), "'. Check the 'dbxref' field.";
 			}
 		}
-		# todo do not overwrite the existing set; add the new elements to the existing set!
 		$self->{XREF_SET} = $xref_set;
 	}
 	my @result = $self->xref_set()->get_set();
@@ -470,19 +455,8 @@ sub builtin {
   
 =cut
 sub equals {
-	my $self = shift;
-	my $result =  0; 
-	
-	if (@_) {
-     	my $target = shift;
-		croak "The term to be compared with must be a CCO::Core::Term object" if (!UNIVERSAL::isa($target, "CCO::Core::Term"));
-		my $self_id = $self->{'ID'};
-		my $target_id = $target->{'ID'};
-		croak "The ID of this term is not defined" if (!defined($self_id));
-		croak "The ID of the target term is not defined" if (!defined($target_id));
-		$result = ($self_id eq $target_id);
-	}
-	return $result;
+	my ($self, $target) = @_;
+	return (defined $target && $self->{'ID'} eq $target->{'ID'})?1:0;
 }
 
 1;
@@ -493,108 +467,197 @@ sub equals {
 =head1 SYNOPSIS
 
 use CCO::Core::Term;
+
 use CCO::Core::Def;
+
 use CCO::Util::DbxrefSet;
+
 use CCO::Core::Dbxref;
+
 use CCO::Core::Synonym;
+
 use strict;
 
+
 # three new terms
+
 my $n1 = CCO::Core::Term->new();
+
 my $n2 = CCO::Core::Term->new();
+
 my $n3 = CCO::Core::Term->new();
 
+
 # id's
+
 $n1->id("CCO:P0000001");
+
 $n2->id("CCO:P0000002");
+
 $n3->id("CCO:P0000003");
 
+
 # alt_id
+
 $n1->alt_id("CCO:P0000001_alt_id");
+
 $n2->alt_id("CCO:P0000002_alt_id1", "CCO:P0000002_alt_id2", "CCO:P0000002_alt_id3", "CCO:P0000002_alt_id4");
 
+
 # name
+
 $n1->name("One");
+
 $n2->name("Two");
+
 $n3->name("Three");
 
+
 $n1->is_obsolete(1);
+
 $n1->is_obsolete(0);
+
 $n1->is_anonymous(1);
+
 $n1->is_anonymous(0);
 
+
 # synonyms
+
 my $syn1 = CCO::Core::Synonym->new();
+
 $syn1->type('EXACT');
+
 my $def1 = CCO::Core::Def->new();
+
 $def1->text("Hola mundo1");
+
 my $sref1 = CCO::Core::Dbxref->new();
+
 $sref1->name("CCO:vm");
+
 my $srefs_set1 = CCO::Util::DbxrefSet->new();
+
 $srefs_set1->add($sref1);
+
 $def1->dbxref_set($srefs_set1);
+
 $syn1->def($def1);
+
 $n1->synonym($syn1);
 
+
 my $syn2 = CCO::Core::Synonym->new();
+
 $syn2->type('BROAD');
+
 my $def2 = CCO::Core::Def->new();
+
 $def2->text("Hola mundo2");
+
 my $sref2 = CCO::Core::Dbxref->new();
+
 $sref2->name("CCO:ls");
+
 $srefs_set1->add_all($sref1);
+
 my $srefs_set2 = CCO::Util::DbxrefSet->new();
+
 $srefs_set2->add_all($sref1, $sref2);
+
 $def2->dbxref_set($srefs_set2);
+
 $syn2->def($def2);
+
 $n2->synonym($syn2);
 
+
 my $syn3 = CCO::Core::Synonym->new();
+
 $syn3->type('BROAD');
+
 my $def3 = CCO::Core::Def->new();
+
 $def3->text("Hola mundo2");
+
 my $sref3 = CCO::Core::Dbxref->new();
+
 $sref3->name("CCO:ls");
+
 my $srefs_set3 = CCO::Util::DbxrefSet->new();
+
 $srefs_set3->add_all($sref1, $sref2);
+
 $def3->dbxref_set($srefs_set3);
+
 $syn3->def($def3);
+
 $n3->synonym($syn3);
 
+
 # synonym as string
+
 $n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
 
+
 # xref
+
 $n1->xref("Uno");
+
 $n1->xref("Eins");
+
 $n1->xref("Een");
+
 $n1->xref("Un");
+
 $n1->xref("Uj");
+
 my $xref_length = $n1->xref()->size();
 
+
 my $def = CCO::Core::Def->new();
+
 $def->text("Hola mundo");
+
 my $ref1 = CCO::Core::Dbxref->new();
+
 my $ref2 = CCO::Core::Dbxref->new();
+
 my $ref3 = CCO::Core::Dbxref->new();
 
+
 $ref1->name("CCO:vm");
+
 $ref2->name("CCO:ls");
+
 $ref3->name("CCO:ea");
 
+
 my $refs_set = CCO::Util::DbxrefSet->new();
+
 $refs_set->add_all($ref1,$ref2,$ref3);
+
 $def->dbxref_set($refs_set);
+
 $n1->def($def);
+
 $n2->def($def);
 
+
 # def as string
+
 $n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+
 my @refs_n2 = $n2->def()->dbxref_set()->get_set();
+
 my %r_n2;
+
 foreach my $ref_n2 (@refs_n2) {
+	
 	$r_n2{$ref_n2->name()} = $ref_n2->name();
+	
 }
+
 
 =head1 DESCRIPTION
 

@@ -325,7 +325,7 @@ sub annot_src {
 
   Usage    - print $goa_association->equals($another_association)
   Returns  - either 1(true) or 0 (false)
-  Args     - the association to compare with
+  Args     - the association (CCO::Core::GoaAssociation) to compare with
   Function - tells whether the two associations are identical
   
 =cut
@@ -335,7 +335,6 @@ sub equals {
 	
 	if (@_) {
 		my $target = shift;
-		croak "The element to be tested must be a CCO::Core::GoaAssociation object" if (!UNIVERSAL::isa($target, 'CCO::Core::GoaAssociation'));
 		$result = 1;
 		
 		my @this =  (keys %$self);

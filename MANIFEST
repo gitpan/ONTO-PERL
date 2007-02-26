@@ -13,6 +13,7 @@ CCO/Core/Term.pm
 CCO/Parser/GoaParser.pm
 CCO/Parser/NCBIParser.pm
 CCO/Parser/OBOParser.pm
+CCO/Parser/UniProtParser.pm
 CCO/Util/CCO_ID_Set.pm
 CCO/Util/CCO_ID_Term_Map.pm
 CCO/Util/CCO_ID.pm
@@ -41,6 +42,7 @@ t/Synonym.t
 t/SynonymSet.t
 t/Term.t
 t/TermSet.t
+t/UniProtParser.t
 t/data/cco_b.ids
 t/data/cco_t.ids
 t/data/cco-names.html

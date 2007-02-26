@@ -20,7 +20,7 @@ use Carp;
 
   Usage    - $set->add()
   Returns  - true if the element was successfully added
-  Args     - the element to be added
+  Args     - the element (CCO::Core::Synonym) to be added
   Function - adds an element to this set
   
 =cut
@@ -29,7 +29,6 @@ sub add {
 	my $result = 0; # nothing added
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be added must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Synonym'));
 		if ( !$self -> contains($ele) ) {
 			push @{$self->{SET}}, $ele;
 			$result = 1; # successfully added
@@ -42,7 +41,7 @@ sub add {
 
   Usage    - $set->remove($element)
   Returns  - the removed element
-  Args     - the element to be removed
+  Args     - the element (CCO::Core::Synonym) to be removed
   Function - removes an element from this set
   
 =cut
@@ -51,7 +50,6 @@ sub remove {
 	my $result = undef;
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be removed must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Synonym'));
 		if ($self->size() > 0) {
 			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
 				my $e = ${$self->{SET}}[$i];
@@ -76,7 +74,7 @@ sub remove {
 
   Usage    - $set->contains()
   Returns  - true if this set contains the given element
-  Args     - the element to be checked
+  Args     - the element (CCO::Core::Synonym) to be checked
   Function - checks if this set constains the given element
   
 =cut
@@ -85,8 +83,6 @@ sub contains {
 	my $result = 0;
 	if (@_){
 		my $target = shift;
-		
-		croak "The element to be tested must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($target, 'CCO::Core::Synonym'));
 		
 		foreach my $ele (@{$self->{SET}}){
 			if ($target->equals($ele)) {
@@ -104,7 +100,7 @@ sub contains {
 
   Usage    - $set->equals()
   Returns  - true or false
-  Args     - the set to compare with
+  Args     - the set (CCO::Util::SynonymSet) to compare with
   Function - tells whether this set is equal to the given one
   
 =cut
@@ -114,10 +110,8 @@ sub equals {
 	if (@_) {
 		my $other_set = shift;
 		
-		croak "The element to be tested must be a CCO::Util::SynonymSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::SynonymSet'));
-		
 		my %count = ();
-# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' anivel de synonym...los tests pasan...raro...	
+		# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' a nivel de synonym...los tests pasan...raro...	
 		my @this = map ({scalar $_;} @{$self->{SET}});
 		my @that = map ({scalar $_;} $other_set->get_set());
 		

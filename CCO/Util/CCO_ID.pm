@@ -92,8 +92,9 @@ sub id_as_string () {
 		#	B	Biopolymer (gene, protein)
 		#	U	Upper Level Ontology
 		#	L	Relationship type (e.g. is_a)
+		#	Y	Interaction type
 		
-		if ( $id_as_string =~ /([A-Z][A-Z][A-Z]):([CFPXIRTBN])([0-9][0-9][0-9][0-9][0-9][0-9][0-9])/ ) {
+		if ( $id_as_string =~ /([A-Z][A-Z][A-Z]):([CFPXIRTBNY])([0-9][0-9][0-9][0-9][0-9][0-9][0-9])/ ) {
 			$self->{'NAMESPACE'} = $1;
 			$self->{'SUBNAMESPACE'} = $2;
 			$self->{'NUMBER'} = substr($3 + 10000000, 1, 7); # trick: forehead zeros

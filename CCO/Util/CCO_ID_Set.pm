@@ -50,7 +50,6 @@ sub add () {
 	my $result; # nothing added
 	if (@_) {
 		my $new_id = shift;
-		croak "The element to be added must be a CCO::Util::CCO_ID object" if (!UNIVERSAL::isa($new_id, "CCO::Util::CCO_ID"));
 		if ( !$self -> contains($new_id) ) {
 			push @{$self->{SET}}, $new_id;
 			$result = $new_id; # successfully added
@@ -128,7 +127,7 @@ sub get_new_id {
 	croak "The namespace is invalid: ", $namespace if ($namespace !~ /[A-Z][A-Z][A-Z]/);
 	$new_cco_id->namespace($namespace);
 	my $subnamespace = shift;
-	croak "The subnamespace is invalid: ", $subnamespace if ($subnamespace !~ /[CFPXIRTBN]/);
+	croak "The subnamespace is invalid: ", $subnamespace if ($subnamespace !~ /[CFPXIRTBNY]/);
 	$new_cco_id->subnamespace($subnamespace);
 	
 	# get the last 'number'

@@ -33,8 +33,8 @@ sub new {
   
 =cut
 sub text {
-	my $self = shift;
-    if (@_) { $self->{TEXT} = shift }
+	my ($self, $text) = @_;
+    if ($text) { $self->{TEXT} = $text }
     return $self->{TEXT};
 }
 
@@ -47,11 +47,9 @@ sub text {
   
 =cut
 sub dbxref_set {
-	my $self = shift;
-	if (@_) {
-		my $dbxref_set = shift;
-    		croak "The dbxref set must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($dbxref_set, 'CCO::Util::DbxrefSet'));
-		$self->{DBXREF_SET} = $dbxref_set;
+	my ($self, $dbxref_set) = @_;
+	if ($dbxref_set) {
+    	$self->{DBXREF_SET} = $dbxref_set;
     }
     return $self->{DBXREF_SET};
 }
@@ -65,9 +63,8 @@ sub dbxref_set {
   
 =cut
 sub dbxref_set_as_string {
-	my $self = shift;
-	if (@_) {
-		my $dbxref_as_string = shift;
+	my ($self, $dbxref_as_string) = @_;
+	if ($dbxref_as_string) {
 		$dbxref_as_string =~ s/\[//;
 		$dbxref_as_string =~ s/\]//;
 		my @refs = split(/, /, $dbxref_as_string);
@@ -81,7 +78,7 @@ sub dbxref_set_as_string {
 				$dbxref->modifier($5) if (defined $5);
 				$dbxref_set->add($dbxref);
 			} else {
-				croak "There were not defined the references for this definition: ", $self->id(), ". Check the 'dbxref' field.";
+				confess "There were not defined the references for this definition: ", $self->id(), ". Check the 'dbxref' field.";
 			}
 		}
 		$self->{DBXREF_SET} = $dbxref_set;
@@ -102,14 +99,12 @@ sub dbxref_set_as_string {
   
 =cut
 sub equals {
-	my $self = shift;
+	my ($self, $target) = @_;
 	my $result = 0;
-	if (@_) {
-		my $target = shift;
+	if ($target) {
 
-		croak "The element to be tested must be a CCO::Core::Def object" if (!UNIVERSAL::isa($target, 'CCO::Core::Def'));
-		croak "The text of this definition is undefined" if (!defined($self->{TEXT}));
-		croak "The text of the target definition is undefined" if (!defined($target->{TEXT}));
+		confess "The text of this definition is undefined" if (!defined($self->{TEXT}));
+		confess "The text of the target definition is undefined" if (!defined($target->{TEXT}));
 		
 		$result = (($self->{TEXT} eq $target->{TEXT}) && ($self->{DBXREF_SET}->equals($target->{DBXREF_SET})));
 	}
@@ -125,46 +120,76 @@ sub equals {
 =head1 SYNOPSIS
 
 use CCO::Core::Def;
+
 use CCO::Core::Dbxref;
+
 use strict;
 
 # three new def's
+
 my $def1 = CCO::Core::Def->new();
+
 my $def2 = CCO::Core::Def->new();
+
 my $def3 = CCO::Core::Def->new();
 
+
 $def1->text("CCO:vm text");
+
 $def2->text("CCO:ls text");
+
 $def3->text("CCO:ea text");
 
+
 my $ref1 = CCO::Core::Dbxref->new();
+
 my $ref2 = CCO::Core::Dbxref->new();
+
 my $ref3 = CCO::Core::Dbxref->new();
 
+
 $ref1->name("CCO:vm");
+
 $ref2->name("CCO:ls");
+
 $ref3->name("CCO:ea");
 
+
 my $dbxref_set1 = CCO::Util::DbxrefSet->new();
+
 $dbxref_set1->add($ref1);
 
+
 my $dbxref_set2 = CCO::Util::DbxrefSet->new();
+
 $dbxref_set2->add($ref2);
 
+
 my $dbxref_set3 = CCO::Util::DbxrefSet->new();
+
 $dbxref_set3->add($ref3);
 
 $def1->dbxref_set($dbxref_set1);
+
 $def2->dbxref_set($dbxref_set2);
+
 $def3->dbxref_set($dbxref_set3);
 
+
 # dbxref_set_as_string
+
 $def2->dbxref_set_as_string("[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+
 my @refs_def2 = $def2->dbxref_set()->get_set();
+
 my %r_def2;
+
 foreach my $ref_def2 (@refs_def2) {
+	
 	$r_def2{$ref_def2->name()} = $ref_def2->name();
+	
 }
+
 
 =head1 DESCRIPTION
 

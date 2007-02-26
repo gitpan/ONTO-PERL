@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 151;
+    plan tests => 153;
 }
 
 #########################
@@ -437,5 +437,7 @@ ok(($onto->get_terms_by_name("re-entry into mitotic cell cycle after pheromone a
 
 ok($onto->get_terms_by_name("cell cycle")->size() == 3);
 #$so->export(\*STDERR);
-
+ok($onto->get_number_of_relationships() == 6);
+$onto->create_rel($n4, 'part_of', $n5);
+ok($onto->get_number_of_relationships() == 7);
 ok(1);

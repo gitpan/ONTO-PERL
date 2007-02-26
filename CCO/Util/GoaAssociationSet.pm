@@ -28,7 +28,6 @@ sub add {
    my $self = shift;
    my $result = 0; # nothing added
    if (@_) {          my $ele = shift;
-       croak "The element to be added must be a CCO::Core::GoaAssociation object" if (!UNIVERSAL::isa($ele, 'CCO::Core::GoaAssociation'));
        if ( !$self -> contains($ele) ) {
            push @{$self->{SET}}, $ele;
            $result = 1; # successfully added
@@ -48,8 +47,8 @@ sub add {
 sub remove {
    my $self = shift;
    my $result = undef;
-   if (@_) {          my $ele = shift;
-       croak "The element to be removed must be a CCO::Core::GoaAssociation object" if (!UNIVERSAL::isa($ele, 'CCO::Core::GoaAssociation'));
+   if (@_) {          
+	my $ele = shift;
        if ($self->size() > 0) {
            for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
                my $e = ${$self->{SET}}[$i];
@@ -106,19 +105,18 @@ sub remove_duplicates {
 
 =cut
 sub contains {
-   my $self = shift;
-   my $result = 0;
-   if (@_){
-       my $target = shift;
-             croak "The element to be tested must be a CCO::Core::GoaAssociation object" if (!UNIVERSAL::isa($target, 'CCO::Core::GoaAssociation'));
-             foreach my $ele (@{$self->{SET}}){
-           if ($target->equals($ele)) {
-               $result = 1;
-               last;
-           }
-       }
-   }
-   return $result;
+	my $self = shift;
+	my $result = 0;
+	if (@_){
+		my $target = shift;
+		foreach my $ele (@{$self->{SET}}){
+			if ($target->equals($ele)) {
+				$result = 1;
+				last;
+			}
+		}
+	}
+	return $result;
 }
 
 =head2 equals
@@ -134,10 +132,9 @@ sub equals {
    my $result = 0; # I guess they'are NOT identical
      if (@_) {
        my $other_set = shift;
-       croak "The element to be tested must be a CCO::Util::GoaAssociationSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::GoaAssociationSet'));
-             my %count = ();
-             my @this = @{$self->{SET}};
-       my @that = $other_set->get_set();
+		my %count = ();
+		my @this = @{$self->{SET}};
+		my @that = $other_set->get_set();
 
        if ($#this == $#that) {
            if ($#this != -1) {

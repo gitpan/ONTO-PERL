@@ -163,6 +163,7 @@ MAN3PODS = CCO/Core/Dbxref.pm \
 	CCO/Parser/GoaParser.pm \
 	CCO/Parser/NCBIParser.pm \
 	CCO/Parser/OBOParser.pm \
+	CCO/Parser/UniProtParser.pm \
 	CCO/Util/CCO_ID.pm \
 	CCO/Util/CCO_ID_Set.pm \
 	CCO/Util/CCO_ID_Term_Map.pm \
@@ -204,6 +205,7 @@ TO_INST_PM = CCO/Core/Dbxref.pm \
 	CCO/Parser/GoaParser.pm \
 	CCO/Parser/NCBIParser.pm \
 	CCO/Parser/OBOParser.pm \
+	CCO/Parser/UniProtParser.pm \
 	CCO/Util/CCO_ID.pm \
 	CCO/Util/CCO_ID_Set.pm \
 	CCO/Util/CCO_ID_Term_Map.pm \
@@ -218,6 +220,8 @@ PM_TO_BLIB = CCO/Util/DbxrefSet.pm \
 	$(INST_LIB)/CCO/Util/DbxrefSet.pm \
 	CCO/Core/GoaAssociation.pm \
 	$(INST_LIB)/CCO/Core/GoaAssociation.pm \
+	CCO/Parser/UniProtParser.pm \
+	$(INST_LIB)/CCO/Parser/UniProtParser.pm \
 	CCO/Util/TermSet.pm \
 	$(INST_LIB)/CCO/Util/TermSet.pm \
 	CCO/Util/GoaAssociationSet.pm \
@@ -459,6 +463,7 @@ POD2MAN = $(POD2MAN_EXE)
 manifypods : pure_all  \
 	CCO/Util/DbxrefSet.pm \
 	CCO/Core/GoaAssociation.pm \
+	CCO/Parser/UniProtParser.pm \
 	CCO/Util/TermSet.pm \
 	CCO/Util/GoaAssociationSet.pm \
 	CCO/Util/CCO_ID_Set.pm \
@@ -479,6 +484,7 @@ manifypods : pure_all  \
 	CCO/Parser/OBOParser.pm \
 	CCO/Util/DbxrefSet.pm \
 	CCO/Core/GoaAssociation.pm \
+	CCO/Parser/UniProtParser.pm \
 	CCO/Util/TermSet.pm \
 	CCO/Util/GoaAssociationSet.pm \
 	CCO/Util/CCO_ID_Set.pm \
@@ -500,6 +506,7 @@ manifypods : pure_all  \
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW)\
 	  CCO/Util/DbxrefSet.pm $(INST_MAN3DIR)/CCO::Util::DbxrefSet.$(MAN3EXT) \
 	  CCO/Core/GoaAssociation.pm $(INST_MAN3DIR)/CCO::Core::GoaAssociation.$(MAN3EXT) \
+	  CCO/Parser/UniProtParser.pm $(INST_MAN3DIR)/CCO::Parser::UniProtParser.$(MAN3EXT) \
 	  CCO/Util/TermSet.pm $(INST_MAN3DIR)/CCO::Util::TermSet.$(MAN3EXT) \
 	  CCO/Util/GoaAssociationSet.pm $(INST_MAN3DIR)/CCO::Util::GoaAssociationSet.$(MAN3EXT) \
 	  CCO/Util/CCO_ID_Set.pm $(INST_MAN3DIR)/CCO::Util::CCO_ID_Set.$(MAN3EXT) \
@@ -558,10 +565,10 @@ realclean_subdirs :
 realclean purge ::  clean realclean_subdirs
 	$(RM_RF) $(INST_AUTODIR) $(INST_ARCHAUTODIR)
 	$(RM_RF) $(DISTVNAME)
-	$(RM_F)  $(INST_LIB)/CCO/Util/DbxrefSet.pm $(INST_LIB)/CCO/Core/Relationship.pm $(MAKEFILE_OLD) $(INST_LIB)/CCO/Core/Dbxref.pm $(INST_LIB)/CCO/Parser/NCBIParser.pm $(INST_LIB)/CCO/Parser/GoaParser.pm
-	$(RM_F) $(INST_LIB)/CCO/Util/CCO_ID.pm $(FIRST_MAKEFILE) $(INST_LIB)/CCO/Util/TermSet.pm $(INST_LIB)/CCO/Core/RelationshipType.pm $(INST_LIB)/CCO/Parser/OBOParser.pm $(INST_LIB)/CCO/Core/Def.pm
-	$(RM_F) $(INST_LIB)/CCO/Util/SynonymSet.pm $(INST_LIB)/onto-perl.pod $(INST_LIB)/CCO/Util/GoaAssociationSet.pm $(INST_LIB)/CCO/Core/Synonym.pm $(INST_LIB)/CCO/Util/CCO_ID_Set.pm
-	$(RM_F) $(INST_LIB)/CCO/Util/CCO_ID_Term_Map.pm $(INST_LIB)/CCO/Core/GoaAssociation.pm $(INST_LIB)/CCO/Core/Ontology.pm $(INST_LIB)/CCO/Util/Set.pm $(INST_LIB)/CCO/Core/Term.pm
+	$(RM_F)  $(INST_LIB)/CCO/Util/DbxrefSet.pm $(INST_LIB)/CCO/Core/Relationship.pm $(MAKEFILE_OLD) $(INST_LIB)/CCO/Core/Dbxref.pm $(INST_LIB)/CCO/Parser/UniProtParser.pm $(INST_LIB)/CCO/Parser/NCBIParser.pm
+	$(RM_F) $(INST_LIB)/CCO/Parser/GoaParser.pm $(INST_LIB)/CCO/Util/CCO_ID.pm $(FIRST_MAKEFILE) $(INST_LIB)/CCO/Util/TermSet.pm $(INST_LIB)/CCO/Core/RelationshipType.pm $(INST_LIB)/CCO/Parser/OBOParser.pm
+	$(RM_F) $(INST_LIB)/CCO/Core/Def.pm $(INST_LIB)/CCO/Util/SynonymSet.pm $(INST_LIB)/onto-perl.pod $(INST_LIB)/CCO/Util/GoaAssociationSet.pm $(INST_LIB)/CCO/Core/Synonym.pm $(INST_LIB)/CCO/Util/CCO_ID_Set.pm
+	$(RM_F) $(INST_LIB)/CCO/Core/GoaAssociation.pm $(INST_LIB)/CCO/Util/CCO_ID_Term_Map.pm $(INST_LIB)/CCO/Core/Ontology.pm $(INST_LIB)/CCO/Util/Set.pm $(INST_LIB)/CCO/Core/Term.pm
 
 
 # --- MakeMaker metafile section:
@@ -855,6 +862,7 @@ pm_to_blib: $(TO_INST_PM)
 	$(NOECHO) $(PERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', '\''$(PM_FILTER)'\'')'\
 	  CCO/Util/DbxrefSet.pm $(INST_LIB)/CCO/Util/DbxrefSet.pm \
 	  CCO/Core/GoaAssociation.pm $(INST_LIB)/CCO/Core/GoaAssociation.pm \
+	  CCO/Parser/UniProtParser.pm $(INST_LIB)/CCO/Parser/UniProtParser.pm \
 	  CCO/Util/TermSet.pm $(INST_LIB)/CCO/Util/TermSet.pm \
 	  CCO/Util/GoaAssociationSet.pm $(INST_LIB)/CCO/Util/GoaAssociationSet.pm \
 	  CCO/Util/CCO_ID_Set.pm $(INST_LIB)/CCO/Util/CCO_ID_Set.pm \

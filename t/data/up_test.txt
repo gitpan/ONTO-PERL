@@ -1,0 +1,222 @@
+ID   RK20_ARATH              Reviewed;         117 AA.
+AC   P56794;
+DT   30-MAY-2000, integrated into UniProtKB/Swiss-Prot.
+DT   30-MAY-2000, sequence version 1.
+DT   23-JAN-2007, entry version 40.
+DE   Chloroplast 50S ribosomal protein L20 (SHIT) (CRAP) .
+GN   Name=rpl20; OrderedLocusNames=AtCg00660;
+OS   Arabidopsis thaliana (Mouse-ear cress).
+OG   Plastid; Chloroplast.
+OC   Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+OC   Spermatophyta; Magnoliophyta; eudicotyledons; core eudicotyledons;
+OC   rosids; eurosids II; Brassicales; Brassicaceae; Arabidopsis.
+OX   NCBI_TaxID=3702;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA].
+RC   STRAIN=cv. Columbia;
+RX   MEDLINE=20039611; PubMed=10574454; DOI=10.1093/dnares/6.5.283;
+RA   Sato S., Nakamura Y., Kaneko T., Asamizu E., Tabata S.;
+RT   "Complete structure of the chloroplast genome of Arabidopsis
+RT   thaliana.";
+RL   DNA Res. 6:283-290(1999).
+CC   -!- FUNCTION: Binds directly to 23S ribosomal RNA and is necessary for
+CC       the in vitro assembly process of the 50S ribosomal subunit. It is
+CC       not involved in the protein synthesizing functions of that subunit
+CC       (By similarity).
+CC   -!- SUBCELLULAR LOCATION: Plastid; chloroplast.
+CC   -!- SIMILARITY: Belongs to the ribosomal protein L20P family.
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the UniProt Consortium, see http://www.uniprot.org/terms
+CC   Distributed under the Creative Commons Attribution-NoDerivs License
+CC   -----------------------------------------------------------------------
+DR   EMBL; AP000423; BAA84408.1; -; Genomic_DNA.
+DR   HSSP; O67086; 1GYZ.
+DR   GenomeReviews; AP000423_GR; ATCG00660.
+DR   TAIR; AtCg00660; -.
+DR   GermOnline; ATCG00660; Arabidopsis thaliana.
+DR   GO; GO:0019843; F:rRNA binding; IEA:HAMAP.
+DR   GO; GO:0000027; P:ribosomal large subunit assembly and mainte...; IEA:HAMAP.
+DR   HAMAP; MF_00382; -; 1.
+DR   InterPro; IPR005812; Ribosom_L20_bac.
+DR   InterPro; IPR005813; Ribosomal_L20.
+DR   PANTHER; PTHR10986; Ribosomal_L20; 1.
+DR   Pfam; PF00453; Ribosomal_L20; 1.
+DR   PRINTS; PR00062; RIBOSOMALL20.
+DR   ProDom; PD002389; Ribosomal_L20; 1.
+DR   TIGRFAMs; TIGR01032; rplT_bact; 1.
+DR   PROSITE; PS00937; RIBOSOMAL_L20; 1.
+KW   Chloroplast; Plastid; Ribonucleoprotein; Ribosomal protein;
+KW   RNA-binding; rRNA-binding.
+FT   CHAIN         1    117       Chloroplast 50S ribosomal protein L20.
+FT                                /FTId=PRO_0000177278.
+SQ   SEQUENCE   117 AA;  14163 MW;  C3F643A28C5EDC3F CRC64;
+     MTRIKRGYIA RRRRTKLRLF ASSFRGAHSR LTRTMTQQRI RALVSAHRDR GKRKRDFRRL
+     WITRINAVIH EMGVFYSYNE FIHNLYKKQL LLNRKILAQI ALLNRSCLYT ISNDIKK
+//
+ID   Q84JF0_ARATH            Unreviewed;       310 AA.
+AC   Q84JF0;
+DT   01-JUN-2003, integrated into UniProtKB/TrEMBL.
+DT   01-JUN-2003, sequence version 1.
+DT   12-DEC-2006, entry version 17.
+DE   Putative adenylylsulfate kinase.
+GN   OrderedLocusNames=At5g67520;
+OS   Arabidopsis thaliana (Mouse-ear cress).
+OC   Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+OC   Spermatophyta; Magnoliophyta; eudicotyledons; core eudicotyledons;
+OC   rosids; eurosids II; Brassicales; Brassicaceae; Arabidopsis.
+OX   NCBI_TaxID=3702;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE.
+RA   Yamada K., Chan M.M., Chang C.H., Dale J.M., Hsuan V.W., Lee J.M.,
+RA   Onodera C.S., Quach H.L., Tang C., Toriumi M., Wong C., Wu H.C.,
+RA   Yu G., Yuan S., Carninci P., Chen H., Cheuk R., Hayashizaki Y.,
+RA   Ishida J., Jones T., Kamiya A., Kawai J., Kim C.J., Narusaka M.,
+RA   Nguyen M., Palm C.J., Sakurai T., Satou M., Seki M., Shinn P.,
+RA   Southwick A., Tripp M.G., Wu T., Shinozaki K., Davis R.W., Ecker J.R.,
+RA   Theologis A.;
+RT   "Arabidopsis Full Length cDNA Clones.";
+RL   Submitted (FEB-2003) to the EMBL/GenBank/DDBJ databases.
+RN   [2]
+RP   NUCLEOTIDE SEQUENCE.
+RA   Yamada K., Chan M.M., Chang C.H., Dale J.M., Hsuan V.W., Lee J.M.,
+RA   Onodera C.S., Quach H.L., Tang C., Toriumi M., Wong C., Wu H.C.,
+RA   Yu G., Yuan S., Carninci P., Chen H., Cheuk R., Hayashizaki Y.,
+RA   Ishida J., Jones T., Kamiya A., Kawai J., Kim C.J., Narusaka M.,
+RA   Nguyen M., Palm C.J., Sakurai T., Satou M., Seki M., Shinn P.,
+RA   Southwick A., Tripp M.G., Wu T., Shinozaki K., Davis R.W., Ecker J.R.,
+RA   Theologis A.;
+RT   "Arabidopsis Open Reading Frame (ORF) Clones.";
+RL   Submitted (MAR-2003) to the EMBL/GenBank/DDBJ databases.
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the UniProt Consortium, see http://www.uniprot.org/terms
+CC   Distributed under the Creative Commons Attribution-NoDerivs License
+CC   -----------------------------------------------------------------------
+DR   EMBL; BT003977; AAO42019.1; -; mRNA.
+DR   EMBL; BT005193; AAO50726.1; -; mRNA.
+DR   UniGene; At.28808; -.
+DR   HSSP; Q12657; 1M7G.
+DR   GenomeReviews; BA000015_GR; AT5G67520.
+DR   KEGG; ath:At5g67520; -.
+DR   TAIR; At5g67520; -.
+DR   ArrayExpress; Q84JF0; -.
+DR   GO; GO:0005524; F:ATP binding; IEA:InterPro.
+DR   GO; GO:0016301; F:kinase activity; IEA:InterPro.
+DR   GO; GO:0000103; P:sulfate assimilation; IEA:InterPro.
+DR   InterPro; IPR002891; APS_kinase.
+DR   Pfam; PF01583; APS_kinase; 1.
+DR   ProDom; PD002350; APS_kinase; 1.
+DR   TIGRFAMs; TIGR00455; apsK; 1.
+KW   Kinase.
+SQ   SEQUENCE   310 AA;  34065 MW;  C1AC01A4242A0BDF CRC64;
+     MDVAAMARCV GRCYVSPAFG ESESHRLSER RFLKLSSSTN SDPAGSKSLK LRGKIHRRMS
+     YFRPIMAKDE SISSRSGETK QINGKQKNIV WHDCPVTKSD RQELIKQKGC VIWITGLSGS
+     GKSSLACALS RALHNRGKLS YILDGDNVRH GLNSDLSFEA DDRAENIRRV GEVAKLFADS
+     GIICIASLIS PYRIERAACR ALLPQGDFIE VFMDVPLHVC EARDPKGLYK RARAGKIKGF
+     TGVDDPYEAP LDCEIVIQNS RDKGLSSSSS SSSSPSSSSS SLCEMADIVV SYLDQNGYLK
+     KHSTKSRNCM
+//
+ID   Q6XJG8_ARATH            Unreviewed;       891 AA.
+AC   Q6XJG8;
+DT   05-JUL-2004, integrated into UniProtKB/TrEMBL.
+DT   05-JUL-2004, sequence version 1.
+DT   06-FEB-2007, entry version 20.
+DE   26S proteasome subunit RPN1b.
+GN   Name=RPN1b;
+OS   Arabidopsis thaliana (Mouse-ear cress).
+OC   Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+OC   Spermatophyta; Magnoliophyta; eudicotyledons; core eudicotyledons;
+OC   rosids; eurosids II; Brassicales; Brassicaceae; Arabidopsis.
+OX   NCBI_TaxID=3702;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE.
+RX   PubMed=14623884; DOI=10.1074/jbc.M311977200;
+RA   Yang P., Fu H., Walker J., Papa C.M., Smalle J., Ju Y.-M.,
+RA   Vierstra R.D.;
+RT   "Purification of the Arabidopsis 26 S proteasome: biochemical and
+RT   molecular analyses revealed the presence of multiple isoforms.";
+RL   J. Biol. Chem. 279:6401-6413(2004).
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the UniProt Consortium, see http://www.uniprot.org/terms
+CC   Distributed under the Creative Commons Attribution-NoDerivs License
+CC   -----------------------------------------------------------------------
+DR   EMBL; AY230829; AAP86656.1; -; mRNA.
+DR   GenomeReviews; CT486007_GR; AT4G28470.
+DR   GO; GO:0005829; C:cytosol; IEA:UniProtKB-KW.
+DR   GO; GO:0043234; C:protein complex; IEA:UniProtKB-KW.
+DR   GO; GO:0000074; P:regulation of progression through cell cycle; IEA:InterPro.
+DR   InterPro; IPR002015; APC_proteasome.
+DR   InterPro; IPR011989; ARM-like.
+DR   Gene3D; G3DSA:1.25.10.10; ARM-like; 1.
+DR   Pfam; PF01851; PC_rep; 6.
+KW   Proteasome.
+SQ   SEQUENCE   891 AA;  97954 MW;  8330D4146ED9F371 CRC64;
+     MAPVPDPNSV GGGAKRDEAT TKIPSKDSKK KDDKKEEDLS EEDLQLKQNL ELYVERVQDP
+     NPELQKIALE SMRKEIRDST SSMTSVPKPL KFLRPHYGVL KEFHAKMAES DLKKMLADIL
+     SVLALTMSAE GERESLNYRL NGSESDIGSW GHEYVRNLAG EIAKEYTIRQ GEESSIEDLM
+     DLVQQIVSFH MKHNAETEAV DLLMDVEDLD LLLEHVDNTN FRRTCNYLTS AAKYLPGPDD
+     MLVLDIAYMI YIKFAEYPNA LQIALFLDNM QYVKQVFTSC TDLVKKKQFC YMIARHGMTF
+     ELDQEMVAND EDKEALQDIV NNSKLSEGYL TLARDIEVME AKTPEDIYKA HLLDGRASSG
+     PSVDSARQNL SATFVNAFVN AGFGQDKLMT VPSDSTSGSA GNWLFKNKEH GKTSAVASLG
+     MIQLWDVETG LGHLDKYFHS NDNPVVAGAL LGVGIVNCGI KNDCDPAFAL LSGYIDNEDS
+     SVRIGAIMGL GIAYAGSQND QIKIRLSPIL NDANAPLDVI AFAALSLGMI YVGSCNEEVA
+     QSIIFALMDR SEAELGEALT RFLPLGLGLL YLGKQESVEA TAEVSKTFNE KIRKYCDMTL
+     LSCAYAGTGN VLKVQDLLAQ CGEHLVKGDI HQGPAVIGLA MVAMSEELGL DMEIRSLERV
+     LQYGEQNIRR AVPLALGLLC ISNPKVTVMD TLSRLSHDTD SEVAMAAIIS LGLIGAGTNN
+     ARIAGMLRNL SSYYYKDASL LFCVRIAQGF VHMGKGLLTL NPFHSERLLL SPTALAGIVT
+     LLHACLDMKS IILGKYHYVL YFLVLAMQPR MMLTVDQSLK PISVPVRVGQ AVDVVGQAGR
+     PKTITGFQTH STPVLLAAGE RAELATEKYI PLSPILEGFV ILKENPDYRE E
+//
+ID   Q6NMC8_ARATH            Unreviewed;       323 AA.
+AC   Q6NMC8;
+DT   05-JUL-2004, integrated into UniProtKB/TrEMBL.
+DT   05-JUL-2004, sequence version 1.
+DT   06-FEB-2007, entry version 22.
+DE   At4g37630 gene protein (Hypothetical protein At4g37630).
+GN   OrderedLocusNames=At4g37630;
+OS   Arabidopsis thaliana (Mouse-ear cress).
+OC   Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+OC   Spermatophyta; Magnoliophyta; eudicotyledons; core eudicotyledons;
+OC   rosids; eurosids II; Brassicales; Brassicaceae; Arabidopsis.
+OX   NCBI_TaxID=3702;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE.
+RA   Cheuk R., Chen H., Kim C.J., Shinn P., Carninci P., Hayashizaki Y.,
+RA   Ishida J., Kamiya A., Kawai J., Narusaka M., Sakurai T., Satou M.,
+RA   Seki M., Shinozaki K., Ecker J.R.;
+RL   Submitted (MAR-2004) to the EMBL/GenBank/DDBJ databases.
+RN   [2]
+RP   NUCLEOTIDE SEQUENCE.
+RA   Totoki Y., Seki M., Ishida J., Nakajima M., Enju A., Kamiya A.,
+RA   Narusaka M., Shin-i T., Nakagawa M., Sakamoto N., Oishi K., Kohara Y.,
+RA   Kobayashi M., Toyoda A., Sakaki Y., Sakurai T., Iida K., Akiyama K.,
+RA   Satou M., Toyoda T., Konagaya A., Carninci P., Kawai J.,
+RA   Hayashizaki Y., Shinozaki K.;
+RT   "Large-scale analysis of RIKEN Arabidopsis full-length (RAFL) cDNAs.";
+RL   Submitted (MAR-2005) to the EMBL/GenBank/DDBJ databases.
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the UniProt Consortium, see http://www.uniprot.org/terms
+CC   Distributed under the Creative Commons Attribution-NoDerivs License
+CC   -----------------------------------------------------------------------
+DR   EMBL; BT011732; AAS49095.1; -; mRNA.
+DR   EMBL; AK221431; BAD94450.1; -; mRNA.
+DR   UniGene; At.43466; -.
+DR   GenomeReviews; CT486007_GR; AT4G37630.
+DR   KEGG; ath:At4g37630; -.
+DR   TAIR; At4g37630; -.
+DR   GO; GO:0000074; P:regulation of progression through cell cycle; IEA:InterPro.
+DR   InterPro; IPR006670; Cyclin.
+DR   InterPro; IPR011028; Cyclin_like.
+DR   InterPro; IPR006671; Cyclin_N.
+DR   InterPro; IPR013763; Cyclin_related.
+DR   Gene3D; G3DSA:1.10.472.10; Cyclin_related; 1.
+DR   Pfam; PF00134; Cyclin_N; 1.
+DR   SMART; SM00385; CYCLIN; 1.
+KW   Cyclin; Hypothetical protein.
+SQ   SEQUENCE   323 AA;  37167 MW;  D10C6BC623769A43 CRC64;
+     MGEPKDSLAL FLCHESESSL NEDDDETIER SDKQEPHFTT TIDDEDYVAD LVLKENLRFE
+     TLPSKTTSSS DRLIAIDWIL TTRTRFGFQH QTAYIAISYF DLFLHKRFIG LQKDETWAMR
+     LLSVACLSLA AKMEERIVPG LSQYPQDHDF VFKPDVIRKT ELLILSTLDW KMNLITPFHY
+     FNYFLAKISQ DNHSVSKDLV LLRSSDSLLA LTKEISFTEY RQFVVAAVTT LLASSSTSSD
+     IRLTREEIAN KFGSISWWTS NENENVYLCY QRTLEIEERK HMTPPPEIAV SREPPASGSG
+     AKRRLSFDDS DQSSPPAKRM RRL
+//

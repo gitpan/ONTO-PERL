@@ -18,3 +18,5 @@ Revision history for onto-perl
 0.26 Enhanced: NCBIParser.pm, GoaParser.pm and Ontology.pm
 
 0.27 obo2owl tranformation updated, new modules for dealing with IDs
+
+0.28 Performance improvement (code tuning)

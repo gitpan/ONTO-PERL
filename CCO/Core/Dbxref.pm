@@ -34,11 +34,11 @@ sub new {
   
 =cut
 sub name {
-	my $self = shift;
-    if (@_) {
-		($self->{DB} = $1, $self->{ACC} = $2) if ($_[0] =~ /([\w-]+):([\w:,\(\)\.-]+)/ || $_[0] =~ /(http):\/\/(.*)/);
+	my ($self, $name) = @_;
+    if ($name) {
+		($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\w-]+):([\w:,\(\)\.-]+)/ || $name =~ /(http):\/\/(.*)/);
 	} else { # get-mode
-		carp "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
+		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     }
     return $self->{DB}.":".$self->{ACC};
 }
@@ -52,11 +52,11 @@ sub name {
   
 =cut
 sub db {
-	my $self = shift;
-    if (@_) {
-		$self->{DB} = shift;
+	my ($self, $db) = @_;
+    if ($db) {
+		$self->{DB} = $db;
 	} else { # get-mode
-		carp "The database (db) of this 'dbxref' is not defined." if (!defined($self->{DB}));
+		confess "The database (db) of this 'dbxref' is not defined." if (!defined($self->{DB}));
     }
     return $self->{DB};
 }
@@ -70,11 +70,11 @@ sub db {
   
 =cut
 sub acc {
-	my $self = shift;
-    if (@_) {
-		$self->{ACC} = shift;
+	my ($self, $acc) = @_;
+    if ($acc) {
+		$self->{ACC} = $acc;
 	} else { # get-mode
-		carp "The accession number (acc) of this 'dbxref' is not defined." if (!defined($self->{ACC}));
+		confess "The accession number (acc) of this 'dbxref' is not defined." if (!defined($self->{ACC}));
     }
     return $self->{ACC};
 }
@@ -88,11 +88,11 @@ sub acc {
   
 =cut
 sub description {
-	my $self = shift;
-    if (@_) { 
-		$self->{DESCRIPTION} = shift;
+	my ($self, $description) = @_;
+    if ($description) { 
+		$self->{DESCRIPTION} = $description;
     } else { # get-mode
-		carp "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
+		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     }
     return $self->{DESCRIPTION};
 }
@@ -106,11 +106,11 @@ sub description {
   
 =cut
 sub modifier {
-	my $self = shift;
-    if (@_) { 
-		$self->{MODIFIER} = shift;
+	my ($self, $modifier) = @_;
+    if ($modifier) { 
+		$self->{MODIFIER} = $modifier;
     } else { # get-mode
-		carp "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
+		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     }
     return $self->{MODIFIER};
 }
@@ -124,8 +124,8 @@ sub modifier {
   
 =cut
 sub as_string {
-	my $self = shift;
-	carp "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
+	my ($self) = @_;
+	confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     my $result = $self->{DB}.":".$self->{ACC};
     $result .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
     $result .= " ".$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne "");
@@ -136,19 +136,15 @@ sub as_string {
 
   Usage    - print $dbxref->equals($another_dbxref)
   Returns  - either 1(true) or 0 (false)
-  Args     - the dbxref to compare with
+  Args     - the dbxref(CCO::Core::Dbxref) to compare with
   Function - tells whether this dbxref is equal to the parameter
   
 =cut
 sub equals {
-	my $self = shift;
-	if (@_) {
-		my $target = shift;
-
-		croak "The element to be tested must be a CCO::Core::Dbxref object" if (!UNIVERSAL::isa($target, 'CCO::Core::Dbxref'));
-		croak "The name of this dbxref is undefined" if (!defined($self->{DB}) || !defined($self->{ACC}));
-		croak "The name of the target dbxref is undefined" if (!defined($target->{DB}) || !defined($target->{ACC}));
-		
+	my ($self, $target) = @_;
+	if ($target) {
+		confess "The name of this dbxref is undefined" if (!defined($self->{DB}) || !defined($self->{ACC}));
+		confess "The name of the target dbxref is undefined" if (!defined($target->{DB}) || !defined($target->{ACC}));
 		return (($self->{DB} eq $target->{DB}) &&
 				($self->{ACC} eq $target->{ACC}) &&
 				($self->{DESCRIPTION} eq $target->{DESCRIPTION}) &&
@@ -166,25 +162,39 @@ sub equals {
 =head1 SYNOPSIS
 
 use CCO::Core::Dbxref;
+
 use strict;
 
 # three new dbxref's
+
 my $ref1 = CCO::Core::Dbxref->new;
+
 my $ref2 = CCO::Core::Dbxref->new;
+
 my $ref3 = CCO::Core::Dbxref->new;
 
+
 $ref1->name("CCO:vm");
+
 $ref1->description("this is a description");
+
 $ref1->modifier("{opt=123}");
+
 $ref2->name("CCO:ls");
+
 $ref3->name("CCO:ea");
+
 
 my $ref4 = $ref3;
 
 my $ref5 = CCO::Core::Dbxref->new;
+
 $ref5->name("CCO:vm");
+
 $ref5->description("this is a description");
+
 $ref5->modifier("{opt=123}");
+
 
 =head1 DESCRIPTION
 

@@ -29,7 +29,6 @@ sub add {
 	my $result = 0; # nothing added
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be added must be a CCO::Core::Dbxref object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Dbxref'));
 		if ( !$self -> contains($ele) ) {
 			push @{$self->{SET}}, $ele;
 			$result = 1; # successfully added
@@ -42,7 +41,7 @@ sub add {
 
   Usage    - $set->remove($element)
   Returns  - the removed element (CCO::Core::Dbxref)
-  Args     - the element to be removed (CCO::Core::Dbxref)
+  Args     - the element (CCO::Core::Dbxref) to be removed
   Function - removes an element from this set
   
 =cut
@@ -51,7 +50,6 @@ sub remove {
 	my $result = undef;
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be removed must be a CCO::Core::Dbxref object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Dbxref'));
 		if ($self->size() > 0) {
 			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
 				my $e = ${$self->{SET}}[$i];
@@ -85,8 +83,6 @@ sub contains {
 	if (@_){
 		my $target = shift;
 		
-		croak "The element to be tested must be a CCO::Core::Dbxref object" if (!UNIVERSAL::isa($target, 'CCO::Core::Dbxref'));
-		
 		foreach my $ele (@{$self->{SET}}){
 			if ($target->equals($ele)) {
 				$result = 1;
@@ -111,8 +107,6 @@ sub equals {
 	
 	if (@_) {
 		my $other_set = shift;
-		croak "The element to be tested must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::DbxrefSet'));
-		
 		my %count = ();
 		
 		my @this = @{$self->{SET}};

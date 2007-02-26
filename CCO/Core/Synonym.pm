@@ -35,16 +35,15 @@ sub new {
   
 =cut
 sub type {
-	my $self = shift;
-	if (@_) {
-		my $synonym_type = shift;
+	my ($self, $synonym_type) = @_;
+	if ($synonym_type) {
 		my $possible_types = CCO::Util::Set->new();
 		# todo 'alt_id' is also a valid value?
 		$possible_types->add_all('EXACT', 'BROAD', 'NARROW', 'RELATED');
 		if ($possible_types->contains($synonym_type)) {
 			$self->{TYPE} = $synonym_type;
 		} else {
-			croak "The synonym type must be one of the following: 'EXACT', 'BROAD', 'NARROW', 'RELATED'";
+			confess "The synonym type must be one of the following: 'EXACT', 'BROAD', 'NARROW', 'RELATED'";
 		}
 	}
     return $self->{TYPE};
@@ -59,11 +58,9 @@ sub type {
   
 =cut
 sub def {
-	my $self = shift;
-    if (@_) {
-    		my $def = shift;
-    		croak "The definition must be a CCO::Core::Def object" if (!UNIVERSAL::isa($def, 'CCO::Core::Def'));
-		$self->{DEF} = $def; 
+	my ($self, $def) = @_;
+    if ($def) {
+    	$self->{DEF} = $def; 
 	}
     return $self->{DEF};
 }
@@ -77,14 +74,8 @@ sub def {
   
 =cut
 sub def_as_string {
-	my $self = shift;
-	if (@_) {
-		my $text = shift;
-		my $dbxref_as_string = shift;
-		
-		$text || croak "The text for defining the synonym was not defined";
-		$dbxref_as_string || croak "The dbxrefs for this synonym (",$text ,") were not defined";
-				
+	my ($self, $text, $dbxref_as_string) = @_;
+	if ($text && $dbxref_as_string){
 		$dbxref_as_string =~ s/^\[//;
 		$dbxref_as_string =~ s/\]$//;
 		$dbxref_as_string =~ s/,\s+/,/g;
@@ -102,13 +93,14 @@ sub def_as_string {
 				$dbxref->modifier($5) if (defined $5);
 				$dbxref_set->add($dbxref);
 			} else {
-				croak "There were not defined the references for this synonym: '", $text, "'. Check the 'dbxref' field.";
+				confess "There were not defined the references for this synonym: '", $text, "'. Check the 'dbxref' field.";
 			}
 		}
 		$def->dbxref_set($dbxref_set);
 		
 		$self->{DEF} = $def; 
 	}
+	
 	my @result = (); # a Set?
 	foreach my $dbxref ($self->{DEF}->dbxref_set()->get_set()) {
 		push @result, $dbxref->as_string();
@@ -127,14 +119,12 @@ sub def_as_string {
   
 =cut
 sub equals {
-	my $self = shift;
+	my ($self, $target) = @_;
 	my $result = 0;
-	if (@_) {
-		my $target = shift;
+	if ($target) {
 		
-		croak "The element to be tested must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($target, 'CCO::Core::Synonym'));
-		croak "The type of this synonym is undefined" if (!defined($self->{TYPE}));
-		croak "The type of the target synonym is undefined" if (!defined($target->{TYPE}));
+		confess "The type of this synonym is undefined" if (!defined($self->{TYPE}));
+		confess "The type of the target synonym is undefined" if (!defined($target->{TYPE}));
 		
 		$result = (($self->{TYPE} eq $target->{TYPE}) && ($self->{DEF}->equals($target->{DEF})));
 	}
@@ -150,68 +140,120 @@ sub equals {
 =head1 SYNOPSIS
 
 use CCO::Core::Synonym;
+
 use CCO::Core::Dbxref;
+
 use strict;
 
+
 my $syn1 = CCO::Core::Synonym->new();
+
 my $syn2 = CCO::Core::Synonym->new();
+
 my $syn3 = CCO::Core::Synonym->new();
+
 my $syn4 = CCO::Core::Synonym->new();
 
+
 # type
+
 $syn1->type('EXACT');
+
 $syn2->type('BROAD');
+
 $syn3->type('NARROW');
+
 $syn4->type('NARROW');
 
+
 # def
+
 my $def1 = CCO::Core::Def->new();
+
 my $def2 = CCO::Core::Def->new();
+
 my $def3 = CCO::Core::Def->new();
+
 my $def4 = CCO::Core::Def->new();
 
+
 $def1->text("Hola mundo1");
+
 $def2->text("Hola mundo2");
+
 $def3->text("Hola mundo3");
+
 $def4->text("Hola mundo3");
 
+
 my $ref1 = CCO::Core::Dbxref->new();
+
 my $ref2 = CCO::Core::Dbxref->new();
+
 my $ref3 = CCO::Core::Dbxref->new();
+
 my $ref4 = CCO::Core::Dbxref->new();
 
+
 $ref1->name("CCO:vm");
+
 $ref2->name("CCO:ls");
+
 $ref3->name("CCO:ea");
+
 $ref4->name("CCO:ea");
 
+
 my $refs_set1 = CCO::Util::DbxrefSet->new();
+
 $refs_set1->add_all($ref1,$ref2,$ref3,$ref4);
+
 $def1->dbxref_set($refs_set1);
+
 $syn1->def($def1);
 
+
 my $refs_set2 = CCO::Util::DbxrefSet->new();
+
 $refs_set2->add($ref2);
+
 $def2->dbxref_set($refs_set2);
+
 $syn2->def($def2);
 
+
 my $refs_set3 = CCO::Util::DbxrefSet->new();
+
 $refs_set3->add($ref3);
+
 $def3->dbxref_set($refs_set3);
+
 $syn3->def($def3);
 
+
 my $refs_set4 = CCO::Util::DbxrefSet->new();
+
 $refs_set4->add($ref4);
+
 $def4->dbxref_set($refs_set4);
+
 $syn4->def($def4);
 
+
 # def as string
+
 $syn3->def_as_string("This is a dummy synonym", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+
 my @refs_syn3 = $syn3->def()->dbxref_set()->get_set();
+
 my %r_syn3;
+
 foreach my $ref_syn3 (@refs_syn3) {
+	
 	$r_syn3{$ref_syn3->name()} = $ref_syn3->name();
+	
 }
+
 
 =head1 DESCRIPTION
 

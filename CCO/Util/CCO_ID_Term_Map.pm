@@ -29,14 +29,17 @@ sub new {
     
     # if the file exists:
 	if (-e $self->{FILE} && -r $self->{FILE}) {
-		open (CCO_ID_MAP_IN_FH, "<$self->{FILE}") || die "The file '", $self->{FILE}, "' was not found: ", $!;
+		open (CCO_ID_MAP_IN_FH, "<$self->{FILE}");
 		while (<CCO_ID_MAP_IN_FH>) {
 			chomp;
-			my ($key, $value) = ($1, $2) if ($_ =~ /(CCO:[A-Z][0-9]{7})\s+(.*)/); # e.g.: CCO:I1234567		test
+			my ($key, $value) = ($1, $2) if ($_ =~ /(CCO:[A-Z][0-9]{7})\s+(\w+.*)/); # e.g.: CCO:I1234567		test
 			$self->{MAP_BY_ID}->{$key} = $value;   #put
 			$self->{MAP_BY_TERM}->{$value} = $key; #put			
 		}
 		close CCO_ID_MAP_IN_FH;		
+	}
+	else {
+		die "The file '", $self->{FILE}, "' was not found: ", $!;
 	}	
 	return $self;	
 }
@@ -272,30 +275,29 @@ sub is_empty (){
 
 =head2 write_map
 
-  Usage    - $map->write_map($file_name) or $map->write_map()
+  Usage    - $map->write_map()
   Returns  - 1 (true) or 0 (false)
-  Args     - output file name (optional)
-  Function - prints the contents of the map to a file or to STDOUT
+  Args     - 
+  Function - prints the contents of the map to a file 
   
 =cut
 sub write_map () {
 	
 	my $self = shift;
-	my $map_file_name = shift;
-	if ($map_file_name) {
+	#if ($self->{FILE}) {
 		my $result;
-		open (FH, ">".$map_file_name) || die "Cannot write map to file: $map_file_name, $!"; 
+		open (FH, ">".$self->{FILE}) || die "Cannot write map to file: $self->{FILE}, $!"; 
 		foreach (sort keys %{$self->{MAP_BY_ID}}){
 			$result = print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";			
 		}
 		close FH;	
 		return $result;
-	}
-	else {
-		foreach (sort keys %{$self->{MAP_BY_ID}}){
-			print "$_\t$self->{MAP_BY_ID}->{$_}\n";			
-		}
-	}	
+#	}
+#	else {
+#		foreach (sort keys %{$self->{MAP_BY_ID}}){
+#			print "$_\t$self->{MAP_BY_ID}->{$_}\n";			
+#		}
+#	}	
 }
 
 1;
@@ -309,20 +311,22 @@ sub write_map () {
 use CCO::Util::CCO_ID_Term_Map;
 
 $cco_id_set  = CCO_ID_Term_Map -> new;
+
 $cco_id_set->file("ontology.ids");
 
-$file = $cco_id_set -> file
+$file = $cco_id_set -> file;
+
 $size = $cco_id_set -> size;
 
 $cco_id_set->file("CCO");
 
 if ($cco_id_set->add("CCO:C1234567")) { ... }
+
 $new_id = $cco_id_set->get_new_id("CCO", "C");
 
 =head1 DESCRIPTION
 
-The CCO::Util::CCO_ID_Term_Map class implements a map for storing CCO IDs and
-their corresponding names.
+The CCO::Util::CCO_ID_Term_Map class implements a map for storing CCO IDs and their corresponding names.
 
 =head1 AUTHOR
 

@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 27;
+    plan tests => 29;
 }
 
 #########################
@@ -72,6 +72,8 @@ $my_set->add_all($n4, $n5, $n6);
 ok($my_set->contains($n4) && $my_set->contains($n5) && $my_set->contains($n6));
 ok($my_set->contains_id("CCO:P0000006"));
 ok(!$my_set->contains_id("CCO:P0000007"));
+ok($my_set->contains_name('Six'));
+ok(!$my_set->contains_name('Seven'));
 
 ### get versions ###
 #foreach ($my_set->get_set()) {

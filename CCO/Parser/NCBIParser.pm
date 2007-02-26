@@ -153,7 +153,7 @@ sub work {
 		}
 		$ontology->add_term($OBO_taxon);
 	}
-	$cco_t_id_map->write_map($CCO_idsFileName);
+	$cco_t_id_map->write_map();
 
 	# Put the 'is_a' relationships to each term but not if the child is root (cyclic is_a)
 	foreach my $el (keys %selected_nodes){

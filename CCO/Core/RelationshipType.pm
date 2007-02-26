@@ -52,8 +52,8 @@ sub new {
   
 =cut
 sub id {
-	my $self = shift;
-	if (@_) { $self->{ID} = shift }
+	my ($self, $id) = @_;
+	if ($id) { $self->{ID} = $id }
 	return $self->{ID};
 }
 
@@ -66,9 +66,9 @@ sub id {
   
 =cut
 sub name {
-	my $self = shift;
-    if (@_) { $self->{NAME} = shift }
-    return $self->{NAME};
+	my ($self, $name) = @_;
+	if ($name) { $self->{NAME} = $name }
+	return $self->{NAME};
 }
 
 =head2 def
@@ -80,10 +80,8 @@ sub name {
   
 =cut
 sub def {
-	my $self = shift;
-	if (@_) {
-		my $def = shift;
-		croak "The definition must be a CCO::Core::Def object" if (!UNIVERSAL::isa($def, 'CCO::Core::Def'));
+	my ($self, $def) = @_;
+	if ($def) {
 		$self->{DEF} = $def; 
 	}
     return $self->{DEF};
@@ -98,10 +96,8 @@ sub def {
   
 =cut
 sub def_as_string {
-	my $self = shift;
-    if (@_) {
-		my $text = shift;
-		my $dbxref_as_string = shift;
+	my ($self, $text, $dbxref_as_string) = @_;
+    if ($text && $dbxref_as_string) {
 		$dbxref_as_string =~ s/\[//;
 		$dbxref_as_string =~ s/\]//;
 		my @refs = split(/, /, $dbxref_as_string);
@@ -118,7 +114,7 @@ sub def_as_string {
 				$dbxref->modifier($3) if (defined $3);
 				$dbxref_set->add($dbxref);
 			} else {
-				croak "There were not defined the references for this relationship type: ", $self->id(), ". Check the 'dbxref' field.";
+				confess "There were not defined the references for this relationship type: ", $self->id(), ". Check the 'dbxref' field.";
 			}
 		}
 		$def->dbxref_set($dbxref_set);
@@ -141,8 +137,8 @@ sub def_as_string {
   
 =cut
 sub comment {
-	my $self = shift;
-    if (@_) { $self->{COMMENT} = shift }
+	my ($self, $comment) = @_;
+    if ($comment) { $self->{COMMENT} = $comment }
     return $self->{COMMENT};
 }
 
@@ -157,8 +153,7 @@ sub comment {
 sub synonym_set {
 	my $self = shift;
 	foreach my $synonym (@_) {		
-		croak "The synonym must be a CCO::Core::Synonym object" if (!UNIVERSAL::isa($synonym, 'CCO::Core::Synonym'));
-		croak "The name of this relationship type (", $self->id(), ") is undefined" if (!defined($self->name()));
+		confess "The name of this relationship type (", $self->id(), ") is undefined" if (!defined($self->name()));
 		# do not add 'EXACT' synonyms with the same 'name':
 		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->type() eq "EXACT" && $synonym->def()->text() eq $self->name()));
    	}
@@ -175,21 +170,16 @@ sub synonym_set {
 =cut
 sub synonym_as_string {
 	# todo all, check parameters, similar to def_as_string()?
-	my $self = shift;
-	if (@_) {
-		my $synonym_text = shift;
-		my $dbxrefs      = shift;
-		my $type         = shift;
-		$synonym_text || croak "The synonym text for this relationship type (",$self->id() ,") was not defined";
-		$dbxrefs || croak "The dbxrefs for the synonym of this relationship type (",$self->id() ,") was not defined";
-		$type || croak "The synonym type for the synonym of this relationship type (",$self->id() ,") was not defined";
-		
+	my ($self, $synonym_text, $dbxrefs, $type) = @_;
+	if ($synonym_text && $dbxrefs && $type) {
+
 		my $synonym = CCO::Core::Synonym->new();
 		$synonym->def_as_string($synonym_text, $dbxrefs);
 		$synonym->type($type);
 		
 		$self->synonym_set($synonym);
 	}
+	
 	my @result;
 	foreach my $synonym ($self->{SYNONYM_SET}->get_set()) {
 		push @result, $synonym->def_as_string();
@@ -201,16 +191,14 @@ sub synonym_as_string {
 
   Usage    - $relationship_type->xref_set() or $relationship_type->xref_set($dbxref_set)
   Returns  - a Dbxref set with the analogous xref(s) of this relationship type in another vocabulary
-  Args     - analogous xref(s) of this relationship type in another vocabulary
+  Args     - analogous xref(s) (CCO::Util::DbxrefSet) of this relationship type in another vocabulary
   Function - gets/sets the analogous xref(s) of this relationship type in another vocabulary
   
 =cut
 sub xref_set {
-	my $self = shift;
-	if (@_) {
-		my $xref_set = shift;
-    		croak "The xref must be a CCO::Util::DbxrefSet object" if (!UNIVERSAL::isa($xref_set, 'CCO::Util::DbxrefSet'));
-		$self->{XREF_SET} = $xref_set;
+	my ($self, $xref_set) = @_;
+	if ($xref_set) {
+    	$self->{XREF_SET} = $xref_set;
     }
     return $self->{XREF_SET};
 }
@@ -224,9 +212,8 @@ sub xref_set {
   
 =cut
 sub xref_set_as_string {
-	my $self = shift;
-	if (@_) {
-		my $xref_as_string = shift;
+	my ($self, $xref_as_string) = @_;
+	if ($xref_as_string) {
 		$xref_as_string =~ s/\[//;
 		$xref_as_string =~ s/\]//;
 		my @refs = split(/, /, $xref_as_string);
@@ -258,8 +245,8 @@ sub xref_set_as_string {
   
 =cut
 sub domain {
-	my $self = shift;
-    if (@_) { $self->{DOMAIN} = shift }
+	my ($self, $domain) = @_;
+    if ($domain) { $self->{DOMAIN} = $domain }
     return $self->{DOMAIN};
 }
 
@@ -272,8 +259,8 @@ sub domain {
   
 =cut
 sub range {
-	my $self = shift;
-    if (@_) { $self->{RANGE} = shift }
+	my ($self, $range) = @_;
+    if ($range) { $self->{RANGE} = $range }
     return $self->{RANGE};
 }
 
@@ -286,13 +273,12 @@ sub range {
   
 =cut
 sub inverse_of {
-	my $self = shift;
-    if (@_) {
-    		my $rel = shift;
-    		$self->{INVERSE_OF} = $rel;
-    		$rel->{INVERSE_OF}  = $self;
-    		# todo que pasa cuando hago delete de una de las relaciones?
-    	}
+	my ($self, $rel) = @_;
+    if ($rel) {
+		$self->{INVERSE_OF} = $rel;
+		$rel->{INVERSE_OF}  = $self;
+		# todo que pasa cuando hago delete de una de las relaciones?
+	}
     return $self->{INVERSE_OF};
 }
 
@@ -305,8 +291,8 @@ sub inverse_of {
   
 =cut
 sub transitive_over {
-	my $self = shift;
-    if (@_) { $self->{TRANSITIVE_OVER} = shift }
+	my ($self, $rel) = @_;
+    if ($rel) { $self->{TRANSITIVE_OVER} = $rel }
     return $self->{TRANSITIVE_OVER};
 }
 
@@ -320,8 +306,8 @@ sub transitive_over {
   
 =cut
 sub is_cyclic {
-	my $self = shift;
-    if (@_) { $self->{IS_CYCLIC} = shift }
+	my ($self, $rel) = @_;
+    if ($rel) { $self->{IS_CYCLIC} = $rel }
     return (defined($self->{IS_CYCLIC}) && $self->{IS_CYCLIC} == 1)?1:0;
 }
 
@@ -334,8 +320,8 @@ sub is_cyclic {
   
 =cut
 sub is_reflexive {
-	my $self = shift;
-    if (@_) { $self->{IS_REFLEXIVE} = shift }
+	my ($self, $rel) = @_;
+    if ($rel) { $self->{IS_REFLEXIVE} = $rel }
     return (defined($self->{IS_REFLEXIVE}) && $self->{IS_REFLEXIVE} == 1)?1:0;
 }
 
@@ -348,8 +334,8 @@ sub is_reflexive {
   
 =cut
 sub is_symmetric {
-	my $self = shift;
-    if (@_) { $self->{IS_SYMMETRIC} = shift }
+	my ($self, $rel) = @_;
+    if ($rel) { $self->{IS_SYMMETRIC} = $rel }
     return (defined($self->{IS_SYMMETRIC}) && $self->{IS_SYMMETRIC} == 1)?1:0;
 }
 
@@ -362,8 +348,8 @@ sub is_symmetric {
   
 =cut
 sub is_anti_symmetric {
-	my $self = shift;
-    if (@_) { $self->{IS_ANTI_SYMMETRIC} = shift }
+	my ($self, $rel) = @_;
+    if ($rel) { $self->{IS_ANTI_SYMMETRIC} = $rel }
     return (defined($self->{IS_ANTI_SYMMETRIC}) && $self->{IS_ANTI_SYMMETRIC} == 1)?1:0;
 }
 
@@ -376,8 +362,8 @@ sub is_anti_symmetric {
   
 =cut
 sub is_transitive {
-	my $self = shift;
-    if (@_) { $self->{IS_TRANSITIVE} = shift }
+	my ($self, $rel) = @_;
+    if ($rel) { $self->{IS_TRANSITIVE} = $rel }
     return (defined($self->{IS_TRANSITIVE}) && $self->{IS_TRANSITIVE} == 1)?1:0;
 }
 
@@ -390,8 +376,8 @@ sub is_transitive {
   
 =cut
 sub is_metadata_tag {
-	my $self = shift;
-    if (@_) { $self->{IS_METADATA_TAG} = shift }
+	my ($self, $rel) = @_;
+    if ($rel) { $self->{IS_METADATA_TAG} = $rel }
     return (defined($self->{IS_METADATA_TAG}) && $self->{IS_METADATA_TAG} == 1)?1:0;
 }
 
@@ -404,8 +390,8 @@ sub is_metadata_tag {
   
 =cut
 sub builtin {
-	my $self = shift;
-	if (@_) { $self->{BUILTIN} = shift }
+	my ($self, $rel) = @_;
+	if ($rel) { $self->{BUILTIN} = $rel }
 	return (defined($self->{BUILTIN}) && $self->{BUILTIN} == 1)?1:0;
 }
 
@@ -413,20 +399,18 @@ sub builtin {
 
   Usage    - print $relationship_type->equals($another_relationship_type)
   Returns  - either 1 (true) or 0 (false)
-  Args     - the relationship type to compare with
+  Args     - the relationship type (CCO::Core::RelationshipType) to compare with
   Function - tells whether this relationship type is equal to the parameter
   
 =cut
 sub equals  {
-	my $self = shift;
+	my ($self, $target) = @_;
 	my $result = 0;
-	if (@_) {
-     	my $target = shift;
-		croak "The term to be compared with must be a CCO::Core::RelationshipType object" if (!UNIVERSAL::isa($target, "CCO::Core::RelationshipType"));
+	if ($target) {
 		my $self_id = $self->{'ID'};
 		my $target_id = $target->{'ID'};
-		croak "The ID of this relationship type is not defined" if (!defined($self_id));
-		croak "The ID of the target relationship type is not defined" if (!defined($target_id));
+		confess "The ID of this relationship type is not defined" if (!defined($self_id));
+		confess "The ID of the target relationship type is not defined" if (!defined($target_id));
 		$result = ($self_id eq $target_id);
 	}
 	return $result;
@@ -441,34 +425,58 @@ sub equals  {
 =head1 SYNOPSIS
 
 use CCO::Core::RelationshipType;
+
 use strict;
 
+
 # three new relationships types
+
 my $r1 = CCO::Core::RelationshipType->new();
+
 my $r2 = CCO::Core::RelationshipType->new();
+
 my $r3 = CCO::Core::RelationshipType->new();
 
+
 $r1->id("CCO:R0000001");
+
 $r2->id("CCO:R0000002");
+
 $r3->id("CCO:R0000003");
 
+
 $r1->name("is a");
+
 $r2->name("part of");
+
 $r3->name("participates in");
 
+
 # inverse
+
 my $r3_inv = CCO::Core::RelationshipType->new();
+
 $r3_inv->id("CCO:R0000004");
+
 $r3_inv->name("has participant");
+
 $r3_inv->inverse_of($r3);
 
+
 # def as string
+
 $r2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+
 my @refs_r2 = $r2->def()->dbxref_set()->get_set();
+
 my %r_r2;
+
 foreach my $ref_r2 (@refs_r2) {
+	
 	$r_r2{$ref_r2->name()} = $ref_r2->name();
+	
 }
+
 
 =head1 DESCRIPTION
 

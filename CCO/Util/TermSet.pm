@@ -19,7 +19,7 @@ use Carp;
 
   Usage    - $set->add()
   Returns  - true if the element was successfully added
-  Args     - the element to be added
+  Args     - the element (CCO::Core::Term) to be added
   Function - adds an element to this set
   
 =cut
@@ -28,7 +28,6 @@ sub add {
 	my $result = 0; # nothing added
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be added must be a CCO::Core::Term object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Term'));
 		if ( !$self -> contains($ele) ) {
 			push @{$self->{SET}}, $ele;
 			$result = 1; # successfully added
@@ -41,7 +40,7 @@ sub add {
 
   Usage    - $set->remove($element)
   Returns  - the removed element
-  Args     - the element to be removed
+  Args     - the element (CCO::Core::Term) to be removed
   Function - removes an element from this set
   
 =cut
@@ -50,7 +49,6 @@ sub remove {
 	my $result = undef;
 	if (@_) {	
 		my $ele = shift;
-		croak "The element to be removed must be a CCO::Core::Term object" if (!UNIVERSAL::isa($ele, 'CCO::Core::Term'));
 		if ($self->size() > 0) {
 			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
 				my $e = ${$self->{SET}}[$i];
@@ -73,9 +71,9 @@ sub remove {
 
 =head2 contains
 
-  Usage    - $set->contains()
+  Usage    - $set->contains($term)
   Returns  - true if this set contains the given element
-  Args     - the element to be checked
+  Args     - the element (CCO::Core::Term) to be checked
   Function - checks if this set constains the given element
   
 =cut
@@ -84,8 +82,6 @@ sub contains {
 	my $result = 0;
 	if (@_){
 		my $target = shift;
-		
-		croak "The element to be tested must be a CCO::Core::Term object" if (!UNIVERSAL::isa($target, 'CCO::Core::Term'));
 		
 		foreach my $ele (@{$self->{SET}}){
 			if ($target->equals($ele)) {
@@ -103,7 +99,7 @@ sub contains {
 
   Usage    - $set->equals()
   Returns  - true or false
-  Args     - the set to compare with
+  Args     - the set (CCO::Util::TermSet) to compare with
   Function - tells whether this set is equal to the given one
   
 =cut
@@ -113,10 +109,8 @@ sub equals {
 	if (@_) {
 		my $other_set = shift;
 		
-		croak "The element to be tested must be a CCO::Util::TermSet object" if (!UNIVERSAL::isa($other_set, 'CCO::Util::TermSet'));
-		
 		my %count = ();
-# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' anivel de dbxref...los tests pasan...raro...	
+		# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' a nivel de dbxref...los tests pasan...raro...	
 		my @this = map ({scalar $_;} @{$self->{SET}});
 		my @that = map ({scalar $_;} $other_set->get_set());
 		
@@ -194,62 +188,100 @@ sub contains_name {
 =head1 SYNOPSIS
 
 use CCO::Util::TermSet;
+
 use CCO::Core::Term;
+
 use strict;
+
 
 my $my_set = CCO::Util::TermSet->new;
 
 my @arr = $my_set->get_set();
 
+
 # three new terms
+
 my $n1 = CCO::Core::Term->new;
+
 my $n2 = CCO::Core::Term->new;
+
 my $n3 = CCO::Core::Term->new;
 
 $n1->id("CCO:P0000001");
+
 $n2->id("CCO:P0000002");
+
 $n3->id("CCO:P0000003");
 
+
 $n1->name("One");
+
 $n2->name("Two");
+
 $n3->name("Three");
 
+
+
 # remove from my_set
+
 $my_set->remove($n1);
+
 $my_set->add($n1);
+
 $my_set->remove($n1);
+
 
 ### set versions ###
+
 $my_set->add($n1);
+
 $my_set->add($n2);
+
 $my_set->add($n3);
 
+
+
 my $n4 = CCO::Core::Term->new;
+
 my $n5 = CCO::Core::Term->new;
+
 my $n6 = CCO::Core::Term->new;
 
+
 $n4->id("CCO:P0000004");
+
 $n5->id("CCO:P0000005");
+
 $n6->id("CCO:P0000006");
 
+
 $n4->name("Four");
+
 $n5->name("Five");
+
 $n6->name("Six");
 
+
 $my_set->add_all($n4, $n5, $n6);
 
 $my_set->add_all($n4, $n5, $n6);
+
 
 # remove from my_set
+
 $my_set->remove($n4);
 
 my $n7 = $n4;
+
 my $n8 = $n5;
+
 my $n9 = $n6;
+
 
 my $my_set2 = CCO::Util::TermSet->new;
 
 $my_set->add_all($n4, $n5, $n6);
+
 $my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
 
 $my_set2->clear();
