@@ -116,10 +116,10 @@ ok(($r2->synonym_set())[0]->def()->equals(($r3->synonym_set())[0]->def()));
 ok(($r2->synonym_set())[0]->equals(($r3->synonym_set())[0]));
 
 # synonym as string
-ok(($r2->synonym_as_string())[0] eq "\"part_of\" [CCO:vm, CCO:ls]");
+ok(($r2->synonym_as_string())[0] eq "\"part_of\" [CCO:ls, CCO:vm]");
 $r2->synonym_as_string("part_of", "[CCO:vm2, CCO:ls2]", "EXACT");
-ok(($r2->synonym_as_string())[0] eq "\"part_of\" [CCO:vm, CCO:ls]");
-ok(($r2->synonym_as_string())[1] eq "\"part_of\" [CCO:vm2, CCO:ls2]");
+ok(($r2->synonym_as_string())[0] eq "\"part_of\" [CCO:ls, CCO:vm]");
+ok(($r2->synonym_as_string())[1] eq "\"part_of\" [CCO:ls2, CCO:vm2]");
 
 # xref
 my $xref1 = CCO::Core::Dbxref->new();

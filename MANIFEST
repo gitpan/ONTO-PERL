@@ -1,10 +1,13 @@
 Changes
+INSTALL
+LICENSE
 Makefile.PL
 MANIFEST
 README
 onto-perl.pod
 CCO/Core/Dbxref.pm
 CCO/Core/Def.pm
+CCO/Core/GoaAssociation.pm
 CCO/Core/Ontology.pm
 CCO/Core/Relationship.pm
 CCO/Core/RelationshipType.pm
@@ -19,10 +22,13 @@ CCO/Util/CCO_ID_Term_Map.pm
 CCO/Util/CCO_ID.pm
 CCO/Util/DbxrefSet.pm
 CCO/Util/GoaAssociationSet.pm
+CCO/Util/ObjectIdSet.pm
+CCO/Util/ObjectSet.pm
 CCO/Util/Set.pm
 CCO/Util/SynonymSet.pm
 CCO/Util/TermSet.pm
 scripts/go2owl.pl
+scripts/names.xsl
 scripts/obo2owl.pl
 scripts/obo2xml.pl
 scripts/xml2html.xsl
@@ -43,14 +49,18 @@ t/SynonymSet.t
 t/Term.t
 t/TermSet.t
 t/UniProtParser.t
+t/data/cco_b_tair.ids
 t/data/cco_b.ids
 t/data/cco_t.ids
-t/data/cco-names.html
 t/data/fake_ulo_cco.obo
+t/data/goa_assoc_filt.txt
 t/data/goa_assoc.txt
 t/data/names_dummy.dmp
 t/data/nodes_dummy.dmp
+t/data/out_cco_up.obo
 t/data/out_cco.obo
 t/data/pre_cco_core.obo
 t/data/pre_cco.obo
 t/data/ulo_cco.obo
+t/data/up_test.txt
+META.yml                                 Module meta-data (added by MakeMaker)

@@ -5,12 +5,13 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'CCO',
     DISTNAME          => 'onto-perl',
-    ABSTRACT          => 'CCO Perl',
+    ABSTRACT          => 'Modules for OBO ontologies such as Cell Cycle Ontology (CCO) and Gene Ontology (GO)',
     VERSION_FROM      => 'onto-perl.pod', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    #LICENSE           => 'perl',
+    PREREQ_PM         => {'SWISS::Entry' => 1.65}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (AUTHOR         => 'Erick Antezana <erant@psb.ugent.be>') : ()),
-       dist           => { 
+    (AUTHOR           => 'Erick Antezana <erant@psb.ugent.be>') : ()),
+     dist             => { 
 				 'SUFFIX'       => ".gz",
 				 'DIST_DEFAULT' => 'all tardist',
 				 'COMPRESS'     => "gzip -9f" 

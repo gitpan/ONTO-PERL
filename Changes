@@ -20,3 +20,5 @@ Revision history for onto-perl
 0.27 obo2owl tranformation updated, new modules for dealing with IDs
 
 0.28 Performance improvement (code tuning)
+
+0.29 More adjustments to follow OBO 1.2 spec, Set data structures improved

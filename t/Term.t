@@ -139,10 +139,10 @@ ok(($n2->synonym_set())[0]->def()->equals(($n3->synonym_set())[0]->def()));
 ok(($n2->synonym_set())[0]->equals(($n3->synonym_set())[0]));
 
 # synonym as string
-ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:vm, CCO:ls]");
+ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]");
 $n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
-ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:vm, CCO:ls]");
-ok(($n2->synonym_as_string())[1] eq "\"Hello world2\" [CCO:vm2, CCO:ls2]");
+ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]");
+ok(($n2->synonym_as_string())[1] eq "\"Hello world2\" [CCO:ls2, CCO:vm2]");
 
 # xref
 my $xref1 = CCO::Core::Dbxref->new();
@@ -197,7 +197,7 @@ ok($n1->def()->dbxref_set()->size == 3);
 $n2->def($def);
 
 # def as string
-ok($n2->def_as_string() eq "\"Hola mundo\" [CCO:vm, CCO:ls, CCO:ea]");
+ok($n2->def_as_string() eq "\"Hola mundo\" [CCO:ea, CCO:ls, CCO:vm]");
 $n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
 ok($n2->def()->text() eq "This is a dummy definition");
 my @refs_n2 = $n2->def()->dbxref_set()->get_set();
@@ -209,7 +209,7 @@ ok($n2->def()->dbxref_set()->size == 3);
 ok($r_n2{"CCO:vm"} eq "CCO:vm");
 ok($r_n2{"CCO:ls"} eq "CCO:ls");
 ok($r_n2{"CCO:ea"} eq "CCO:ea");
-ok($n2->def_as_string() eq "\"This is a dummy definition\" [CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\" {opt=first}]");
+ok($n2->def_as_string() eq "\"This is a dummy definition\" [CCO:ea \"Erick Antezana\" {opt=first}, CCO:vm, CCO:ls]");
 
 # disjoint_from:
 $n2->disjoint_from($n1->id(), $n3->id());

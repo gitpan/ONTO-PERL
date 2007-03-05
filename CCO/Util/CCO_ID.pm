@@ -16,9 +16,11 @@ use Carp;
 sub new {
         my $class = shift;
         my $self  = {};
+
         $self->{NAMESPACE}    = undef; # namespace
         $self->{SUBNAMESPACE} = undef; # subnamespace
         $self->{NUMBER}       = undef; # 7 digits
+
         bless ($self, $class);
         return $self;
 }
@@ -32,8 +34,8 @@ sub new {
   
 =cut
 sub namespace {
-	my $self = shift;
-	if (@_) { $self->{NAMESPACE} = shift }
+	my ($self, $ns) = @_;
+	if ($ns) { $self->{NAMESPACE} = $ns }
 	return $self->{NAMESPACE};
 }
 
@@ -46,9 +48,9 @@ sub namespace {
   
 =cut
 sub subnamespace {
-	my $self = shift;
-    if (@_) { $self->{SUBNAMESPACE} = shift }
-    return $self->{SUBNAMESPACE};
+	my ($self, $sns) = @_;
+	if ($sns) { $self->{SUBNAMESPACE} = $sns }
+	return $self->{SUBNAMESPACE};
 }
 
 =head2 number
@@ -60,9 +62,9 @@ sub subnamespace {
   
 =cut
 sub number {
-	my $self = shift;
-    if (@_) { $self->{NUMBER} = shift }
-    return $self->{NUMBER};
+	my ($self, $n) = @_;
+	if ($n) { $self->{NUMBER} = $n }
+	return $self->{NUMBER};
 }
 
 =head2 id_as_string
@@ -74,52 +76,45 @@ sub number {
   
 =cut
 sub id_as_string () {
-	my $self = shift;
-	if (@_) {
-		my $id_as_string = shift;
+	my ($self, $id_as_string) = @_;
 		
-		# The SUBNAMESPACE or subnamespace may be one of the following:
-		#
-		#	C	Cellular component
-		#	F	Molecular Function
-		#	P	Biological Process
-		#	X	Cross reference
-		#	I	Instance
-		#	R	Reference
-		#	T	Taxon
-		#	I	Interaction
-		#	N	Instance
-		#	B	Biopolymer (gene, protein)
-		#	U	Upper Level Ontology
-		#	L	Relationship type (e.g. is_a)
-		#	Y	Interaction type
+	# The SUBNAMESPACE may be one of the following:
+	#
+	#	C	Cellular component
+	#	F	Molecular Function
+	#	P	Biological Process
+	#	X	Cross reference
+	#	I	Instance
+	#	R	Reference
+	#	T	Taxon
+	#	I	Interaction
+	#	N	Instance
+	#	B	Biopolymer (gene, protein)
+	#	U	Upper Level Ontology
+	#	L	Relationship type (e.g. is_a)
+	#	Y	Interaction type
+	#	Z	Unknown
 		
-		if ( $id_as_string =~ /([A-Z][A-Z][A-Z]):([CFPXIRTBNY])([0-9][0-9][0-9][0-9][0-9][0-9][0-9])/ ) {
-			$self->{'NAMESPACE'} = $1;
-			$self->{'SUBNAMESPACE'} = $2;
-			$self->{'NUMBER'} = substr($3 + 10000000, 1, 7); # trick: forehead zeros
-		}
-	} else {
-		warn "There is no namespace defined for the CCO ID in use!" if (!defined $self->{'NAMESPACE'});
-		warn "There is no subnamespace defined for the CCO ID in use!" if (!defined $self->{'SUBNAMESPACE'});
-		warn "There is no number defined for the CCO ID in use!" if (!defined $self->{'NUMBER'});
-		
-		my $id = $self->{'NAMESPACE'}.":".$self->{'SUBNAMESPACE'}.$self->{'NUMBER'};
-		return $id;
+	if ( defined $id_as_string && $id_as_string =~ /([A-Z][A-Z][A-Z]):([CFPXIRTBNYZ])([0-9]{7})/ ) {
+		$self->{'NAMESPACE'} = $1;
+		$self->{'SUBNAMESPACE'} = $2;
+		$self->{'NUMBER'} = substr($3 + 10000000, 1, 7); # trick: forehead zeros
+	} elsif ($self->{'NAMESPACE'} && $self->{'SUBNAMESPACE'} && $self->{'NUMBER'}) {
+		return $self->{'NAMESPACE'}.":".$self->{'SUBNAMESPACE'}.$self->{'NUMBER'};
 	}
 }
+*id = \&id_as_string;
 
 =head2 equals
 
   Usage    - print $id->equals($id)
   Returns  - 1 (true) or 0 (false)
-  Args     - the other ID (CCO_ID)
+  Args     - the other ID (CCO::Util::CCO_ID)
   Function - tells if the IDs are equal
   
 =cut
 sub equals () {
-	my $self = shift;
-	my $target = shift;
+	my ($self, $target) = @_;
 	return (($self->{'NAMESPACE'} eq $target->{'NAMESPACE'}) && 
 			($self->{'SUBNAMESPACE'} eq $target->{'SUBNAMESPACE'}) &&
 			($self->{'NUMBER'} == $target->{'NUMBER'}));
@@ -127,8 +122,8 @@ sub equals () {
 
 =head2 next_id
 
-  Usage    - print $id->next_id($id)
-  Returns  - the next ID (CCO_ID)
+  Usage    - $id->next_id()
+  Returns  - the next ID (CCO::Util::CCO_ID)
   Args     - none
   Function - returns the next ID
   
@@ -144,8 +139,8 @@ sub next_id () {
 
 =head2 previous_id
 
-  Usage    - print $id->previous_id($id)
-  Returns  - the previous ID (CCO_ID)
+  Usage    - $id->previous_id()
+  Returns  - the previous ID (CCO::Util::CCO_ID)
   Args     - none
   Function - returns the previous ID
   
@@ -173,14 +168,19 @@ use CCO::Util::CCO_ID;
 $id = CCO_ID->new();
 
 $id->namespace("CCO");
+
 $id->subnamespace("X");
+
 $id->number("0000001");
 
 $namespace = $id->namespace();
+
 $subnamespace = $id->subnamespace();
+
 $number = $id->number();
 
 print $id->id_as_string();
+
 $id->id_as_string("CCO:P1234567");
 
 =head1 DESCRIPTION
@@ -201,4 +201,3 @@ at your option, any later version of Perl 5 you may have available.
 
 
 =cut
-    

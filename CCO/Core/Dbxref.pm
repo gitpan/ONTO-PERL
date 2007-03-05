@@ -42,6 +42,7 @@ sub name {
     }
     return $self->{DB}.":".$self->{ACC};
 }
+*id = \&name;
 
 =head2 db
 

@@ -197,8 +197,8 @@ sub def_as_string {
 		$self->{DEF} = $def; 
 	}
 	my @result = (); # a Set?
-	foreach my $dbxref ($self->{DEF}->dbxref_set()->get_set()) {
-		push @result, $dbxref->as_string();
+	foreach my $dbxref (sort {$a cmp $b} $self->{DEF}->dbxref_set()->get_set()) {
+		unshift @result, $dbxref->as_string();
 	}
 	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
 }

@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 29;
+    plan tests => 33;
 }
 
 #########################
@@ -55,6 +55,21 @@ $my_set->add($n2);
 ok($my_set->contains($n2));
 $my_set->add($n3);
 ok($my_set->contains($n3));
+
+ok($my_set->size() == 3);
+my $n3_idem = CCO::Core::Term->new();
+$n3_idem->id("CCO:P0000003");
+$n3_idem->name("Three");
+$my_set->add($n3_idem);
+ok($my_set->contains($n3_idem));
+ok($my_set->size() == 3);
+
+$my_set->add($n3_idem);
+$my_set->add($n3_idem);
+$my_set->add($n3_idem);
+$my_set->add($n3_idem);
+$my_set->add($n3_idem);
+ok($my_set->size() == 3);
 
 my $n4 = CCO::Core::Term->new();
 my $n5 = CCO::Core::Term->new();

@@ -8,90 +8,14 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Util::DbxrefSet;
-our @ISA = qw(CCO::Util::Set);
-use CCO::Util::Set;
+our @ISA = qw(CCO::Util::ObjectSet);
+use CCO::Util::ObjectSet;
+
 use strict;
 use warnings;
 use Carp;
 
 # TODO Values in dbxref lists should be ordered alphabetically on the dbxref name.
-
-=head2 add
-
-  Usage    - $set->add($dbxref)
-  Returns  - true if the element was successfully added
-  Args     - the element (CCO::Core::Dbxref) to be added
-  Function - adds an element to this set
-  
-=cut
-sub add {
-	my $self = shift;
-	my $result = 0; # nothing added
-	if (@_) {	
-		my $ele = shift;
-		if ( !$self -> contains($ele) ) {
-			push @{$self->{SET}}, $ele;
-			$result = 1; # successfully added
-		}
-	}
-	return $result;
-}
-
-=head2 remove
-
-  Usage    - $set->remove($element)
-  Returns  - the removed element (CCO::Core::Dbxref)
-  Args     - the element (CCO::Core::Dbxref) to be removed
-  Function - removes an element from this set
-  
-=cut
-sub remove {
-	my $self = shift;
-	my $result = undef;
-	if (@_) {	
-		my $ele = shift;
-		if ($self->size() > 0) {
-			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
-				my $e = ${$self->{SET}}[$i];
-				if ($ele->equals($e)) {
-					if ($self->size() > 1) {
-						my $first_elem = shift (@{$self->{SET}});
-						${$self->{SET}}[$i-1] = $first_elem;
-					} elsif ($self->size() == 1) {
-						shift (@{$self->{SET}});
-					}
-					$result = $ele;
-					last;
-				}
-			}
-		}
-	}
-	return $result;
-}
-
-=head2 contains
-
-  Usage    - $set->contains($dbxref)
-  Returns  - either 1(true) or 0 (false)
-  Args     - the element (CCO::Core::Dbxref) to be checked
-  Function - checks if this set constains the given element
-  
-=cut
-sub contains {
-	my $self = shift;
-	my $result = 0;
-	if (@_){
-		my $target = shift;
-		
-		foreach my $ele (@{$self->{SET}}){
-			if ($target->equals($ele)) {
-				$result = 1;
-				last;
-			}
-		} 
-	}
-	return $result;
-}
 
 =head2 equals
 
@@ -109,7 +33,7 @@ sub equals {
 		my $other_set = shift;
 		my %count = ();
 		
-		my @this = @{$self->{SET}};
+		my @this = values %{$self->{MAP}};
 		my @that = $other_set->get_set();
 
 		if ($#this == $#that) {

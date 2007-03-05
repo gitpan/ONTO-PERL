@@ -1,23 +1,22 @@
-# $Id: Set.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: ObjectIdSet.pm 291 2006-06-01 16:21:45Z erant $
 #
-# Module  : Set.pm
-# Purpose : A Set of scalars implementation.
-# License : Copyright (c) 2006 Erick Antezana. All rights reserved.
+# Module  : ObjectIdSet.pm
+# Purpose : A generic set of ontology objects.
+# License : Copyright (c) 2007 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
-# TODO implement function 'eliminate duplicates', see GoaAssociationSet.t
-package CCO::Util::Set;
+package CCO::Util::ObjectIdSet;
 
 use strict;
 use warnings;
 use Carp;
 
 sub new {
-	my $class        = shift;
-	my $self         = {};
-	@{$self->{SET}}  = ();
+	my $class		= shift;
+	my $self		= {};
+	$self->{MAP}		= {}; # id vs. obj
 	
 	bless ($self, $class);
 	return $self;
@@ -25,7 +24,7 @@ sub new {
 
 =head2 add
 
-  Usage    - $set->add($element)
+  Usage    - $set->add()
   Returns  - true if the element was successfully added
   Args     - the element to be added
   Function - adds an element to this set
@@ -35,8 +34,8 @@ sub add {
 	my ($self, $ele) = @_;
 	my $result = 0; # nothing added
 	if ($ele) {
-		if ( !$self -> contains($ele) ) {
-			push @{$self->{SET}}, $ele;
+		if (!$self->contains($ele)) {
+			$self->{MAP}->{$ele} = $ele; 
 			$result = 1; # successfully added
 		}
 	}
@@ -55,7 +54,7 @@ sub add_all {
 	my $self = shift;
 	my $result = 1; # something added
 	foreach (@_) {
-		$result *= $self->add ($_);
+		$result *= $self->add($_);
 	}
 	return $result;
 }
@@ -70,12 +69,13 @@ sub add_all {
 =cut
 sub get_set {
 	my $self = shift;
-	return (!$self->is_empty())?@{$self->{SET}}:();
+	my @the_set = values %{$self->{MAP}};
+	return (!$self->is_empty())?@the_set:();
 }
 
 =head2 contains
 
-  Usage    - $set->contains($ele)
+  Usage    - $set->contains($element)
   Returns  - 1 (true) if this set contains the given element
   Args     - the element to be checked
   Function - checks if this set constains the given element
@@ -83,14 +83,7 @@ sub get_set {
 =cut
 sub contains {
 	my ($self, $target) = @_;
-	my $result = 0;
-	foreach my $ele ( @{$self->{SET}}) {
-		if ( $target eq $ele) {
-			$result = 1;
-			last;
-		}
-	}
-	return $result;
+	return (defined $self->{MAP}->{$target})?1:0;
 }
 
 =head2 size
@@ -103,7 +96,8 @@ sub contains {
 =cut
 sub size {
 	my $self = shift;
-	return $#{$self->{SET}} + 1;
+	my $size = keys %{$self->{MAP}};
+	return $size;
 }
 
 =head2 clear
@@ -116,7 +110,7 @@ sub size {
 =cut
 sub clear {
 	my $self = shift;
-	@{$self->{SET}} = ();
+	$self->{MAP} = {};
 }
 
 =head2 remove
@@ -128,17 +122,9 @@ sub clear {
   
 =cut
 sub remove {
-	my $self = shift;
-	my $element_to_be_removed = shift;
+	my ($self, $element_to_be_removed) = @_;
 	my $result = $self->contains($element_to_be_removed);
-	if ($result) {
-		for (my $i = 0; $i <= $#{$self->{SET}}; $i++) {
-			if ($element_to_be_removed eq ${$self->{SET}}[$i]) {
-				splice(@{$self->{SET}}, $i, 1); # erase the slot
-				last;
-			}
-		}
-	}
+	delete $self->{MAP}->{$element_to_be_removed} if ($result);
 	return $result;
 }
 
@@ -152,7 +138,7 @@ sub remove {
 =cut
 sub is_empty{
 	my $self = shift;
-	return ($#{$self->{SET}} == -1);
+	return ((keys(%{$self->{MAP}}) + 0) == 0);
 }
 
 =head2 equals
@@ -168,9 +154,10 @@ sub equals {
 	my $result = 0; # I guess they'are NOT identical
 	if (@_) {
 		my $other_set = shift;
+		
 		my %count = ();
 	
-		my @this = map ({scalar $_;} @{$self->{SET}});
+		my @this = map ({scalar $_;} values %{$self->{MAP}});
 		my @that = map ({scalar $_;} $other_set->get_set());
 		
 		if ($#this == $#that) {
@@ -194,15 +181,17 @@ sub equals {
 
 =head1 NAME
 
-    CCO::Util::Set  - a Set implementation
+    CCO::Util::ObjectIdSet  - a Set implementation
     
 =head1 SYNOPSIS
 
-use CCO::Util::Set;
+use CCO::Util::ObjectIdSet;
 
 use strict;
 
-my $my_set = CCO::Util::Set->new();
+
+my $my_set = CCO::Util::ObjectIdSet->new();
+
 
 $my_set->add("CCO:P0000001");
 
@@ -212,11 +201,13 @@ $my_set->add_all("CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
 
 print "contains" if ($my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
 
+
 foreach ($my_set->get_set()) {
-
+	
 	print $_, "\n";
-
+	
 }
+
 
 print "\nContained!\n" if ($my_set->contains("CCO:P0000001"));
 
@@ -228,25 +219,27 @@ print "contains" if ($my_set2->contains("CCO:P0000002") && $my_set->contains("CC
 
 $my_set->equals($my_set2);
 
-$my_set2->size() == 4;
+$my_set2->size();
+
 
 $my_set2->remove("CCO:P0000003");
 
 print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
 
-$my_set2->size() == 3;
+$my_set2->size();
+
 
 $my_set2->remove("CCO:P0000005");
 
 print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
 
-$my_set2->size() == 3;
+$my_set2->size();
 
 $my_set2->clear();
 
 print "not contains" if (!$my_set2->contains("CCO:P0000001") || !$my_set->contains("CCO:P0000002") || !$my_set->contains("CCO:P0000004"));
 
-$my_set2->size() == 0;
+$my_set2->size();
 
 $my_set2->is_empty();
 
@@ -262,7 +255,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2007 by erant
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

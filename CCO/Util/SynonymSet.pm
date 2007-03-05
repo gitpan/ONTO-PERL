@@ -10,11 +10,10 @@
 package CCO::Util::SynonymSet;
 our @ISA = qw(CCO::Util::Set);
 use CCO::Util::Set;
+
 use strict;
 use warnings;
 use Carp;
-
-
 
 =head2 add
 

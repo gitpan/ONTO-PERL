@@ -15,28 +15,28 @@ use Carp;
 # TODO implement 'get_relationships_type_by_name()' in a similar way to 'get_terms_by_name' (using RelationshipSet)
 
 sub new {
-        my $class                     = shift;
-        my $self                      = {};
+	my $class                     = shift;
+	my $self                      = {};
         
-        $self->{ID}                   = undef; # required, (1)
-        $self->{NAME}                 = undef; # required, (1)
-        $self->{NAMESPACE}            = undef; # required, (1)
-        $self->{DATA_VERSION}         = undef; # string (0..1)
-        $self->{DATE}				  = undef; # (1) The current date in dd:MM:yyyy HH:mm format
-        $self->{SAVED_BY}             = undef; # string (0..1)
-        $self->{REMARK}               = undef; # string (0..1)
+	$self->{ID}                   = undef; # required, (1)
+	$self->{NAME}                 = undef; # required, (1)
+	$self->{NAMESPACE}            = undef; # required, (1)
+	$self->{DATA_VERSION}         = undef; # string (0..1)
+	$self->{DATE}				  = undef; # (1) The current date in dd:MM:yyyy HH:mm format
+	$self->{SAVED_BY}             = undef; # string (0..1)
+	$self->{REMARK}               = undef; # string (0..1)
         
-        $self->{TERMS}                = {}; # map: term_id(string) vs. term(CCO::Core::Term)  (0..n)
+	$self->{TERMS}                = {}; # map: term_id(string) vs. term(CCO::Core::Term)  (0..n)
 	# TERMS_SET will be enabled once the Set is refactored
-        #$self->{TERMS_SET}            = CCO::Util::TermSet->new(); # Terms (0..n)
-        $self->{RELATIONSHIP_TYPES}   = {}; # map: relationship_type_id vs. relationship_type  (0..n)
-        $self->{RELATIONSHIPS}        = {}; # (0..N) 
-        # TODO implement RELATIONSHIP_SET
-        $self->{TARGET_RELATIONSHIPS} = {}; # (0..N)
-        $self->{SOURCE_RELATIONSHIPS} = {}; # (0..N)
+	#$self->{TERMS_SET}            = CCO::Util::TermSet->new(); # Terms (0..n)
+	$self->{RELATIONSHIP_TYPES}   = {}; # map: relationship_type_id vs. relationship_type  (0..n)
+	$self->{RELATIONSHIPS}        = {}; # (0..N) 
+	# TODO implement RELATIONSHIP_SET
+	$self->{TARGET_RELATIONSHIPS} = {}; # (0..N)
+	$self->{SOURCE_RELATIONSHIPS} = {}; # (0..N)
         
-        bless ($self, $class);
-        return $self;
+	bless ($self, $class);
+	return $self;
 }
 
 =head2 id
@@ -169,8 +169,8 @@ sub add_term_as_string {
 		if (!$self->has_term_id($term_id)){
 			my $term_name = shift;
 	    
-			$term_id || croak "A term to be added to this ontology must have an ID";
-			$term_name || croak "A term to be added to this ontology must have a name";
+			$term_id || confess "A term to be added to this ontology must have an ID";
+			$term_name || confess "A term to be added to this ontology must have a name";
 	
 			my $new_term = CCO::Core::Term->new();
 			$new_term->id($term_id);
@@ -215,8 +215,8 @@ sub add_relationship_type_as_string {
 		if (!$self->has_relationship_type_id($relationship_type_id)){
 			my $relationship_type_name = shift;
 	    
-			$relationship_type_id || croak "A relationship type to be added to this ontology must have an ID";
-			$relationship_type_name || croak "A relationship type to be added to this ontology must have a name";
+			$relationship_type_id || confess "A relationship type to be added to this ontology must have an ID";
+			$relationship_type_name || confess "A relationship type to be added to this ontology must have a name";
 	
 			my $new_relationship_type = CCO::Core::RelationshipType->new();
 			$new_relationship_type->id($relationship_type_id);
@@ -240,7 +240,7 @@ sub delete_term {
     if (@_) {
 		my $term = shift;
     
-		$term->id || croak "The term to be deleted from this ontology does not have an ID";
+		$term->id || confess "The term to be deleted from this ontology does not have an ID";
     
 		my $id = $term->id;
 		if (defined($id) && defined($self->{TERMS}->{$id})) {
@@ -321,7 +321,7 @@ sub equals {
 	my $result =  0; 
 	
 	# TODO implement this method
-	croak "Method: CCO::Core:Ontology::equals in not implemented yet";
+	confess "Method: CCO::Core:Ontology::equals in not implemented yet";
 	
 	return $result;
 }
@@ -361,7 +361,7 @@ sub get_terms_by_subnamespace {
     my $terms;
     if (@_) {
 		if (!defined $self->namespace()) {
-			croak "The namespace is not defined for this ontology";
+			confess "The namespace is not defined for this ontology";
 		} else {
 			$terms = $self->get_terms($self->namespace().":".$_[0]);
 		}
@@ -477,10 +477,10 @@ sub set_term_id {
 				# TODO adapt the relationship ids of this term: CCO:P0000001_is_a_CCO:P0000002  => CCO:P0000003_is_a_CCO:P0000002
 			    return $self->{TERMS}->{$new_term_id};
     		} else {
-    			croak "The given new ID is already used by: ", $self->get_term_by_id($new_term_id)->name();
+    			confess "The given new ID is already used by: ", $self->get_term_by_id($new_term_id)->name();
     		}
     	} else {
-    		croak "The term for which you want to modify its ID is not in the ontology";
+    		confess "The term for which you want to modify its ID is not in the ontology";
     	}
     }
 }
@@ -513,11 +513,9 @@ sub get_relationship_type_by_id {
 =cut
 sub get_term_by_name {
 	# TODO look also for the synonyms?
-    my $self = shift;
+    my ($self, $name) = ($_[0], lc($_[1]));
     my $result;
-    if (@_) {
-		my $name = lc(shift);
-		
+    if ($name) {		
 		foreach my $term (@{$self->get_terms()}) { # return the exact occurrence
 			$result = $term, last if (defined ($term->name()) && (lc($term->name()) eq $name)); 
 		}
@@ -599,7 +597,7 @@ sub add_relationship {
     	$self->has_relationship_type($target_element) || $self->add_relationship_type($target_element);
     	$self->has_relationship_type($source_element) || $self->add_relationship_type($source_element);
     } else {
-    	croak "An unrecognized object type (nor a Term, nor a RelationshipType) was found as part of the relationship with ID: '", $id, "'";
+    	confess "An unrecognized object type (nor a Term, nor a RelationshipType) was found as part of the relationship with ID: '", $id, "'";
     }
     
     # for getting children and parents
@@ -790,7 +788,7 @@ sub export {
     my $possible_formats = CCO::Util::Set->new();
 	$possible_formats->add_all('obo', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml');
 	if (!$possible_formats->contains($format)) {
-		croak "The format must be one of the following: 'obo', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml";
+		confess "The format must be one of the following: 'obo', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml";
 	}
     
     if ($format eq "obo") {
@@ -799,8 +797,8 @@ sub export {
 		print $file_handle "format-version: 1.2\n";
 		chomp(my $local_date = `date '+%d:%m:%Y %H:%M'`);
 		print $file_handle "date: ", (defined $self->date())?$self->date():$local_date, "\n";
-		print $file_handle "default-namespace: ", $self->namespace(), "\n" if ($self->namespace());
 		print $file_handle "auto-generated-by: onto-perl\n"; # TODO store this value?
+		print $file_handle "default-namespace: ", $self->namespace(), "\n" if ($self->namespace());
 		print $file_handle "remark: ", $self->remark(), "\n" if ($self->remark());
 	
 	    # terms
@@ -822,7 +820,7 @@ sub export {
 	    	if (defined $term->name()) {
 	    		print $file_handle "\nname: ", $term->name();
 	    	} else {
-	    		croak "The term with id: ", $term->id(), " has no name!" ;
+	    		confess "The term with id: ", $term->id(), " has no name!" ;
 	    	}
 	    	
 	    	#
@@ -841,14 +839,26 @@ sub export {
 	    	# def:
 	    	#
 	    	print $file_handle "\ndef: ", $term->def_as_string() if (defined $term->def()->text());
+	    	
+	    	#
+	    	# comment:
+	    	#
+	    	print $file_handle "\ncomment: ", $term->comment() if (defined $term->comment());
 
-			#
-			# disjoint_from:
-			#
-			foreach my $disjoint_term_id ($term->disjoint_from()) {
-				print $file_handle "\ndisjoint_from: ", $disjoint_term_id;
-			}
-			
+	    	#
+	    	# synonym:
+	    	#
+	    	foreach my $synonym (sort {$a->def()->text() cmp $b->def()->text()} $term->synonym_set()) {
+				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
+	    	}
+	    	
+	    	#
+	    	# xref:
+	    	#
+	    	foreach my $xref (sort {$a->as_string() cmp $b->as_string()} $term->xref_set_as_string()) {
+	    		print $file_handle "\nxref: ", $xref->as_string();
+	    	}
+	    	
 	    	#
 	    	# is_a:
 	    	#
@@ -859,10 +869,17 @@ sub export {
 		    		if (defined $head->name()) {
 			    		print $file_handle "\nis_a: ", $head->id(), " ! ", $head->name();
 			    	} else {
-			    		croak "The term with id: ", $head->id(), " has no name!" ;
+			    		confess "The term with id: ", $head->id(), " has no name!" ;
 			    	}
 		    	}
-	    	}
+	    	}	    		    	
+	    	
+			#
+			# disjoint_from:
+			#
+			foreach my $disjoint_term_id ($term->disjoint_from()) {
+				print $file_handle "\ndisjoint_from: ", $disjoint_term_id;
+			}
 			
 			#
 	    	# relationship:
@@ -874,24 +891,6 @@ sub export {
 						print $file_handle "\nrelationship: ", $rt->id(), " ", $head->id(), " ! ", $head->name();
 					}
 	    		}
-	    	}
-	    	#
-	    	# synonym:
-	    	#
-	    	foreach my $synonym ($term->synonym_set()) {
-				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
-	    	}
-	    	
-	    	#
-	    	# comment:
-	    	#
-	    	print $file_handle "\ncomment: ", $term->comment() if (defined $term->comment());
-	    	
-	    	#
-	    	# xref:
-	    	#
-	    	foreach my $xref ($term->xref_set_as_string()) {
-	    		print $file_handle "\nxref: ", $xref->as_string();
 	    	}
 	    	
 	    	#
@@ -908,9 +907,20 @@ sub export {
 	    	print $file_handle "\nbuiltin: true" if ($relationship_type->builtin() == 1);
 	    	print $file_handle "\ndef: ", $relationship_type->def_as_string() if (defined $relationship_type->def()->text());
 	    	print $file_handle "\ncomment: ", $relationship_type->comment() if (defined $relationship_type->comment());
+
 	    	foreach my $synonym ($relationship_type->synonym_set()) {
 	    		print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
 	    	}
+	    	
+	    	foreach my $xref (sort {$a cmp $b} $relationship_type->xref_set_as_string()) {
+	    		print $file_handle "\nxref: ", $xref->as_string();
+	    	}
+
+	    	print $file_handle "\nis_anti_symmetric: true" if ($relationship_type->is_anti_symmetric() == 1);
+	    	print $file_handle "\nis_cyclic: true" if ($relationship_type->is_cyclic() == 1);
+	    	print $file_handle "\nis_reflexive: true" if ($relationship_type->is_reflexive() == 1);
+	    	print $file_handle "\nis_symmetric: true" if ($relationship_type->is_symmetric() == 1);
+	    	print $file_handle "\nis_transitive: true" if ($relationship_type->is_transitive() == 1);
 	    	
 	    	#
 	    	# is_a: TODO missing function to retieve the rel types 
@@ -922,20 +932,13 @@ sub export {
 		    		if (defined $head->name()) {
 			    		print $file_handle "\nis_a: ", $head->id(), " ! ", $head->name();
 			    	} else {
-			    		croak "The relationship type with id: ", $head->id(), " has no name!" ;
+			    		confess "The relationship type with id: ", $head->id(), " has no name!" ;
 					}
 		    	}
 	    	}
 	    	
-	    	print $file_handle "\nis_cyclic: true" if ($relationship_type->is_cyclic() == 1);
-	    	print $file_handle "\nis_reflexive: true" if ($relationship_type->is_reflexive() == 1);
-	    	print $file_handle "\nis_symmetric: true" if ($relationship_type->is_symmetric() == 1);
-	    	print $file_handle "\nis_anti_symmetric: true" if ($relationship_type->is_anti_symmetric() == 1);
-	    	print $file_handle "\nis_transitive: true" if ($relationship_type->is_transitive() == 1);
 	    	print $file_handle "\nis_metadata_tag: true" if ($relationship_type->is_metadata_tag() == 1);
-	    	foreach my $xref ($relationship_type->xref_set_as_string()) {
-	    		print $file_handle "\nxref: ", $xref->as_string();
-	    	}
+	    	
 	    	print $file_handle "\n";
 	    }
     } elsif ($format eq "xml") {
@@ -973,7 +976,7 @@ sub export {
 	    	if (defined $term->name()) {
 	    		print $file_handle "\t\t<name>", $term->name(), "</name>\n";
 	    	} else {
-	    		croak "The term with id: ", $term->id(), " has no name!" ;
+	    		confess "The term with id: ", $term->id(), " has no name!" ;
 	    	}
 	    	
 	    	#
@@ -1019,7 +1022,7 @@ sub export {
 		    		if (defined $head->name()) {
 			    		print $file_handle "\t\t<is_a id=\"", $head->id(), "\">", $head->name(), "</is_a>\n";
 			    	} else {
-			    		croak "The term with id: ", $head->id(), " has no name!" ;
+			    		confess "The term with id: ", $head->id(), " has no name!" ;
 			    	}
 		    	}
 	    	}
@@ -1053,7 +1056,7 @@ sub export {
 	    	#
 	    	# xref:
 	    	#
-	    	foreach my $xref ($term->xref_set_as_string()) {
+	    	foreach my $xref (sort {$a cmp $b} $term->xref_set_as_string()) {
 	    		print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
 	    	}
 	    	
@@ -1086,7 +1089,7 @@ sub export {
 	    	print $file_handle "\t\t<is_anti_symmetric>true</is_anti_symmetric>" if ($relationship_type->is_anti_symmetric() == 1);
 	    	print $file_handle "\t\t<is_transitive>true</is_transitive>" if ($relationship_type->is_transitive() == 1);
 	    	print $file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>" if ($relationship_type->is_metadata_tag() == 1);
-	    	foreach my $xref ($relationship_type->xref_set_as_string()) {
+	    	foreach my $xref (sort {$a cmp $b} $relationship_type->xref_set_as_string()) {
 	    		print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
 	    	}
 	    	
@@ -1472,9 +1475,9 @@ sub export {
 		    	my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 		    	foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
 		    		if (!defined $term->name()) {
-			    		croak "The term with id: ", $term->id(), " has no name!" ;
+			    		confess "The term with id: ", $term->id(), " has no name!" ;
 			    	} elsif (!defined $head->name()) {
-			    		croak "The term with id: ", $head->id(), " has no name!" ;
+			    		confess "The term with id: ", $head->id(), " has no name!" ;
 			    	} else {
 			    		# todo write down the name() instead of the id()
 		    			print $file_handle "\n\t", obo_id2owl_id($term->id()), " -> ", obo_id2owl_id($head->id()), ";";
@@ -1491,9 +1494,9 @@ sub export {
 					print $file_handle "\n\tedge [label=\"", $rt->name(), "\"];" if (@heads);
 					foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
 						if (!defined $term->name()) {
-				    		croak "The term with id: ", $term->id(), " has no name!" ;
+				    		confess "The term with id: ", $term->id(), " has no name!" ;
 				    	} elsif (!defined $head->name()) {
-				    		croak "The term with id: ", $head->id(), " has no name!" ;
+				    		confess "The term with id: ", $head->id(), " has no name!" ;
 				    	} else {	
 							print $file_handle "\n\t", obo_id2owl_id($term->id()), " -> ", obo_id2owl_id($head->id()), ";";
 						}
@@ -1555,9 +1558,9 @@ sub export {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 				foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
 					if (!defined $term->name()) {
-				   		croak "The term with id: ", $term->id(), " has no name!" ;
+				   		confess "The term with id: ", $term->id(), " has no name!" ;
 				   	} elsif (!defined $head->name()) {
-				   		croak "The term with id: ", $head->id(), " has no name!" ;
+				   		confess "The term with id: ", $head->id(), " has no name!" ;
 				   	} else {
 			    		print $file_handle "\tedge [\n";
 			    		print $file_handle "\t\troot_index	-", $gml_id{$term->id()}, "\n";

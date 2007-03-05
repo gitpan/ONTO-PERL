@@ -100,7 +100,7 @@ ok(($syn3->def()->dbxref_set())->equals($syn4->def()->dbxref_set()));
 
 # def as string
 ok($syn3->def_as_string() eq "\"Hola mundo3\" [CCO:ea]");
-$syn3->def_as_string("This is a dummy synonym", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+$syn3->def_as_string("This is a dummy synonym", "[CCO:ls, CCO:ea \"Erick Antezana\", CCO:vm]");
 ok($syn3->def()->text() eq "This is a dummy synonym");
 my @refs_syn3 = $syn3->def()->dbxref_set()->get_set();
 my %r_syn3;
@@ -111,6 +111,6 @@ ok($syn3->def()->dbxref_set()->size == 3);
 ok($r_syn3{"CCO:vm"} eq "CCO:vm");
 ok($r_syn3{"CCO:ls"} eq "CCO:ls");
 ok($r_syn3{"CCO:ea"} eq "CCO:ea");
-ok($syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+ok($syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ea \"Erick Antezana\", CCO:ls, CCO:vm]");
 
 ok(1);

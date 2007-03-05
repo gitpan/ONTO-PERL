@@ -8,128 +8,12 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Util::TermSet;
-our @ISA = qw(CCO::Util::Set);
-use CCO::Util::Set;
+our @ISA = qw(CCO::Util::ObjectSet);
+use CCO::Util::ObjectSet;
+
 use strict;
 use warnings;
 use Carp;
-
-
-=head2 add
-
-  Usage    - $set->add()
-  Returns  - true if the element was successfully added
-  Args     - the element (CCO::Core::Term) to be added
-  Function - adds an element to this set
-  
-=cut
-sub add {
-	my $self = shift;
-	my $result = 0; # nothing added
-	if (@_) {	
-		my $ele = shift;
-		if ( !$self -> contains($ele) ) {
-			push @{$self->{SET}}, $ele;
-			$result = 1; # successfully added
-		}
-	}
-	return $result;
-}
-
-=head2 remove
-
-  Usage    - $set->remove($element)
-  Returns  - the removed element
-  Args     - the element (CCO::Core::Term) to be removed
-  Function - removes an element from this set
-  
-=cut
-sub remove {
-	my $self = shift;
-	my $result = undef;
-	if (@_) {	
-		my $ele = shift;
-		if ($self->size() > 0) {
-			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
-				my $e = ${$self->{SET}}[$i];
-				if ($ele->equals($e)) {
-					if ($self->size() > 1) {
-						my $first_elem = shift (@{$self->{SET}});
-						${$self->{SET}}[$i-1] = $first_elem;
-					} elsif ($self->size() == 1) {
-						shift (@{$self->{SET}});
-					}
-					$result = $ele;
-					last;
-				}
-			}
-		}
-	}
-	return $result;
-}
-
-
-=head2 contains
-
-  Usage    - $set->contains($term)
-  Returns  - true if this set contains the given element
-  Args     - the element (CCO::Core::Term) to be checked
-  Function - checks if this set constains the given element
-  
-=cut
-sub contains {
-	my $self = shift;
-	my $result = 0;
-	if (@_){
-		my $target = shift;
-		
-		foreach my $ele (@{$self->{SET}}){
-			if ($target->equals($ele)) {
-				$result = 1;
-				last;
-			}
-		}
-	}
-	return $result;
-}
-
-
-
-=head2 equals
-
-  Usage    - $set->equals()
-  Returns  - true or false
-  Args     - the set (CCO::Util::TermSet) to compare with
-  Function - tells whether this set is equal to the given one
-  
-=cut
-sub equals {
-	my $self = shift;
-	my $result = 0; # I guess they'are NOT identical
-	if (@_) {
-		my $other_set = shift;
-		
-		my %count = ();
-		# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' a nivel de dbxref...los tests pasan...raro...	
-		my @this = map ({scalar $_;} @{$self->{SET}});
-		my @that = map ({scalar $_;} $other_set->get_set());
-		
-		if ($#this == $#that) {
-			foreach (@this, @that) {
-				$count{$_}++;
-			}
-			foreach my $count (values %count) {
-				if ($count != 2) {
-					$result = 0;
-					last;
-				} else {
-					$result = 1;
-				}
-			}
-		}
-	}
-	return $result;
-}
 
 =head2 contains_id
 
@@ -140,20 +24,10 @@ sub equals {
   
 =cut
 sub contains_id {
-	my $self = shift;
-	my $result = 0;
-	if (@_){
-		my $term_id = shift;
-		
-		foreach my $ele (@{$self->{SET}}){
-			if ($ele->id() eq $term_id) {
-				$result = 1;
-				last;
-			}
-		}
-	}
-	return $result;
+	my ($self, $id) = @_;
+	return ($self->{MAP}->{$id})?1:0;
 }
+
 =head2 contains_name
 
   Usage    - $set->contains_name($element_name)
@@ -165,10 +39,10 @@ sub contains_id {
 sub contains_name {
 	my $self = shift;
 	my $result = 0;
-	if (@_){
+	if (@_) {
 		my $term_id = shift;
 		
-		foreach my $ele (@{$self->{SET}}){
+		foreach my $ele (values %{$self->{MAP}}){
 			if ($ele->name() eq $term_id) {
 				$result = 1;
 				last;
@@ -177,7 +51,6 @@ sub contains_name {
 	}
 	return $result;
 }
-
 
 1;
 

@@ -21,13 +21,14 @@ sub new {
 	$self->{FILE} = shift;
 	
 	%{$self->{MAP_BY_ID}}    = (); # key=cco_id; value=term
-    %{$self->{MAP_BY_TERM}}  = (); # key=term; value=cco_id
+	%{$self->{MAP_BY_TERM}}  = (); # key=term; value=cco_id
+	$self->{KEYS}            = CCO::Util::CCO_ID_Set->new();
     
 	bless ($self, $class);
     
-    confess if (!defined $self->{FILE});
+	confess if (!defined $self->{FILE});
     
-    # if the file exists:
+	# if the file exists:
 	if (-e $self->{FILE} && -r $self->{FILE}) {
 		open (CCO_ID_MAP_IN_FH, "<$self->{FILE}");
 		while (<CCO_ID_MAP_IN_FH>) {
@@ -39,38 +40,38 @@ sub new {
 		close CCO_ID_MAP_IN_FH;		
 	}
 	else {
-		die "The file '", $self->{FILE}, "' was not found: ", $!;
-	}	
+		open (CCO_ID_MAP_IN_FH, "$self->{FILE}");
+		# TODO include date?
+		close CCO_ID_MAP_IN_FH;
+	}
+
+	$self->{KEYS}->add_all_as_string(keys (%{$self->{MAP_BY_ID}}));
 	return $self;	
 }
 
 =head2 put
 
   Usage    - $map->put("CCO:P0000056", "cell cycle")
-  Returns  - the old value of the key if this one was defined
+  Returns  - none
   Args     - CCO id (string), term name (string)
   Function - puts an entry in the map
   Remark   - for adding entries into the map, use method get_new_cco_id()
   
 =cut
 sub put () {
-	my $self   = shift;
-	my $result;
+	my ($self, $key, $value) = @_;
 	
-	if (@_) {
-		my $key   = shift; # a CCO_ID as string
-		croak "The ID is not valid: '$key'\n" if ($key !~ /CCO:[A-Z]\d{7}/);
+	if ($key && $value) {
+		confess "The ID is not valid: '$key'\n" if ($key !~ /CCO:[A-Z]\d{7}/);
 		
-		my $value = shift; # a Term as string
-		$result = $self->{MAP_BY_ID}->{$key}; # old value
-		
-		if ($self->contains_key($key) || $self->contains_value($value)){ 
-			warn "Entry $key - $value already exists!", $!;
+		if (!defined $self->{MAP_BY_ID}->{$key} && !defined $self->{MAP_BY_TERM}->{$value}) {
+			$self->{MAP_BY_ID}->{$key} = $value;   # put
+			$self->{MAP_BY_TERM}->{$value} = $key; # put
+			$self->{KEYS}->add_as_string($key);
+		} else {
+			# either the key or value are already in the map !
 		}
-		$self->{MAP_BY_ID}->{$key} = $value; #put
-		$self->{MAP_BY_TERM}->{$value} = $key; #put
 	}
-	return $result;
 }
 
 =head2 get_new_cco_id
@@ -82,21 +83,17 @@ sub put () {
   
 =cut
 sub get_new_cco_id () {
-	my $self = shift;
+	my ($self, $namespace, $subnamespace, $term) = @_;
 	my $result;
-	if (@_) {
-		my $namespace    = shift; # is this parameter redundant?
-		my $subnamespace = shift;
-		my $term         = shift;
+	if ($namespace && $subnamespace && $term) {
+		# is the namespace parameter redundant?
 		
 		if ($self->is_empty()){
 			$result = $namespace.":".$subnamespace."0000001";
 		} else {
-			my $keys_set = CCO::Util::CCO_ID_Set->new();
-			$keys_set->add_all_as_string($self->keys_set());
-			$result = $keys_set->get_new_id($namespace, $subnamespace);
+			$result = $self->{KEYS}->get_new_id($namespace, $subnamespace);
 		}
-		$self -> put ($result, $term); #put
+		$self->put($result, $term); # put
 	}	
 	return $result;
 }
@@ -110,13 +107,8 @@ sub get_new_cco_id () {
   
 =cut
 sub get_cco_id_by_term () {
-	my $self = shift;
-	my $result;
-	if (@_) {
-		my $term_name = shift;
-		$result = $self->{MAP_BY_TERM}->{$term_name};
-	}
-	return $result;
+	my ($self, $term_name) = @_;
+	return $self->{MAP_BY_TERM}->{$term_name};
 }
 
 =head2 get_term_by_cco_id
@@ -128,13 +120,8 @@ sub get_cco_id_by_term () {
   
 =cut
 sub get_term_by_cco_id () {
-	my $self = shift;
-	my $result;
-	if (@_) {
-		my $cco_id = shift;
-		$result = $self->{MAP_BY_ID}->{$cco_id};
-	}
-	return $result;
+	my ($self, $cco_id) = @_;
+	return $self->{MAP_BY_ID}->{$cco_id};
 }
 
 =head2 keys_set
@@ -172,18 +159,8 @@ sub values_set () {
   
 =cut
 sub contains_key () {
-	my $self = shift;
-	my $result = 0;
-	if (@_) {
-		my $searched_key = shift;
-		foreach my $ele ($self->keys_set()){
-			if ( $ele eq $searched_key )  {
-				$result = 1;
-				last;
-			}
-		}
-	}
-	return $result;
+	my ($self, $searched_key) = @_;
+	return (defined $self->{MAP_BY_ID}->{$searched_key})?1:0;
 }
 
 =head2 contains_value
@@ -195,18 +172,8 @@ sub contains_key () {
   
 =cut
 sub contains_value () {
-	my $self = shift;
-	my $result = 0;
-	if (@_) {
-		my $searched_value = shift;
-		foreach my $ele ($self->values_set ()){
-			if ( $ele eq $searched_value )  {
-				$result = 1;
-				last;
-			}
-		}
-	}
-	return $result;
+        my ($self, $searched_value) = @_;
+        return (defined $self->{MAP_BY_TERM}->{$searched_value})?1:0;
 }
 
 sub equals () {
@@ -214,6 +181,7 @@ sub equals () {
 	my $result = 0;
 	my $other_map =shift;
 	# TODO compare keys and values
+	confess "not implemented method!";
 	return $result;
 }
 
@@ -276,28 +244,18 @@ sub is_empty (){
 =head2 write_map
 
   Usage    - $map->write_map()
-  Returns  - 1 (true) or 0 (false)
-  Args     - 
-  Function - prints the contents of the map to a file 
+  Returns  - none
+  Args     - none
+  Function - prints the contents of the map to the file associated to this object 
   
 =cut
 sub write_map () {
-	
 	my $self = shift;
-	#if ($self->{FILE}) {
-		my $result;
-		open (FH, ">".$self->{FILE}) || die "Cannot write map to file: $self->{FILE}, $!"; 
-		foreach (sort keys %{$self->{MAP_BY_ID}}){
-			$result = print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";			
-		}
-		close FH;	
-		return $result;
-#	}
-#	else {
-#		foreach (sort keys %{$self->{MAP_BY_ID}}){
-#			print "$_\t$self->{MAP_BY_ID}->{$_}\n";			
-#		}
-#	}	
+	open (FH, ">".$self->{FILE}) || die "Cannot write map to file: '$self->{FILE}', $!"; 
+	foreach (sort keys %{$self->{MAP_BY_ID}}){
+		print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";			
+	}
+	close FH;	
 }
 
 1;
