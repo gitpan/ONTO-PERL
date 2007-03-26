@@ -8,10 +8,12 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Core::Ontology;
+use CCO::Core::IDspace;
 use CCO::Util::TermSet;
 use strict;
 use warnings;
 use Carp;
+
 # TODO implement 'get_relationships_type_by_name()' in a similar way to 'get_terms_by_name' (using RelationshipSet)
 
 sub new {
@@ -20,11 +22,15 @@ sub new {
         
 	$self->{ID}                   = undef; # required, (1)
 	$self->{NAME}                 = undef; # required, (1)
-	$self->{NAMESPACE}            = undef; # required, (1)
+	$self->{IMPORTS}              = CCO::Util::Set->new(); # set (0..N)
+	$self->{IDSPACE}              = CCO::Core::IDspace->new(); # required, (1)
+	$self->{DEFAULT_NAMESPACE}    = undef; # string (0..1)
 	$self->{DATA_VERSION}         = undef; # string (0..1)
-	$self->{DATE}				  = undef; # (1) The current date in dd:MM:yyyy HH:mm format
+	$self->{DATE}                 = undef; # (1) The current date in dd:MM:yyyy HH:mm format
 	$self->{SAVED_BY}             = undef; # string (0..1)
 	$self->{REMARK}               = undef; # string (0..1)
+	$self->{SUBSETS_SET}          = CCO::Util::Set->new(); # set (0..N); A subset is a view over an ontology
+	$self->{SYNONYMTYPES_SET}     = CCO::Util::Set->new(); # set (0..N); A description of a user-defined synonym type
         
 	$self->{TERMS}                = {}; # map: term_id(string) vs. term(CCO::Core::Term)  (0..n)
 	# TERMS_SET will be enabled once the Set is refactored
@@ -41,30 +47,48 @@ sub new {
 
 =head2 id
 
-  Usage    - print $ontology->id()
+  Usage    - print $ontology->id() or $ontology->id($id)
   Returns  - the ontology ID (string)
   Args     - the ontology ID (string)
   Function - gets/sets the ontology ID
   
 =cut
 sub id {
-	my $self = shift;
-	if (@_) { $self->{ID} = shift }
+	my ($self, $id) = @_;
+	if ($id) { $self->{ID} = $id }
 	return $self->{ID};
 }
 
 =head2 name
 
-  Usage    - print $ontology->name()
+  Usage    - print $ontology->name() or $ontology->name($name)
   Returns  - the name (string) of the ontology
   Args     - the name (string) of the ontology
   Function - gets/sets the name of the ontology
   
 =cut
 sub name {
-	my $self = shift;
-    if (@_) { $self->{NAME} = shift }
+	my ($self, $name) = @_;
+    if ($name) { $self->{NAME} = $name }
     return $self->{NAME};
+}
+
+=head2 imports
+
+  Usage    - $onto->imports() or $onto->imports($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the imported id ontologies
+  Args     - the ontology id(s) (string) 
+  Function - gets/sets the id(s) of the ontologies that are imported by this one
+  
+=cut
+sub imports {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{IMPORTS}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{IMPORTS}->add($_[0]);
+	}
+	return $self->{IMPORTS};
 }
 
 =head2 date
@@ -76,23 +100,57 @@ sub name {
   
 =cut
 sub date {
-	my $self = shift;
-    if (@_) { $self->{DATE} = shift }
-    return $self->{DATE};
+	my ($self, $d) = @_;
+	if ($d) { $self->{DATE} = $d }
+	return $self->{DATE};
 }
 
-=head2 namespace
+=head2 default_namespace
 
-  Usage    - print $ontology->namespace()
-  Returns  - the namespace (string) of this ontology
-  Args     - the namespace (string) of this ontology
-  Function - gets/sets the namespace of this ontolog
+  Usage    - print $ontology->default_namespace() or $ontology->default_namespace("cellcycle_ontology")
+  Returns  - the default namespace (string) of this ontology
+  Args     - the default namespace (string) of this ontology
+  Function - gets/sets the default namespace of this ontology
   
 =cut
-sub namespace {
-	my $self = shift;
-    if (@_) { $self->{NAMESPACE} = uc(shift) }
-    return $self->{NAMESPACE};
+sub default_namespace {
+	my ($self, $dns) = @_;
+	if ($dns) { $self->{DEFAULT_NAMESPACE} = $dns }
+	return $self->{DEFAULT_NAMESPACE};
+}
+
+=head2 idspace
+
+  Usage    - print $ontology->idspace() or $ontology->idspace("CCO http://www.cellcycleontology.org/ontology/owl#")
+  Returns  - the id space (CCO::Core::IDspace) of this ontology
+  Args     - the id space (CCO::Core::IDspace) of this ontology
+  Function - gets/sets the idspace of this ontology
+  
+=cut
+sub idspace {
+	my ($self, $is) = @_;
+	if ($is) { $self->{IDSPACE} = $is }
+	return $self->{IDSPACE};
+} 
+
+=head2 idspace_as_string
+
+  Usage    - $ontology->idspace_as_string($local_id, $uri, $description)
+  Returns  - the just added idspace (CCO::Core::IDspace)
+  Args     - the local idspace (string), the uri (string) and the description (string)
+  Function - sets the idspace of this ontology
+  
+=cut
+sub idspace_as_string {
+	my ($self, $local_id, $uri, $description) = @_;
+	if ($local_id && $uri) {
+		my $new_idspace = CCO::Core::IDspace->new();
+		$new_idspace->local_idspace($local_id);
+		$new_idspace->uri($uri);
+		$new_idspace->description($description);
+		$self->idspace($new_idspace);
+		return $new_idspace;
+	}
 }
 
 =head2 data_version
@@ -104,9 +162,9 @@ sub namespace {
   
 =cut
 sub data_version {
-	my $self = shift;
-    if (@_) { $self->{DATA_VERSION} = shift }
-    return $self->{DATA_VERSION};
+	my ($self, $dv) = @_;
+	if ($dv) { $self->{DATA_VERSION} = $dv }
+	return $self->{DATA_VERSION};
 }
 
 =head2 saved_by
@@ -118,8 +176,8 @@ sub data_version {
   
 =cut
 sub saved_by {
-	my $self = shift;
-    if (@_) { $self->{SAVED_BY} = shift }
+	my ($self, $sb) = @_;
+    if ($sb) { $self->{SAVED_BY} = $sb }
     return $self->{SAVED_BY};
 }
 
@@ -132,9 +190,45 @@ sub saved_by {
   
 =cut
 sub remark {
-	my $self = shift;
-	if (@_) { $self->{REMARK} = shift }
+	my ($self, $r) = @_;
+	if ($r) { $self->{REMARK} = $r }
 	return $self->{REMARK};
+}
+
+=head2 subsets
+
+  Usage    - $onto->subsets() or $onto->subsets($ss1, $ss2, $ss3, ...)
+  Returns  - a set (CCO::Util::Set) with the subsets used in this ontology. A subset is a view over an ontology
+  Args     - the subset(s) (string) used in this ontology 
+  Function - gets/sets the subset(s) of this ontology
+        
+=cut    
+sub subsets {
+	my $self = shift;             
+	if (scalar(@_) > 1) {         
+		$self->{SUBSETS_SET}->add_all(@_);
+	} elsif (scalar(@_) == 1) {   
+		$self->{SUBSETS_SET}->add($_[0]);
+	}
+	return $self->{SUBSETS_SET};      
+}
+
+=head2 synonymtypes
+
+  Usage    - $onto->synonymtypes() or $onto->synonymtypes($st1, $st2, $st3, ...)
+  Returns  - a set (CCO::Util::Set) with the synonymtypes used in this ontology. A synonymtype is a description of a user-defined synonym type 
+  Args     - the synonymtypet(s) (string) used in this ontology 
+  Function - gets/sets the synonymtypet(s) of this ontology
+        
+=cut
+sub synonymtypes {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{SYNONYMTYPES_SET}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{SYNONYMTYPES_SET}->add($_[0]);
+	}
+	return $self->{SYNONYMTYPES_SET};
 }
 
 =head2 add_term
@@ -236,10 +330,8 @@ sub add_relationship_type_as_string {
   
 =cut
 sub delete_term {
-    my $self = shift;
-    if (@_) {
-		my $term = shift;
-    
+    my ($self, $term) = @_;
+    if ($term) {    
 		$term->id || confess "The term to be deleted from this ontology does not have an ID";
     
 		my $id = $term->id;
@@ -279,7 +371,7 @@ sub has_term_id {
 	my ($self, $term_id) = @_;
 	return (defined $term_id && defined($self->{TERMS}->{$term_id}));
 	# TODO Check the TERMS_SET
-    	#return (defined $term_id && defined($self->{TERMS}->{$term_id}) && $self->{TERMS_SET}->contains($self->get_term_by_id($term_id)));
+	#return (defined $term_id && defined($self->{TERMS}->{$term_id}) && $self->{TERMS_SET}->contains($self->get_term_by_id($term_id)));
 }
 
 =head2 has_relationship_type
@@ -305,7 +397,7 @@ sub has_relationship_type {
 =cut
 sub has_relationship_type_id {
 	my ($self, $relationship_type_id) = @_;
-        return (defined $relationship_type_id && defined($self->{RELATIONSHIP_TYPES}->{$relationship_type_id}));
+	return (defined $relationship_type_id && defined($self->{RELATIONSHIP_TYPES}->{$relationship_type_id}));
 }
 
 =head2 equals
@@ -321,6 +413,7 @@ sub equals {
 	my $result =  0; 
 	
 	# TODO implement this method
+	# This will form aprt of the Ontolome packages
 	confess "Method: CCO::Core:Ontology::equals in not implemented yet";
 	
 	return $result;
@@ -357,13 +450,14 @@ sub get_terms {
   
 =cut
 sub get_terms_by_subnamespace {
-    my $self = shift;
-    my $terms;
-    if (@_) {
-		if (!defined $self->namespace()) {
-			confess "The namespace is not defined for this ontology";
+	my $self = shift;
+	my $terms;
+	if (@_) {
+		my $is = $self->idspace()->local_idspace();
+		if (!defined $is) {
+			confess "The idspace is not defined for this ontology";
 		} else {
-			$terms = $self->get_terms($self->namespace().":".$_[0]);
+			$terms = $self->get_terms($is.":".$_[0]);
 		}
 	}
 	return $terms;
@@ -406,10 +500,9 @@ sub get_relationship_types {
   
 =cut
 sub get_relationships_by_source_term {
-	my $self = shift;
+	my ($self, $term) = @_;
 	my $result = CCO::Util::Set->new();
-	if (@_) {
-		my $term = shift;
+	if ($term) {
 		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
 		foreach my $rel (@rels) {
 			$result->add($rel);
@@ -428,10 +521,9 @@ sub get_relationships_by_source_term {
   
 =cut
 sub get_relationships_by_target_term {
-	my $self = shift;
+	my ($self, $term) = @_;
 	my $result = CCO::Util::Set->new();
-	if (@_) {
-		my $term = shift;
+	if ($term) {
 		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
 		foreach my $rel (@rels) {
 			$result->add($rel);
@@ -463,12 +555,9 @@ sub get_term_by_id {
   
 =cut
 sub set_term_id {
-    my $self = shift;
-    my $result;
-    if (@_) {
-    	my $term = shift;
+    my ($self, $term, $new_term_id) = @_;
+    if ($term && $new_term_id) {
     	if ($self->has_term($term)) {
-			my $new_term_id = shift;
     		if (!$self->has_term_id($new_term_id)) {
 				my $old_id = $term->id();
 				$term->id($new_term_id);
@@ -494,13 +583,8 @@ sub set_term_id {
   
 =cut
 sub get_relationship_type_by_id {
-    my $self = shift;
-    my $result;
-    if (@_) {
-		my $id = shift;
-		$result = $self->{RELATIONSHIP_TYPES}->{$id};
-    }
-    return $result;
+	my ($self, $id) = @_;
+	return $self->{RELATIONSHIP_TYPES}->{$id} if ($id);
 }
 
 =head2 get_term_by_name
@@ -512,7 +596,6 @@ sub get_relationship_type_by_id {
   
 =cut
 sub get_term_by_name {
-	# TODO look also for the synonyms?
     my ($self, $name) = ($_[0], lc($_[1]));
     my $result;
     if ($name) {		
@@ -532,10 +615,9 @@ sub get_term_by_name {
   
 =cut
 sub get_terms_by_name {
-    my $self = shift;
+    my ($self, $name) = ($_[0], lc($_[1]));
     my $result;
-    if (@_) {
-		my $name = lc(shift);
+    if ($name) {
 		my @terms = @{$self->get_terms()};
 		$result = CCO::Util::TermSet->new();
 		
@@ -559,10 +641,9 @@ sub get_terms_by_name {
   
 =cut
 sub get_relationship_type_by_name {
-    my $self = shift;
+    my ($self, $name) = ($_[0], lc($_[1]));;
     my $result;
-    if (@_) {
-		my $name = lc(shift);
+    if ($name) {
 		foreach my $rel_type (@{$self->get_relationship_types()}) { # return the exact occurrence
 			$result = $rel_type, last if (defined ($rel_type->name()) && (lc($rel_type->name()) eq $name)); 
 		}
@@ -627,17 +708,16 @@ sub get_relationship_by_id {
   
 =cut
 sub get_child_terms {
-	my $self = shift;
+	my ($self, $term) = @_;
 	my $result = CCO::Util::TermSet->new();
-    if (@_) {
-		my $term = shift;
+	if ($term) {
 		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
 		foreach my $rel (@rels) {
 			$result->add($rel->tail());
 		}
-    }
+	 }
 	my @arr = $result->get_set();
-    return \@arr;
+	return \@arr;
 }
 
 =head2 get_parent_terms
@@ -649,10 +729,9 @@ sub get_child_terms {
   
 =cut
 sub get_parent_terms {
-	my $self = shift;
+	my ($self, $term) = @_;
 	my $result = CCO::Util::TermSet->new();
-    if (@_) {
-		my $term = shift;
+    if ($term) {
 		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
 		foreach my $rel (@rels) {
 			$result->add($rel->head());
@@ -704,18 +783,18 @@ sub get_head_by_relationship_type {
   
 =cut
 sub get_tail_by_relationship_type {
-        # <EASR> Performance improvement
+	# <EASR> Performance improvement
 	my ($self, $element, $relationship_type) = @_;
-        my @tails;
-        if ($element && $relationship_type) {
-                my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
-                my $relationship_type_id = $relationship_type->id();
-                foreach my $rel (@rels) {
-                        push @tails, $rel->tail() if ($rel->type() eq $relationship_type_id);
-                }
-        }
-        return \@tails;
-        # </EASR>
+	my @tails;
+	if ($element && $relationship_type) {
+		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
+		my $relationship_type_id = $relationship_type->id();
+		foreach my $rel (@rels) {
+			push @tails, $rel->tail() if ($rel->type() eq $relationship_type_id);
+		}
+	}
+	return \@tails;
+	# </EASR>
 #	my $self = shift;
 #	my $result = CCO::Util::Set->new();
 #   if (@_) {
@@ -781,7 +860,7 @@ sub get_number_of_relationship_types {
   
 =cut
 sub export {
-    my $self = shift;
+	my $self = shift;
     my $file_handle = shift || \*STDOUT;
     my $format = shift || "obo";
     
@@ -791,14 +870,13 @@ sub export {
 		confess "The format must be one of the following: 'obo', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml";
 	}
     
-    if ($format eq "obo") {
-	    
+    if ($format eq "obo") { 
 		# preambule: OBO header tags
 		print $file_handle "format-version: 1.2\n";
 		chomp(my $local_date = `date '+%d:%m:%Y %H:%M'`);
 		print $file_handle "date: ", (defined $self->date())?$self->date():$local_date, "\n";
 		print $file_handle "auto-generated-by: onto-perl\n"; # TODO store this value?
-		print $file_handle "default-namespace: ", $self->namespace(), "\n" if ($self->namespace());
+		print $file_handle "default-namespace: ", $self->default_namespace(), "\n" if ($self->default_namespace());
 		print $file_handle "remark: ", $self->remark(), "\n" if ($self->remark());
 	
 	    # terms
@@ -814,6 +892,11 @@ sub export {
 	    	#
 	    	print $file_handle "\nid: ", $term->id();
 	    	
+			#
+			# is_anonymous:
+			#
+			print $file_handle "\nis_anonymous: true" if ($term->is_anonymous());
+
 	    	#
 	    	# name:
 	    	#
@@ -822,6 +905,13 @@ sub export {
 	    	} else {
 	    		confess "The term with id: ", $term->id(), " has no name!" ;
 	    	}
+
+			#
+			# namespace
+			#
+			foreach my $ns ($term->namespace()) {
+				print $file_handle "\nnamespace: ", $ns;
+			}
 	    	
 	    	#
 			# alt_id:
@@ -833,7 +923,7 @@ sub export {
 	    	#
 	    	# builtin:
 	    	#
-	    	print $file_handle "\nbuiltin: true" if ($term->builtin() == 1);
+	    	print $file_handle "\nbuiltin: true" if ($term->builtin());
 	    	
 	    	#
 	    	# def:
@@ -844,6 +934,13 @@ sub export {
 	    	# comment:
 	    	#
 	    	print $file_handle "\ncomment: ", $term->comment() if (defined $term->comment());
+		
+			#
+			# subset
+			#
+			foreach my $sset ($term->subset()) {
+				print $file_handle "\nsubset: ", $sset;
+			}
 
 	    	#
 	    	# synonym:
@@ -872,7 +969,21 @@ sub export {
 			    		confess "The term with id: ", $head->id(), " has no name!" ;
 			    	}
 		    	}
-	    	}	    		    	
+	    	}
+
+			#
+			# intersection_of (at least 2 entries)
+			#
+			foreach my $tr ($term->intersection_of()) {
+				print $file_handle "\nintersection_of: ", $tr;
+			}
+
+			#
+			# union_of (at least 2 entries)
+			#
+			foreach my $tr ($term->union_of()) {
+				print $file_handle "\nunion_of: ", $tr;
+			}		
 	    	
 			#
 			# disjoint_from:
@@ -892,7 +1003,20 @@ sub export {
 					}
 	    		}
 	    	}
-	    	
+
+			#
+			# is_obsolete
+			#
+			print $file_handle "\nis_obsolete: true" if ($term->is_obsolete());
+
+			#
+			# replaced_by
+			#
+		
+			#
+			# consider
+	    	#
+
 	    	#
 	    	# end
 	    	#
@@ -954,7 +1078,7 @@ sub export {
 		chomp(my $date = (defined $self->date())?$self->date():`date '+%d:%m:%Y %H:%M'`);
 		print $file_handle "\t\t<hasDate>", $date, "</hasDate>\n";
 		print $file_handle "\t\t<savedBy>", $self->saved_by(), "</savedBy>\n" if ($self->saved_by());
-		print $file_handle "\t\t<default-namespace>", $self->namespace(), "</default-namespace>\n" if ($self->namespace());
+		print $file_handle "\t\t<default-namespace>", $self->default_namespace(), "</default-namespace>\n" if ($self->default_namespace());
 		print $file_handle "\t\t<autoGeneratedBy>", $0, "</autoGeneratedBy>\n";
 		print $file_handle "\t\t<remark>", $self->remark(), "</remark>\n" if ($self->remark());
 		print $file_handle "\t</header>\n\n";
@@ -979,7 +1103,7 @@ sub export {
 	    		confess "The term with id: ", $term->id(), " has no name!" ;
 	    	}
 	    	
-	    	#
+			#
 			# alt_id:
 			#
 			foreach my $alt_id ($term->alt_id()->get_set()) {
@@ -1015,7 +1139,7 @@ sub export {
 	    	#
 	    	# is_a:
 	    	#
-	    	my $rt = $self->get_relationship_type_by_name("is_a");
+	    	my $rt = $self->get_relationship_type_by_name("is a");
 	    	if (defined $rt)  {
 		    	my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 		    	foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
@@ -1041,6 +1165,7 @@ sub export {
 					}
 	    		}
 	    	}
+
 	    	#
 	    	# synonym:
 	    	#
@@ -1071,17 +1196,17 @@ sub export {
 	    	print $file_handle "\t</term>\n\n";
 	    }
 		
-		# relationship types
+	    # relationship types
 	    my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
 	    foreach my $relationship_type (sort {$a->id() cmp $b->id()} @all_relationship_types) {
-		   	print $file_handle "\t<typedef>\n";
+	   	print $file_handle "\t<typedef>\n";
 	    	print $file_handle "\t\t<id>", $relationship_type->id(), "</id>\n";
 	    	print $file_handle "\t\t<name>", $relationship_type->name(), "</name>\n";
 	    	print $file_handle "\t\t<builtin>true</builtin>" if ($relationship_type->builtin() == 1);
 	    	print $file_handle "\t\t<def>", $relationship_type->def_as_string(), "</def>\n" if (defined $relationship_type->def()->text());
 	    	foreach my $rt_synonym ($relationship_type->synonym_set()) {
 				print $file_handle "\t\t<synonym scope=\"", $rt_synonym->type(), "\">", $rt_synonym->def()->text(), "</synonym>\n";
-			}
+		}
 	    	print $file_handle "\t\t<comment>", $relationship_type->comment(), "</comment>\n" if (defined $relationship_type->comment());
 	    	print $file_handle "\t\t<is_cyclic>true</is_cyclic>" if ($relationship_type->is_cyclic() == 1);
 	    	print $file_handle "\t\t<is_reflexive>true</is_reflexive>" if ($relationship_type->is_reflexive() == 1);
@@ -1098,102 +1223,95 @@ sub export {
 	    
 	    print $file_handle "</cco>\n";
     } elsif ($format eq "owl") {
-                #
-                # preambule
-                #
-                print $file_handle "<?xml version=\"1.0\"?>\n";
-                print $file_handle "<rdf:RDF\n";
-                print $file_handle "\txmlns=\"http://www.cellcycleontology.org/obo/owl/\"\n";
-                print $file_handle "\txml:base=\"http://www.cellcycleontology.org/owl/\"\n";
-                print $file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
-                print $file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
-                print $file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";
-                print $file_handle "\txmlns:xsp=\"http://www.owl-ontologies.com/2005/08/07/xsp.owl#\"\n";
-                print $file_handle "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n";
-                print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-                print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
-                print $file_handle "\txmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n";
-                print $file_handle "\txmlns:oboInOwl=\"http://www.cellcycleontology.org/formats/oboInOwl#\"\n";
-                print $file_handle "\txmlns:oboContent=\"http://www.cellcycleontology.org/obo/owl/\"\n";
-                print $file_handle ">\n";
 
-                #
-                # meta-data: oboInOwl elements
-                #
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasAlternativeId\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasDate\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasVersion\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasDbXref\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasDefaultNamespace\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasNamespace\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasDefinition\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasExactSynonym\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasNarrowSynonym\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasBroadSynonym\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasRelatedSynonym\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasSynonymType\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#hasSubset\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#inSubset\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#savedBy\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#replacedBy\"/>\n";
-                print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#consider\"/>\n";
-                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#DbXref\"/>\n";
-                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#Definition\"/>\n";
-                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#Subset\"/>\n";
-                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#Synonym\"/>\n";
-                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#SynonymType\"/>\n";
-                print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#ObsoleteClass\"/>\n";
-                print $file_handle "<owl:ObjectProperty rdf:about=\"http://www.cellcycleontology.org/formats/oboInOwl#ObsoleteProperty\"/>\n";
+		my $oboContentUrl = "http://www.cellcycleontology.org/obo/owl/"; # http://purl.org/obo/owl/
+		my $oboInOwlUrl = "http://www.cellcycleontology.org/formats/oboInOwl#"; # http://www.geneontology.org/formats/oboInOwl#
+		#
+		# preambule
+		#
+		print $file_handle "<?xml version=\"1.0\"?>\n";
+		print $file_handle "<rdf:RDF\n";
+		print $file_handle "\txmlns=\"".$oboContentUrl."\"\n";
+		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
+		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
+		print $file_handle "\txmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n";
+		print $file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";
+		print $file_handle "\txmlns:oboInOwl=\"".$oboInOwlUrl."\"\n";
+		print $file_handle "\txmlns:oboContent=\"".$oboContentUrl."\"\n";
+		print $file_handle "\txml:base=\"".$oboContentUrl."\"\n";
+
+		#print $file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
+		#print $file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
+		#print $file_handle "\txmlns:xsp=\"http://www.owl-ontologies.com/2005/08/07/xsp.owl#\"\n";
+		#print $file_handle "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n";
+		print $file_handle ">\n";
+
+		#
+		# meta-data: oboInOwl elements
+		#
+		foreach my $ap ("hasAlternativeId", "hasDate", "hasVersion", "hasDbXref", "hasDefaultNamespace", "hasNamespace", "hasDefinition", "hasExactSynonym", "hasNarrowSynonym", "hasBroadSynonym", "hasRelatedSynonym", "hasSynonymType", "hasSubset", "inSubset", "savedBy", "replacedBy", "consider") {
+			print $file_handle "<owl:AnnotationProperty rdf:about=\"".$oboInOwlUrl.$ap."\"/>\n";
+		}
+		foreach my $c ("DbXref", "Definition", "Subset", "Synonym", "SynonymType", "ObsoleteClass") {
+			print $file_handle "<owl:Class rdf:about=\"".$oboInOwlUrl.$c."\"/>\n";
+		}
+		print $file_handle "<owl:ObjectProperty rdf:about=\"".$oboInOwlUrl."ObsoleteProperty\"/>\n";
+		print $file_handle "\n";
 
 		#
 		# header: http://oe0.spreadsheets.google.com/ccc?id=o06770842196506107736.4732937099693365844.03735622766900057712.3276521997699206495#
 		#
 		print $file_handle "<owl:Ontology rdf:about=\"\">\n";
-		print $file_handle "\t<owl:versionInfo rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->data_version(), "</owl:versionInfo>\n" if ($self->data_version());;
-		print $file_handle "\t<oboInOwl:hasDate rdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">", $self->date(), "</oboInOwl:hasDate>\n" if ($self->date());
-		print $file_handle "\t<oboInOwl:savedBy rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->saved_by(), "</oboInOwl:savedBy>\n" if ($self->saved_by());
-		# autoGeneratedBy is not supported by oboInOwl
-		print $file_handle "\t<autoGeneratedBy rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $0, "</autoGeneratedBy>\n" if ($0);
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->remark(), "</rdfs:comment>\n" if ($self->remark());
-		print $file_handle "\t<owl:imports rdf:resource=\"http://purl.org/dc/elements/1.1/\"/>\n";
-		# TODO Consider subsets like:
-		#    <oboInOwl:hasSubset>
-		#	   <oboInOwl:Subset rdf:about="http://purl.org/obo/owl/gosubset_prok">
-		#        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Prokaryotic GO subset</rdfs:comment>
-		#      </oboInOwl:Subset>
-		#    </oboInOwl:hasSubset>
+		foreach my $import_obo ($self->imports()->get_set()) {
+			# As Ontology.pm is independant of the format (OBO, OWL) it will import the ID of the ontology
+			(my $import_owl = $import_obo) =~ s/\.obo/\.owl/;
+			print $file_handle "\t<owl:imports rdf:resource=\"", $import_owl, "\"/>\n";
+		}
+		# format-version is not treated
+		print $file_handle "\t<oboInOwl:hasDate\">", $self->date(), "</oboInOwl:hasDate>\n" if ($self->date());
+		print $file_handle "\t<oboInOwl:hasDate\">", $self->data_version(), "</oboInOwl:hasDate>\n" if ($self->data_version());
+		print $file_handle "\t<oboInOwl:savedBy\">", $self->saved_by(), "</oboInOwl:savedBy>\n" if ($self->saved_by());
+		#print $file_handle "\t<rdfs:comment>autogenerated-by: ", $0, "</rdfs:comment>\n";
+		print $file_handle "\t<oboInOwl:hasDefaultNamespace>", $self->default_namespace(), "</oboInOwl:hasDefaultNamespace>\n" if ($self->default_namespace());
+		print $file_handle "\t<rdfs:comment>", $self->remark(), "</rdfs:comment>\n";
+		
+		# subsetdef
+		foreach my $subset ($self->subsets()->get_set()) {
+			my ($t, @desc) = split(/\s+/, $subset);
+			print $file_handle "\t<oboInOwl:hasSubset>\n";
+			print $file_handle "\t\t<oboInOwl:Subset rdf:about=\"", $oboContentUrl, $t, "\">\n";
+			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", join(' ', @desc), "</rdfs:comment>\n";
+			print $file_handle "\t\t</oboInOwl:Subset>\n";
+			print $file_handle "\t</oboInOwl:hasSubset>\n";
+		}
+ 
+		# synonyntypedef
+		foreach my $st ($self->synonymtypes()->get_set()) {
+			my ($synonym_type_name, $description, $scope);
+			if ($st =~ /(.*)\s+\"(.*)\"\s*(.*)?/) { $synonym_type_name = $1; $description = $2; $scope = $3}
+				print $file_handle "\t<oboInOwl:hasSynonymType>\n";
+				print $file_handle "\t\t<oboInOwl:SynonymType rdf:about=\"", $oboContentUrl, $synonym_type_name, "\">\n";
+				print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $description, "</rdfs:comment>\n";
+				print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $scope, "</rdfs:comment>\n";
+				print $file_handle "\t\t</oboInOwl:SynonymType>\n";
+				print $file_handle "\t</oboInOwl:hasSynonymType>\n";
+		}
+		
+		# idspace
+		my $local_idspace = $self->idspace()->local_idspace(); 
+		if ($local_idspace) {
+			print $file_handle "\t<oboInOwl:IDSpace>\n";
+			print $file_handle "\t\t<oboInOwl:local>\n";
+			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $local_idspace, "</rdfs:comment>\n";
+			print $file_handle "\t\t</oboInOwl:local>\n";
+			print $file_handle "\t\t<oboInOwl:global>\n";
+			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->idspace()->uri(), "</rdfs:comment>\n";
+			print $file_handle "\t\t</oboInOwl:global>\n";
+			my $desc = $self->idspace()->description();
+			print $file_handle "\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $desc, "</rdfs:comment>\n";
+			print $file_handle "\t</oboInOwl:IDSpace>\n";
+		}
 		print $file_handle "</owl:Ontology>\n\n";
-		
-		#
-		# OLD: oboInOwl elements
-		#
-#		print $file_handle "<owl:DatatypeProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#dbname\">\n";
-#		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#FunctionalProperty\"/>\n";
-#		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-#		print $file_handle "</owl:DatatypeProperty>\n";
-		
-#		print $file_handle "<owl:DatatypeProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#acc\">\n";
-#		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#FunctionalProperty\"/>\n";
-#		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-#		print $file_handle "</owl:DatatypeProperty>\n";
-		
-#		print $file_handle "<owl:ObjectProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_dbxref\"/>\n";
-		
-#		print $file_handle "<owl:Class rdf:about=\"http://www.cellcycleontology.org/oboInOwl#DbXref\">\n";
-#		print $file_handle "\t<owl:intersectionOf rdf:parseType=\"Collection\">\n";
-#		print $file_handle "\t<owl:Restriction>\n";
-#		print $file_handle "\t\t<owl:cardinality rdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">1</owl:cardinality>\n";
-#		print $file_handle "\t\t<owl:onProperty rdf:resource=\"http://www.cellcycleontology.org/oboInOwl#dbname\"/>\n";
-#		print $file_handle "\t</owl:Restriction>\n";
-#		print $file_handle "\t<owl:Restriction>\n";
-#		print $file_handle "\t\t<owl:cardinality rdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">1</owl:cardinality>\n";
-#		print $file_handle "\t\t<owl:onProperty rdf:resource=\"http://www.cellcycleontology.org/oboInOwl#acc\"/>\n";
-#		print $file_handle "\t</owl:Restriction>\n";
-#		print $file_handle "\t</owl:intersectionOf>\n";
-#		print $file_handle "</owl:Class>\n";
-   
-#		print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_definition\"/>\n";
-#		print $file_handle "<owl:AnnotationProperty rdf:about=\"http://www.cellcycleontology.org/oboInOwl#has_synonym\"/>\n";
 		
 		#
 		# term
@@ -1204,8 +1322,7 @@ sub export {
 			#
 			# Class name
 			#
-			#print $file_handle "<owl:Class rdf:ID=\"", obo_id2owl_id($term->id()), "\">\n";
-			print $file_handle "<owl:Class rdf:about=\"", obo_id2owl_id($term->id()), "\">\n";
+			print $file_handle "<owl:Class rdf:about=\"", $oboContentUrl, $self->idspace()->local_idspace(), "/", obo_id2owl_id($term->id()), "\">\n";
 			
 			#
 			# label name = class name
@@ -1213,22 +1330,15 @@ sub export {
 			print $file_handle "\t<rdfs:label xml:lang=\"en\">", $term->name(), "</rdfs:label>\n";
 			
 			#
-			# alt_id:
-			#
-			foreach my $alt_id ($term->alt_id()->get_set()) {
-				print $file_handle "\t<hasAlternativeId rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $alt_id, "</hasAlternativeId>\n";
-			}
-			
-			#
 			# comment
 			#
 			print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $term->comment(), "</rdfs:comment>\n" if ($term->comment());
 			
 			#
-			# xref's
+			# subset
 			#
-			foreach my $xref ($term->xref_set_as_string()) {
-				print $file_handle "\t<xref rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $xref->as_string(), "</xref>\n";
+			foreach my $sset ($term->subset()) {
+				print $file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, $sset, "\"/>\n";
 			}
 			
 			#
@@ -1241,9 +1351,12 @@ sub export {
 				
 				for my $ref ($term->def()->dbxref_set()->get_set()) {
 					print $file_handle "\t\t\t<oboInOwl:hasDbXref>\n";
-			       		print $file_handle "\t\t\t<oboInOwl:DbXref rdf:about=\"/", $ref->db(), "#", $ref->acc(),"\">\n";
-			        #	print $file_handle "\t\t\t\t<oboInOwl:acc>", $ref->acc(),"</oboInOwl:acc>\n";
-			        #	print $file_handle "\t\t\t\t<oboInOwl:dbname>", $ref->db(),"</oboInOwl:dbname>\n";
+			       		print $file_handle "\t\t\t<oboInOwl:DbXref>\n";
+					my $db = $ref->db();
+					my $acc = $ref->acc();
+					# TODO fix the case when xref is an URI (db=http, acc=www.domain.com))
+					print $file_handle "\t\t\t\t<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
+					print $file_handle "\t\t\t\t<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,"#",$db,"_",$acc,"</oboInOwl:hasURI>\n";
 			        	print $file_handle "\t\t\t</oboInOwl:DbXref>\n";
 			        	print $file_handle "\t\t\t</oboInOwl:hasDbXref>\n";
 				}
@@ -1253,78 +1366,79 @@ sub export {
 			}
 			
 			#
-			# dbxref: todo: put them inside the definition
+			# synonym:
 			#
-#			foreach my $dbxref (@{$_->definition_dbxref_list || []}) {
-#				my $comment = $dbxref->xref_key;
-#				#print STDERR "comment: ", $comment, "\t";
-#				my $xrf_id = $cco_id_i_map->get_cco_id_by_term ($comment);
-#				if (!defined $xrf_id) { # Does this term have an associated ID?
-#					$xrf_id = $cco_id_i_map->get_new_cco_id("CCO", "I", $comment);
-#				}
-#				#print STDERR "xrf_id: ",$xrf_id, "\n";
-#				my $xrf_type = $cco_id_r_map->get_cco_id_by_term($dbxref->xref_dbname);
-#				die "The term (", $dbxref->xref_dbname, ") has not been defined in the references file." if (!defined $xrf_type);
-#				$xrf_type = obo_id2owl_id($xrf_type);
-#				
-#				if ($dbxref->xref_dbname eq "http"){ # 'http' considered as a DB ;-)
-#					$comment = "http:".$comment;
-#				}
-#				
-#				my $instance_id = obo_id2owl_id($xrf_id);
-#				$instances_buffer = "<".$xrf_type." rdf:ID=\"".$instance_id."\">\n"; # ID based on $comment
-#				#print STDERR $dbxref->xref_dbname.":".$comment, "\n";
-#				$instances_buffer .= TB."<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">".$comment."</rdfs:comment>\n";
-#				if ($dbxref->xref_desc) { 
-#					print STDERR "dbxref description: ".$dbxref->xref_desc; # <dbxref description>
-#					exit 1;
-#				}
-#				$instances_buffer .= "</".$xrf_type.">\n";
-#				
-#				# has_reference related to dbxref
-#				$has_ref{$instance_id} = $instances_buffer;
-#				print "\t<has_reference rdf:resource=\"#", $instance_id, "\"/>\n";
-#			}
-			
-		#
-		# synonym:
-		#
-	    	foreach my $synonym ($term->synonym_set()) {
-			my $synonym_type;
-			if ($synonym->type() eq "EXACT") {
-				$synonym_type = "hasExactSynonym";
-			} elsif ($synonym->type() eq "BROAD") {
-                                $synonym_type = "hasExactSynonym";
-			} elsif ($synonym->type() eq "NARROW") {
-                                $synonym_type = "hasNarrowSynonym";
-			} elsif ($synonym->type() eq "RELATED") {
-                                $synonym_type = "hasRelatedSynonym";
-			} else {
-				confess "A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED";
+			foreach my $synonym ($term->synonym_set()) {
+				my $st = $synonym->type();
+				my $synonym_type;
+				if ($st eq "EXACT") {
+					$synonym_type = "hasExactSynonym";
+				} elsif ($st eq "BROAD") {
+					$synonym_type = "hasBroadSynonym";
+				} elsif ($st eq "NARROW") {
+					$synonym_type = "hasNarrowSynonym";
+				} elsif ($st eq "RELATED") {
+					$synonym_type = "hasRelatedSynonym";
+				} else {
+					# todo consider the synonym types defined in the header: 'synonymtypedef' tag
+					confess "A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED";
+				}
+				print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
+				print $file_handle "\t\t<oboInOwl:Synonym>\n";
+				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
+				for my $ref ($synonym->def()->dbxref_set()->get_set()) {
+					print $file_handle "\t\t\t<oboInOwl:hasDbXref>\n";
+					print $file_handle "\t\t\t<oboInOwl:DbXref>\n";
+					my $db = $ref->db();
+					my $acc = $ref->acc();
+					# TODO fix the case when xref is an URI (db=http, acc=www.domain.com))
+					print $file_handle "\t\t\t\t<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
+					print $file_handle "\t\t\t\t<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,"#",$db,"_",$acc,"</oboInOwl:hasURI>\n";
+					print $file_handle "\t\t\t</oboInOwl:DbXref>\n";
+					print $file_handle "\t\t\t</oboInOwl:hasDbXref>\n";
+				}
+				print $file_handle "\t\t</oboInOwl:Synonym>\n";
+				print $file_handle "\t</oboInOwl:", $synonym_type, ">\n";
 			}
-			print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
-			print $file_handle "\t\t<oboInOwl:Synonym>\n";
-			print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
-			print $file_handle "\t\t</oboInOwl:Synonym>\n";
-			print $file_handle "\t</oboInOwl:", $synonym_type, ">\n";
-	    	}
+			
+			#
+			# namespace
+			#
+			foreach my $ns ($term->namespace()) {
+				print $file_handle "\t<oboInOwl:hasNamespace>", $ns, "</oboInOwl:hasNamespace>\n";
+			}
+
+			#
+			# alt_id:
+			#
+			foreach my $alt_id ($term->alt_id()->get_set()) {
+				print $file_handle "\t<oboInOwl:hasAlternativeId>", $alt_id, "</oboInOwl:hasAlternativeId>\n";
+			}
+
+			#
+			# xref's
+			#
+			for my $ref ($term->xref_set()->get_set()) {
+				print $file_handle "\t<oboInOwl:hasDbXref>\n";
+				print $file_handle "\t<oboInOwl:DbXref>\n";
+				my $db = $ref->db();
+				my $acc = $ref->acc();
+				# TODO fix the case when xref is an URI (db=http, acc=www.domain.com))
+				print $file_handle "\t\t<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
+				print $file_handle "\t\t<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,"#",$db,"_",$acc,"</oboInOwl:hasURI>\n";
+				print $file_handle "\t</oboInOwl:DbXref>\n";
+				print $file_handle "\t</oboInOwl:hasDbXref>\n";
+			}
 	    	
-		#
-		# disjoint_from:
-		#
-		foreach my $disjoint_term_id ($term->disjoint_from()) {
-			print $file_handle "\t<owl:disjointWith rdf:resource=\"#", obo_id2owl_id($disjoint_term_id), "\"/>\n";
-		}
-		
-	    	#
-	    	# is_a:
-	    	#
+			#
+			# is_a:
+			#
 #			my @disjoint_term = (); # for collecting the disjoint terms of the running term
-	    	my $rt = $self->get_relationship_type_by_name("is_a");
-	    	if (defined $rt)  {
-		    	my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-		    	foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
-		    		print $file_handle "\t<rdfs:subClassOf rdf:resource=\"#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
+			my $rt = $self->get_relationship_type_by_name("is a");
+			if (defined $rt)  {
+		    		my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
+		    		foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+		    		print $file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboContentUrl, $self->idspace()->local_idspace(), "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
 		    		
 #					#
 #					# Gathering for the Disjointness (see below, after the bucle)
@@ -1337,7 +1451,7 @@ sub export {
 #		#				}
 #		#			}
 
-		    	}
+				}
 #				#
 #				# Disjointness (array filled up while treating the is_a relation)
 #				#
@@ -1345,40 +1459,96 @@ sub export {
 #				#		$disjoint =~ s/:/_/;
 #				#		print $file_handle "\t<owl:disjointWith rdf:resource=\"#", $disjoint, "\"/>\n";
 #				#	}
-	    	}
+			}
 		
-		#	
-		# relationships:
-		#
-	    	foreach $rt (@{$self->get_relationship_types()}) {
-	    		if ($rt->name() ne "is_a") { # is_a is printed above
+			#	
+			# relationships:
+			#
+			foreach $rt (@{$self->get_relationship_types()}) {
+				if ($rt->name() ne "is a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 					foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
 						print $file_handle "\t<rdfs:subClassOf>\n";
 						print $file_handle "\t\t<owl:Restriction>\n";
-						print $file_handle "\t\t\t<owl:onProperty rdf:resource=\"#", $rt->name(), "\"/>\n";
-						print $file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
+						print $file_handle "\t\t\t<owl:onProperty>\n"; 
+						print $file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $self->idspace()->local_idspace(), "#", $rt->name(), "\"/>\n";
+						print $file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $self->idspace()->local_idspace(), "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
 						print $file_handle "\t\t</owl:Restriction>\n";
 						print $file_handle "\t</rdfs:subClassOf>\n";
 					}
-	    		}
-	    	}
-	    	#
-	    	# builtin:
-	    	#
-	    	#### Not used in OWL.####
+				}
+			}
+
+			#
+			# disjoint_from:
+			#
+			foreach my $disjoint_term_id ($term->disjoint_from()) {
+				print $file_handle "\t<owl:disjointWith rdf:resource=\"#", obo_id2owl_id($disjoint_term_id), "\"/>\n";
+			}
+
+			#
+			# obsolete
+			#
+			print $file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboInOwlUrl, "ObsoleteClass\"/>\n" if ($term->is_obsolete());
+
+			#
+			# intersection_of
+			#
+			my @intersection_of = $term->intersection_of();
+			if (@intersection_of) {
+				print $file_handle "\t<owl:equivalentClass>\n";
+				print $file_handle "\t\t<owl:Class>\n";
+				print $file_handle "\t\t\t<owl:intersectionOf rdf:parseType=\"Collection\">\n";
+				foreach my $tr (@intersection_of) {
+					# TODO improve the parsing of the 'interection_of' elements
+					my @inter = split(/\s+/, $tr);
+					my $local_idspace = $self->idspace()->local_idspace(); 
+                        	        # TODO check the idspace of the terms in the set 'intersection_of' and optimize the code: only one call to $self->idspace()->local_idspace()
+					my $idspace = ($tr =~ /([A-Z]+):/)?$1:$local_idspace;      
+					if (scalar @inter == 1) {
+						my $idspace = ($tr =~ /([A-Z]+):/)?$1:$local_idspace;
+                	                	print $file_handle "\t\t\t<owl:Class rdf:about=\"", $oboContentUrl, $idspace, "/", obo_id2owl_id($tr), "\"/>\n";
+					} elsif (scalar @inter == 2) { # restriction
+						print $file_handle "\t\t<owl:Restriction>\n";
+						print $file_handle "\t\t\t<owl:onProperty>\n";
+						print $file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $inter[0], "\"/>\n";
+						print $file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($inter[1]), "\"/>\n";
+						print $file_handle "\t\t</owl:Restriction>\n";
+					} else {
+						confess "Parsing error: 'intersection_of' tag has an unknown argument";
+					}
+				}
+				print $file_handle "\t\t\t</owl:intersectionOf>\n";
+				print $file_handle "\t\t</owl:Class>\n";
+				print $file_handle "\t</owl:equivalentClass>\n";
+			}
+
+			#
+			# union_of
+			#
+			my @union_of = $term->union_of();
+			if (@union_of) {
+				print $file_handle "\t<owl:equivalentClass>\n";
+				print $file_handle "\t\t<owl:Class>\n";
+				print $file_handle "\t\t\t<owl:unionOf rdf:parseType=\"Collection\">\n";
+				foreach my $tr (@union_of) {
+					# TODO check the idspace of the terms in the set 'union_of' and optimize the code: only one call to $self->idspace()->local_idspace()
+					my $idspace = ($tr =~ /([A-Z]+):/)?$1:$self->idspace()->local_idspace(); 
+					print $file_handle "\t\t\t<owl:Class rdf:about=\"", $oboContentUrl, $idspace, "/", obo_id2owl_id($tr), "\"/>\n";
+				}
+				print $file_handle "\t\t\t</owl:unionOf>\n";
+				print $file_handle "\t\t</owl:Class>\n";
+				print $file_handle "\t</owl:equivalentClass>\n";
+			}
+			#
+			# builtin:
+			#
+			#### Not used in OWL.####
 	    	
    			# End of the term
 			print $file_handle "</owl:Class>\n\n";
 		}
 		
-		#
-		# Print associated 'has_reference' instances with the hash filled up in 'dbxref'
-		#
-#		foreach my $ref (keys %has_ref) {
-#			print $file_handle $has_ref{$ref}, NL;
-#		}
-
 		#
 		# relationship types: properties
 		#
@@ -1410,33 +1580,13 @@ sub export {
 		#
 		# Datatype annotation properties: todo: AnnotationProperty or not?
 		#
-		
-		# has_reference
-		print $file_handle "<owl:ObjectProperty rdf:ID=\"has_reference\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">Describes the reference of the term definition.</rdfs:comment>\n";
-		print $file_handle "</owl:ObjectProperty>\n\n";
-		
-		# alt_id
-		print $file_handle "<owl:DatatypeProperty rdf:ID=\"hasAlternativeId\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "Defines an alternate id for a term. A term may have any number of alternate ids", "</rdfs:comment>\n";
-		print $file_handle "</owl:DatatypeProperty>\n\n";
-		
-		# xref
-		print $file_handle "<owl:DatatypeProperty rdf:ID=\"xref\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "Describes an analogous term in another vocabulary. A term may have any number of xref's.", "</rdfs:comment>\n";
-		print $file_handle "</owl:DatatypeProperty>\n\n";
-		
+
 		# autoGeneratedBy
-		print $file_handle "<owl:DatatypeProperty rdf:ID=\"autoGeneratedBy\">\n";
-		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-		print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-		print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "The program that generated this ontology.", "</rdfs:comment>\n";
-		print $file_handle "</owl:DatatypeProperty>\n\n";
+		#print $file_handle "<owl:DatatypeProperty rdf:ID=\"autoGeneratedBy\">\n";
+		#print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
+		#print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+		#print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "The program that generated this ontology.", "</rdfs:comment>\n";
+		#print $file_handle "</owl:DatatypeProperty>\n\n";
 		
 		# is_anti_symmetric
 		print $file_handle "<owl:DatatypeProperty rdf:ID=\"is_anti_symmetric\">\n";
@@ -1470,7 +1620,7 @@ sub export {
 	    	#
 	    	# is_a: term1 -> term2
 	    	#
-	    	my $rt = $self->get_relationship_type_by_name("is_a");
+	    	my $rt = $self->get_relationship_type_by_name("is a");
 	    	if (defined $rt)  {
 		    	my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 		    	foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
@@ -1479,7 +1629,7 @@ sub export {
 			    	} elsif (!defined $head->name()) {
 			    		confess "The term with id: ", $head->id(), " has no name!" ;
 			    	} else {
-			    		# todo write down the name() instead of the id()
+			    		# TODO write down the name() instead of the id()
 		    			print $file_handle "\n\t", obo_id2owl_id($term->id()), " -> ", obo_id2owl_id($head->id()), ";";
 		    		}
 		    	}
@@ -1597,21 +1747,52 @@ sub export {
 =cut
 
 sub subontology_by_terms {
-	my $self = shift;
-	my $term_set = shift;
+	my ($self, $term_set) = @_;
     
 	# TODO improve this algorithm
 	my $result = CCO::Core::Ontology->new();
 	foreach my $term ($term_set->get_set()) {
 		$result->has_term($term) || $result->add_term($term);
-		my @descendent = @{$self->get_descendent_terms($term)};
 		foreach my $rel (@{$self->get_relationships_by_target_term($term)}){
 			$result->add_relationship($rel);
 			my $rel_type = $self->get_relationship_type_by_id($rel->type());
 			$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
 		}
-		foreach my $descendent (@descendent) {
+		foreach my $descendent (@{$self->get_descendent_terms($term)}) {
 			$result->has_term($descendent) || $result->add_term($descendent);
+		}
+	}
+	return $result;
+}
+
+=head2 get_subontology_from
+
+  Usage    - $ontology->get_subontology_from($new_root_term)
+  Returns  - a subontology from the given term of this ontology 
+  Args     - the term (CCO::Core::Term) that is the root of the subontology
+  Function - creates a subontology having as root the given term
+  
+=cut
+
+sub get_subontology_from {
+	# TODO implement tests
+	my ($self, $root_term) = @_;
+	my $result = CCO::Core::Ontology->new();
+	if ($root_term) {
+		# TODO has_term():check that the term belongs to this ontology
+		#$result->add_term($root_term); # add the root term without its relationships
+		#my @queue = @{$self->get_child_terms($root_term)};
+		my @queue = ($root_term);
+		while (scalar(@queue) > 0) {
+			my $unqueued = shift @queue;
+			$result->add_term($unqueued);
+			foreach my $rel (@{$self->get_relationships_by_target_term($unqueued)}){
+				$result->add_relationship($rel);
+				my $rel_type = $self->get_relationship_type_by_id($rel->type());
+				$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+			}
+			my @children = @{$self->get_child_terms($unqueued)};
+			@queue = (@queue, @children);
 		}
 	}
 	return $result;
@@ -1641,20 +1822,17 @@ sub obo_id2owl_id {
 =cut
 sub get_descendent_terms {
 	# TODO implement another method: get_descendent_terms(string)
-	my $self = shift;
+	my ($self, $term) = @_;
 	my $result = CCO::Util::TermSet->new();
-    if (@_) {
-    	my $term = shift;
-    	
-    	my @queue = @{$self->get_child_terms($term)}; 
-    	while (scalar(@queue) > 0) {
-    		my $unqueued = shift @queue;
-    		$result->add($unqueued); 
-    		my @children = @{$self->get_child_terms($unqueued)}; 
-    		@queue = (@queue, @children);
-    		
-    	}
-    }
+	if ($term) {    	
+		my @queue = @{$self->get_child_terms($term)}; 
+		while (scalar(@queue) > 0) {
+			my $unqueued = shift @queue;
+			$result->add($unqueued); 
+			my @children = @{$self->get_child_terms($unqueued)}; 
+			@queue = (@queue, @children);
+		}
+	}
 	my @arr = $result->get_set();
 	return \@arr;
 }
@@ -1669,10 +1847,9 @@ sub get_descendent_terms {
 =cut
 sub get_ancestor_terms {
 	
-	my $self = shift;
+	my ($self, $term) = @_;
 	my $result = CCO::Util::TermSet->new();
-    if (@_) {
-    	my $term = shift;
+    if ($term) {
     	my @queue = @{$self->get_parent_terms($term)};
     	while (scalar(@queue) > 0) {
     		my $unqueued = shift @queue;
@@ -1813,11 +1990,33 @@ sub create_rel (){
 	return $self;
 }
 
+=head2 get_term_by_xref
+
+  Usage    - $ontology->get_term_by_xref($db, $acc)
+  Returns  - the term (CCO::Core::Term) associated with the given external database ID. 'undef' is returned if there is no term for the given arguments.	
+  Args     - the name of the external database and the ID (strings)
+  Function - returns the term associated with the given external database ID
+  
+=cut
+sub get_term_by_xref {
+	my ($self, $db, $acc) = @_;
+    my $result;
+    if ($db && $acc) {		
+		foreach my $term (@{$self->get_terms()}) { # return the exact occurrence
+			$result = $term; 
+			foreach my $xref ($term->xref_set_as_string()) {
+				return $result if (($xref->db() eq $db) && ($xref->acc() eq $acc));
+			}
+		}
+    }
+	return undef;
+}
+
 1;
 
 =head1 NAME
 
-    CCO::Core::Ontology  - an ontology 
+    CCO::Core::Ontology  - an ontology holding terms and their relationships
     
 =head1 SYNOPSIS
 
@@ -1987,7 +2186,7 @@ my @processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P.*")};
 
 my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000[35]")};
 
-$onto->namespace("CCO");
+$onto-idspace("CCO");
 
 my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
 
@@ -2141,7 +2340,7 @@ $onto->add_relationship_type($r3);
 
 # get descendents or ancestors linked by a particular relationship type 
 
-my $rel_type1 = $onto->get_relationship_type_by_name("is_a");
+my $rel_type1 = $onto->get_relationship_type_by_name("is a");
 
 my $rel_type2 = $onto->get_relationship_type_by_name("part_of");
 

@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 153;
+    plan tests => 160;
 }
 
 #########################
@@ -54,6 +54,10 @@ $def3->text("Definition of Tres");
 $n1->def($def1);
 $n2->def($def2);
 $n3->def($def3);
+
+$n1->xref_set_as_string("[GO:0000001]");
+$n2->xref_set_as_string("[GO:0000002]");
+$n3->xref_set_as_string("[GO:0000003]");
 
 $onto->add_term($n1);
 ok($onto->has_term($n1) == 1);
@@ -170,7 +174,8 @@ my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000
 ok($#odd_processes == 1);
 ok($odd_processes[0]->id() eq "CCO:P0000003");
 ok($odd_processes[1]->id() eq "CCO:P0000005");
-$onto->namespace("CCO");
+$onto->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO", "cell cycle ontology terms");
+ok($onto->idspace()->local_idspace() eq "CCO");
 my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
 ok(@same_processes == @processes);
 my @no_processes = @{$onto->get_terms_by_subnamespace("p")};
@@ -182,6 +187,10 @@ ok($onto->get_term_by_name("Uj")->equals($n1));
 ok($onto->get_term_by_name("Two")->equals($n2));
 ok($onto->get_term_by_name("Three")->equals($n3));
 ok($onto->get_term_by_name("Four")->equals($n4));
+
+ok($onto->get_term_by_xref("GO", "0000001")->equals($n1));
+ok($onto->get_term_by_xref("GO", "0000002")->equals($n2));
+ok($onto->get_term_by_xref("GO", "0000003")->equals($n3));
 
 ok($onto->get_terms_by_name("Uj")->contains($n1));
 ok($onto->get_terms_by_name("Two")->contains($n2));
@@ -436,7 +445,30 @@ ok(($onto->get_terms_by_name("cell cycle process")->get_set())[0]->id() eq $n2->
 ok(($onto->get_terms_by_name("re-entry into mitotic cell cycle after pheromone arrest")->get_set())[0]->id() eq $n3->id());
 
 ok($onto->get_terms_by_name("cell cycle")->size() == 3);
-#$so->export(\*STDERR);
+$so->imports("o1", "02");
+$so->date("11:03:2007 21:46");
+$so->data_version("09:03:2007 19:30");
+$so->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/CCO", "cell cycle terms");
+ok($so->idspace->local_idspace() eq "CCO");
+ok($so->idspace->uri() eq "http://www.cellcycleontology.org/ontology/CCO");
+ok($so->idspace->description() eq "cell cycle terms");
+$so->remark("This is a test ontology");
+$so->subsets("Jukumari Term used for jukumari", "Jukucha Term used for jukucha");
+$so->synonymtypes("acronym \"acronym\" BROAD", "common_name \"common name\" EXACT");
+$n1->subset("Jukumari");
+$n1->subset("Jukucha");
+$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+$n1->xref_set_as_string("CCO:ea");
+$n3->synonym_as_string("This is a dummy synonym definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}", "EXACT");
+$n3->alt_id("CCO:P0000033");
+$n3->namespace("cellcycle");
+$n3->is_obsolete("1");
+$n3->union_of("GO:0001");
+$n3->union_of("GO:0002");
+$n2->intersection_of("GO:0003");
+$n2->intersection_of("part_of GO:0004");
+#$so->export(\*STDERR, 'owl');
+#$so->export(\*STDERR, 'obo');
 ok($onto->get_number_of_relationships() == 6);
 $onto->create_rel($n4, 'part_of', $n5);
 ok($onto->get_number_of_relationships() == 7);

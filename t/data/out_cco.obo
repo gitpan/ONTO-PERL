@@ -93,7 +93,7 @@ is_a: CCO:P0000294 ! regulation of cell cycle
 [Term]
 id: CCO:P0000005
 name: cell cycle checkpoint
-def: "A point in the eukaryotic cell cycle where progress through the cycle can be halted until conditions are suitable for the cell to proceed to the next stage." [ISBN:0815316194, GOC:mah]
+def: "A point in the eukaryotic cell cycle where progress through the cycle can be halted until conditions are suitable for the cell to proceed to the next stage." [GOC:mah, ISBN:0815316194]
 xref: GO:0000075
 xref: Reactome:69620
 is_a: CCO:P0000004 ! regulation of progression through cell cycle
@@ -101,7 +101,7 @@ is_a: CCO:P0000004 ! regulation of progression through cell cycle
 [Term]
 id: CCO:P0000006
 name: DNA replication checkpoint
-def: "A signal transduction based surveillance mechanism that prevents the initiation of mitosis until DNA replication is complete, thereby ensuring that progeny inherit a full complement of the genome." [GOC:rn, PMID:12537518, PMID:11728327]
+def: "A signal transduction based surveillance mechanism that prevents the initiation of mitosis until DNA replication is complete, thereby ensuring that progeny inherit a full complement of the genome." [GOC:rn, PMID:11728327, PMID:12537518]
 xref: GO:0000076
 is_a: CCO:P0000157 ! DNA integrity checkpoint
 
@@ -116,7 +116,7 @@ is_a: CCO:P0000157 ! DNA integrity checkpoint
 [Term]
 id: CCO:P0000008
 name: cell morphogenesis checkpoint
-def: "A cell cycle checkpoint observed when aspects of polarity control are defective, which maintains coordination between the process of cellular morphogenesis and the nuclear events of the cell cycle. For example, in budding yeast cell-cycle delay or arrest is induced when aspects of bud formation are defective." [PMID:14644188, GOC:vw]
+def: "A cell cycle checkpoint observed when aspects of polarity control are defective, which maintains coordination between the process of cellular morphogenesis and the nuclear events of the cell cycle. For example, in budding yeast cell-cycle delay or arrest is induced when aspects of bud formation are defective." [GOC:vw, PMID:14644188]
 xref: GO:0000078
 is_a: CCO:P0000005 ! cell cycle checkpoint
 
@@ -184,7 +184,7 @@ relationship: part_of CCO:P0000273 ! interphase of mitotic cell cycle
 [Term]
 id: CCO:P0000016
 name: M phase of mitotic cell cycle
-def: "Progression through M phase, the part of the mitotic cell cycle during which mitosis and cytokinesis take place." [ISBN:0815316194, GOC:mah]
+def: "Progression through M phase, the part of the mitotic cell cycle during which mitosis and cytokinesis take place." [GOC:mah, ISBN:0815316194]
 synonym: "M-phase of mitotic cell cycle" EXACT []
 xref: GO:0000087
 xref: Reactome:68886
@@ -318,7 +318,7 @@ relationship: part_of CCO:P0000273 ! interphase of mitotic cell cycle
 [Term]
 id: CCO:P0000031
 name: mitotic prometaphase
-def: "Progression through prometaphase, the stage following prophase in mitosis (in higher eukaryotes) during which the nuclear envelope is disrupted and breaks into membrane vesicles, and the spindle microtubules enter the nuclear region. Kinetochores mature on each centromere and attach to some of the spindle microtubules. Kinetochore microtubules begin the process of aligning chromosomes in one plane halfway between the poles." [ISBN:0198547684, GOC:mah]
+def: "Progression through prometaphase, the stage following prophase in mitosis (in higher eukaryotes) during which the nuclear envelope is disrupted and breaks into membrane vesicles, and the spindle microtubules enter the nuclear region. Kinetochores mature on each centromere and attach to some of the spindle microtubules. Kinetochore microtubules begin the process of aligning chromosomes in one plane halfway between the poles." [GOC:mah, ISBN:0198547684]
 xref: GO:0000236
 xref: Reactome:68877
 is_a: CCO:P0000309 ! cell cycle phase
@@ -367,7 +367,7 @@ relationship: part_of CCO:P0000105 ! meiotic prophase I
 [Term]
 id: CCO:P0000037
 name: mitotic cell cycle
-def: "Progression through the phases of the mitotic cell cycle, the most common eukaryotic cell cycle, in which a cell is duplicated without changing ploidy; comprises four successive phases called G1, S, G2, and M." [ISBN:0815316194, GOC:mah]
+def: "Progression through the phases of the mitotic cell cycle, the most common eukaryotic cell cycle, in which a cell is duplicated without changing ploidy; comprises four successive phases called G1, S, G2, and M." [GOC:mah, ISBN:0815316194]
 xref: GO:0000278
 xref: Reactome:69278
 is_a: CCO:P0000056 ! cell cycle
@@ -398,7 +398,7 @@ is_a: CCO:P0000004 ! regulation of progression through cell cycle
 [Term]
 id: CCO:P0000041
 name: re-entry into mitotic cell cycle after pheromone arrest
-def: "The resumption of the mitotic cell division cycle by pheromone-arrested cells that have not mated." [PMID:9927449, GOC:krc]
+def: "The resumption of the mitotic cell division cycle by pheromone-arrested cells that have not mated." [GOC:krc, PMID:9927449]
 synonym: "re-entry into mitotic cell cycle after pheromone arrest (sensu Saccharomyces)" NARROW []
 xref: GO:0000321
 is_a: CCO:P0000040 ! re-entry into mitotic cell cycle
@@ -406,14 +406,14 @@ is_a: CCO:P0000040 ! re-entry into mitotic cell cycle
 [Term]
 id: CCO:P0000042
 name: achiasmate meiosis I
-def: "The first division of meiosis in which homologous chromosomes are paired and segregated from each other, occurring in the constitutive absence of chiasmata." [PMID:10690419, GOC:sart, GOC:elh]
+def: "The first division of meiosis in which homologous chromosomes are paired and segregated from each other, occurring in the constitutive absence of chiasmata." [GOC:elh, GOC:sart, PMID:10690419]
 xref: GO:0000705
 is_a: CCO:P0000104 ! meiosis I
 
 [Term]
 id: CCO:P0000043
 name: meiotic DNA double-strand break processing
-def: "The cell cycle process whereby the 5' to 3' exonucleolytic resection of the DNA at the site of the break to form a 3' single-strand DNA overhang occurs. This takes place during meiosis." [PMID:9334324, GOC:elh]
+def: "The cell cycle process whereby the 5' to 3' exonucleolytic resection of the DNA at the site of the break to form a 3' single-strand DNA overhang occurs. This takes place during meiosis." [GOC:elh, PMID:9334324]
 xref: GO:0000706
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000054 ! meiotic gene conversion
@@ -422,7 +422,7 @@ relationship: part_of CCO:P0000108 ! meiotic recombination
 [Term]
 id: CCO:P0000044
 name: meiotic DNA recombinase assembly
-def: "During meiosis, the assembly of strand exchange proteins (recombinases) into higher order oligomers on single-stranded DNA." [PMID:11459983, GOC:elh]
+def: "During meiosis, the assembly of strand exchange proteins (recombinases) into higher order oligomers on single-stranded DNA." [GOC:elh, PMID:11459983]
 xref: GO:0000707
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000054 ! meiotic gene conversion
@@ -431,7 +431,7 @@ relationship: part_of CCO:P0000108 ! meiotic recombination
 [Term]
 id: CCO:P0000045
 name: meiotic strand invasion
-def: "The cell cycle process whereby the nucleoprotein complex (composed of the broken single-strand DNA and the recombinase) searches and identifies a region of homology in intact duplex DNA. The broken single-strand DNA displaces the like strand and forms Watson-Crick base pairs with its complement, forming a duplex in which each strand is from one of the two recombining DNA molecules. This occurs during meiosis." [PMID:10915877, GOC:elh]
+def: "The cell cycle process whereby the nucleoprotein complex (composed of the broken single-strand DNA and the recombinase) searches and identifies a region of homology in intact duplex DNA. The broken single-strand DNA displaces the like strand and forms Watson-Crick base pairs with its complement, forming a duplex in which each strand is from one of the two recombining DNA molecules. This occurs during meiosis." [GOC:elh, PMID:10915877]
 synonym: "meiotic D-loop biosynthesis" RELATED []
 synonym: "meiotic D-loop formation" RELATED []
 xref: GO:0000708
@@ -442,7 +442,7 @@ relationship: part_of CCO:P0000108 ! meiotic recombination
 [Term]
 id: CCO:P0000046
 name: meiotic joint molecule formation
-def: "The conversion of the paired broken DNA and homologous duplex DNA into a four-stranded branched intermediate, known as a joint molecule. These joint molecules contain Holliday junctions on either side of heteroduplex DNA." [PMID:8521495, GOC:elh]
+def: "The conversion of the paired broken DNA and homologous duplex DNA into a four-stranded branched intermediate, known as a joint molecule. These joint molecules contain Holliday junctions on either side of heteroduplex DNA." [GOC:elh, PMID:8521495]
 xref: GO:0000709
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000108 ! meiotic recombination
@@ -450,7 +450,7 @@ relationship: part_of CCO:P0000108 ! meiotic recombination
 [Term]
 id: CCO:P0000047
 name: meiotic mismatch repair
-def: "A system for the identification and correction of base-base mismatches, small insertion-deletion loops, and regions of heterology that are present in duplex DNA formed with strands from two recombining molecules. Correction of the mismatch can result in non-Mendelian segregation of alleles following meiosis." [PMID:10357855, GOC:elh]
+def: "A system for the identification and correction of base-base mismatches, small insertion-deletion loops, and regions of heterology that are present in duplex DNA formed with strands from two recombining molecules. Correction of the mismatch can result in non-Mendelian segregation of alleles following meiosis." [GOC:elh, PMID:10357855]
 xref: GO:0000710
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000054 ! meiotic gene conversion
@@ -459,7 +459,7 @@ relationship: part_of CCO:P0000108 ! meiotic recombination
 [Term]
 id: CCO:P0000048
 name: meiotic DNA repair synthesis
-def: "During meiosis, the synthesis of DNA proceeding from the broken 3' single-strand DNA end that uses the homologous intact duplex as the template." [PMID:9334324, GOC:elh]
+def: "During meiosis, the synthesis of DNA proceeding from the broken 3' single-strand DNA end that uses the homologous intact duplex as the template." [GOC:elh, PMID:9334324]
 xref: GO:0000711
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000054 ! meiotic gene conversion
@@ -468,7 +468,7 @@ relationship: part_of CCO:P0000108 ! meiotic recombination
 [Term]
 id: CCO:P0000049
 name: resolution of meiotic joint molecules as recombinants
-def: "The cleavage and rejoining of Holliday junctions to produce two intact molecules in which genetic material has been exchanged." [PMID:11733053, GOC:elh]
+def: "The cleavage and rejoining of Holliday junctions to produce two intact molecules in which genetic material has been exchanged." [GOC:elh, PMID:11733053]
 synonym: "crossover biosynthesis" NARROW []
 synonym: "crossover formation" NARROW []
 synonym: "formation of chiasmata" NARROW []
@@ -482,7 +482,7 @@ relationship: part_of CCO:P0000191 ! homologous chromosome segregation
 [Term]
 id: CCO:P0000050
 name: meiotic heteroduplex formation
-def: "During meiosis, the formation of a stable duplex DNA that contains one strand from each of the two recombining DNA molecules." [PMID:9334324, GOC:elh]
+def: "During meiosis, the formation of a stable duplex DNA that contains one strand from each of the two recombining DNA molecules." [GOC:elh, PMID:9334324]
 xref: GO:0000713
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000054 ! meiotic gene conversion
@@ -490,7 +490,7 @@ relationship: part_of CCO:P0000054 ! meiotic gene conversion
 [Term]
 id: CCO:P0000051
 name: meiotic strand displacement
-def: "The cell cycle process whereby the broken 3' single-strand DNA molecule that formed heteroduplex DNA with its complement in an intact duplex DNA is rejected. The Watson-Crick base pairing in the original duplex is restored. The rejected 3' single-strand DNA molecule reanneals with its original complement to reform two intact duplex molecules. This occurs during meiosis." [PMID:10357855, GOC:elh]
+def: "The cell cycle process whereby the broken 3' single-strand DNA molecule that formed heteroduplex DNA with its complement in an intact duplex DNA is rejected. The Watson-Crick base pairing in the original duplex is restored. The rejected 3' single-strand DNA molecule reanneals with its original complement to reform two intact duplex molecules. This occurs during meiosis." [GOC:elh, PMID:10357855]
 xref: GO:0000714
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000054 ! meiotic gene conversion
@@ -619,7 +619,7 @@ relationship: part_of CCO:P0000117 ! male meiosis
 [Term]
 id: CCO:P0000066
 name: mitotic sister chromatid cohesion
-def: "The cell cycle process whereby the sister chromatids of a replicated chromosome are joined along the entire length of the chromosome during mitosis. This cohesion cycle is critical for high fidelity chromosome transmission." [PMID:11389843, PMID:10827941, GOC:rn, GOC:ai]
+def: "The cell cycle process whereby the sister chromatids of a replicated chromosome are joined along the entire length of the chromosome during mitosis. This cohesion cycle is critical for high fidelity chromosome transmission." [GOC:ai, GOC:rn, PMID:10827941, PMID:11389843]
 synonym: "mitotic sister-chromatid adhesion release" RELATED []
 xref: GO:0007064
 is_a: CCO:P0000308 ! cell cycle process
@@ -644,7 +644,7 @@ relationship: part_of CCO:P0000120 ! female meiosis
 [Term]
 id: CCO:P0000069
 name: mitosis
-def: "Progression through mitosis, the division of the eukaryotic cell nucleus to produce two daughter nuclei that, usually, contain the identical chromosome complement to their mother." [ISBN:0198547684, GOC:ma]
+def: "Progression through mitosis, the division of the eukaryotic cell nucleus to produce two daughter nuclei that, usually, contain the identical chromosome complement to their mother." [GOC:ma, ISBN:0198547684]
 xref: GO:0007067
 is_a: CCO:P0000309 ! cell cycle phase
 relationship: part_of CCO:P0000016 ! M phase of mitotic cell cycle
@@ -735,7 +735,7 @@ is_a: CCO:P0000074 ! activation of transcription on exit from mitosis
 [Term]
 id: CCO:P0000078
 name: mitotic chromosome condensation
-def: "The cell cycle process whereby chromatin structure is compacted prior to mitosis in eukaryotic cells." [ISBN:0815316194, GOC:mah]
+def: "The cell cycle process whereby chromatin structure is compacted prior to mitosis in eukaryotic cells." [GOC:mah, ISBN:0815316194]
 xref: GO:0007076
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000002 ! mitotic sister chromatid segregation
@@ -777,7 +777,7 @@ relationship: part_of CCO:P0000002 ! mitotic sister chromatid segregation
 [Term]
 id: CCO:P0000082
 name: mitotic metaphase plate congression
-def: "The cell cycle process whereby chromosomes are aligned at the metaphase plate, a plane halfway between the poles of the mitotic spindle, during mitosis." [ISBN:0815316194, GOC:mah]
+def: "The cell cycle process whereby chromosomes are aligned at the metaphase plate, a plane halfway between the poles of the mitotic spindle, during mitosis." [GOC:mah, ISBN:0815316194]
 xref: GO:0007080
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000002 ! mitotic sister chromatid segregation
@@ -827,7 +827,7 @@ relationship: part_of CCO:P0000069 ! mitosis
 [Term]
 id: CCO:P0000088
 name: traversing start control point of mitotic cell cycle
-def: "Passage through a cell cycle control point late in G1 phase of the mitotic cell cycle just before entry into S phase; in most organisms studied, including budding yeast and animal cells, passage through start normally commits the cell to progressing through the entire cell cycle." [ISBN:0815316194, GOC:mah]
+def: "Passage through a cell cycle control point late in G1 phase of the mitotic cell cycle just before entry into S phase; in most organisms studied, including budding yeast and animal cells, passage through start normally commits the cell to progressing through the entire cell cycle." [GOC:mah, ISBN:0815316194]
 synonym: "G1 checkpoint" RELATED []
 xref: GO:0000081
 xref: GO:0007089
@@ -855,7 +855,7 @@ relationship: part_of CCO:P0000069 ! mitosis
 [Term]
 id: CCO:P0000091
 name: anaphase-promoting complex activation during mitotic cell cycle
-def: "Any process that activates, maintains or increases the rate of the ubiquitin ligase activity of the anaphase-promoting complex during the mitotic cell cycle." [PMID:10871297, GOC:mah]
+def: "Any process that activates, maintains or increases the rate of the ubiquitin ligase activity of the anaphase-promoting complex during the mitotic cell cycle." [GOC:mah, PMID:10871297]
 synonym: "APC activation during mitotic cell cycle" EXACT []
 synonym: "activation of ubiquitin ligase activity of APC during mitotic cell cycle" EXACT []
 synonym: "activation of ubiquitin ligase activity of anaphase promoting complex during mitotic cell cycle" EXACT []
@@ -884,7 +884,7 @@ relationship: part_of CCO:P0000139 ! regulation of mitotic metaphase/anaphase tr
 [Term]
 id: CCO:P0000092
 name: mitotic checkpoint
-def: "A signal transduction-based surveillance mechanism that ensures accurate chromosome segregation by preventing entry into, passage through and exit from mitosis. Events that may be monitored include the formation of a correctly assembled spindle, the position of the spindle pole (centrosome) and the orientation of the spindle and cellular morphogenesis." [PMID:12360190, GOC:rn]
+def: "A signal transduction-based surveillance mechanism that ensures accurate chromosome segregation by preventing entry into, passage through and exit from mitosis. Events that may be monitored include the formation of a correctly assembled spindle, the position of the spindle pole (centrosome) and the orientation of the spindle and cellular morphogenesis." [GOC:rn, PMID:12360190]
 xref: GO:0007093
 xref: Reactome:73676
 is_a: CCO:P0000005 ! cell cycle checkpoint
@@ -893,7 +893,7 @@ is_a: CCO:P0000087 ! regulation of mitosis
 [Term]
 id: CCO:P0000093
 name: mitotic spindle checkpoint
-def: "A signal transduction based surveillance mechanism that ensures the fidelity of cell division by preventing the premature advance of cells from metaphase to anaphase prior to the successful attachment of kinetochores to spindle microtubules (spindle assembly)." [PMID:12360190, GOC:rn]
+def: "A signal transduction based surveillance mechanism that ensures the fidelity of cell division by preventing the premature advance of cells from metaphase to anaphase prior to the successful attachment of kinetochores to spindle microtubules (spindle assembly)." [GOC:rn, PMID:12360190]
 synonym: "Mad2-dependent checkpoint" NARROW []
 xref: GO:0007094
 xref: Reactome:69618
@@ -903,7 +903,7 @@ is_a: CCO:P0000164 ! spindle checkpoint
 [Term]
 id: CCO:P0000094
 name: mitotic G2 checkpoint
-def: "A signal transduction-based surveillance mechanism that ensures accurate chromosome segregation by preventing entry into mitosis in the presence of damaged DNA." [PMID:11406266, PMID:10856933, GOC:mah]
+def: "A signal transduction-based surveillance mechanism that ensures accurate chromosome segregation by preventing entry into mitosis in the presence of damaged DNA." [GOC:mah, PMID:10856933, PMID:11406266]
 synonym: "mitotic G2/M transition DNA damage checkpoint" EXACT []
 xref: GO:0007095
 is_a: CCO:P0000092 ! mitotic checkpoint
@@ -926,7 +926,7 @@ is_a: CCO:P0000308 ! cell cycle process
 [Term]
 id: CCO:P0000097
 name: centriole replication
-def: "The cell cycle process whereby a daughter centriole is formed perpendicular to an existing centriole. An immature centriole contains a ninefold radially symmetric array of single microtubules; mature centrioles consist of a radial array of nine microtubule triplets, doublets, or singlets depending upon the species and cell type." [ISBN:0815316194, GOC:kva]
+def: "The cell cycle process whereby a daughter centriole is formed perpendicular to an existing centriole. An immature centriole contains a ninefold radially symmetric array of single microtubules; mature centrioles consist of a radial array of nine microtubule triplets, doublets, or singlets depending upon the species and cell type." [GOC:kva, ISBN:0815316194]
 synonym: "centriole duplication" EXACT []
 xref: GO:0007099
 is_a: CCO:P0000308 ! cell cycle process
@@ -1128,7 +1128,7 @@ relationship: part_of CCO:P0000120 ! female meiosis
 [Term]
 id: CCO:P0000122
 name: meiotic recombination nodule assembly
-def: "The assembly of small, electron dense structures in association with meiotic chromosomes." [PMID:9334324, GOC:jl]
+def: "The assembly of small, electron dense structures in association with meiotic chromosomes." [GOC:jl, PMID:9334324]
 xref: GO:0007146
 is_a: CCO:P0000044 ! meiotic DNA recombinase assembly
 
@@ -1193,7 +1193,7 @@ relationship: part_of CCO:P0000176 ! syncytial blastoderm mitotic cell cycle
 [Term]
 id: CCO:P0000127
 name: cyclin catabolic process
-def: "The chemical reactions and pathways resulting in the breakdown of cyclins, proteins whose levels in a cell varies markedly during the cell cycle, and which play key roles in regulating cell cycle phase transitions." [http:cancerweb.ncl.ac.uk, GOC:mah]
+def: "The chemical reactions and pathways resulting in the breakdown of cyclins, proteins whose levels in a cell varies markedly during the cell cycle, and which play key roles in regulating cell cycle phase transitions." [GOC:mah, http:cancerweb.ncl.ac.uk]
 synonym: "cyclin breakdown" EXACT []
 synonym: "cyclin catabolism" EXACT []
 synonym: "cyclin degradation" EXACT []
@@ -1229,7 +1229,7 @@ relationship: part_of CCO:P0000193 ! mitotic cell cycle, embryonic
 [Term]
 id: CCO:P0000130
 name: cell plate formation (sensu Magnoliophyta)
-def: "The cell cycle process whereby the cell plate is formed at the equator of the spindle in the dividing cells during early telophase. As in, but not restricted to, the flowering plants (Magnoliophyta, ncbi_taxonomy_id:3398)." [ISBN:0879015322, GOC:tb]
+def: "The cell cycle process whereby the cell plate is formed at the equator of the spindle in the dividing cells during early telophase. As in, but not restricted to, the flowering plants (Magnoliophyta, ncbi_taxonomy_id:3398)." [GOC:tb, ISBN:0879015322]
 xref: GO:0009920
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000069 ! mitosis
@@ -1331,7 +1331,7 @@ is_a: CCO:P0000058 ! mitotic spindle organization and biogenesis
 [Term]
 id: CCO:P0000141
 name: horsetail nuclear movement
-def: "The cell cycle process whereby oscillatory movement of the nucleus during meiotic prophase I occurs. This oscillatory movement is led by an astral microtubule array emanating from the spindle pole body, which may facilitate synapsis necessary for efficient meiotic recombination; as observed in S. pombe." [PMID:9572142, PMID:16111942]
+def: "The cell cycle process whereby oscillatory movement of the nucleus during meiotic prophase I occurs. This oscillatory movement is led by an astral microtubule array emanating from the spindle pole body, which may facilitate synapsis necessary for efficient meiotic recombination; as observed in S. pombe." [PMID:16111942, PMID:9572142]
 synonym: "HNM" EXACT []
 synonym: "horsetail movement" EXACT []
 xref: GO:0030989
@@ -1355,7 +1355,7 @@ relationship: part_of CCO:P0000096 ! centrosome cycle
 [Term]
 id: CCO:P0000144
 name: linear element formation
-def: "The cell cycle process whereby a proteinaceous scaffold, related to the synaptonemal complex, is formed in association with S. pombe chromosomes during meiotic prophase." [Sanger:jb, GOC:mah]
+def: "The cell cycle process whereby a proteinaceous scaffold, related to the synaptonemal complex, is formed in association with S. pombe chromosomes during meiotic prophase." [GOC:mah, Sanger:jb]
 xref: GO:0030999
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000106 ! synapsis
@@ -1363,7 +1363,7 @@ relationship: part_of CCO:P0000106 ! synapsis
 [Term]
 id: CCO:P0000145
 name: septation initiation signaling
-def: "The series of molecular signals, mediated by the small GTPase Ras, that results in the initiation of contraction of the contractile ring, at the begining of cytokinesis and cell division by septum formation. The pathway coordinates chromosome segregation with mitotic exit and cytokinesis." [PMID:16775007, GOC:vw, GOC:mah]
+def: "The series of molecular signals, mediated by the small GTPase Ras, that results in the initiation of contraction of the contractile ring, at the begining of cytokinesis and cell division by septum formation. The pathway coordinates chromosome segregation with mitotic exit and cytokinesis." [GOC:mah, GOC:vw, PMID:16775007]
 synonym: "SIN" EXACT []
 synonym: "septation initiation network" EXACT []
 synonym: "septation initiation signalling" EXACT []
@@ -1419,7 +1419,7 @@ relationship: part_of CCO:P0000082 ! mitotic metaphase plate congression
 [Term]
 id: CCO:P0000150
 name: collapsed replication fork processing
-def: "The process by which a DNA replication fork that has stalled (due to DNA damage, DNA secondary structure, bound proteins, dNTP shortage, or other causes) is repaired by a recombinational mechanism." [PMID:15367656, PMID:11459955]
+def: "The process by which a DNA replication fork that has stalled (due to DNA damage, DNA secondary structure, bound proteins, dNTP shortage, or other causes) is repaired by a recombinational mechanism." [PMID:11459955, PMID:15367656]
 xref: GO:0031297
 relationship: part_of CCO:P0000160 ! intra-S DNA damage checkpoint
 
@@ -1438,7 +1438,7 @@ is_a: CCO:P0000095 ! regulation of exit from mitosis
 [Term]
 id: CCO:P0000152
 name: cytokinesis checkpoint
-def: "A cell cycle checkpoint that ensures the correct temporal ordering of nuclear division and cytokinesis; arrests the cell cycle in G2 upon perturbation of cytokinetic structures. In Schizosaccharomyces, the checkpoint monitors formation and integrity of medial actomyosin ring and septum." [PMID:15647375, GOC:mah]
+def: "A cell cycle checkpoint that ensures the correct temporal ordering of nuclear division and cytokinesis; arrests the cell cycle in G2 upon perturbation of cytokinetic structures. In Schizosaccharomyces, the checkpoint monitors formation and integrity of medial actomyosin ring and septum." [GOC:mah, PMID:15647375]
 synonym: "contractile ring checkpoint" EXACT []
 xref: GO:0031565
 is_a: CCO:P0000005 ! cell cycle checkpoint
@@ -1477,7 +1477,7 @@ is_a: CCO:P0000163 ! G2/M transition checkpoint
 [Term]
 id: CCO:P0000157
 name: DNA integrity checkpoint
-def: "Any cell cycle checkpoint that delays or arrests cell cycle progression in response to changes in DNA structure." [GOC:vw, GOC:mah]
+def: "Any cell cycle checkpoint that delays or arrests cell cycle progression in response to changes in DNA structure." [GOC:mah, GOC:vw]
 xref: GO:0031570
 is_a: CCO:P0000005 ! cell cycle checkpoint
 
@@ -1537,7 +1537,7 @@ is_a: CCO:P0000005 ! cell cycle checkpoint
 [Term]
 id: CCO:P0000165
 name: spindle orientation checkpoint
-def: "A cell cycle checkpoint that monitors and signals errors in the placement or orientation of the spindle in the cell. The result is a cell cycle delay, usually in mitosis, until errors are corrected." [PMID:14616062, GOC:clt]
+def: "A cell cycle checkpoint that monitors and signals errors in the placement or orientation of the spindle in the cell. The result is a cell cycle delay, usually in mitosis, until errors are corrected." [GOC:clt, PMID:14616062]
 synonym: "SOC" EXACT []
 synonym: "SPOC" EXACT []
 synonym: "spindle position checkpoint" EXACT []
@@ -1671,7 +1671,7 @@ relationship: part_of CCO:P0000037 ! mitotic cell cycle
 [Term]
 id: CCO:P0000178
 name: regulation of meiosis
-def: "Any process that modulates the frequency, rate or extent of meiosis, the process by which the nucleus of a diploid cell divides twice forming four haploid cells, one or more of which usually function as gametes." [GOC:ma, GOC:ems]
+def: "Any process that modulates the frequency, rate or extent of meiosis, the process by which the nucleus of a diploid cell divides twice forming four haploid cells, one or more of which usually function as gametes." [GOC:ems, GOC:ma]
 xref: GO:0040020
 is_a: CCO:P0000004 ! regulation of progression through cell cycle
 relationship: part_of CCO:P0000103 ! meiosis
@@ -1679,7 +1679,7 @@ relationship: part_of CCO:P0000103 ! meiosis
 [Term]
 id: CCO:P0000179
 name: polar body extrusion after meiotic divisions
-def: "The cell cycle process whereby two small cells are generated, as byproducts destined to degenerate, as a result of the first and second meiotic divisions of a primary oocyte during its development to a mature ovum. One polar body is formed in the first division of meiosis and the other in the second division; at each division, the cytoplasm divides unequally, so that the polar body is of much smaller size than the developing oocyte. At the second division in which a polar body is formed, the polar body and the developing oocyte each contain a haploid set of chromosomes." [ISBN:0198506732, GOC:ems]
+def: "The cell cycle process whereby two small cells are generated, as byproducts destined to degenerate, as a result of the first and second meiotic divisions of a primary oocyte during its development to a mature ovum. One polar body is formed in the first division of meiosis and the other in the second division; at each division, the cytoplasm divides unequally, so that the polar body is of much smaller size than the developing oocyte. At the second division in which a polar body is formed, the polar body and the developing oocyte each contain a haploid set of chromosomes." [GOC:ems, ISBN:0198506732]
 xref: GO:0040038
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000120 ! female meiosis
@@ -1687,7 +1687,7 @@ relationship: part_of CCO:P0000120 ! female meiosis
 [Term]
 id: CCO:P0000180
 name: meiotic DNA double-strand break formation
-def: "The cell cycle process whereby double-strand breaks are generated at defined hotspots throughout the genome during meiosis I. This results in the initiation of meiotic recombination." [PMID:11529427, GOC:jl, GOC:elh]
+def: "The cell cycle process whereby double-strand breaks are generated at defined hotspots throughout the genome during meiosis I. This results in the initiation of meiotic recombination." [GOC:elh, GOC:jl, PMID:11529427]
 xref: GO:0042138
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000054 ! meiotic gene conversion
@@ -1696,21 +1696,21 @@ relationship: part_of CCO:P0000108 ! meiotic recombination
 [Term]
 id: CCO:P0000181
 name: early meiotic recombination nodule assembly
-def: "The assembly of small, electron dense structures in association with meiotic chromosomes during leptotene and zygotene." [PMID:9334324, GOC:jl]
+def: "The assembly of small, electron dense structures in association with meiotic chromosomes during leptotene and zygotene." [GOC:jl, PMID:9334324]
 xref: GO:0042139
 is_a: CCO:P0000122 ! meiotic recombination nodule assembly
 
 [Term]
 id: CCO:P0000182
 name: late meiotic recombination nodule assembly
-def: "The assembly of small, electron dense structures in association with meiotic chromosomes during pachytene. Involved in the catalysis crossing over." [PMID:9334324, GOC:jl]
+def: "The assembly of small, electron dense structures in association with meiotic chromosomes during pachytene. Involved in the catalysis crossing over." [GOC:jl, PMID:9334324]
 xref: GO:0042140
 is_a: CCO:P0000122 ! meiotic recombination nodule assembly
 
 [Term]
 id: CCO:P0000183
 name: meiotic metaphase I plate congression
-def: "The alignment of chromosomes at the metaphase plate, a plane halfway between the poles of the meiotic spindle, during meiosis I." [PMID:10809666, GOC:cab1]
+def: "The alignment of chromosomes at the metaphase plate, a plane halfway between the poles of the meiotic spindle, during meiosis I." [GOC:cab1, PMID:10809666]
 xref: GO:0043060
 is_a: CCO:P0000257 ! meiotic metaphase plate congression
 relationship: part_of CCO:P0000191 ! homologous chromosome segregation
@@ -1718,7 +1718,7 @@ relationship: part_of CCO:P0000191 ! homologous chromosome segregation
 [Term]
 id: CCO:P0000184
 name: meiotic metaphase II plate congression
-def: "The alignment of chromosomes at the metaphase plate, a plane halfway between the poles of the meiotic spindle, during meiosis II." [PMID:10809666, GOC:cab1]
+def: "The alignment of chromosomes at the metaphase plate, a plane halfway between the poles of the meiotic spindle, during meiosis II." [GOC:cab1, PMID:10809666]
 xref: GO:0043061
 is_a: CCO:P0000257 ! meiotic metaphase plate congression
 relationship: part_of CCO:P0000192 ! meiotic sister chromatid segregation
@@ -1769,7 +1769,7 @@ relationship: part_of CCO:P0000103 ! meiosis
 [Term]
 id: CCO:P0000190
 name: telomere clustering
-def: "The cell cycle process whereby the dynamic reorganization of telomeres occurs in early meiotic prophase, during which meiotic chromosome ends are gathered in a bouquet arrangement at the inner surface of the nuclear envelope proximal to the spindle pole body. This plays an important role in homologous chromosome pairing and therefore progression through meiosis." [PMID:10690419, GOC:vw]
+def: "The cell cycle process whereby the dynamic reorganization of telomeres occurs in early meiotic prophase, during which meiotic chromosome ends are gathered in a bouquet arrangement at the inner surface of the nuclear envelope proximal to the spindle pole body. This plays an important role in homologous chromosome pairing and therefore progression through meiosis." [GOC:vw, PMID:10690419]
 synonym: "bouquet biosynthesis" NARROW []
 synonym: "bouquet formation" NARROW []
 xref: GO:0045141
@@ -1779,7 +1779,7 @@ relationship: part_of CCO:P0000103 ! meiosis
 [Term]
 id: CCO:P0000191
 name: homologous chromosome segregation
-def: "The cell cycle process whereby replicated homologous chromosomes are organized and then physically separated and apportioned to two sets during the first division of the meiotic cell cycle. Each replicated chromosome, composed of two sister chromatids, aligns at the cell equator, paired with its homologous partner; this pairing off, referred to as synapsis, permits genetic recombination. One homolog (both sister chromatids) of each morphologic type goes into each of the resulting chromosome sets." [ISBN:0815316194, GOC:ai]
+def: "The cell cycle process whereby replicated homologous chromosomes are organized and then physically separated and apportioned to two sets during the first division of the meiotic cell cycle. Each replicated chromosome, composed of two sister chromatids, aligns at the cell equator, paired with its homologous partner; this pairing off, referred to as synapsis, permits genetic recombination. One homolog (both sister chromatids) of each morphologic type goes into each of the resulting chromosome sets." [GOC:ai, ISBN:0815316194]
 synonym: "meiosis I, chromosome segregation" EXACT []
 xref: GO:0007061
 xref: GO:0045143
@@ -1790,7 +1790,7 @@ relationship: part_of CCO:P0000189 ! meiotic chromosome segregation
 [Term]
 id: CCO:P0000192
 name: meiotic sister chromatid segregation
-def: "The cell cycle process whereby sister chromatids are organized and then physically separated and randomly apportioned to two sets during the second division of the meiotic cell cycle." [ISBN:0815316194, GOC:ai]
+def: "The cell cycle process whereby sister chromatids are organized and then physically separated and randomly apportioned to two sets during the second division of the meiotic cell cycle." [GOC:ai, ISBN:0815316194]
 synonym: "meiosis II, chromosome segregation" EXACT []
 xref: GO:0045144
 is_a: CCO:P0000308 ! cell cycle process
@@ -2272,7 +2272,7 @@ is_a: CCO:P0000137 ! modification by virus of host cell cycle regulation
 [Term]
 id: CCO:P0000232
 name: replication fork protection
-def: "Processes preventing the collapse of stalled replication forks." [PMID:14560029, GOC:vw]
+def: "Processes preventing the collapse of stalled replication forks." [GOC:vw, PMID:14560029]
 synonym: "replication fork maintenance" BROAD []
 synonym: "replication fork stabilization" BROAD []
 xref: GO:0048478
@@ -2554,7 +2554,7 @@ relationship: part_of CCO:P0000002 ! mitotic sister chromatid segregation
 [Term]
 id: CCO:P0000259
 name: attachment of spindle microtubules to kinetochore during mitosis
-def: "The cell cycle process whereby spindle microtubules become physically associated with the proteins making up the kinetochore complex during mitosis. During mitosis, the kinetochores of sister chromosomes are situated facing opposite spindle poles and bipolar attachment of the sister chromosomes to the spindle occurs." [GOC:clt, GOC:ai]
+def: "The cell cycle process whereby spindle microtubules become physically associated with the proteins making up the kinetochore complex during mitosis. During mitosis, the kinetochores of sister chromosomes are situated facing opposite spindle poles and bipolar attachment of the sister chromosomes to the spindle occurs." [GOC:ai, GOC:clt]
 xref: GO:0051315
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000002 ! mitotic sister chromatid segregation
@@ -2785,7 +2785,7 @@ relationship: part_of CCO:P0000037 ! mitotic cell cycle
 [Term]
 id: CCO:P0000284
 name: regulation of ubiquitin ligase activity during meiotic cell cycle
-def: "A cell cycle process that modulates the frequency, rate or extent of ubiquitin ligase activity during the meiotic cell cycle." [GOC:ai, EC:6.3.2.19]
+def: "A cell cycle process that modulates the frequency, rate or extent of ubiquitin ligase activity during the meiotic cell cycle." [EC:6.3.2.19, GOC:ai]
 synonym: "meiotic APC regulator" NARROW []
 synonym: "meiotic SCF complex regulator" NARROW []
 synonym: "meiotic anaphase-promoting complex regulator" NARROW []
@@ -2878,7 +2878,7 @@ is_a: CCO:P0000287 ! regulation of progression through meiotic cell cycle
 [Term]
 id: CCO:P0000290
 name: attachment of spindle microtubules to kinetochore during meiosis I
-def: "The process by which spindle microtubules become physically associated with the proteins making up the kinetochore complex during meiosis I. During meiosis I sister kinetochores are lying next to each other facing the same spindle pole and monopolar attachment of the chromatid to the spindle occurs." [GOC:clt, GOC:ai]
+def: "The process by which spindle microtubules become physically associated with the proteins making up the kinetochore complex during meiosis I. During meiosis I sister kinetochores are lying next to each other facing the same spindle pole and monopolar attachment of the chromatid to the spindle occurs." [GOC:ai, GOC:clt]
 comment: Note that the synonym 'monopolar attachment' refers to the normal attachment of sister chromosomes to the spindle in meiosis I, and not to the aberrant attachment of sister kinetochores to a single pole in mitosis.
 synonym: "monopolar attachment" EXACT []
 synonym: "sister kinetochore monoorientation" EXACT []
@@ -2889,7 +2889,7 @@ relationship: part_of CCO:P0000191 ! homologous chromosome segregation
 [Term]
 id: CCO:P0000291
 name: attachment of spindle microtubules to kinetochore during meiosis II
-def: "The process by which spindle microtubules become physically associated with the proteins making up the kinetochore complex during meiosis II. During meiosis II sister kinetochores are situated facing opposite spindle poles and bipolar attachment of the sister chromosomes to the spindle occurs." [GOC:clt, GOC:ai]
+def: "The process by which spindle microtubules become physically associated with the proteins making up the kinetochore complex during meiosis II. During meiosis II sister kinetochores are situated facing opposite spindle poles and bipolar attachment of the sister chromosomes to the spindle occurs." [GOC:ai, GOC:clt]
 xref: GO:0051456
 is_a: CCO:P0000260 ! attachment of spindle microtubules to kinetochore during meiotic chromosome segregation
 relationship: part_of CCO:P0000192 ! meiotic sister chromatid segregation
@@ -2897,7 +2897,7 @@ relationship: part_of CCO:P0000192 ! meiotic sister chromatid segregation
 [Term]
 id: CCO:P0000292
 name: anaphase-promoting complex activation during meiotic cell cycle
-def: "Any process that initiatiates the ubiquitin ligase activity of the anaphase-promoting complex during the meiotic cell cycle." [PMID:10871297, GOC:mah]
+def: "Any process that initiatiates the ubiquitin ligase activity of the anaphase-promoting complex during the meiotic cell cycle." [GOC:mah, PMID:10871297]
 synonym: "APC activation during meiotic cell cycle" EXACT []
 synonym: "activation of ubiquitin ligase activity of APC during meiotic cell cycle" EXACT []
 synonym: "activation of ubiquitin ligase activity of anaphase promoting complex during meiotic cell cycle" EXACT []
@@ -2980,7 +2980,7 @@ is_a: CCO:P0000296 ! cell cycle switching, mitotic to meiotic cell cycle
 [Term]
 id: CCO:P0000298
 name: meiotic sister chromatid cohesion, centromeric
-def: "The cell cycle process whereby centromeres of sister chromatids are joined during meiosis." [PMID:16325576, PMID:14730319]
+def: "The cell cycle process whereby centromeres of sister chromatids are joined during meiosis." [PMID:14730319, PMID:16325576]
 synonym: "meiotic sister chromatid cohesion at centromere" EXACT []
 synonym: "sister chromatid cohesion at centromere at meiosis I" EXACT []
 xref: GO:0051754
@@ -2999,7 +2999,7 @@ relationship: part_of CCO:P0000301 ! meiotic sister chromatid separation
 [Term]
 id: CCO:P0000300
 name: meiotic sister chromatid centromere separation
-def: "The cell cycle process whereby the centromeres of sister chromatids are physically detached from each other during meiosis." [PMID:16325576, PMID:14730319, GOC:ai]
+def: "The cell cycle process whereby the centromeres of sister chromatids are physically detached from each other during meiosis." [GOC:ai, PMID:14730319, PMID:16325576]
 xref: GO:0051756
 is_a: CCO:P0000308 ! cell cycle process
 relationship: part_of CCO:P0000192 ! meiotic sister chromatid segregation
@@ -3008,7 +3008,7 @@ relationship: part_of CCO:P0000301 ! meiotic sister chromatid separation
 [Term]
 id: CCO:P0000301
 name: meiotic sister chromatid separation
-def: "The process by which sister chromatids are physically detached from each other during meiosis." [PMID:16325576, PMID:14730319, GOC:ai]
+def: "The process by which sister chromatids are physically detached from each other during meiosis." [GOC:ai, PMID:14730319, PMID:16325576]
 xref: GO:0051757
 is_a: CCO:P0000254 ! meiotic chromosome separation
 
@@ -3033,7 +3033,7 @@ relationship: part_of CCO:P0000192 ! meiotic sister chromatid segregation
 [Term]
 id: CCO:P0000304
 name: meiotic sister chromatid cohesion, arms
-def: "The cell cycle process whereby the sister chromatids of a replicated chromosome are joined along the length of the chromosome arms during meiosis." [PMID:16325576, PMID:14730319]
+def: "The cell cycle process whereby the sister chromatids of a replicated chromosome are joined along the length of the chromosome arms during meiosis." [PMID:14730319, PMID:16325576]
 synonym: "meiotic sister chromatid cohesion along arms" EXACT []
 synonym: "sister chromatid cohesion along arms at meiosis I" EXACT []
 xref: GO:0051760
@@ -3059,7 +3059,7 @@ relationship: part_of CCO:P0000153 ! cytokinesis, contractile ring maintenance
 [Term]
 id: CCO:P0000307
 name: cell cycle arrest of committed forebrain neuronal progenitor cell
-def: "The process by which progression through the cell cycle is halted in a cell that has been committed to become a neuron that will reside in the forebrain." [PMID:16226447, GOC:mtg_15jun06, GOC:jic, GOC:dph, GOC:dgh, GOC:cls]
+def: "The process by which progression through the cell cycle is halted in a cell that has been committed to become a neuron that will reside in the forebrain." [GOC:cls, GOC:dgh, GOC:dph, GOC:jic, GOC:mtg_15jun06, PMID:16226447]
 comment: This term was added by GO_REF:0000021.
 xref: GO:0021883
 is_a: CCO:P0000057 ! cell cycle arrest
@@ -3088,7 +3088,7 @@ is_a: CCO:P0000308 ! cell cycle process
 [Term]
 id: CCO:P0000311
 name: spindle midzone assembly
-def: "The cell cycle process whereby spindle midzone is formed. The spindle midzone is the area in the center of the spindle where the spindle microtubules from opposite poles overlap." [PMID:15296749, GOC:ai]
+def: "The cell cycle process whereby spindle midzone is formed. The spindle midzone is the area in the center of the spindle where the spindle microtubules from opposite poles overlap." [GOC:ai, PMID:15296749]
 synonym: "spindle midzone biogenesis" EXACT []
 synonym: "spindle midzone biosynthesis" EXACT []
 synonym: "spindle midzone formation" EXACT []
@@ -3105,7 +3105,7 @@ is_a: CCO:P0000308 ! cell cycle process
 [Term]
 id: CCO:P0000313
 name: distributive segregation
-def: "The cell cycle process whereby genetic material, in the form of chromosomes, is organized and then physically separated and apportioned to two or more sets during a normally chiasmate meiosis under the condition that chiasma have not occurred between a particular pair of homologs. Distributive segregation is a \"backup\" mechanism to ensure the segregation of homologs that have failed to cross over -- either as a consequence of mutation or not, as, for example, the 4th chromosome of Drosophila melanogaster (which never exchanges, presumably due to its small size) -- but nevertheless segregate normally." [GOC:sart, GOC:ma, GOC:expert_rsh]
+def: "The cell cycle process whereby genetic material, in the form of chromosomes, is organized and then physically separated and apportioned to two or more sets during a normally chiasmate meiosis under the condition that chiasma have not occurred between a particular pair of homologs. Distributive segregation is a \"backup\" mechanism to ensure the segregation of homologs that have failed to cross over -- either as a consequence of mutation or not, as, for example, the 4th chromosome of Drosophila melanogaster (which never exchanges, presumably due to its small size) -- but nevertheless segregate normally." [GOC:expert_rsh, GOC:ma, GOC:sart]
 xref: GO:0032837
 is_a: CCO:P0000189 ! meiotic chromosome segregation
 

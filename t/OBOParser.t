@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 16;
+    plan tests => 19;
 }
 
 #########################
@@ -19,6 +19,11 @@ use strict;
 
 my $my_parser = CCO::Parser::OBOParser->new();
 ok(1);
+
+my $mini_onto = $my_parser->work("./t/data/header.obo");
+ok(($mini_onto->imports()->get_set())[0] eq 'ulo.obo');
+ok(scalar $mini_onto->subsets()->get_set() == 7);
+ok(scalar $mini_onto->synonymtypes()->get_set() == 5);
 
 my $ontology = $my_parser->work("./t/data/fake_ulo_cco.obo");
 

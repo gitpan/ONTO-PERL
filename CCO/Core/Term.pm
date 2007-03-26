@@ -17,30 +17,31 @@ use warnings;
 use Carp;
 
 sub new {
-        my $class                   = shift;
-        my $self                    = {};
+	my $class                   = shift;
+	my $self                    = {};
         
-        $self->{ID}                 = undef; # required, scalar (1)
-        $self->{NAME}               = undef; # required, scalar (1)
-        $self->{IS_ANONYMOUS}       = undef; # [1|0], 0 by default
-        $self->{ALT_ID}             = CCO::Util::Set->new(); # set (0..N)
-        $self->{DEF}                = CCO::Core::Def->new(); # (0..1)
-        $self->{COMMENT}            = undef; # scalar (0..1)
-        $self->{SUBSET}             = CCO::Util::Set->new(); # set of scalars (0..N)
-        $self->{SYNONYM_SET}        = CCO::Util::SynonymSet->new(); # set of synonyms (0..N)
-        $self->{XREF_SET}           = CCO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
-        #@{$self->{IS_A}}            = (); # (0..N) #delete: the Ontology provides it
-        $self->{INTERSECTION_OF}    = CCO::Util::Set->new(); # (0..N)
-        $self->{UNION_OF}           = CCO::Util::Set->new(); # (0..N)
-        $self->{DISJOINT_FROM}      = CCO::Util::Set->new(); # (0..N)
-        #@{$self->{RELATIONSHIP}}    = (); # (0..N) # delete: the Ontology provides it
-        $self->{IS_OBSOLETE}        = undef; # [1|0], 0 by default
-        $self->{REPLACED_BY}        = undef; # (1)
-        $self->{CONSIDER}           = undef; # (1)
-        $self->{BUILTIN}            = undef; # [1|0], 0 by default
+	$self->{ID}                 = undef; # required, scalar (1)
+	$self->{NAME}               = undef; # required, scalar (1)
+	$self->{IS_ANONYMOUS}       = undef; # [1|0], 0 by default
+	$self->{ALT_ID}             = CCO::Util::Set->new(); # set (0..N)
+	$self->{DEF}                = CCO::Core::Def->new(); # (0..1)
+	$self->{NAMESPACE_SET}      = CCO::Util::Set->new(); # set (0..N)
+	$self->{COMMENT}            = undef; # scalar (0..1)
+	$self->{SUBSET_SET}         = CCO::Util::Set->new(); # set of scalars (0..N)
+	$self->{SYNONYM_SET}        = CCO::Util::SynonymSet->new(); # set of synonyms (0..N)
+	$self->{XREF_SET}           = CCO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
+	#@{$self->{IS_A}}            = (); # (0..N) #delete: the Ontology provides it
+	$self->{INTERSECTION_OF}    = CCO::Util::Set->new(); # (0..N)
+	$self->{UNION_OF}           = CCO::Util::Set->new(); # (0..N)
+	$self->{DISJOINT_FROM}      = CCO::Util::Set->new(); # (0..N)
+	#@{$self->{RELATIONSHIP}}    = (); # (0..N) # delete: the Ontology provides it
+	$self->{IS_OBSOLETE}        = undef; # [1|0], 0 by default
+	$self->{REPLACED_BY}        = undef; # (1)
+	$self->{CONSIDER}           = undef; # (1)
+	$self->{BUILTIN}            = undef; # [1|0], 0 by default
         
-        bless ($self, $class);
-        return $self;
+	bless ($self, $class);
+	return $self;
 }
 
 =head2 id
@@ -57,15 +58,15 @@ sub id {
 	return $self->{ID};
 }
 
-=head2 namespace
+=head2 idspace
 
-  Usage    - print $term->namespace() 
-  Returns  - the namespace of this term (character); otherwise, 'NN'
+  Usage    - print $term->idspace() 
+  Returns  - the idspace of this term; otherwise, 'NN'
   Args     - none
-  Function - gets the namespace of this term
+  Function - gets the idspace of this term
   
 =cut
-sub namespace {
+sub idspace {
 	my $self = shift;
 	$self->{ID} =~ /([A-Z]+):/ if ($self->{ID});
 	return $1 || 'NN';
@@ -197,12 +198,29 @@ sub def_as_string {
 		$self->{DEF} = $def; 
 	}
 	my @result = (); # a Set?
-	foreach my $dbxref (sort {$a cmp $b} $self->{DEF}->dbxref_set()->get_set()) {
-		unshift @result, $dbxref->as_string();
+	foreach my $dbxref (sort {$a->as_string() cmp $b->as_string()} $self->{DEF}->dbxref_set()->get_set()) {
+		push @result, $dbxref->as_string();
 	}
 	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
 }
 
+=head2 namespace
+
+  Usage    - $term->namespace() or $term->namespace($ns1, $ns2, $ns3, ...)
+  Returns  - an array with the namespace to which this term belongs
+  Args     - the namespacet(s) to which this term belongs
+  Function - gets/sets the namespace(s) to which this term belongs
+  
+=cut
+sub namespace {
+        my $self = shift;
+        if (scalar(@_) > 1) {
+                $self->{NAMESPACE_SET}->add_all(@_);
+        } elsif (scalar(@_) == 1) {
+                $self->{NAMESPACE_SET}->add(shift);
+        }
+        return $self->{NAMESPACE_SET}->get_set();
+}
 
 =head2 comment
 
@@ -229,11 +247,11 @@ sub comment {
 sub subset {
 	my $self = shift;
 	if (scalar(@_) > 1) {
-   		$self->{SUBSET}->add_all(@_);
+   		$self->{SUBSET_SET}->add_all(@_);
 	} elsif (scalar(@_) == 1) {
-		$self->{SUBSET}->add(shift);
+		$self->{SUBSET_SET}->add(shift);
 	}
-	return $self->{SUBSET}->get_set();
+	return $self->{SUBSET_SET}->get_set();
 }
 
 =head2 synonym_set
@@ -344,23 +362,41 @@ sub is_a {
     return $self->{IS_A};
 }
 
+=head2 intersection_of
+        
+  Usage    - $term->intersection_of() or $term->intersection_of($t1, $t2, $r1, ...)
+  Returns  - an array with the terms/relations which define this term
+  Args     - a set (strings) of terms/relations which define this term
+  Function - gets/sets the set of terms/relatonships defining this term
+        
+=cut
 sub intersection_of {
-	my $self = shift;
-    if (@_) { 
-    	# TODO implement.
-    	push @{$self->{INTERSECTION_OF}}, $self->{INTERSECTION_OF};
-    }
-    return $self->{INTERSECTION_OF};
+        my $self = shift;
+        if (scalar(@_) > 1) {
+                $self->{INTERSECTION_OF}->add_all(@_);
+        } elsif (scalar(@_) == 1) {
+                $self->{INTERSECTION_OF}->add(shift);
+        }
+        return $self->{INTERSECTION_OF}->get_set();
 }
 
+=head2 union_of
+        
+  Usage    - $term->union_of() or $term->union_of($t1, $t2, $r1, ...)
+  Returns  - an array with the terms/relations which define this term
+  Args     - a set (strings) of terms/relations which define this term
+  Function - gets/sets the set of terms/relatonships defining this term
+        
+=cut    
 sub union_of {
-	my $self = shift;
-    if (@_) { 
-    	# TODO implement.
-    	push @{$self->{UNION_OF}}, $self->{UNION_OF};
-    }
-    return $self->{UNION_OF};
-}
+        my $self = shift;
+        if (scalar(@_) > 1) {
+                $self->{UNION_OF}->add_all(@_);
+        } elsif (scalar(@_) == 1) { 
+                $self->{UNION_OF}->add(shift);
+        }
+        return $self->{UNION_OF}->get_set();
+} 
 
 =head2 disjoint_from
 

@@ -84,8 +84,8 @@ sub dbxref_set_as_string {
 		$self->{DBXREF_SET} = $dbxref_set;
 	}
 	my @result = (); # a Set?
-	foreach my $dbxref (sort {$a cmp $b} $self->dbxref_set()->get_set()) {
-		push @result, $dbxref->as_string();
+	foreach my $dbxref (sort {lc($a) cmp ($b)} $self->dbxref_set()->get_set()) {
+		unshift @result, $dbxref->as_string();
 	}
 	return "[".join(', ', @result)."]";
 }

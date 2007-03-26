@@ -172,8 +172,8 @@ sub contains_key () {
   
 =cut
 sub contains_value () {
-        my ($self, $searched_value) = @_;
-        return (defined $self->{MAP_BY_TERM}->{$searched_value})?1:0;
+	my ($self, $searched_value) = @_;
+	return (defined $self->{MAP_BY_TERM}->{$searched_value})?1:0;
 }
 
 sub equals () {

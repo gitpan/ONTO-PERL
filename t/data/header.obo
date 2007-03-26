@@ -1,0 +1,62 @@
+format-version: 1.0
+date: 28:03:2007 13:57
+saved-by: erant
+auto-generated-by: erant
+default-namespace: cco
+import: ulo.obo
+subsetdef: Rice "Term used for rice"
+subsetdef: Maize "Term used for maize"
+subsetdef: Tomato "Term used for tomato"
+subsetdef: Citrus "Term used for citrus"
+subsetdef: Arabidopsis "Term used for Arabidopsis"
+subsetdef: Poaceae "Term used for grasses"
+subsetdef: reference "reference plant structure term"
+synonymtypedef: acronym "acronym" BROAD
+synonymtypedef: common_name "common name" EXACT
+synonymtypedef: scientific_name "scientific name" EXACT
+synonymtypedef: synonym "synonym" RELATED
+synonymtypedef: equivalent_name "equivalent name" EXACT
+idspace: CCO http://www.cellcycleontology.org/ontology/CCO "cell cycle ontology terms"
+remark: <p>This file holds some fake terms.</p>
+
+[Term]
+id: CCO:F0000000
+name: uno
+def: "uno" [FO:ea]
+synonym: "one" EXACT [FO:ea]
+subset: Rice
+subset: Citrus
+
+[Term]
+id: CCO:F0000001
+name: uno punto uno
+def: "one dot one" [FO:15892874]
+synonym: "one period one" EXACT [FO:15892874]
+synonym: "thing" BROAD [FO:12345]
+is_a: CCO:F0000000 ! uno
+subset: Tomato
+
+[Term]
+id: CCO:F0000002
+name: dos
+def: "two" [FO:15892874]
+synonym: "twee" EXACT [FO:15892874]
+disjoint_from: CCO:F0000001 ! uno
+
+[Term]
+id: CCO:F0000003
+name: dos punto uno
+def: "two point two" [FO:ea]
+synonym: "two period two" EXACT [FO:ea]
+is_a: CCO:F0000002 ! dos
+
+[Typedef]
+id: is_a
+name: is_a
+builtin: true
+def: "A number is another number if this last one has the same integer part" [FO:15892874]
+exact_synonym: "is_subtype_of" []
+xref_analog: owl:subClassOf
+is_reflexive: true
+is_anti_symmetric: true
+is_transitive: true

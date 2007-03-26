@@ -10,12 +10,10 @@
 package CCO::Parser::GoaParser;
 
 use CCO::Parser::OBOParser;
-
 use CCO::Core::Relationship;
 use CCO::Core::Dbxref;
 use CCO::Core::Term;
 use CCO::Core::GoaAssociation;
-
 use CCO::Util::CCO_ID_Term_Map;
 use CCO::Util::DbxrefSet;
 use CCO::Util::GoaAssociationSet;
@@ -42,7 +40,6 @@ sub new {
   
 =cut
 
-# TODO make faster, currently very slow. The major culprit is the method CCO::Core::GoaAssociation::equals
 sub parse {
 	my $self = shift;
 
@@ -53,7 +50,7 @@ sub parse {
 	# Open the assoc file
 	open(FH, $goaAssocFileName) || die("Cannot open file '$goaAssocFileName': $!");
 	
-	# Populate the CCO::Util::GoaAssociationSet object
+	# Populate the CCO::Util::GoaAssociationSet class with objects
 	while(<FH>){
 		chomp;
 		$_ =~ /^\w/ ? my $goaAssoc = CCO::Core::GoaAssociation->new() : next;	
@@ -63,21 +60,21 @@ sub parse {
 			$_ =~ s/\s+$//;
 		}
 		$goaAssoc->assc_id($.);
-		$goaAssoc->obj_src(shift @_);
-        $goaAssoc->obj_id(shift @_);
-        $goaAssoc->obj_symb(shift @_);
-        $goaAssoc->qualifier(shift @_);
-        $goaAssoc->go_id(shift @_); 
-        $goaAssoc->refer(shift @_);
-        $goaAssoc->evid_code(shift @_);
-        $goaAssoc->sup_ref(shift @_);
-        $goaAssoc->aspect(shift @_);
-        $goaAssoc->description(shift @_);
-        $goaAssoc->synonym(shift @_);
-        $goaAssoc->type(shift @_);
-        $goaAssoc->taxon(shift @_);
-        $goaAssoc->date(shift @_);
-        $goaAssoc->annot_src(shift @_);
+		$goaAssoc->obj_src($_[0]);
+        $goaAssoc->obj_id($_[1]);
+        $goaAssoc->obj_symb($_[2]);
+        $goaAssoc->qualifier($_[3]);
+        $goaAssoc->go_id($_[4]); 
+        $goaAssoc->refer($_[5]);
+        $goaAssoc->evid_code($_[6]);
+        $goaAssoc->sup_ref($_[7]);
+        $goaAssoc->aspect($_[8]);
+        $goaAssoc->description($_[9]);
+        $goaAssoc->synonym($_[10]);
+        $goaAssoc->type($_[11]);
+        $goaAssoc->taxon($_[12]);
+        $goaAssoc->date($_[13]);
+        $goaAssoc->annot_src($_[14]);
 		
 		$goaAssocSet ->add($goaAssoc);
 	}
@@ -103,7 +100,7 @@ sub work {
 	# Initialize the OBO parser, load the OBO file, check the assumptions
 	my $my_parser = CCO::Parser::OBOParser->new();
 	my $ontology = $my_parser->work($old_OBO_file);
-	my @rel_types = ('is_a', 'participates_in', 'derives_from');
+	my @rel_types = ('is_a', 'participates_in', 'located_in', 'derives_from');
 	foreach (@rel_types){
 		die "Not a valid relationship type" unless($ontology->{RELATIONSHIP_TYPES}->{$_});
 	}
@@ -120,59 +117,46 @@ sub work {
 	foreach my $goaAssoc (@{$goa_assoc_set->{SET}}){
 		my $db = $goaAssoc->obj_src();
 		my $acc = $goaAssoc->obj_id();
+		my $protein_name = $goaAssoc->obj_symb();
 		
 		# retrieve the protein object from ontology if exists
-		my $protein_name = $goaAssoc->obj_symb();
-		my $protein = $ontology->get_term_by_name($protein_name); 
+		my $protein = $ontology->get_term_by_xref($db, $acc);
 		if (!defined $protein) {
-			# create new protein term and relationships 
+			# create new protein term 
 			$protein = CCO::Core::Term->new(); 
 			$protein->name($protein_name); 
-			
+			# create xref's
+			$protein->xref_set_as_string("[$db:$acc]"); #cross-reference to UniProt
+			#assign a CCO protein id
 			if ($short_map->contains_value($protein_name)){
 				$protein->id($short_map->get_cco_id_by_term($protein_name));
-			} elsif ($long_map->contains_value($protein_name)){
-               $protein->id($long_map->get_cco_id_by_term($protein_name));
-               $short_map->put($protein->id(), $protein_name);
 			}else {
 				my $new_protein_id = $long_map->get_new_cco_id("CCO", "B", $protein_name);
 				$protein->id($new_protein_id);
 				$short_map->put($new_protein_id, $protein_name); # TRICK to add the IDs in the other file
 			}
-			# create xref's
-			$protein->xref_set_as_string("[$db:$acc]"); #xref to UniProt			
 			
 			$ontology->add_term($protein);
 			
 			# add "new protein is_a protein"
-			my $rel1 = CCO::Core::Relationship->new(); 
-			my($head, $type) = ($ontology->get_term_by_name("protein"), "is_a");
-			$rel1->type($type);
-			$rel1->link($protein,$head);
-			$rel1->id($protein->id()."_".$type."_".$head->id());
-			$ontology->add_relationship($rel1);		
+			$ontology->create_rel($protein, 'is_a', $onto_protein);
 			
 			# add "new protein derives_from species" 
-			my $rel2 = CCO::Core::Relationship->new(); 
-			($head, $type) = ($taxon, "derives_from");
-			$rel2->type($type);
-			$rel2->link($protein,$head);
-			$rel2->id($protein->id()."_".$type."_".$head->id());
-			$ontology->add_relationship($rel2);
+			$ontology->create_rel($protein, 'derives_from', $taxon);
 		}
 		
-		# add "new protein participates_in GO process"
-		my $rel3 = CCO::Core::Relationship->new(); 
+		# add relatioships with GO terms 
 		my $id = $goaAssoc->go_id();
-		my $prefix = 'CCO:'.$goaAssoc->aspect(); 
-		$id =~ s/GO:/$prefix/; 
-		my $cco_go_term=$ontology->get_term_by_id($id); 
-		my ($head, $type) = ($cco_go_term, "participates_in");
-		$rel3->type($type);
-		$rel3->link($protein,$head);
-		$rel3->id($protein->id()."_".$type."_".$head->id());
-		$ontology->add_relationship($rel3);	
-		
+		my $aspect = $goaAssoc->aspect();
+		my $prefix = 'CCO:'.$aspect; 
+		$id =~ s/GO:/$prefix/;
+		my $cco_go_term = $ontology->get_term_by_id($id);
+		if ($aspect eq 'P') {
+			$ontology->create_rel($protein, 'participates_in', $cco_go_term);			
+		}
+		elsif ($aspect eq 'C') {
+			$ontology->create_rel($protein, 'located_in', $cco_go_term);
+		}
 	}
 	
 	# Write the new ontology and map to disk

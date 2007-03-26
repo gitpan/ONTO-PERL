@@ -1,5 +1,5 @@
-ID   RK20_ARATH              Reviewed;         117 AA.
-AC   P56794;
+ID   RK20renamed_ARATH              Reviewed;         117 AA.
+AC   P56794; P56795; P56796;
 DT   30-MAY-2000, integrated into UniProtKB/Swiss-Prot.
 DT   30-MAY-2000, sequence version 1.
 DT   23-JAN-2007, entry version 40.
@@ -59,7 +59,7 @@ DT   01-JUN-2003, integrated into UniProtKB/TrEMBL.
 DT   01-JUN-2003, sequence version 1.
 DT   12-DEC-2006, entry version 17.
 DE   Putative adenylylsulfate kinase.
-GN   OrderedLocusNames=At5g67520;
+GN   ORFNames=At5g67520;
 OS   Arabidopsis thaliana (Mouse-ear cress).
 OC   Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
 OC   Spermatophyta; Magnoliophyta; eudicotyledons; core eudicotyledons;
@@ -172,7 +172,7 @@ DT   05-JUL-2004, integrated into UniProtKB/TrEMBL.
 DT   05-JUL-2004, sequence version 1.
 DT   06-FEB-2007, entry version 22.
 DE   At4g37630 gene protein (Hypothetical protein At4g37630).
-GN   OrderedLocusNames=At4g37630;
+GN   Name=RPN1b;
 OS   Arabidopsis thaliana (Mouse-ear cress).
 OC   Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
 OC   Spermatophyta; Magnoliophyta; eudicotyledons; core eudicotyledons;

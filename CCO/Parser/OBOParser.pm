@@ -64,25 +64,38 @@ sub work {
 		my $date = $1 if ($chunks[0] =~ /date:\s*(.*)\n/);
 		my $saved_by = $1 if ($chunks[0] =~ /saved-by:\s*(.*)\n/);
 		my $auto_generated_by = $1 if ($chunks[0] =~ /auto-generated-by:\s*(.*\n)/);
-		my $import = $1 if ($chunks[0] =~ /import:\s*(.*)\n/);
+		my $imports = CCO::Util::Set->new();
+                while ($chunks[0] =~ /(import:\s*(.*)\n)/) {
+                        $imports->add($2);
+                        $chunks[0] =~ s/$1//;
+                }
 		my $subsetdef = CCO::Util::Set->new();
 		while ($chunks[0] =~ /(subsetdef:\s*(.*)\n)/) {
-			$subsetdef->add($1);
-			$chunks[0] =~ s/$2//;
+			$subsetdef->add($2);
+			$chunks[0] =~ s/$1//;
 		}
-		my $synonymtypedef = $1 if ($chunks[0] =~ /synonymtypedef:\s*(.*)\n/);
+		my $synonymtypedef = CCO::Util::Set->new();
+                while ($chunks[0] =~ /(synonymtypedef:\s*(.*)\n)/) {
+                        $synonymtypedef->add($2);
+                        $chunks[0] =~ s/$1//;
+                }
+		my $idspace = $1 if ($chunks[0] =~ /idspace:\s*(.*)\n/);
 		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)\n/);
 		my $remark = $1 if ($chunks[0] =~ /remark:\s*(.*)/);
 	
 		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it." if (!defined $format_version);
 		
+		$result->imports($imports->get_set());
+		$result->subsets($subsetdef->get_set());
+		$result->synonymtypes($synonymtypedef->get_set());
+		my $local_idspace = $1, my $uri = $2, my $desc = $4 if ($idspace && $idspace =~ /(\S+)\s+(\S+)\s+(\"(.*)\")?/);
+		$result->idspace_as_string($local_idspace, $uri, $desc);
 		$result->data_version($data_version) if ($data_version);
 		$result->date($date) if ($date);
 		$result->saved_by($saved_by) if ($saved_by);
 		#$result->auto_generated_by($auto_generated_by) if ($auto_generated_by);
-		$result->namespace($default_namespace) if ($default_namespace);
+		$result->default_namespace($default_namespace) if ($default_namespace);
 		$result->remark($remark) if ($remark);
-		# TODO consider the rest of the header tags like 'import'
 		
 		foreach my $chunk (@chunks) {
 			my @entry = split (/\n/, $chunk);
@@ -114,7 +127,7 @@ sub work {
 							$term->name($1);
 						}
 					} elsif ($line =~ /^namespace:\s*(.*)/) {
-						# TODO The namespace of this term is different from the namespace used by the Term.pm
+						$term->namespace($1); # it is a Set
 					} elsif ($line =~ /^is_anonymous:\s*(.*)/) {
 						$term->is_anonymous(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^alt_id:\s*(.*)/) {
@@ -135,7 +148,8 @@ sub work {
 					} elsif ($line =~ /^comment:\s*(.*)/) {
 						$term->comment($1);
 					} elsif ($line =~ /^subset:\s*(.*)/) {
-						# todo
+						# todo check that the used subsets belong to the defined in the header
+						$term->subset($1);
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) {
 						$term->synonym_as_string($2, $3, uc($1));
 					} elsif ($line =~ /^synonym:\s*\"(.*)\"\s+(EXACT|BROAD|NARROW|RELATED)\s+(\[.*\])\s*/) {
@@ -159,7 +173,9 @@ sub work {
 					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
 						# TODO
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
-						# TODO
+						# TODO distinguish between terms and relations?
+						# TODO check there are at least 2 elements in the 'union_of' set
+						$term->union_of($1);
 					} elsif ($line =~ /^disjoint_from:\s*(\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?/) {
 						$term->disjoint_from($1);
 					} elsif ($line =~ /^relationship:\s*(\w+)\s*(\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?/) {

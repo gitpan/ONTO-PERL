@@ -22,3 +22,5 @@ Revision history for onto-perl
 0.28 Performance improvement (code tuning)
 
 0.29 More adjustments to follow OBO 1.2 spec, Set data structures improved
+
+0.30 In sync with oboInOwl, IntAct modules

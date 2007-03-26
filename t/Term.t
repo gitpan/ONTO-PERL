@@ -27,7 +27,7 @@ my $n2 = CCO::Core::Term->new();
 my $n3 = CCO::Core::Term->new();
 
 # name, namespace, code
-ok($n1->namespace() eq "NN");
+ok($n1->idspace() eq "NN");
 ok($n1->subnamespace() eq "X");
 ok($n1->code() eq "0000000");
 
@@ -40,7 +40,7 @@ $n3->id("CCO:P0000003");
 ok($n3->id() eq "CCO:P0000003");
 
 # name, namespace, code
-ok($n1->namespace() eq "CCO");
+ok($n1->idspace() eq "CCO");
 ok($n1->subnamespace() eq "P");
 ok($n1->code() eq "0000001");
 
@@ -198,7 +198,7 @@ $n2->def($def);
 
 # def as string
 ok($n2->def_as_string() eq "\"Hola mundo\" [CCO:ea, CCO:ls, CCO:vm]");
-$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\" {opt=first}]");
 ok($n2->def()->text() eq "This is a dummy definition");
 my @refs_n2 = $n2->def()->dbxref_set()->get_set();
 my %r_n2;
@@ -209,7 +209,7 @@ ok($n2->def()->dbxref_set()->size == 3);
 ok($r_n2{"CCO:vm"} eq "CCO:vm");
 ok($r_n2{"CCO:ls"} eq "CCO:ls");
 ok($r_n2{"CCO:ea"} eq "CCO:ea");
-ok($n2->def_as_string() eq "\"This is a dummy definition\" [CCO:ea \"Erick Antezana\" {opt=first}, CCO:vm, CCO:ls]");
+ok($n2->def_as_string() eq "\"This is a dummy definition\" [CCO:ea \"Erick Antezana\" {opt=first}, CCO:ls, CCO:vm]");
 
 # disjoint_from:
 $n2->disjoint_from($n1->id(), $n3->id());
