@@ -36,8 +36,8 @@ sub new {
 	$self->{DISJOINT_FROM}      = CCO::Util::Set->new(); # (0..N)
 	#@{$self->{RELATIONSHIP}}    = (); # (0..N) # delete: the Ontology provides it
 	$self->{IS_OBSOLETE}        = undef; # [1|0], 0 by default
-	$self->{REPLACED_BY}        = undef; # (1)
-	$self->{CONSIDER}           = undef; # (1)
+	$self->{REPLACED_BY}        = CCO::Util::Set->new(); # set of scalars (0..N)
+	$self->{CONSIDER}           = CCO::Util::Set->new(); # set of scalars (0..N)
 	$self->{BUILTIN}            = undef; # [1|0], 0 by default
         
 	bless ($self, $class);
@@ -442,30 +442,38 @@ sub is_obsolete {
 
 =head2 replaced_by
 
-  Usage    - print $term->replaced_by($replacing_id)
-  Returns  - id of the replacing term
-  Args     - id of the replacing term
-  Function - gets/sets the replacing term for this term
+  Usage    - $term->replaced_by() or $term->replaced_by($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the id(s) of the replacing term(s)
+  Args     - the the id(s) of the replacing term(s) (string)
+  Function - gets/sets the the id(s) of the replacing term(s)
   
 =cut
 sub replaced_by {
 	my $self = shift;
-    if (@_) { $self->{REPLACED_BY} = shift }
-    return $self->{REPLACED_BY};
+	if (scalar(@_) > 1) {
+   		$self->{REPLACED_BY}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{REPLACED_BY}->add(shift);
+	}
+	return $self->{REPLACED_BY};
 }
 
 =head2 consider
 
-  Usage    - print $term->consider()
-  Returns  - appropiate substitute for an obsolete term
-  Args     - appropiate substitute for an obsolete term
-  Function - gets/sets the appropiate substitute for this obsolete term
+  Usage    - $term->consider() or $term->consider($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the appropiate substitute(s) for an obsolete term
+  Args     - the appropiate substitute(s) for an obsolete term (string)
+  Function - gets/sets the appropiate substitute(s) for this obsolete term
   
 =cut
 sub consider {
 	my $self = shift;
-    if (@_) { $self->{CONSIDER} = shift }
-    return $self->{CONSIDER};
+	if (scalar(@_) > 1) {
+   		$self->{CONSIDER}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{CONSIDER}->add(shift);
+	}
+	return $self->{CONSIDER};
 }
 
 =head2 builtin
@@ -705,7 +713,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006, 2007 by erant
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -2,7 +2,7 @@
 #
 # Module  : CCO_ID.pm
 # Purpose : A CCO_ID.
-# License : Copyright (c) 2006 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -17,7 +17,7 @@ sub new {
         my $class = shift;
         my $self  = {};
 
-        $self->{NAMESPACE}    = undef; # namespace
+        $self->{IDSPACE}    = undef; # idspace
         $self->{SUBNAMESPACE} = undef; # subnamespace
         $self->{NUMBER}       = undef; # 7 digits
 
@@ -25,18 +25,18 @@ sub new {
         return $self;
 }
 
-=head2 namespace
+=head2 idspace
 
-  Usage    - print $id->namespace() or $id->namespace($name)
-  Returns  - the namespace (string)
-  Args     - the namespace (string)
-  Function - gets/sets the namespace
+  Usage    - print $id->idspace() or $id->idspace($idspace)
+  Returns  - the idspace (string)
+  Args     - the idspace (string)
+  Function - gets/sets the idspace
   
 =cut
-sub namespace {
+sub idspace {
 	my ($self, $ns) = @_;
-	if ($ns) { $self->{NAMESPACE} = $ns }
-	return $self->{NAMESPACE};
+	if ($ns) { $self->{IDSPACE} = $ns }
+	return $self->{IDSPACE};
 }
 
 =head2 subnamespace
@@ -96,11 +96,11 @@ sub id_as_string () {
 	#	Z	Unknown
 		
 	if ( defined $id_as_string && $id_as_string =~ /([A-Z][A-Z][A-Z]):([CFPXIRTBNYZ])([0-9]{7})/ ) {
-		$self->{'NAMESPACE'} = $1;
+		$self->{'IDSPACE'} = $1;
 		$self->{'SUBNAMESPACE'} = $2;
 		$self->{'NUMBER'} = substr($3 + 10000000, 1, 7); # trick: forehead zeros
-	} elsif ($self->{'NAMESPACE'} && $self->{'SUBNAMESPACE'} && $self->{'NUMBER'}) {
-		return $self->{'NAMESPACE'}.":".$self->{'SUBNAMESPACE'}.$self->{'NUMBER'};
+	} elsif ($self->{'IDSPACE'} && $self->{'SUBNAMESPACE'} && $self->{'NUMBER'}) {
+		return $self->{'IDSPACE'}.":".$self->{'SUBNAMESPACE'}.$self->{'NUMBER'};
 	}
 }
 *id = \&id_as_string;
@@ -115,7 +115,7 @@ sub id_as_string () {
 =cut
 sub equals () {
 	my ($self, $target) = @_;
-	return (($self->{'NAMESPACE'} eq $target->{'NAMESPACE'}) && 
+	return (($self->{'IDSPACE'} eq $target->{'IDSPACE'}) && 
 			($self->{'SUBNAMESPACE'} eq $target->{'SUBNAMESPACE'}) &&
 			($self->{'NUMBER'} == $target->{'NUMBER'}));
 }
@@ -131,7 +131,7 @@ sub equals () {
 sub next_id () {
 	my $self = shift;
 	my $next_id = CCO::Util::CCO_ID->new();
-	$next_id->{'NAMESPACE'} = $self->{'NAMESPACE'};
+	$next_id->{'IDSPACE'} = $self->{'IDSPACE'};
 	$next_id->{'SUBNAMESPACE'} = $self->{'SUBNAMESPACE'};
 	$next_id->{'NUMBER'} = substr(10000001 + $self->{'NUMBER'}, 1, 7); # trick: forehead zeros
 	return $next_id;
@@ -148,7 +148,7 @@ sub next_id () {
 sub previous_id () {
 	my $self = shift;
 	my $previous_id = CCO::Util::CCO_ID->new ();
-	$previous_id->{'NAMESPACE'} = $self->{'NAMESPACE'};
+	$previous_id->{'IDSPACE'} = $self->{'IDSPACE'};
 	$previous_id->{'SUBNAMESPACE'} = $self->{'SUBNAMESPACE'};
 	$previous_id->{'NUMBER'} = substr((10000000 + $self->{'NUMBER'}) - 1, 1, 7); # trick: forehead zeros
 	return $previous_id;
@@ -167,13 +167,13 @@ use CCO::Util::CCO_ID;
 
 $id = CCO_ID->new();
 
-$id->namespace("CCO");
+$id->idspace("CCO");
 
 $id->subnamespace("X");
 
 $id->number("0000001");
 
-$namespace = $id->namespace();
+$idspace = $id->idspace();
 
 $subnamespace = $id->subnamespace();
 
@@ -193,7 +193,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006, 2007 by erant
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

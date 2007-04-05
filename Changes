@@ -24,3 +24,5 @@ Revision history for onto-perl
 0.29 More adjustments to follow OBO 1.2 spec, Set data structures improved
 
 0.30 In sync with oboInOwl, IntAct modules
+
+0.31 oboInOwl as well as ontology exports to OBO and OWL were improved

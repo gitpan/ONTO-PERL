@@ -2,7 +2,7 @@
 #
 # Module  : CCO_ID_Set.pm
 # Purpose : A set of CCO id's.
-# License : Copyright (c) 2006 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -55,18 +55,18 @@ sub add_all_as_string () {
 
 =head2 get_new_id
 
-  Usage    - $set->get_new_id($id)
+  Usage    - $set->get_new_id($idspace, $subnamespace)
   Returns  - a new CCO id (string)
   Args     - none
   Function - returns a new CCO ID as string and adds this id to the set
   
 =cut
 sub get_new_id {
-	my ($self, $namespace, $subnamespace) = @_;
+	my ($self, $idspace, $subnamespace) = @_;
 	
 	my $new_cco_id = CCO::Util::CCO_ID->new();
-	confess "The namespace is invalid: ", $namespace if ($namespace !~ /[A-Z][A-Z][A-Z]/);
-	$new_cco_id->namespace($namespace);
+	confess "The idspace is invalid: ", $idspace if ($idspace !~ /[A-Z][A-Z][A-Z]/);
+	$new_cco_id->idspace($idspace);
 	confess "The subnamespace is invalid: ", $subnamespace if ($subnamespace !~ /[CFPXIRTBNYZ]/);
 	$new_cco_id->subnamespace($subnamespace);
 	

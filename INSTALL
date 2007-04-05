@@ -48,11 +48,20 @@ http://www.cellcycleontology.org/
 Third part modules
 ==================
 
-SWISS Knife (v1.65) is used by the 'UniProtParser':
+1. SWISS Knife (v1.65) is used by the 'UniProtParser':
 
 	ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife
+
+2. XML::Simple (v2.16) is used by the IntAct related modules:
+
+	http://search.cpan.org/~grantm/XML-Simple-2.16/
 
 Mailing List
 ============
 
 https://maillist.psb.ugent.be/mailman/listinfo/ccofriends
+
+Bugs/comments/questions/etc
+===========================
+
+We are constantly improving this API, please report any bugs or send your comments to erant -@- psb.ugent.be.

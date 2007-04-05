@@ -29,11 +29,19 @@ type the following:
 
 DEPENDENCIES
 
-This modules do not require any other modules nor libraries:
+These modules require the following modules:
+
+1. SWISS Knife (v1.65) is used by the 'UniProtParser':
+
+	ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife
+
+2. XML::Simple (v2.16) is used by the IntAct related modules:
+
+	http://search.cpan.org/~grantm/XML-Simple-2.16/
 
 COPYRIGHT AND LICENCE
 
-Copyright (c) 2006 Erick Antezana. All rights reserved.
+Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 

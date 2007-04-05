@@ -23,7 +23,7 @@ use strict;
 use Carp;
 
 BEGIN {
-	push @INC, '/home/erant/workspace/onto-perl';
+	push @INC, '/group/biocomp/users/erant/workspace/onto-perl';
 }
 
 use CCO::Parser::OBOParser;
@@ -41,8 +41,9 @@ if ($sub_ontology_root_id) {
 	$onto = $onto->get_subontology_from($term);
 }
 
-my $ns = $onto->namespace("CCO");
-$onto->remark("The Cell-Cycle Sub-Ontology");
+my $ns = $onto->idspace("CCO");
+$onto->default_namespace("cellcycle_ontology");
+$onto->remark("A Cell-Cycle Sub-Ontology");
 
 foreach my $entry (sort {$a->id() cmp $b->id()} @{$onto->get_terms()}){
 	my $current_id = $entry->id();

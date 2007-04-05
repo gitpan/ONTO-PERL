@@ -66,7 +66,7 @@ sub work {
 	# parse the UniProt file
 	open FH, $uniprot_file;
 	local $/ = "\n//\n";
-	while(<FH>){
+	while(<FH>){#local $/ = "\n";
 		my $entry = SWISS::Entry->fromText($_);
 		my ($accession, @accs) = @{$entry->ACs->{list}};
 		my ($def, @syns) = @{$entry->DEs->{list}};
@@ -154,8 +154,9 @@ sub new_gene {
 	my $gene_name;
 	foreach ('Names', 'OLN', 'ORFNames') {# gene group object must contain at least one of the three types of names	
 		if (my ($name, @names) = @{$gene_group->{$_}->{list}}) {# list of gene name objects of one particular type
+			#a bug in Swissknife - a list with a reference to an empty hash is returned instead of an empty array if the field 'Names' is empty
 			if (!$gene_name) { # this is the first existing name type to process
-				$gene_name = $name->{text} || next;#a bug in Swissnife - an empty hash is returned instead of an empty array if the field 'Names' is empty
+				$gene_name = $name->{text} || next;
 				$gene->name($gene_name); 
 				
 				#get CCO id for the gene			
@@ -212,7 +213,7 @@ Assumptions:
 
 - the input UniProt file contains entries for one species only and for protein terms present in the input ontology only
 
-- all the entries in the species specific map file ($short_file_name) are present as well in the full map file ($long_file_name)
+- the full map file ($long_file_name, the UNION of the species specific map files ($short_file_name)) contains all the proteins to be processed by the UniProtParser 
 
 =head1 AUTHOR
 

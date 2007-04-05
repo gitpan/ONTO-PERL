@@ -2,7 +2,7 @@
 #
 # Module  : CCO_ID_Term_Map.pm
 # Purpose : A (birectional) map CCO_ID vs Term name.
-# License : Copyright (c) 2006 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -78,20 +78,19 @@ sub put () {
 
   Usage    - $map->get_new_cco_id("CCO", "P", "cell cycle")
   Returns  - a new CCO ID (string)
-  Args     - namespace (string), subnamespace (string), term (string)
+  Args     - idspace (string), subnamespace (string), term (string)
   Function - get a new CCO ID and insert it (put) into this map
   
 =cut
 sub get_new_cco_id () {
-	my ($self, $namespace, $subnamespace, $term) = @_;
+	my ($self, $idspace, $subnamespace, $term) = @_;
 	my $result;
-	if ($namespace && $subnamespace && $term) {
-		# is the namespace parameter redundant?
+	if ($idspace && $subnamespace && $term) {
 		
 		if ($self->is_empty()){
-			$result = $namespace.":".$subnamespace."0000001";
+			$result = $idspace.":".$subnamespace."0000001";
 		} else {
-			$result = $self->{KEYS}->get_new_id($namespace, $subnamespace);
+			$result = $self->{KEYS}->get_new_id($idspace, $subnamespace);
 		}
 		$self->put($result, $term); # put
 	}	
@@ -292,7 +291,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006, 2007 by erant
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

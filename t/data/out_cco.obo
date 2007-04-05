@@ -3727,8 +3727,8 @@ builtin: true
 def: "For continuants: C is_a C' if and only if: given any c that instantiates C at a time t, c instantiates C' at t. For processes: P is_a P' if and only if: that given any p that instantiates P, then p instantiates P'." [PMID:15892874]
 comment: The is_a relationship is considered axiomatic by the obo file format specification, and by OWL
 synonym: "is_subtype_of" EXACT []
-xref: owl:subClassOf
 xref: OBO_REL:is_a
+xref: owl:subClassOf
 is_anti_symmetric: true
 is_reflexive: true
 is_transitive: true
@@ -3766,8 +3766,8 @@ is_a: relationship ! relationship
 id: participates_in
 name: participates_in
 def: "C participates_in P if and only if: given any continuant c that instantiates C there is some process p, and some time t, such that: p has part c at t" [CCO:ea]
-xref: OBO_REL:participates_in
 xref: CCO_REL:participates_in
+xref: OBO_REL:participates_in
 is_a: relationship ! relationship
 
 [Typedef]

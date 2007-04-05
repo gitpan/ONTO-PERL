@@ -2,7 +2,7 @@
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
-# License : Copyright (c) 2006 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -195,9 +195,9 @@ sub work {
 					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
 						$term->is_obsolete(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
-						# TODO
+						$term->replaced_by($1);
 					} elsif ($line =~ /^consider:\s*(.*)/) {
-						# TODO
+						$term->consider($1);
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$term->builtin(($1 eq "true")?1:0);
 					} else { # TODO unrecognized token						
@@ -228,6 +228,10 @@ sub work {
 					} elsif ($line =~ /^name:\s*(.*)/) {
 						# todo check to have only one NAME per entry
 						$type->name($1);
+					} elsif ($line =~ /^namespace:\s*(.*)/) {
+						$type->namespace($1); # it is a Set
+					} elsif ($line =~ /^alt_id:\s*(.*)/) {
+						$type->alt_id($1);
 					} elsif ($line =~ /^def:\s*\"(.*)\"\s*\[(.*)\]/) { # fill the definition
 						my $def = CCO::Core::Def->new();
 						$def->text($1);
@@ -247,18 +251,14 @@ sub work {
 						$type->domain($1);
 					} elsif ($line =~ /^range:\s*(.*)/) {
 						$type->range($1);
-					} elsif ($line =~ /^inverse_of:\s*(.*)/) {
-						# todo
-					} elsif ($line =~ /^transitive_over:\s*(.*)/) {
-						# todo
+					} elsif ($line =~ /^is_anti_symmetric:\s*(.*)/) {
+						$type->is_anti_symmetric(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^is_cyclic:\s*(.*)/) {
 						$type->is_cyclic(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^is_reflexive:\s*(.*)/) {
 						$type->is_reflexive(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^is_symmetric:\s*(.*)/) {
 						$type->is_symmetric(($1 =~ /true/)?1:0);
-					} elsif ($line =~ /^is_anti_symmetric:\s*(.*)/) {
-						$type->is_anti_symmetric(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^is_transitive:\s*(.*)/) {
 						$type->is_transitive(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^is_metadata_tag:\s*(.*)/) {
@@ -282,7 +282,16 @@ sub work {
 							$result->add_relationship_type($target);
 						}
 						$rel->link($type, $target); # add a relationship between two relationship types
-						$result->add_relationship($rel); 
+						$result->add_relationship($rel);
+					} elsif ($line =~ /^inverse_of:\s*(.*)/) {
+						# TODO implement it in RelationshipType
+						#$type->inverse_of($1);
+					} elsif ($line =~ /^transitive_over:\s*(.*)/) {
+						$type->transitive_over($1);
+					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
+						$type->replaced_by($1);
+					} elsif ($line =~ /^consider:\s*(.*)/) {
+						$type->consider($1);
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$type->builtin(($1 eq "true")?1:0);
 					} else {
@@ -322,7 +331,7 @@ sub work {
 
 =head1 NAME
 
-    CCO::Parser::OBOParser  - An OBO parser.
+    CCO::Parser::OBOParser  - An OBO (Open Biomedical Ontologies) file parser.
     
 =head1 SYNOPSIS
 
@@ -362,7 +371,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006, 2007 by erant
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

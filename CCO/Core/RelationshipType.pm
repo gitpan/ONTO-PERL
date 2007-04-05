@@ -23,22 +23,27 @@ sub new {
         $self->{ID}                 = undef; # required, string (1)
         $self->{NAME}               = undef; # required, string (1)
         
+        $self->{ALT_ID}             = CCO::Util::Set->new(); # set (0..N)
         $self->{DEF}                = CCO::Core::Def->new; # (0..1)
+        $self->{NAMESPACE_SET}      = CCO::Util::Set->new(); # set (0..N)
         $self->{COMMENT}            = undef; # string (0..1)
         $self->{SYNONYM_SET}        = CCO::Util::SynonymSet->new(); # set of synonyms (0..N)
         $self->{XREF_SET}           = CCO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
-        $self->{DOMAIN}             = undef; # string (0..1)
-        $self->{RANGE}              = undef; # string (0..1)
-        $self->{INVERSE_OF}         = undef; # string (0..1)
-        $self->{TRANSITIVE_OVER}    = undef; # string (0..1)
+        $self->{DOMAIN}             = CCO::Util::Set->new(); # set of scalars (0..N)
+        $self->{RANGE}              = CCO::Util::Set->new(); # set of scalars (0..N)
         $self->{IS_CYCLIC}          = undef; # [1|0], 0 by default
         $self->{IS_REFLEXIVE}       = undef; # [1|0], 0 by default
         $self->{IS_SYMMETRIC}       = undef; # [1|0], 0 by default
         $self->{IS_ANTI_SYMMETRIC}  = undef; # [1|0], 0 by default
         $self->{IS_TRANSITIVE}      = undef; # [1|0], 0 by default
         $self->{IS_METADATA_TAG}    = undef; # [1|0], 0 by default
+        $self->{INVERSE_OF}         = undef; # string (0..1)
+        $self->{TRANSITIVE_OVER}    = CCO::Util::Set->new(); # set of scalars (0..N)
+        $self->{IS_OBSOLETE}        = undef; # [1|0], 0 by default
+        $self->{REPLACED_BY}        = CCO::Util::Set->new(); # set of scalars (0..N)
+		$self->{CONSIDER}           = CCO::Util::Set->new(); # set of scalars (0..N)
         $self->{BUILTIN}            = undef; # [1|0], 0 by default
-        
+	
         bless ($self, $class);
         return $self;
 }
@@ -69,6 +74,24 @@ sub name {
 	my ($self, $name) = @_;
 	if ($name) { $self->{NAME} = $name }
 	return $self->{NAME};
+}
+
+=head2 alt_id
+
+  Usage    - $relationship_type->alt_id() or $relationship_type->alt_id($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the alternate id(s) of this relationship type
+  Args     - the alternate id(s) (string) of this relationship type
+  Function - gets/sets the alternate id(s) of this relationship type
+  
+=cut
+sub alt_id {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+   		$self->{ALT_ID}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{ALT_ID}->add(shift);
+	}
+	return $self->{ALT_ID};
 }
 
 =head2 def
@@ -126,6 +149,24 @@ sub def_as_string {
 		push @result, $dbxref->as_string();
 	}
 	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+}
+
+=head2 namespace
+
+  Usage    - $relationship_type->namespace() or $relationship_type->namespace($ns1, $ns2, $ns3, ...)
+  Returns  - an array with the namespace to which this relationship type belongs
+  Args     - the namespacet(s) to which this relationship type belongs
+  Function - gets/sets the namespace(s) to which this relationship type belongs
+  
+=cut
+sub namespace {
+        my $self = shift;
+        if (scalar(@_) > 1) {
+                $self->{NAMESPACE_SET}->add_all(@_);
+        } elsif (scalar(@_) == 1) {
+                $self->{NAMESPACE_SET}->add(shift);
+        }
+        return $self->{NAMESPACE_SET}->get_set();
 }
 
 =head2 comment
@@ -238,35 +279,43 @@ sub xref_set_as_string {
 
 =head2 domain
 
-  Usage    - print $relationship_type-->domain()
-  Returns  - the domain to which this relationship type belongs
-  Args     - the domain to which this relationship type belongs
-  Function - gets/sets the domain to which this relationship type belongs
+  Usage    - print $relationship_type->domain() or $relationship_type->domain($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the domain(s) to which this relationship type belongs
+  Args     - the domain(s) (string) to which this relationship type belongs
+  Function - gets/sets the domain(s) to which this relationship type belongs
   
 =cut
 sub domain {
-	my ($self, $domain) = @_;
-    if ($domain) { $self->{DOMAIN} = $domain }
-    return $self->{DOMAIN};
+	my $self = shift;
+	if (scalar(@_) > 1) {
+   		$self->{DOMAIN}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{DOMAIN}->add(shift);
+	}
+	return $self->{DOMAIN};
 }
 
 =head2 range
 
-  Usage    - print $relationship_type->range()
-  Returns  - the range of this relationship type
-  Args     - the range of this relationship type
-  Function - gets/sets the range of this relationship type
+  Usage    - print $relationship_type->range() or $relationship_type->range($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the range(s) of this relationship type
+  Args     - the range(s) (string) of this relationship type
+  Function - gets/sets the range(s) of this relationship type
   
 =cut
 sub range {
-	my ($self, $range) = @_;
-    if ($range) { $self->{RANGE} = $range }
-    return $self->{RANGE};
+	my $self = shift;
+	if (scalar(@_) > 1) {
+   		$self->{RANGE}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{RANGE}->add(shift);
+	}
+	return $self->{RANGE};
 }
 
 =head2 inverse_of
 
-  Usage    - print $relationship_type->inverse_of()
+  Usage    - $relationship_type->inverse_of()
   Returns  - inverse relationship type of this relationship type
   Args     - inverse relationship type of this relationship type
   Function - gets/sets the inverse relationship type of this relationship type
@@ -277,25 +326,10 @@ sub inverse_of {
     if ($rel) {
 		$self->{INVERSE_OF} = $rel;
 		$rel->{INVERSE_OF}  = $self;
-		# todo que pasa cuando hago delete de una de las relaciones?
+		# TODO what happends when we delete any of those two relationships?
 	}
     return $self->{INVERSE_OF};
 }
-
-=head2 transitive_over
-
-  Usage    - print $relationship_type->transitive_over()
-  Returns  - the relationship type with which this one is transitive over
-  Args     - the relationship type with which this one is transitive over
-  Function - gets/sets the relationship type with which this one is transitive over
-  
-=cut
-sub transitive_over {
-	my ($self, $rel) = @_;
-    if ($rel) { $self->{TRANSITIVE_OVER} = $rel }
-    return $self->{TRANSITIVE_OVER};
-}
-
 
 =head2 is_cyclic
 
@@ -372,7 +406,7 @@ sub is_transitive {
   Usage    - $relationship_type->is_metadata_tag()
   Returns  - 1 (true) or 0 (false)
   Args     - 1 (true) or 0 (false)
-  Function - tells whether the relationship type is a metadata tag or not.
+  Function - tells whether this relationship type is a metadata tag or not.
   
 =cut
 sub is_metadata_tag {
@@ -381,12 +415,80 @@ sub is_metadata_tag {
     return (defined($self->{IS_METADATA_TAG}) && $self->{IS_METADATA_TAG} == 1)?1:0;
 }
 
+=head2 transitive_over
+
+  Usage    - $relationship_type->transitive_over() or $relationship_type->transitive_over($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the relationship type(s) for which this relationship type is(are) transitive over
+  Args     - the relationship type(s) (CCO::Core::RelationshipType) with which this one is transitive over
+  Function - gets/sets the set of the relationship type(s) for which this relationship type is(are) transitive over
+  
+=cut
+sub transitive_over {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+   		$self->{TRANSITIVE_OVER}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{TRANSITIVE_OVER}->add(shift);
+	}
+	return $self->{TRANSITIVE_OVER};
+}
+
+=head2 is_obsolete
+
+  Usage    - print $relationship_type->is_obsolete()
+  Returns  - either 1 (true) or 0 (false)
+  Args     - either 1 (true) or 0 (false)
+  Function - tells whether the relationship type is obsolete or not. 'false' by default.
+  
+=cut
+sub is_obsolete {
+	my ($self, $obs) = @_;
+    if ($obs) { $self->{IS_OBSOLETE} = $obs }
+    return (defined($self->{IS_OBSOLETE}) && $self->{IS_OBSOLETE} == 1)?1:0;
+}
+
+=head2 replaced_by
+
+  Usage    - $relationship_type->replaced_by() or $relationship_type->replaced_by($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the id(s) of the replacing relationship type(s)
+  Args     - the the id(s) of the replacing relationship type(s) (string)
+  Function - gets/sets the the id(s) of the replacing relationship type(s)
+  
+=cut
+sub replaced_by {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+   		$self->{REPLACED_BY}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{REPLACED_BY}->add(shift);
+	}
+	return $self->{REPLACED_BY};
+}
+
+=head2 consider
+
+  Usage    - $relationship_type->consider() or $relationship_type->consider($id1, $id2, $id3, ...)
+  Returns  - a set (CCO::Util::Set) with the appropiate substitute(s) for an obsolete relationship type
+  Args     - the appropiate substitute(s) for an obsolete relationship type (string)
+  Function - gets/sets the appropiate substitute(s) for this obsolete relationship type
+  
+=cut
+sub consider {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+   		$self->{CONSIDER}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{CONSIDER}->add(shift);
+	}
+	return $self->{CONSIDER};
+}
+
 =head2 builtin
 
-  Usage    - $term->builtin() or $term->builtin(1) or $term->builtin(0)
-  Returns  - tells if this term is builtin to the OBO format; false by default
+  Usage    - $relationship_type->builtin() or $relationship_type->builtin(1) or $relationship_type->builtin(0)
+  Returns  - tells if this relationship type is builtin to the OBO format; false by default
   Args     - 1 (true) or 0 (false)
-  Function - gets/sets the value indicating whether this term is builtin to the OBO format
+  Function - gets/sets the value indicating whether this relationship type is builtin to the OBO format
   
 =cut
 sub builtin {
@@ -488,7 +590,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006, 2007 by erant
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

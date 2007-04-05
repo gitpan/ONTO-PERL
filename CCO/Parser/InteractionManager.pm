@@ -329,6 +329,9 @@ sub add_xref (){
 
 sub add_def (){
 	my ($term,$db,$acc,$def_text)=@_;
+	$def_text =~ s/\n+//g;
+	$def_text =~ s/\t+//g;
+	$def_text =~ s/\r+//g;
 	$term->def_as_string($def_text, "[".$db.":".$acc."]");
 # 	my $def = CCO::Core::Def->new(); 
 # 	$def->text($def_text); 
