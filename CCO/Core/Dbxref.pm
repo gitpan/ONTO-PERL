@@ -29,14 +29,14 @@ sub new {
 
   Usage    - print $dbxref->name() or $dbxref->name($name)
   Returns  - the dbxref name (string)
-  Args     - the dbxref name (string)
+  Args     - the dbxref name (string) that follows this convention DB:ACC (DB is optional like some dbxrefs from the ChEBI ontology)
   Function - gets/sets the dbxref name
   
 =cut
 sub name {
 	my ($self, $name) = @_;
     if ($name) {
-		($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\w-]+):([\w:,\(\)\.-]+)/ || $name =~ /(http):\/\/(.*)/);
+    	($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\w-]+):([~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)/ || $name =~ /(http):\/\/(.*)/);
 	} else { # get-mode
 		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     }

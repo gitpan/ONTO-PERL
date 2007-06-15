@@ -59,29 +59,29 @@ sub dbxref_set {
   Usage    - $definition->dbxref_set_as_string() or $definition->dbxref_set_as_string("[GOC:elh, PMID:9334324]")
   Returns  - the dbxref set (string) of this definition; [] if the set is empty
   Args     - the dbxref set (string) describing the source(s) of this definition
-  Function - gets/sets the dbxref set of this definition
+  Function - gets/sets the dbxref set of this definition. The set operation actually *adds* the new dbxrefs to the existing set
   
 =cut
 sub dbxref_set_as_string {
 	my ($self, $dbxref_as_string) = @_;
 	if ($dbxref_as_string) {
-		$dbxref_as_string =~ s/\[//;
-		$dbxref_as_string =~ s/\]//;
+		$dbxref_as_string =~ s/^\[//;
+		$dbxref_as_string =~ s/\]$//;
 		my @refs = split(/, /, $dbxref_as_string);
 		
-		my $dbxref_set = CCO::Util::DbxrefSet->new();
+		###my $dbxref_set = CCO::Util::DbxrefSet->new();
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:,\(\)\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /([\w-]+:[~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $dbxref = CCO::Core::Dbxref->new();
 				$dbxref->name($1);
 				$dbxref->description($3) if (defined $3);
 				$dbxref->modifier($5) if (defined $5);
-				$dbxref_set->add($dbxref);
+				$self->{DBXREF_SET}->add($dbxref);
 			} else {
-				confess "There were not defined the references for this definition: ", $self->id(), ". Check the 'dbxref' field.";
+				confess "There were not defined the references for this definition: '", $self->text(), "'. Check the 'dbxref' field.";
 			}
 		}
-		$self->{DBXREF_SET} = $dbxref_set;
+		###$self->{DBXREF_SET} = $dbxref_set;
 	}
 	my @result = (); # a Set?
 	foreach my $dbxref (sort {lc($a) cmp ($b)} $self->dbxref_set()->get_set()) {

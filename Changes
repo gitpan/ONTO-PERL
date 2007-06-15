@@ -26,3 +26,5 @@ Revision history for onto-perl
 0.30 In sync with oboInOwl, IntAct modules
 
 0.31 oboInOwl as well as ontology exports to OBO and OWL were improved
+
+0.32 obo2owl and owl2obo scripts updated and improved, OBO and OWL Parsers enhanced

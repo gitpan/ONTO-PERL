@@ -140,63 +140,99 @@ sub equals {
 =head1 SYNOPSIS
 
 use CCO::Util::SynonymSet;
+
 use CCO::Core::Synonym;
+
 use strict;
 
 my $my_set = CCO::Util::SynonymSet->new;
 
 my @arr = $my_set->get_set();
 
-# three new terms
+
+# three new synonyms
+
 my $n1 = CCO::Core::Synonym->new;
+
 my $n2 = CCO::Core::Synonym->new;
+
 my $n3 = CCO::Core::Synonym->new;
 
+
 $n1->id("CCO:P0000001");
+
 $n2->id("CCO:P0000002");
+
 $n3->id("CCO:P0000003");
 
+
 $n1->name("One");
+
 $n2->name("Two");
+
 $n3->name("Three");
 
+
 # remove from my_set
+
 $my_set->remove($n1);
+
 $my_set->add($n1);
+
 $my_set->remove($n1);
+
 
 ### set versions ###
+
 $my_set->add($n1);
+
 $my_set->add($n2);
+
 $my_set->add($n3);
 
+
 my $n4 = CCO::Core::Synonym->new;
+
 my $n5 = CCO::Core::Synonym->new;
+
 my $n6 = CCO::Core::Synonym->new;
 
+
 $n4->id("CCO:P0000004");
+
 $n5->id("CCO:P0000005");
+
 $n6->id("CCO:P0000006");
 
+
 $n4->name("Four");
+
 $n5->name("Five");
+
 $n6->name("Six");
+
 
 $my_set->add_all($n4, $n5, $n6);
 
 $my_set->add_all($n4, $n5, $n6);
 
 # remove from my_set
+
 $my_set->remove($n4);
 
 my $n7 = $n4;
+
 my $n8 = $n5;
+
 my $n9 = $n6;
+
 
 my $my_set2 = CCO::Util::SynonymSet->new;
 
 $my_set->add_all($n4, $n5, $n6);
+
 $my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
+
 
 $my_set2->clear();
 

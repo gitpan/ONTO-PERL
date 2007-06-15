@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 160;
+    plan tests => 166;
 }
 
 #########################
@@ -23,7 +23,11 @@ use CCO::Core::Ontology;
 use CCO::Core::Term;
 use CCO::Core::Relationship;
 use CCO::Core::RelationshipType;
+use CCO::Core::SynonymTypeDef;
+use CCO::Parser::OBOParser;
 use CCO::Util::TermSet;
+
+use Data::Dumper;
 use strict;
 
 # three new terms
@@ -184,6 +188,11 @@ ok($#no_processes == -1);
 # get term and terms
 ok($onto->get_term_by_id("CCO:P0000001")->name() eq "Uj");
 ok($onto->get_term_by_name("Uj")->equals($n1));
+$n1->synonym_as_string("Uno", "[CCO:ls, CCO:vm]", "EXACT");
+ok(($n1->synonym_as_string())[0] eq "\"Uno\" [CCO:ls, CCO:vm]");
+$n1->synonym_as_string("One", "[CCO:ls, CCO:vm]", "BROAD");
+ok($onto->get_term_by_name_or_synonym("Uno")->equals($n1)); # needs to be EXACT
+ok($onto->get_term_by_name_or_synonym("One") eq ''); # undef due to BROAD
 ok($onto->get_term_by_name("Two")->equals($n2));
 ok($onto->get_term_by_name("Three")->equals($n3));
 ok($onto->get_term_by_name("Four")->equals($n4));
@@ -454,7 +463,11 @@ ok($so->idspace->uri() eq "http://www.cellcycleontology.org/ontology/CCO");
 ok($so->idspace->description() eq "cell cycle terms");
 $so->remark("This is a test ontology");
 $so->subsets("Jukumari Term used for jukumari", "Jukucha Term used for jukucha");
-$so->synonymtypes("acronym \"acronym\" BROAD", "common_name \"common name\" EXACT");
+my $std1 = CCO::Core::SynonymTypeDef->new();
+my $std2 = CCO::Core::SynonymTypeDef->new();
+$std1->synonym_type_def_as_string("acronym", "acronym", "EXACT");
+$std2->synonym_type_def_as_string("common_name", "common name", "EXACT");
+$so->synonym_type_def_set($std1, $std2);
 $n1->subset("Jukumari");
 $n1->subset("Jukucha");
 $n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
@@ -473,3 +486,19 @@ ok($onto->get_number_of_relationships() == 6);
 $onto->create_rel($n4, 'part_of', $n5);
 ok($onto->get_number_of_relationships() == 7);
 ok(1);
+
+# subontology tests
+my $my_parser = CCO::Parser::OBOParser->new();
+my $alpha_onto = $my_parser->work("./t/data/alpha.obo");
+
+my $root = $alpha_onto->get_term_by_id("MYO:0000000");
+my $sub_o = $alpha_onto->get_subontology_from($root);
+ok ($sub_o->get_number_of_terms() == 16);
+
+$root = $alpha_onto->get_term_by_id("MYO:0000002");
+$sub_o = $alpha_onto->get_subontology_from($root);
+ok ($sub_o->get_number_of_terms() == 9);
+
+$root = $alpha_onto->get_term_by_id("MYO:0000014");
+$sub_o = $alpha_onto->get_subontology_from($root);
+ok ($sub_o->get_number_of_terms() == 2);

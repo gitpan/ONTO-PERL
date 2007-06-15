@@ -213,13 +213,13 @@ sub def_as_string {
   
 =cut
 sub namespace {
-        my $self = shift;
-        if (scalar(@_) > 1) {
-                $self->{NAMESPACE_SET}->add_all(@_);
-        } elsif (scalar(@_) == 1) {
-                $self->{NAMESPACE_SET}->add(shift);
-        }
-        return $self->{NAMESPACE_SET}->get_set();
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{NAMESPACE_SET}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{NAMESPACE_SET}->add(shift);
+	}
+	return $self->{NAMESPACE_SET}->get_set();
 }
 
 =head2 comment
@@ -276,20 +276,21 @@ sub synonym_set {
 
   Usage    - print $term->synonym_as_string() or $term->synonym_as_string("this is a synonym text", "[CCO:ea]", "EXACT")
   Returns  - an array with the synonym(s) of this term
-  Args     - the synonym text (string), the dbxrefs (string) and synonym type (string) of this term
+  Args     - the synonym text (string), the dbxrefs (string), synonym scope (string) of this term, and optionally the synonym type name (string)
   Function - gets/sets the synonym(s) of this term
   
 =cut
 sub synonym_as_string {
 	# todo all, check parameters, similar to def_as_string()?
-	my ($self, $synonym_text, $dbxrefs, $type) = @_;
-	if ($synonym_text && $dbxrefs && $type) {
+	my ($self, $synonym_text, $dbxrefs, $scope, $synonym_type_name) = @_;
+	if ($synonym_text && $dbxrefs && $scope) {
 
 		my $synonym = CCO::Core::Synonym->new();
 		$synonym->def_as_string($synonym_text, $dbxrefs);
-		$synonym->type($type);
-		
+		$synonym->type($scope);
+		$synonym->synonym_type_name($synonym_type_name); # optional argument
 		$self->synonym_set($synonym);
+		return; # set operation
 	}
 	my @result;
 	foreach my $synonym ($self->{SYNONYM_SET}->get_set()) {
@@ -332,13 +333,13 @@ sub xref_set {
 sub xref_set_as_string {
 	my ($self, $xref_as_string) = @_;
 	if ($xref_as_string) {
-		$xref_as_string =~ s/\[//;
-		$xref_as_string =~ s/\]//;
+		$xref_as_string =~ s/^\[//;
+		$xref_as_string =~ s/\]$//;
 		my @refs = split(/, /, $xref_as_string);
 		
 		my $xref_set = $self->{XREF_SET};
 		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+			if ($ref =~ /([\w-]+:[~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
 				my $xref = CCO::Core::Dbxref->new();
 				$xref->name($1);
 				$xref->description($3) if (defined $3);
@@ -348,7 +349,7 @@ sub xref_set_as_string {
 				confess "There were not defined the references for this term: '", $self->id(), "'. Check the 'dbxref' field.";
 			}
 		}
-		$self->{XREF_SET} = $xref_set;
+		$self->{XREF_SET} = $xref_set; # Is this line necessary?
 	}
 	my @result = $self->xref_set()->get_set();
 }

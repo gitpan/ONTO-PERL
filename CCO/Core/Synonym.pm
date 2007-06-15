@@ -1,7 +1,7 @@
 # $Id: Synonym.pm 291 2006-06-01 16:21:45Z erant $
 #
 # Module  : Synonym.pm
-# Purpose : A synonym of a Term.
+# Purpose : A synonym for this term.
 # License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
@@ -21,6 +21,7 @@ sub new {
         
         $self->{TYPE}               = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
         $self->{DEF}                = CCO::Core::Def->new(); # required
+        $self->{SYNONYM_TYPE_NAME}  = undef;
         
         bless ($self, $class);
         return $self;
@@ -29,12 +30,13 @@ sub new {
 =head2 type
 
   Usage    - print $synonym->type() or $synonym->type("EXACT")
-  Returns  - the synonym type
-  Args     - the synonym type: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
-  Function - gets/sets the synonym name
+  Returns  - the synonym scope
+  Args     - the synonym scope: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
+  Function - gets/sets the synonym scope
   
 =cut
 sub type {
+	# TODO refactor this method, new name: scope
 	my ($self, $synonym_type) = @_;
 	if ($synonym_type) {
 		my $possible_types = CCO::Util::Set->new();
@@ -63,6 +65,20 @@ sub def {
     	$self->{DEF} = $def; 
 	}
     return $self->{DEF};
+}
+
+=head2 synonym_type_name
+
+  Usage    - print $synonym->synonym_type_name() or $synonym->synonym_type_name("UK_SPELLING")
+  Returns  - the name of the synonym type associated to this synonym
+  Args     - the synonym type name (string)
+  Function - gets/sets the synonym name
+  
+=cut
+sub synonym_type_name {
+	my ($self, $synonym_type_name) = @_;
+	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
+    return $self->{SYNONYM_TYPE_NAME};
 }
 
 =head2 def_as_string
@@ -127,6 +143,7 @@ sub equals {
 		confess "The type of the target synonym is undefined" if (!defined($target->{TYPE}));
 		
 		$result = (($self->{TYPE} eq $target->{TYPE}) && ($self->{DEF}->equals($target->{DEF})));
+		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
 	}
 	return $result;
 }
@@ -273,7 +290,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006, 2007 by erant
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

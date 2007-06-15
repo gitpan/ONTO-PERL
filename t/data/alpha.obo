@@ -1,0 +1,94 @@
+format-version: 1.0
+date: 11:05:2007 12:52
+saved-by: erant
+default-namespace: test_namespace
+
+[Term]
+id: MYO:0000000
+name: A
+
+[Term]
+id: MYO:0000001
+name: B
+is_a: MYO:0000000 ! A
+
+[Term]
+id: MYO:0000002
+name: C
+is_a: MYO:0000000 ! A
+
+[Term]
+id: MYO:0000003
+name: D
+is_a: MYO:0000001 ! B
+
+[Term]
+id: MYO:0000004
+name: E
+is_a: MYO:0000001 ! B
+
+[Term]
+id: MYO:0000005
+name: F
+is_a: MYO:0000001 ! B
+
+[Term]
+id: MYO:0000006
+name: G
+is_a: MYO:0000002 ! C
+
+[Term]
+id: MYO:0000007
+name: H
+is_a: MYO:0000002 ! C
+
+[Term]
+id: MYO:0000008
+name: I
+is_a: MYO:0000002 ! C
+
+[Term]
+id: MYO:0000009
+name: J
+is_a: MYO:0000002 ! C
+
+[Term]
+id: MYO:0000010
+name: K
+is_a: MYO:0000005 ! F
+
+[Term]
+id: MYO:0000011
+name: L
+is_a: MYO:0000005 ! F
+
+[Term]
+id: MYO:0000013
+name: M
+is_a: MYO:0000005 ! F
+relationship: part_of MYO:0000014 ! N
+relationship: part_of MYO:0000015 ! O
+relationship: part_of MYO:0000016 ! P
+
+[Term]
+id: MYO:0000014
+name: N
+is_a: MYO:0000009 ! J
+relationship: part_of MYO:0000001 ! B
+
+[Term]
+id: MYO:0000015
+name: O
+is_a: MYO:0000009 ! J
+
+[Term]
+id: MYO:0000016
+name: P
+is_a: MYO:0000009 ! J
+relationship: part_of MYO:0000003 ! D
+relationship: part_of MYO:0000004 ! E
+relationship: part_of MYO:0000005 ! F
+
+[Typedef]
+id: part_of
+name: part_of

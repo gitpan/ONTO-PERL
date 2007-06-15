@@ -205,19 +205,19 @@ sub synonym_set {
 
   Usage    - print $relationship_type->synonym_as_string() or $relationship_type->synonym_as_string("this is a synonym text", "[CCO:ea]", "EXACT")
   Returns  - an array with the synonym(s) of this relationship type
-  Args     - the synonym text (string), the dbxrefs (string) and synonym type (string) of this relationship type
+  Args     - the synonym text (string), the dbxrefs (string), synonym scope (string) of this relationship type, and optionally the synonym type name (string)
   Function - gets/sets the synonym(s) of this relationship type
   
 =cut
 sub synonym_as_string {
 	# todo all, check parameters, similar to def_as_string()?
-	my ($self, $synonym_text, $dbxrefs, $type) = @_;
-	if ($synonym_text && $dbxrefs && $type) {
+	my ($self, $synonym_text, $dbxrefs, $scope, $synonym_type_name) = @_;
+	if ($synonym_text && $dbxrefs && $scope) {
 
 		my $synonym = CCO::Core::Synonym->new();
 		$synonym->def_as_string($synonym_text, $dbxrefs);
-		$synonym->type($type);
-		
+		$synonym->type($scope);
+		$synonym->synonym_type_name($synonym_type_name); # optional argument
 		$self->synonym_set($synonym);
 	}
 	

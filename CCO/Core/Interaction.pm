@@ -20,8 +20,10 @@ sub new {
 	$self->{interactionType} = undef; 
 	$self->{shortLabel} = undef; 
 	$self->{fullName} = undef; 
-	$self->{interactorRef} = [];
-	$self->{interactors} = [];	
+# 	$self->{goodInteractorID} = undef;
+	$self->{interactorRef} = []; # interactor ids
+	$self->{interactorRefRoles} = (); # interactorRef-Role, interactorRef-Role,
+# 	$self->{interactors} = []; # interactor objects	
 	bless ($self, $class);
 	return $self;
 }
@@ -50,6 +52,12 @@ sub fullName {
 	return $self->{fullName};
 }
 
+# sub goodInteractorID {
+# 	my $self = shift;
+# 	if (@_) { $self->{goodInteractorID} = shift }
+# 	return $self->{goodInteractorID};
+# }
+
 sub interactorRef {
 	my $self = shift;
 	if (@_) { $self->{interactorRef} = shift }
@@ -57,11 +65,19 @@ sub interactorRef {
 	return \@interactorRef;
 }
 
-sub interactors {
+
+sub interactorRefRoles {
 	my $self = shift;
-	if (@_) { $self->{interactors} = shift }
-	my @interactors = @{$self->{interactors}};
-	return \@interactors;
+	if (@_) { $self->{interactorRefRoles} = shift }
+	my %interactorRefRoles = %{$self->{interactorRefRoles}};
+	return \%interactorRefRoles;
 }
+
+# sub interactors {
+# 	my $self = shift;
+# 	if (@_) { $self->{interactors} = shift }
+# 	my @interactors = @{$self->{interactors}};
+# 	return \@interactors;
+# }
 
 1;

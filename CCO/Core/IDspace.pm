@@ -81,7 +81,7 @@ sub description {
 =head2 as_string
 
   Usage    - print $idspace->as_string()
-  Returns  - returns this idspace (local_idspace uri "description") as string
+  Returns  - returns this idspace (local_idspace uri "description") as string if it is defined; otherwise, undef
   Args     - none
   Function - returns this idspace as string
   
@@ -91,6 +91,7 @@ sub as_string {
 	confess "Neither the local idspace nor the URI of this idspace is defined." if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
 	my $result = $self->{LOCAL_IDSPACE}." ".$self->{URI};
 	$result .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
+	$result = undef if ($result =~ /^\s*$/);
 	return $result;
 }
 

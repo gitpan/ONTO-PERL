@@ -61,7 +61,7 @@ ok($def3->equals($def3));
 
 # dbxref_set_as_string
 ok($def2->dbxref_set_as_string() eq "[CCO:ls]");
-$def2->dbxref_set_as_string("[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+$def2->dbxref_set_as_string("[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\" {opt=first}]");
 my @refs_def2 = $def2->dbxref_set()->get_set();
 my %r_def2;
 foreach my $ref_def2 (@refs_def2) {

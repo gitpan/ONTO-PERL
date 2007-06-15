@@ -13,6 +13,7 @@ use XML::Simple;
 use CCO::Core::Interactor;
 use CCO::Core::Interaction;
 
+
 use strict;
 use warnings;
 use Carp;
@@ -99,11 +100,14 @@ sub read{
 								while(my($key_name, $value_name) = each(%types)){
 # 									print $key_name," ----- ",$value_name,"\n";
 									if($key_name eq "shortLabel"){
-										$interactionType = $interactionType.$value_name;
+										$interactionType = $value_name;
 									}
-									if($key_name eq "alias"){
-										$interactionType = $interactionType.":".$value_name;
-									}
+# 									if($key_name eq "shortLabel"){
+# 										$interactionType = $interactionType.$value_name;
+# 									}
+# 									if($key_name eq "alias"){
+# 										$interactionType = $interactionType.":".$value_name;
+# 									}
 								}
 # 								print $interactionType,"\n";
 								$interaction->interactionType($interactionType);
@@ -112,14 +116,21 @@ sub read{
 							if($key_3 eq "participantList"){
 								my @interactor_ids = ();
 								my %participant = %{$value_3->{"participant"}};
+								my %interactorRefRole = ();
+								
 								while(my($key_name, $value_name) = each(%participant)){
 									if($key_name =~ m/\d+/){
 # 										print $key_name,"\n";
-# 										print "PARTICIPATN INTERACTOR ID:", $value_name->{"interactorRef"},"!\n";
-										push(@interactor_ids,$value_name->{"interactorRef"});
+										my $interactorRef = $value_name->{"interactorRef"};
+										push(@interactor_ids,$interactorRef);
+										my %possibleRoles = %{$value_name->{"experimentalRoleList"}};
+										my $interactorRole = $possibleRoles{"experimentalRole"}{"names"}{"shortLabel"};
+										$interactorRefRole{$interactorRef}=$interactorRole;
+# 										
 									}
 								}
 								$interaction->interactorRef(\@interactor_ids);
+								$interaction->interactorRefRoles(\%interactorRefRole);
 							}
 						}
 						push(@new_interactions,$interaction);

@@ -2,6 +2,7 @@ format-version: 1.0
 date: 28:06:2006 13:57
 saved-by: erant
 auto-generated-by: erant
+synonymtypedef: diminutivo "diminutivo" NARROW
 default-namespace: cco
 remark: <p>This file holds the Upper Level Ontology in CCO.</p>
 
@@ -11,6 +12,8 @@ name: continuant
 def: "Entities which endure, or continue to exist, through time while undergoing different sort of changes, including changes of place." [PMID:15892874]
 exact_synonym: "endurant" [PMID:15892874]
 broad_synonym: "thing" [PMID:15892874]
+synonym: "cosa" []
+synonym: "cosita" diminutivo []
 is_a: CCO:B0000000 ! entity
 
 [Term]

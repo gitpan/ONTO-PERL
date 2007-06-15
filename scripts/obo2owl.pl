@@ -29,7 +29,7 @@ $ontology->export(\*STDOUT, "owl");
 
 =head1 DESCRIPTION
 
-This script transforms an OBO file (spec 1.2) into OWL (1.1).
+This script transforms an OBO file (spec 1.2) into OWL (cf. oboinowl mapping).
 
 =head1 AUTHOR
 

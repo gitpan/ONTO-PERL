@@ -8,8 +8,11 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Core::Ontology;
+
 use CCO::Core::IDspace;
+use CCO::Util::SynonymTypeDefSet;
 use CCO::Util::TermSet;
+
 use strict;
 use warnings;
 use Carp;
@@ -17,20 +20,20 @@ use Carp;
 # TODO implement 'get_relationships_type_by_name()' in a similar way to 'get_terms_by_name' (using RelationshipSet)
 
 sub new {
-	my $class                     = shift;
-	my $self                      = {};
+	my $class                      = shift;
+	my $self                       = {};
         
-	$self->{ID}                   = undef; # required, (1)
-	$self->{NAME}                 = undef; # required, (1)
-	$self->{IMPORTS}              = CCO::Util::Set->new(); # set (0..N)
-	$self->{IDSPACE}              = CCO::Core::IDspace->new(); # required, (1)
-	$self->{DEFAULT_NAMESPACE}    = undef; # string (0..1)
-	$self->{DATA_VERSION}         = undef; # string (0..1)
-	$self->{DATE}                 = undef; # (1) The current date in dd:MM:yyyy HH:mm format
-	$self->{SAVED_BY}             = undef; # string (0..1)
-	$self->{REMARK}               = undef; # string (0..1)
-	$self->{SUBSETS_SET}          = CCO::Util::Set->new(); # set (0..N); A subset is a view over an ontology
-	$self->{SYNONYMTYPES_SET}     = CCO::Util::Set->new(); # set (0..N); A description of a user-defined synonym type
+	$self->{ID}                    = undef; # required, (1)
+	$self->{NAME}                  = undef; # required, (1)
+	$self->{IMPORTS}               = CCO::Util::Set->new(); # set (0..N)
+	$self->{IDSPACE}               = CCO::Core::IDspace->new(); # required, (1)
+	$self->{DEFAULT_NAMESPACE}     = undef; # string (0..1)
+	$self->{DATA_VERSION}          = undef; # string (0..1)
+	$self->{DATE}                  = undef; # (1) The current date in dd:MM:yyyy HH:mm format
+	$self->{SAVED_BY}              = undef; # string (0..1)
+	$self->{REMARK}                = undef; # string (0..1)
+	$self->{SUBSETS_SET}           = CCO::Util::Set->new(); # set (0..N); A subset is a view over an ontology
+	$self->{SYNONYM_TYPE_DEF_SET}  = CCO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
         
 	$self->{TERMS}                = {}; # map: term_id(string) vs. term(CCO::Core::Term)  (0..n)
 	# TERMS_SET will be enabled once the Set is refactored
@@ -136,7 +139,7 @@ sub idspace {
 =head2 idspace_as_string
 
   Usage    - $ontology->idspace_as_string($local_id, $uri, $description)
-  Returns  - the just added idspace (CCO::Core::IDspace)
+  Returns  - the idspace as string (string)
   Args     - the local idspace (string), the uri (string) and the description (string)
   Function - sets the idspace of this ontology
   
@@ -151,6 +154,7 @@ sub idspace_as_string {
 		$self->idspace($new_idspace);
 		return $new_idspace;
 	}
+	return $self->{IDSPACE}->as_string();
 }
 
 =head2 data_version
@@ -213,22 +217,22 @@ sub subsets {
 	return $self->{SUBSETS_SET};      
 }
 
-=head2 synonymtypes
+=head2 synonym_type_def_set
 
-  Usage    - $onto->synonymtypes() or $onto->synonymtypes($st1, $st2, $st3, ...)
-  Returns  - a set (CCO::Util::Set) with the synonymtypes used in this ontology. A synonymtype is a description of a user-defined synonym type 
-  Args     - the synonymtypet(s) (string) used in this ontology 
-  Function - gets/sets the synonymtypet(s) of this ontology
+  Usage    - $onto->synonym_type_def_set() or $onto->synonym_type_def_set($st1, $st2, $st3, ...)
+  Returns  - a set (CCO::Util::SynonymTypeDefSet) with the synonym type defintions used in this ontology. A synonym type is a description of a user-defined synonym type 
+  Args     - the synonym type defintion(s) (CCO::Core::SynonymTypeDef) used in this ontology 
+  Function - gets/sets the synonym type definitions (s) of this ontology
         
 =cut
-sub synonymtypes {
+sub synonym_type_def_set {
 	my $self = shift;
 	if (scalar(@_) > 1) {
-		$self->{SYNONYMTYPES_SET}->add_all(@_);
+		$self->{SYNONYM_TYPE_DEF_SET}->add_all(@_);
 	} elsif (scalar(@_) == 1) {
-		$self->{SYNONYMTYPES_SET}->add($_[0]);
+		$self->{SYNONYM_TYPE_DEF_SET}->add($_[0]);
 	}
-	return $self->{SYNONYMTYPES_SET};
+	return $self->{SYNONYM_TYPE_DEF_SET};
 }
 
 =head2 add_term
@@ -413,7 +417,7 @@ sub equals {
 	my $result =  0; 
 	
 	# TODO implement this method
-	# This will form aprt of the Ontolome packages
+	# This will be part of the Ontolome packages
 	confess "Method: CCO::Core:Ontology::equals in not implemented yet";
 	
 	return $result;
@@ -604,6 +608,29 @@ sub get_term_by_name {
 		}
     }
     return $result;
+}
+
+=head2 get_term_by_name_or_synonym
+
+  Usage    - $ontology->get_term_by_name_or_synonym($name)
+  Returns  - the term (CCO::Core::Term) associated to the given name or *EXACT* synonym
+  Args     - the term's name or synonym (string)
+  Function - returns the term associated to the given name or *EXACT* synonym
+  Remark   - this function should be carefully used since among ontologies there may be homonyms at the level of the synonyms (e.g. genes)
+  
+=cut
+sub get_term_by_name_or_synonym {
+    my ($self, $name_or_synonym) = ($_[0], lc($_[1]));
+    my $result;
+    if ($name_or_synonym) {		
+		foreach my $term (@{$self->get_terms()}) { # return the exact occurrence
+			return $term if (defined ($term->name()) && (lc($term->name()) eq $name_or_synonym));
+			# Check its synonyms
+			foreach my $syn ($term->synonym_set()){
+				return $term if ($syn->type() eq "EXACT" && lc($syn->def()->text()) eq $name_or_synonym);
+			}
+		}
+    }
 }
 
 =head2 get_terms_by_name
@@ -876,13 +903,26 @@ sub export {
 		chomp(my $local_date = `date '+%d:%m:%Y %H:%M'`);
 		print $file_handle "date: ", (defined $self->date())?$self->date():$local_date, "\n";
 		print $file_handle "auto-generated-by: onto-perl\n"; # TODO store this value?
+		
+		# import
+		foreach my $import ($self->imports()->get_set()) {
+			print $file_handle "import: ", $import, "\n";
+		}
+		
 		# subsetdef
 		foreach my $subset ($self->subsets()->get_set()) {
 			print $file_handle "subsetdef: ", $subset, "\n";
 		}
-		print $file_handle "default-namespace: ", $self->default_namespace(), "\n" if ($self->default_namespace());
+		
+		# synonyntypedef
+		foreach my $st ($self->synonym_type_def_set()->get_set()) {
+			print $file_handle "synonymtypedef: ", $st->synonym_type_def_as_string(), "\n";
+		}
+
+		print $file_handle "idspace: ", $self->idspace_as_string() , "\n" if (defined $self->idspace_as_string());
+		print $file_handle "default-namespace: ", $self->default_namespace(), "\n" if (defined $self->default_namespace());
 		print $file_handle "remark: ", $self->remark(), "\n" if ($self->remark());
-	
+		
 		# terms
 		my @all_terms = values(%{$self->{TERMS}});
 		foreach my $term (sort {$a->id() cmp $b->id()} @all_terms) {
@@ -957,7 +997,12 @@ sub export {
 			# synonym:
 			#
 			foreach my $synonym (sort {$a->def()->text() cmp $b->def()->text()} $term->synonym_set()) {
-				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
+				my $stn = $synonym->synonym_type_name();
+				if (defined $stn) {
+					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $stn, " ", $synonym->def()->dbxref_set_as_string();
+				} else {
+					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
+				}
 			}
 	    	
 			#
@@ -1087,7 +1132,7 @@ sub export {
 		    		if (defined $head->name()) {
 			    		print $file_handle "\nis_a: ", $head->id(), " ! ", $head->name();
 			    	} else {
-			    		confess "The relationship type with id: ", $head->id(), " has no name!" ;
+			    		confess "The relationship type with id: '", $head->id(), "' has no name!" ;
 					}
 		    	}
 	    	}
@@ -1346,15 +1391,14 @@ sub export {
 		}
  
 		# synonyntypedef
-		foreach my $st ($self->synonymtypes()->get_set()) {
-			my ($synonym_type_name, $description, $scope);
-			if ($st =~ /(.*)\s+\"(.*)\"\s*(.*)?/) { $synonym_type_name = $1; $description = $2; $scope = $3}
-				print $file_handle "\t<oboInOwl:hasSynonymType>\n";
-				print $file_handle "\t\t<oboInOwl:SynonymType rdf:about=\"", $oboContentUrl, $synonym_type_name, "\">\n";
-				print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $description, "</rdfs:comment>\n";
-				print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $scope, "</rdfs:comment>\n";
-				print $file_handle "\t\t</oboInOwl:SynonymType>\n";
-				print $file_handle "\t</oboInOwl:hasSynonymType>\n";
+		foreach my $st ($self->synonym_type_def_set()->get_set()) {
+			print $file_handle "\t<oboInOwl:hasSynonymType>\n";
+			print $file_handle "\t\t<oboInOwl:SynonymType rdf:about=\"", $oboContentUrl, $st->synonym_type_name(), "\">\n";
+			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $st->description(), "</rdfs:comment>\n";
+			my $scope = $st->scope();
+			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $scope, "</rdfs:comment>\n" if (defined $scope);
+			print $file_handle "\t\t</oboInOwl:SynonymType>\n";
+			print $file_handle "\t</oboInOwl:hasSynonymType>\n";
 		}
 		
 		# idspace
@@ -1414,7 +1458,7 @@ sub export {
 				print $file_handle "\t\t<oboInOwl:Definition>\n";
 				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", char_hex_http($term->def()->text()), "</rdfs:label>\n";
 				
-				print_hasDbXref_for_owl($file_handle, $term->def()->dbxref_set(), $oboContentUrl);
+				print_hasDbXref_for_owl($file_handle, $term->def()->dbxref_set(), $oboContentUrl, 3);
 				
 				print $file_handle "\t\t</oboInOwl:Definition>\n";
 				print $file_handle "\t</oboInOwl:hasDefinition>\n";
@@ -1442,7 +1486,7 @@ sub export {
 				print $file_handle "\t\t<oboInOwl:Synonym>\n";
 				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
 				
-				print_hasDbXref_for_owl($file_handle, $synonym->def()->dbxref_set(), $oboContentUrl);
+				print_hasDbXref_for_owl($file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
 				
 				print $file_handle "\t\t</oboInOwl:Synonym>\n";
 				print $file_handle "\t</oboInOwl:", $synonym_type, ">\n";
@@ -1465,7 +1509,7 @@ sub export {
 			#
 			# xref's
 			#
-			print_hasDbXref_for_owl($file_handle, $term->xref_set(), $oboContentUrl);
+			print_hasDbXref_for_owl($file_handle, $term->xref_set(), $oboContentUrl, 1);
 	    	
 			#
 			# is_a:
@@ -1641,7 +1685,7 @@ sub export {
 				print $file_handle "\t\t<oboInOwl:Definition>\n";
 				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", char_hex_http($relationship_type->def()->text()), "</rdfs:label>\n";
 				
-				print_hasDbXref_for_owl($file_handle, $relationship_type->def()->dbxref_set(), $oboContentUrl);
+				print_hasDbXref_for_owl($file_handle, $relationship_type->def()->dbxref_set(), $oboContentUrl, 3);
 				
 				print $file_handle "\t\t</oboInOwl:Definition>\n";
 				print $file_handle "\t</oboInOwl:hasDefinition>\n";
@@ -1669,7 +1713,7 @@ sub export {
 				print $file_handle "\t\t<oboInOwl:Synonym>\n";
 				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
 				
-				print_hasDbXref_for_owl($file_handle, $synonym->def()->dbxref_set(), $oboContentUrl);
+				print_hasDbXref_for_owl($file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
 				
 				print $file_handle "\t\t</oboInOwl:Synonym>\n";
 				print $file_handle "\t</oboInOwl:", $synonym_type, ">\n";
@@ -1711,7 +1755,7 @@ sub export {
 			#
 			# xref's
 			#
-			print_hasDbXref_for_owl($file_handle, $relationship_type->xref_set(), $oboContentUrl);
+			print_hasDbXref_for_owl($file_handle, $relationship_type->xref_set(), $oboContentUrl, 1);
 			
 			## There is no way to code these rel's in OBO
 			##print $file_handle "\t<rdf:type rdf:resource=\"&owl;FunctionalProperty\"/>\n" if (${$relationship{$_}}{"TODO"});
@@ -1936,13 +1980,10 @@ sub subontology_by_terms {
 =cut
 
 sub get_subontology_from {
-	# TODO implement tests
 	my ($self, $root_term) = @_;
 	my $result = CCO::Core::Ontology->new();
 	if ($root_term) {
-		# TODO has_term():check that the term belongs to this ontology
-		#$result->add_term($root_term); # add the root term without its relationships
-		#my @queue = @{$self->get_child_terms($root_term)};
+		$self->has_term($root_term) || confess "The term '", $root_term,"' does not belong to this ontology";
 		my @queue = ($root_term);
 		while (scalar(@queue) > 0) {
 			my $unqueued = shift @queue;
@@ -1970,6 +2011,20 @@ sub get_subontology_from {
 
 sub obo_id2owl_id {
 	$_[0] =~ s/:/_/;
+	return $_[0];
+}
+
+=head2 owl_id2obo_id
+
+  Usage    - $ontology->owl_id2obo_id($term)
+  Returns  - the ID for OBO representation.
+  Args     - the OWL-type ID.
+  Function - Transform an OWL-type ID into an OBO-type one. E.g. CCO_I1234567 -> CCO:I1234567
+  
+=cut
+
+sub owl_id2obo_id {
+	$_[0] =~ s/_/:/;
 	return $_[0];
 }
 
@@ -2001,10 +2056,13 @@ sub char_hex_http {
 }
 
 sub print_hasDbXref_for_owl {
-	my ($file_handle, $set, $oboContentUrl) = @_;
+	my ($file_handle, $set, $oboContentUrl, $tab_times) = @_;
+	my $tab0 = "\t"x$tab_times;
+	my $tab1 = "\t"x($tab_times + 1);
+	my $tab2 = "\t"x($tab_times + 2);
 	for my $ref ($set->get_set()) {
-		print $file_handle "\t\t\t<oboInOwl:hasDbXref>\n";
-		print $file_handle "\t\t\t<oboInOwl:DbXref>\n";
+		print $file_handle $tab0."<oboInOwl:hasDbXref>\n";
+		print $file_handle $tab1."<oboInOwl:DbXref>\n";
 		my $db = $ref->db();
 		my $acc = $ref->acc();
 
@@ -2013,14 +2071,14 @@ sub print_hasDbXref_for_owl {
 		# <oboInOwl:hasURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http%3A%2F%2Fwww2.merriam-webster.com%2Fcgi-bin%2Fmwmednlm%3Fbook%3DMedical%26va%3Dforebrain</oboInOwl:hasURI>
 		if ($db eq 'http') {
 			my $http_location = char_hex_http($acc);
-			print $file_handle "\t\t<rdfs:label>URL:http%3A%2F%2F", $http_location, "</rdfs:label>\n";
-			print $file_handle "\t\t<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$http_location,"</oboInOwl:hasURI>\n";	
+			print $file_handle $tab2."<rdfs:label>URL:http%3A%2F%2F", $http_location, "</rdfs:label>\n";
+			print $file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$http_location,"</oboInOwl:hasURI>\n";	
 		} else {
-			print $file_handle "\t\t<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
-			print $file_handle "\t\t<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,"#",$db,"_",$acc,"</oboInOwl:hasURI>\n";
+			print $file_handle $tab2."<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
+			print $file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,"#",$db,"_",$acc,"</oboInOwl:hasURI>\n";
 		}
-		print $file_handle "\t\t\t</oboInOwl:DbXref>\n";
-		print $file_handle "\t\t\t</oboInOwl:hasDbXref>\n";
+		print $file_handle $tab1."</oboInOwl:DbXref>\n";
+		print $file_handle $tab0."</oboInOwl:hasDbXref>\n";
 	}
 }
 
@@ -2184,9 +2242,9 @@ sub get_ancestor_terms_by_relationship_type {
 
 =head2 create_rel
 
-  Usage    - $ontology->create_rel->($tail, $head, $type)
+  Usage    - $ontology->create_rel->($tail, $type, $head)
   Returns  - CCO::Core::Ontology object
-  Args     - CCO::Core::(Term|Relationship) object, CCO::Core::(Term|Relationship) object, relationship type string
+  Args     - CCO::Core::(Term|Relationship) object, relationship type string, and the CCO::Core::(Term|Relationship) object, 
   Function - creates and adds to the ontology a new relationship
   
 =cut

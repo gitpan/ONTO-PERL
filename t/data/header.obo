@@ -2,7 +2,6 @@ format-version: 1.0
 date: 28:03:2007 13:57
 saved-by: erant
 auto-generated-by: erant
-default-namespace: cco
 import: ulo.obo
 subsetdef: Rice "Term used for rice"
 subsetdef: Maize "Term used for maize"
@@ -17,6 +16,7 @@ synonymtypedef: scientific_name "scientific name" EXACT
 synonymtypedef: synonym "synonym" RELATED
 synonymtypedef: equivalent_name "equivalent name" EXACT
 idspace: CCO http://www.cellcycleontology.org/ontology/CCO "cell cycle ontology terms"
+default-namespace: cco
 remark: <p>This file holds some fake terms.</p>
 
 [Term]
@@ -31,7 +31,7 @@ subset: Citrus
 id: CCO:F0000001
 name: uno punto uno
 def: "one dot one" [FO:15892874]
-synonym: "one period one" EXACT [FO:15892874]
+synonym: "one period one" EXACT common_name [FO:15892874]
 synonym: "thing" BROAD [FO:12345]
 is_a: CCO:F0000000 ! uno
 subset: Tomato

@@ -13,6 +13,7 @@ use CCO::Core::Ontology;
 use CCO::Core::Dbxref;
 use CCO::Core::Relationship;
 use CCO::Core::RelationshipType;
+use CCO::Core::SynonymTypeDef;
 use CCO::Util::Set;
 use strict;
 use warnings;
@@ -41,7 +42,7 @@ sub work {
 	
 	# TODO clean the extra newlines in the given file and separate each chunk by ONLY TWO "\n\n"
 	
-	open (OBO_FILE, $self->{OBO_FILE}) || croak "The OBO file cannot be opened: ", $!;
+	open (OBO_FILE, $self->{OBO_FILE}) || confess "The OBO file cannot be opened: ", $!;
 	
 	# todo dos2unix
 	#while (<OBO_FILE>) {
@@ -65,20 +66,24 @@ sub work {
 		my $saved_by = $1 if ($chunks[0] =~ /saved-by:\s*(.*)\n/);
 		my $auto_generated_by = $1 if ($chunks[0] =~ /auto-generated-by:\s*(.*\n)/);
 		my $imports = CCO::Util::Set->new();
-                while ($chunks[0] =~ /(import:\s*(.*)\n)/) {
-                        $imports->add($2);
-                        $chunks[0] =~ s/$1//;
-                }
+		while ($chunks[0] =~ /(import:\s*(.*)\n)/) {
+			$imports->add($2);
+			$chunks[0] =~ s/$1//;
+		}
 		my $subsetdef = CCO::Util::Set->new();
 		while ($chunks[0] =~ /(subsetdef:\s*(.*)\n)/) {
 			$subsetdef->add($2);
 			$chunks[0] =~ s/$1//;
 		}
-		my $synonymtypedef = CCO::Util::Set->new();
-                while ($chunks[0] =~ /(synonymtypedef:\s*(.*)\n)/) {
-                        $synonymtypedef->add($2);
-                        $chunks[0] =~ s/$1//;
-                }
+		my $synonym_type_def_set = CCO::Util::SynonymTypeDefSet->new();
+		while ($chunks[0] =~ /(synonymtypedef:\s*(.*)\s+\"(.*)\"\s*(.*)?\n)/) {
+			my $std = CCO::Core::SynonymTypeDef->new();
+			$std->synonym_type_name($2);
+			$std->description($3);
+			$std->scope($4) if (defined $4);
+			$synonym_type_def_set->add($std);
+			$chunks[0] =~ s/$1//;
+		}
 		my $idspace = $1 if ($chunks[0] =~ /idspace:\s*(.*)\n/);
 		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)\n/);
 		my $remark = $1 if ($chunks[0] =~ /remark:\s*(.*)/);
@@ -87,7 +92,7 @@ sub work {
 		
 		$result->imports($imports->get_set());
 		$result->subsets($subsetdef->get_set());
-		$result->synonymtypes($synonymtypedef->get_set());
+		$result->synonym_type_def_set($synonym_type_def_set->get_set());
 		my $local_idspace = $1, my $uri = $2, my $desc = $4 if ($idspace && $idspace =~ /(\S+)\s+(\S+)\s+(\"(.*)\")?/);
 		$result->idspace_as_string($local_idspace, $uri, $desc);
 		$result->data_version($data_version) if ($data_version);
@@ -107,7 +112,7 @@ sub work {
 				foreach my $line (@entry) {
 					$file_line_number++;
 					#warn "Line: ", $line, "\n";
-					if ($line =~ /^id:\s*((.*):(.*))/) { # get the term id
+					if ($line =~ /^id:\s*(\w+:\w+)/) { # get the term id
 						# TODO check to have only one ID field per entry
 						$term = $result->get_term_by_id($1); # does this term is already in the ontology?
 						if (!defined $term){
@@ -130,35 +135,36 @@ sub work {
 						$term->namespace($1); # it is a Set
 					} elsif ($line =~ /^is_anonymous:\s*(.*)/) {
 						$term->is_anonymous(($1 =~ /true/)?1:0);
-					} elsif ($line =~ /^alt_id:\s*(.*)/) {
+					} elsif ($line =~ /^alt_id:\s*(\w+:\w+)/) {
 						$term->alt_id($1);
-					} elsif ($line =~ /^def:\s*\"(.*)\"\s*\[(.*)\]/) { # fill the definition
+					} elsif ($line =~ /^def:\s*\"(.*)\"\s*(\[.*\])/) { # fill the definition
 						my $def = CCO::Core::Def->new();
 						$def->text($1);
-						# visit all the ref's
-						my @refs = split(/,\s*/, $2);
-						my $dbxref_set = CCO::Util::DbxrefSet->new();
-						foreach my $r (@refs) {
-							my $ref = CCO::Core::Dbxref->new();
-							$ref->name($r); # e.g. GOC:mah
-							$dbxref_set->add($ref);
-						}
-						$def->dbxref_set($dbxref_set);
+						$def->dbxref_set_as_string($2);
 						$term->def($def);
 					} elsif ($line =~ /^comment:\s*(.*)/) {
 						$term->comment($1);
 					} elsif ($line =~ /^subset:\s*(.*)/) {
 						# todo check that the used subsets belong to the defined in the header
 						$term->subset($1);
-					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) {
+					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) { # OBO spec 1.1
 						$term->synonym_as_string($2, $3, uc($1));
-					} elsif ($line =~ /^synonym:\s*\"(.*)\"\s+(EXACT|BROAD|NARROW|RELATED)\s+(\[.*\])\s*/) {
+					} elsif ($line =~ /^synonym:\s*\"(.*)\"(\s+(EXACT|BROAD|NARROW|RELATED))?(\s+(\w+))?\s+(\[.*\])\s*/) {
+						my $scope = (defined $3)?$3:"RELATED";
 						# OBO flat file spec: v1.2
 						# synonym: "endomitosis" EXACT []
-						$term->synonym_as_string($1, $3, $2);
+						if (defined $5) {
+							my $found = 0; # check that the 'synonym type name' was defined in the header!
+							foreach my $st ($result->synonym_type_def_set()->get_set()) {
+								# Adapt the scope if necessary to the one defined in the header!
+								$found = 1, $scope = $st->scope(), last if ($st->synonym_type_name() eq $5);
+							}
+							croak "The synonym type name (", $5,") used in line ",  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+						}
+						$term->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
 						$term->xref_set_as_string($1);
-					} elsif ($line =~ /^is_a:\s*(\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?/) {
+					} elsif ($line =~ /^is_a:\s*(\w+:\w+)\s*(\!\s*(.*))?/) { # The comment is ignored here but retrieved later internally
 						my $rel = CCO::Core::Relationship->new();
 						$rel->id($term->id()."_"."is_a"."_".$1);
 						$rel->type("is_a");
@@ -176,9 +182,9 @@ sub work {
 						# TODO distinguish between terms and relations?
 						# TODO check there are at least 2 elements in the 'union_of' set
 						$term->union_of($1);
-					} elsif ($line =~ /^disjoint_from:\s*(\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?/) {
-						$term->disjoint_from($1);
-					} elsif ($line =~ /^relationship:\s*(\w+)\s*(\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?/) {
+					} elsif ($line =~ /^disjoint_from:\s*(\w+:\w+)\s*(\!\s*(.*))?/) {
+						$term->disjoint_from($1); # We are assuming that the other term exists or will exist; otherwise , we have to create it like in the is_a section.
+					} elsif ($line =~ /^relationship:\s*(\w+)\s*(\w+:\w+)\s*(\!\s*(.*))?/) {
 						my $rel = CCO::Core::Relationship->new();
 						my $id = $term->id()."_".$1."_".$2; 
 						$id =~ s/\s+/_/g;
@@ -215,7 +221,7 @@ sub work {
 			} elsif ($stanza =~ /\[Typedef\]/) { # treat [Typedef]
 				my $type;
 				foreach my $line (@entry) {
-					if ($line =~ /^id:\s*(.*)/) { # get the type id
+					if ($line =~ /^id:\s*(\w+)/) { # get the type id
 						$type = $result->get_relationship_type_by_id($1); # does this relationship type is already in the ontology?
 						if (!defined $type){
 							$type = CCO::Core::RelationshipType->new();  # if not, create a new type
@@ -230,20 +236,12 @@ sub work {
 						$type->name($1);
 					} elsif ($line =~ /^namespace:\s*(.*)/) {
 						$type->namespace($1); # it is a Set
-					} elsif ($line =~ /^alt_id:\s*(.*)/) {
+					} elsif ($line =~ /^alt_id:\s*(\w+)/) {
 						$type->alt_id($1);
-					} elsif ($line =~ /^def:\s*\"(.*)\"\s*\[(.*)\]/) { # fill the definition
+					} elsif ($line =~ /^def:\s*\"(.*)\"\s*(\[.*\])/) { # fill the definition
 						my $def = CCO::Core::Def->new();
 						$def->text($1);
-						# visit all the ref's
-						my @refs = split(/,\s*/, $2);
-						my $dbxref_set = CCO::Util::DbxrefSet->new();
-						foreach my $r (@refs) {
-							my $ref = CCO::Core::Dbxref->new();
-							$ref->name($r); # e.g. GOC:mah
-							$dbxref_set->add($ref);
-						}
-						$def->dbxref_set($dbxref_set);
+						$def->dbxref_set_as_string($2);
 						$type->def($def);
 					} elsif ($line =~ /^comment:\s*(.*)/) {
 						$type->comment($1);
@@ -265,13 +263,22 @@ sub work {
 						$type->is_metadata_tag(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) {
 						$type->synonym_as_string($2, $3, uc($1));
-					} elsif ($line =~ /^synonym:\s*\"(.*)\"\s+(EXACT|BROAD|NARROW|RELATED)\s+(\[.*\])\s*/) {
+					} elsif ($line =~ /^synonym:\s*\"(.*)\"(\s+(EXACT|BROAD|NARROW|RELATED))?(\s+(\w+))?\s+(\[.*\])\s*/) {
+						my $scope = (defined $3)?$3:"RELATED";
 						# OBO flat file spec: v1.2
 						# synonym: "endomitosis" EXACT []
-						$type->synonym_as_string($1, $3, $2);
+						if (defined $5) {
+							my $found = 0; # check that the 'synonym type name' was defined in the header!
+							foreach my $st ($result->synonym_type_def_set()->get_set()) {
+								# Adapt the scope if necessary to the one defined in the header!
+								$found = 1, $scope = $st->scope(), last if ($st->synonym_type_name() eq $5);
+							}
+							croak "The synonym type name (", $5,") used in line ",  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+						}
+						$type->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
 						$type->xref_set_as_string($1);
-					} elsif ($line =~ /^is_a:\s*((\w+:[A-Z]?[0-9]{1,7})\s*(\!\s*(.*))?|([\w_]+))/) { # intrinsic or not???
+					} elsif ($line =~ /^is_a:\s*(\w+)\s*(\!\s*(.*))?/) { # intrinsic or not??? # The comment is ignored here but retrieved later internally
 						my $rel = CCO::Core::Relationship->new();
 						$rel->id($type->id()."_"."is_a"."_".$1);
 						$rel->type("is_a");
@@ -288,6 +295,8 @@ sub work {
 						#$type->inverse_of($1);
 					} elsif ($line =~ /^transitive_over:\s*(.*)/) {
 						$type->transitive_over($1);
+					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
+						$type->is_obsolete(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
 						$type->replaced_by($1);
 					} elsif ($line =~ /^consider:\s*(.*)/) {
@@ -295,13 +304,13 @@ sub work {
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$type->builtin(($1 eq "true")?1:0);
 					} else {
-						# todo unrecognized token
+						# TODO unrecognized token
 						warn "A format problem has been detected in: ", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 					}	
 				}
 				# Check for required fields: id and name
 				if (!defined $type->id()) {
-					# todo create a test for getting this croak
+					# TODO create a test for getting this croak
 					croak "There is no id for the type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 				} elsif (!defined $type->name()) {
 					croak "The type with id '", $type->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
