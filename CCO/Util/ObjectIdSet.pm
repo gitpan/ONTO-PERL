@@ -1,4 +1,4 @@
-# $Id: ObjectIdSet.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: ObjectIdSet.pm 1387 2007-08-06 16:51:02Z erant $
 #
 # Module  : ObjectIdSet.pm
 # Purpose : A generic set of ontology objects.
@@ -9,179 +9,9 @@
 #
 package CCO::Util::ObjectIdSet;
 
-use strict;
-use warnings;
-use Carp;
-
-sub new {
-	my $class		= shift;
-	my $self		= {};
-	$self->{MAP}		= {}; # id vs. obj
-	
-	bless ($self, $class);
-	return $self;
-}
-
-=head2 add
-
-  Usage    - $set->add()
-  Returns  - true if the element was successfully added
-  Args     - the element to be added
-  Function - adds an element to this set
-  
-=cut
-sub add {
-	my ($self, $ele) = @_;
-	my $result = 0; # nothing added
-	if ($ele) {
-		if (!$self->contains($ele)) {
-			$self->{MAP}->{$ele} = $ele; 
-			$result = 1; # successfully added
-		}
-	}
-	return $result;
-}
-
-=head2 add_all
-
-  Usage    - $set->add_all($ele1, $ele2, $ele3, ...)
-  Returns  - true if the elements were successfully added
-  Args     - the elements to be added
-  Function - adds the given elements to this set
-  
-=cut
-sub add_all {
-	my $self = shift;
-	my $result = 1; # something added
-	foreach (@_) {
-		$result *= $self->add($_);
-	}
-	return $result;
-}
-
-=head2 get_set
-
-  Usage    - $set->get_set()
-  Returns  - this set
-  Args     - none
-  Function - returns this set
-  
-=cut
-sub get_set {
-	my $self = shift;
-	my @the_set = values %{$self->{MAP}};
-	return (!$self->is_empty())?@the_set:();
-}
-
-=head2 contains
-
-  Usage    - $set->contains($element)
-  Returns  - 1 (true) if this set contains the given element
-  Args     - the element to be checked
-  Function - checks if this set constains the given element
-  
-=cut
-sub contains {
-	my ($self, $target) = @_;
-	return (defined $self->{MAP}->{$target})?1:0;
-}
-
-=head2 size
-
-  Usage    - $set->size()
-  Returns  - the size of this set
-  Args     - none
-  Function - tells the number of elements held by this set
-  
-=cut
-sub size {
-	my $self = shift;
-	my $size = keys %{$self->{MAP}};
-	return $size;
-}
-
-=head2 clear
-
-  Usage    - $set->clear()
-  Returns  - none
-  Args     - none
-  Function - clears this list
-  
-=cut
-sub clear {
-	my $self = shift;
-	$self->{MAP} = {};
-}
-
-=head2 remove
-
-  Usage    - $set->remove($element_to_be_removed)
-  Returns  - 1 (true) if this set contained the given element
-  Args     - element to be removed from this set, if present
-  Function - removes an element from this set if it is present
-  
-=cut
-sub remove {
-	my ($self, $element_to_be_removed) = @_;
-	my $result = $self->contains($element_to_be_removed);
-	delete $self->{MAP}->{$element_to_be_removed} if ($result);
-	return $result;
-}
-
-=head2 is_empty
-
-  Usage    - $set->is_empty()
-  Returns  - true if this set is empty
-  Args     - none
-  Function - checks if this set is empty
-  
-=cut
-sub is_empty{
-	my $self = shift;
-	return ((keys(%{$self->{MAP}}) + 0) == 0);
-}
-
-=head2 equals
-
-  Usage    - $set->equals($another_set)
-  Returns  - either 1 (true) or 0 (false)
-  Args     - the set (Core::Util::Set) to compare with
-  Function - tells whether this set is equal to the given one
-  
-=cut
-sub equals {
-	my $self = shift;
-	my $result = 0; # I guess they'are NOT identical
-	if (@_) {
-		my $other_set = shift;
-		
-		my %count = ();
-	
-		my @this = map ({scalar $_;} values %{$self->{MAP}});
-		my @that = map ({scalar $_;} $other_set->get_set());
-		
-		if ($#this == $#that) {
-			foreach (@this, @that) {
-				$count{$_}++;
-			}
-			foreach my $count (values %count) {
-				if ($count != 2) {
-					$result = 0;
-					last;
-				} else {
-					$result = 1;
-				}
-			}
-		}
-	}
-	return $result;
-}
-
-1;
-
 =head1 NAME
 
-    CCO::Util::ObjectIdSet  - a Set implementation
+CCO::Util::ObjectIdSet  - A Set implementation of object Ids
     
 =head1 SYNOPSIS
 
@@ -261,5 +91,183 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
-
 =cut
+
+use strict;
+use warnings;
+use Carp;
+
+sub new {
+	my $class		= shift;
+	my $self		= {};
+	$self->{MAP}		= {}; # id vs. obj
+	
+	bless ($self, $class);
+	return $self;
+}
+
+=head2 add
+
+  Usage    - $set->add()
+  Returns  - true if the element was successfully added
+  Args     - the element to be added
+  Function - adds an element to this set
+  
+=cut
+
+sub add {
+	my ($self, $ele) = @_;
+	my $result = 0; # nothing added
+	if ($ele) {
+		if (!$self->contains($ele)) {
+			$self->{MAP}->{$ele} = $ele; 
+			$result = 1; # successfully added
+		}
+	}
+	return $result;
+}
+
+=head2 add_all
+
+  Usage    - $set->add_all($ele1, $ele2, $ele3, ...)
+  Returns  - true if the elements were successfully added
+  Args     - the elements to be added
+  Function - adds the given elements to this set
+  
+=cut
+
+sub add_all {
+	my $self = shift;
+	my $result = 1; # something added
+	foreach (@_) {
+		$result *= $self->add($_);
+	}
+	return $result;
+}
+
+=head2 get_set
+
+  Usage    - $set->get_set()
+  Returns  - this set
+  Args     - none
+  Function - returns this set
+  
+=cut
+
+sub get_set {
+	my $self = shift;
+	my @the_set = values %{$self->{MAP}};
+	return (!$self->is_empty())?@the_set:();
+}
+
+=head2 contains
+
+  Usage    - $set->contains($element)
+  Returns  - 1 (true) if this set contains the given element
+  Args     - the element to be checked
+  Function - checks if this set constains the given element
+  
+=cut
+
+sub contains {
+	my ($self, $target) = @_;
+	return (defined $self->{MAP}->{$target})?1:0;
+}
+
+=head2 size
+
+  Usage    - $set->size()
+  Returns  - the size of this set
+  Args     - none
+  Function - tells the number of elements held by this set
+  
+=cut
+
+sub size {
+	my $self = shift;
+	my $size = keys %{$self->{MAP}};
+	return $size;
+}
+
+=head2 clear
+
+  Usage    - $set->clear()
+  Returns  - none
+  Args     - none
+  Function - clears this list
+  
+=cut
+
+sub clear {
+	my $self = shift;
+	$self->{MAP} = {};
+}
+
+=head2 remove
+
+  Usage    - $set->remove($element_to_be_removed)
+  Returns  - 1 (true) if this set contained the given element
+  Args     - element to be removed from this set, if present
+  Function - removes an element from this set if it is present
+  
+=cut
+
+sub remove {
+	my ($self, $element_to_be_removed) = @_;
+	my $result = $self->contains($element_to_be_removed);
+	delete $self->{MAP}->{$element_to_be_removed} if ($result);
+	return $result;
+}
+
+=head2 is_empty
+
+  Usage    - $set->is_empty()
+  Returns  - true if this set is empty
+  Args     - none
+  Function - checks if this set is empty
+  
+=cut
+
+sub is_empty{
+	my $self = shift;
+	return ((keys(%{$self->{MAP}}) + 0) == 0);
+}
+
+=head2 equals
+
+  Usage    - $set->equals($another_set)
+  Returns  - either 1 (true) or 0 (false)
+  Args     - the set (Core::Util::Set) to compare with
+  Function - tells whether this set is equal to the given one
+  
+=cut
+
+sub equals {
+	my $self = shift;
+	my $result = 0; # I guess they'are NOT identical
+	if (@_) {
+		my $other_set = shift;
+		
+		my %count = ();
+	
+		my @this = map ({scalar $_;} values %{$self->{MAP}});
+		my @that = map ({scalar $_;} $other_set->get_set());
+		
+		if ($#this == $#that) {
+			foreach (@this, @that) {
+				$count{$_}++;
+			}
+			foreach my $count (values %count) {
+				if ($count != 2) {
+					$result = 0;
+					last;
+				} else {
+					$result = 1;
+				}
+			}
+		}
+	}
+	return $result;
+}
+
+1;

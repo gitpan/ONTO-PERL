@@ -1,6 +1,7 @@
 # $Id: onto-perl.pod 291 2006-06-01 16:21:45Z erant $
 #
-# see also - http://www.cellcycleontology.org
+# see also - http://www.cellcycleontology.org and 
+#          - http://search.cpan.org/~easr/onto-perl/
 #
 # This library is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -12,54 +13,40 @@ onto-perl           - perl modules for CCO and OBO ontologies
 
 =head1 DESCRIPTION
 
-The Cell-Cycle Ontology
-=======================
+'onto-perl' a collection of perl modules for dealing with the Cell
+Cycle Ontology (CCO) and in general with OBO ontologies (like the
+Gene Ontology). This code distribution gathers object-oriented 
+modules (for dealing with the ontology elements such as Term, 
+Relationship, and so forth), scripts (for typical tasks such as 
+format conversions: obo2owl, owl2obo; besides, there are also
+many examples that can be easily adapted for specific applications),
+and a set of test files for ensuring the implementation quality.
 
-The CCO is an effort for formalizing the controled vocabulary 
-in the Cell Cycle domain (http://www.cellcycleontology.org). 
-CCO is based on existing ontologies such as GO 
-(http://www.geneontology.org), DC (dublincore.org/),
-and RO (http://obo.sourceforge.net/relationship/) and databases
-like UniProt, IntAct.
 
-Files in http://www.cellcycleontology.org
-=========================================
+Some files in 'onto-perl':
 
-cco.obo						The CCO in OBO format.
+README						Readme file
 
-cco.owl						The CCO in OWL format.
+INSTALL						How to install onto-perl (requirements)
 
-cco.xml						The CCO in XML format.
+LICENSE						onto-perl's license
 
-cco.dot						The CCO in DOT format.
+onto-perl-x.y.tar.gz		onto-perl API: version x.y
 
-cco.ids						IDs from CCO.
+onto-perl-latest.tar.gz		onto-perl API: latest version
 
-cco_H_sapiens.obo			CCO ontology for H sapiens
+Changes						Description about the changes in 'onto-perl'
 
-cco_A_thaliana.obo			CCO ontology for A thaliana
 
-cco_S_cerevisiae.obo		CCO ontology for S cerevisiae
+Remark:
 
-cco_S_pombe.obo				CCO ontology for S pombe
+'onto-perl' is provided "as-is". The current version is stable; 
+nonetheless, improvements are expected as well as feedback is 
+very welcome. Please visit constantly this repository for checking 
+up-to-date versions of this distribution.
 
-go_cco.ids					Equivalent IDs in GO and CCO.
 
-cco_x.x.tar.gz				Archives from CCO.
-
-onto-perl-x.y.tar.gz		CCO API version x.y
-
-onto-perl-latest.tar.gz		CCO API: latest version
-
-Changes						Description about the changes in CCO.
-
-Remark
-======
-
-The CCO is provided "as-is". The current version of CCO is 
-experimental. Major changes are expected until version 1.0. 
-Please visit contantly this repository for checking up-to-date 
-versions of the ontology.
+Contact:
 
 Any comments, suggestions can be addressed to: 
 
@@ -82,5 +69,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package onto-perl;
-$VERSION='0.32';
+$VERSION='1.0';
 1;

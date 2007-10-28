@@ -1,4 +1,4 @@
-# $Id: NCBIParser.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: NCBIParser.pm 1441 2007-08-21 11:58:25Z erant $
 #
 # Module  : NCBIParser.pm
 # Purpose : Parse NCBI files: names and nodes
@@ -143,7 +143,7 @@ sub work {
 		$OBO_taxon->id($taxon_id);
 		$OBO_taxon->xref_set_as_string("NCBI:".$el);
 		
-		my $continuant = $ontology->get_term_by_name("cell-cycle continuant");
+		my $continuant = $ontology->get_term_by_name("continuant");
 		if (defined $continuant && $OBO_taxon->name() eq "organism") { # If the ontology has the ULO and the term is 'organism'
 			my $rel = CCO::Core::Relationship->new(); 
 			$rel->type("is_a");

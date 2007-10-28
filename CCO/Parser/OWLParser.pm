@@ -1,4 +1,4 @@
-# $Id: OWLParser.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: OWLParser.pm 1586 2007-10-12 15:24:06Z erant $
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
@@ -524,7 +524,7 @@ sub characterData {
 				last SWITCH;
 			}
 			last SWITCH;
-			# TODO: union, intersection, transitive over, ...
+			# TODO Wait until the mapping is more stable, then implement: union, intersection, transitive over, ...
 		}
 	} # SWITCH
 }
@@ -658,7 +658,7 @@ sub endElement {
 			my $data_syn  = $data_current_tag{$type_of_synonym};
 			my $sref = ($ref_label)?"[".$ref_label."]":"[]";
 			if (defined $data_syn) {
-				# TODO get the 'synonym type name' and process it
+				# Future improvement: get the 'synonym type name' and process it
 				$current_term->synonym_as_string($data_syn, $sref, $type_of_synonym) if (defined $current_term);
 				$current_relationship_type->synonym_as_string($data_syn, $sref, $type_of_synonym) if (defined $current_relationship_type);
 			}

@@ -1,4 +1,4 @@
-# $Id: get_ancestor_terms.pl 1 2006-07-12 15:37:55Z erant $
+# $Id: get_ancestor_terms.pl 1380 2007-08-06 16:19:56Z erant $
 #
 # Script  : get_ancestor_terms.pl
 # Purpose : Collects the ancestor terms from a given term in the given OBO ontology

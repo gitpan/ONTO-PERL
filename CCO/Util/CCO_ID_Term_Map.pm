@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Term_Map.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: CCO_ID_Term_Map.pm 1584 2007-10-12 14:38:50Z erant $
 #
 # Module  : CCO_ID_Term_Map.pm
 # Purpose : A (birectional) map CCO_ID vs Term name.
@@ -7,7 +7,6 @@
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
-# URGENT implement a test file (CCO_ID_Term_Map.t) for this module
 package CCO::Util::CCO_ID_Term_Map;
 
 use Carp;
@@ -16,37 +15,40 @@ use strict;
 use CCO::Util::CCO_ID_Set;
 
 sub new {
-	my $class     = shift;
-	my $self      = {};
-	$self->{FILE} = shift;
-	
-	%{$self->{MAP_BY_ID}}    = (); # key=cco_id; value=term
-	%{$self->{MAP_BY_TERM}}  = (); # key=term; value=cco_id
-	$self->{KEYS}            = CCO::Util::CCO_ID_Set->new();
-    
-	bless ($self, $class);
-    
-	confess if (!defined $self->{FILE});
-    
-	# if the file exists:
-	if (-e $self->{FILE} && -r $self->{FILE}) {
-		open (CCO_ID_MAP_IN_FH, "<$self->{FILE}");
-		while (<CCO_ID_MAP_IN_FH>) {
-			chomp;
-			my ($key, $value) = ($1, $2) if ($_ =~ /(CCO:[A-Z][0-9]{7})\s+(\w+.*)/); # e.g.: CCO:I1234567		test
-			$self->{MAP_BY_ID}->{$key} = $value;   #put
-			$self->{MAP_BY_TERM}->{$value} = $key; #put			
-		}
-		close CCO_ID_MAP_IN_FH;		
-	}
-	else {
-		open (CCO_ID_MAP_IN_FH, "$self->{FILE}");
-		# TODO include date?
-		close CCO_ID_MAP_IN_FH;
-	}
+    my $class = shift;
+    my $self  = {};
+    $self->{FILE} = shift;
 
-	$self->{KEYS}->add_all_as_string(keys (%{$self->{MAP_BY_ID}}));
-	return $self;	
+    %{ $self->{MAP_BY_ID} }   = ();    # key=cco_id; value=term name
+    %{ $self->{MAP_BY_TERM} } = ();    # key=term name; value=cco_id
+    $self->{KEYS} = CCO::Util::CCO_ID_Set->new();
+
+    bless( $self, $class );
+
+    confess if ( !defined $self->{FILE} );
+
+    # if the file exists:
+    if ( -e $self->{FILE} && -r $self->{FILE} ) {
+        open( CCO_ID_MAP_IN_FH, "<$self->{FILE}" );
+        while (<CCO_ID_MAP_IN_FH>) {
+            chomp;
+            my ( $key, $value ) = ( $1, $2 )
+              if ( $_ =~ /(CCO:[A-Z][0-9]{7})\s+(\w+.*)/ )
+              ;    # e.g.: CCO:I1234567		test
+            $self->{MAP_BY_ID}->{$key}     = $value;    #put
+            $self->{MAP_BY_TERM}->{$value} = $key;      #put
+        }
+        close CCO_ID_MAP_IN_FH;
+    }
+    else {
+        open( CCO_ID_MAP_IN_FH, "$self->{FILE}" );
+
+        # TODO include date?
+        close CCO_ID_MAP_IN_FH;
+    }
+
+    $self->{KEYS}->add_all_as_string( keys( %{ $self->{MAP_BY_ID} } ) );
+    return $self;
 }
 
 =head2 put
@@ -54,24 +56,33 @@ sub new {
   Usage    - $map->put("CCO:P0000056", "cell cycle")
   Returns  - none
   Args     - CCO id (string), term name (string)
-  Function - puts an entry in the map
-  Remark   - for adding entries into the map, use method get_new_cco_id()
+  Function - either puts a new entry in the map or modifies an existing entry by changing the term name
+  Remark   - prior to adding new entries to the map, use method get_new_cco_id()
   
 =cut
+
 sub put () {
-	my ($self, $key, $value) = @_;
-	
-	if ($key && $value) {
-		confess "The ID is not valid: '$key'\n" if ($key !~ /CCO:[A-Z]\d{7}/);
+    my ( $self, $new_id, $new_name ) = @_;
+
+    if ( $new_id && $new_name ) {
+        confess "The ID is not valid: '$new_id'\n" if ( $new_id !~ /CCO:[A-Z]\d{7}/ );
+        
+        my $has_key   = $self->contains_key($new_id);
+        my $has_value = $self->contains_value($new_name);
 		
-		if (!defined $self->{MAP_BY_ID}->{$key} && !defined $self->{MAP_BY_TERM}->{$value}) {
-			$self->{MAP_BY_ID}->{$key} = $value;   # put
-			$self->{MAP_BY_TERM}->{$value} = $key; # put
-			$self->{KEYS}->add_as_string($key);
-		} else {
-			# either the key or value are already in the map !
-		}
-	}
+        if (!$has_key && !$has_value) {                       # new pair : new key and new value
+        	$self->{MAP_BY_ID}->{$new_id}     = $new_name;    # put
+            $self->{MAP_BY_TERM}->{$new_name} = $new_id;      # put
+            $self->{KEYS}->add_as_string($new_id);
+        } elsif ($has_key && !$has_value) {                   # updating the value (=term name)
+        	my $old_value = $self->{MAP_BY_ID}->{$new_id};
+        	$self->{MAP_BY_ID}->{$new_id}     = $new_name;    # updating the value
+ 			delete $self->{MAP_BY_TERM}->{$old_value};	      # erase the old entry
+            $self->{MAP_BY_TERM}->{$new_name} = $new_id;      # put
+        } else {
+        	warn "This case should have never happened: -> ($new_id, $new_name)";
+        }
+    }
 }
 
 =head2 get_new_cco_id
@@ -82,19 +93,21 @@ sub put () {
   Function - get a new CCO ID and insert it (put) into this map
   
 =cut
+
 sub get_new_cco_id () {
-	my ($self, $idspace, $subnamespace, $term) = @_;
-	my $result;
-	if ($idspace && $subnamespace && $term) {
-		
-		if ($self->is_empty()){
-			$result = $idspace.":".$subnamespace."0000001";
-		} else {
-			$result = $self->{KEYS}->get_new_id($idspace, $subnamespace);
-		}
-		$self->put($result, $term); # put
-	}	
-	return $result;
+    my ( $self, $idspace, $subnamespace, $term ) = @_;
+    my $result;
+    if ( $idspace && $subnamespace && $term ) {
+
+        if ( $self->is_empty() ) {
+            $result = $idspace . ":" . $subnamespace . "0000001";
+        }
+        else {
+            $result = $self->{KEYS}->get_new_id( $idspace, $subnamespace );
+        }
+        $self->put( $result, $term );    # put
+    }
+    return $result;
 }
 
 =head2 get_cco_id_by_term
@@ -105,9 +118,10 @@ sub get_new_cco_id () {
   Function - the term associated to the given term
   
 =cut
+
 sub get_cco_id_by_term () {
-	my ($self, $term_name) = @_;
-	return $self->{MAP_BY_TERM}->{$term_name};
+    my ( $self, $term_name ) = @_;
+    return $self->{MAP_BY_TERM}->{$term_name};
 }
 
 =head2 get_term_by_cco_id
@@ -118,9 +132,10 @@ sub get_cco_id_by_term () {
   Function - the term name associated to the given CCO id
   
 =cut
+
 sub get_term_by_cco_id () {
-	my ($self, $cco_id) = @_;
-	return $self->{MAP_BY_ID}->{$cco_id};
+    my ( $self, $cco_id ) = @_;
+    return $self->{MAP_BY_ID}->{$cco_id};
 }
 
 =head2 keys_set
@@ -131,9 +146,10 @@ sub get_term_by_cco_id () {
   Function - the keys (or CCO ids)
   
 =cut
+
 sub keys_set () {
-	my $self = shift;
-	return keys (%{$self->{MAP_BY_ID}});
+    my $self = shift;
+    return keys( %{ $self->{MAP_BY_ID} } );
 }
 
 =head2 values_set
@@ -144,9 +160,10 @@ sub keys_set () {
   Function - the keys (or terms names)
   
 =cut
+
 sub values_set () {
-	my $self = shift;
-	return values (%{$self->{MAP_BY_ID}});
+    my $self = shift;
+    return values( %{ $self->{MAP_BY_ID} } );
 }
 
 =head2 contains_key
@@ -157,9 +174,10 @@ sub values_set () {
   Function - 1 (true) or 0 (false)
   
 =cut
+
 sub contains_key () {
-	my ($self, $searched_key) = @_;
-	return (defined $self->{MAP_BY_ID}->{$searched_key})?1:0;
+    my ( $self, $searched_key ) = @_;
+    return ( defined $self->{MAP_BY_ID}->{$searched_key} ) ? 1 : 0;
 }
 
 =head2 contains_value
@@ -170,18 +188,20 @@ sub contains_key () {
   Function - 1 (true) or 0 (false)
   
 =cut
+
 sub contains_value () {
-	my ($self, $searched_value) = @_;
-	return (defined $self->{MAP_BY_TERM}->{$searched_value})?1:0;
+    my ( $self, $searched_value ) = @_;
+    return ( defined $self->{MAP_BY_TERM}->{$searched_value} ) ? 1 : 0;
 }
 
 sub equals () {
-	my $self = shift;
-	my $result = 0;
-	my $other_map =shift;
-	# TODO compare keys and values
-	confess "not implemented method!";
-	return $result;
+    my $self      = shift;
+    my $result    = 0;
+    my $other_map = shift;
+
+    # TODO compare keys and values
+    confess "not implemented method!";
+    return $result;
 }
 
 =head2 size
@@ -192,10 +212,11 @@ sub equals () {
   Function - the size of this map
   
 =cut
+
 sub size () {
-	my $self = shift;
-	my @keys = keys (%{$self->{MAP_BY_ID}});
-	return $#keys+1;
+    my $self = shift;
+    my @keys = keys( %{ $self->{MAP_BY_ID} } );
+    return $#keys + 1;
 }
 
 =head2 file
@@ -206,8 +227,9 @@ sub size () {
   Function - the size of this map
   
 =cut
+
 sub file () {
-	my $self = shift;
+    my $self = shift;
     if (@_) { $self->{FILE} = shift }
     return $self->{FILE};
 }
@@ -220,11 +242,11 @@ sub file () {
   Function - clears this map
   
 =cut
+
 sub clear () {
-	my $self = shift;
-	%{$self->{MAP_BY_ID}}  = ();
-	%{$self->{MAP_BY_TERM}}  = ();
-	# todo clean the file
+    my $self = shift;
+    %{ $self->{MAP_BY_ID} }   = ();
+    %{ $self->{MAP_BY_TERM} } = ();
 }
 
 =head2 is_empty
@@ -235,9 +257,10 @@ sub clear () {
   Function - tells if this map is empty
   
 =cut
-sub is_empty (){
-	my $self = shift;
-	return ($self->size() == 0);
+
+sub is_empty () {
+    my $self = shift;
+    return ( $self->size() == 0 );
 }
 
 =head2 write_map
@@ -248,15 +271,38 @@ sub is_empty (){
   Function - prints the contents of the map to the file associated to this object 
   
 =cut
+
 sub write_map () {
-	my $self = shift;
-	open (FH, ">".$self->{FILE}) || die "Cannot write map to file: '$self->{FILE}', $!"; 
-	foreach (sort keys %{$self->{MAP_BY_ID}}){
-		print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";			
-	}
-	close FH;	
+    my $self = shift;
+    open( FH, ">" . $self->{FILE} )
+      || die "Cannot write map to file: '$self->{FILE}', $!";
+    foreach ( sort keys %{ $self->{MAP_BY_ID} } ) {
+    	if ($self->{MAP_BY_ID}->{$_}) {
+        	print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";
+    	} else {
+    		warn "There is no value in the IDs map for this key: ", $_;
+    	}
+    }
+    close FH;
 }
 
+=head2 remove_by_key
+
+  Usage    - $map->remove_by_key('CCO:B0000001')
+  Returns  - the value corresponding to the given key that will be eventually removed
+  Args     - the key (CCO ID as string) of the entry to be removed (string)
+  Function - removes one entry  from the map
+  
+=cut
+
+sub remove_by_key () {
+    my ($self, $key) = @_;
+    my $value = $self->{MAP_BY_ID}{$key};
+    delete $self->{MAP_BY_ID}{$key};
+    delete $self->{MAP_BY_TERM}{$value};
+    delete $self->{KEYS}{MAP}{$key};
+    return $value;
+}
 1;
 
 =head1 NAME
@@ -299,4 +345,4 @@ at your option, any later version of Perl 5 you may have available.
 
 
 =cut
-    
+

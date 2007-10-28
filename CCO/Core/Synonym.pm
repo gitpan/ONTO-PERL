@@ -1,4 +1,4 @@
-# $Id: Synonym.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: Synonym.pm 1585 2007-10-12 15:23:38Z erant $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
@@ -8,151 +8,10 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Core::Synonym;
-use CCO::Core::Dbxref;
-use CCO::Core::Def;
-use CCO::Util::Set;
-use strict;
-use warnings;
-use Carp;
-
-sub new {
-        my $class                   = shift;
-        my $self                    = {};
-        
-        $self->{TYPE}               = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
-        $self->{DEF}                = CCO::Core::Def->new(); # required
-        $self->{SYNONYM_TYPE_NAME}  = undef;
-        
-        bless ($self, $class);
-        return $self;
-}
-
-=head2 type
-
-  Usage    - print $synonym->type() or $synonym->type("EXACT")
-  Returns  - the synonym scope
-  Args     - the synonym scope: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
-  Function - gets/sets the synonym scope
-  
-=cut
-sub type {
-	# TODO refactor this method, new name: scope
-	my ($self, $synonym_type) = @_;
-	if ($synonym_type) {
-		my $possible_types = CCO::Util::Set->new();
-		# todo 'alt_id' is also a valid value?
-		$possible_types->add_all('EXACT', 'BROAD', 'NARROW', 'RELATED');
-		if ($possible_types->contains($synonym_type)) {
-			$self->{TYPE} = $synonym_type;
-		} else {
-			confess "The synonym type must be one of the following: 'EXACT', 'BROAD', 'NARROW', 'RELATED'";
-		}
-	}
-    return $self->{TYPE};
-}
-
-=head2 def
-
-  Usage    - print $synonym->def() or $synonym->def($def)
-  Returns  - the synonym definition (CCO::Core::Def)
-  Args     - the synonym definition (CCO::Core::Def)
-  Function - gets/sets the synonym definition
-  
-=cut
-sub def {
-	my ($self, $def) = @_;
-    if ($def) {
-    	$self->{DEF} = $def; 
-	}
-    return $self->{DEF};
-}
-
-=head2 synonym_type_name
-
-  Usage    - print $synonym->synonym_type_name() or $synonym->synonym_type_name("UK_SPELLING")
-  Returns  - the name of the synonym type associated to this synonym
-  Args     - the synonym type name (string)
-  Function - gets/sets the synonym name
-  
-=cut
-sub synonym_type_name {
-	my ($self, $synonym_type_name) = @_;
-	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
-    return $self->{SYNONYM_TYPE_NAME};
-}
-
-=head2 def_as_string
-
-  Usage    - $synonym->def_as_string() or $synonym->def_as_string("Here goes the synonym.", "[GOC:elh, PMID:9334324]")
-  Returns  - the synonym text (string)
-  Args     - the synonym text plus the dbxref list describing the source of this definition
-  Function - gets/sets the definition of this synonym
-  
-=cut
-sub def_as_string {
-	my ($self, $text, $dbxref_as_string) = @_;
-	if ($text && $dbxref_as_string){
-		$dbxref_as_string =~ s/^\[//;
-		$dbxref_as_string =~ s/\]$//;
-		$dbxref_as_string =~ s/,\s+/,/g;
-		my @refs = split(/,/, $dbxref_as_string);
-    		
-		my $def = CCO::Core::Def->new();
-		$def->text($text);
-		
-		my $dbxref_set = CCO::Util::DbxrefSet->new();
-		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[\w-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
-				my $dbxref = CCO::Core::Dbxref->new();
-				$dbxref->name($1);
-				$dbxref->description($3) if (defined $3);
-				$dbxref->modifier($5) if (defined $5);
-				$dbxref_set->add($dbxref);
-			} else {
-				confess "There were not defined the references for this synonym: '", $text, "'. Check the 'dbxref' field.";
-			}
-		}
-		$def->dbxref_set($dbxref_set);
-		
-		$self->{DEF} = $def; 
-	}
-	
-	my @result = (); # a Set?
-	foreach my $dbxref ($self->{DEF}->dbxref_set()->get_set()) {
-		push @result, $dbxref->as_string();
-	}
-	# output: "synonym text" [dbxref's]
-	# modify here to have: "synonym text" synonym_type [dbxref's]
-	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
-}
-
-=head2 equals
-
-  Usage    - print $synonym->equals($another_synonym)
-  Returns  - either 1 (true) or 0 (false)
-  Args     - the synonym to compare with
-  Function - tells whether this synonym is equal to the parameter
-  
-=cut
-sub equals {
-	my ($self, $target) = @_;
-	my $result = 0;
-	if ($target) {
-		
-		confess "The type of this synonym is undefined" if (!defined($self->{TYPE}));
-		confess "The type of the target synonym is undefined" if (!defined($target->{TYPE}));
-		
-		$result = (($self->{TYPE} eq $target->{TYPE}) && ($self->{DEF}->equals($target->{DEF})));
-		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
-	}
-	return $result;
-}
-
-1;
 
 =head1 NAME
 
-    CCO::Core::Synonym  - A term synonym.
+CCO::Core::Synonym  - A term synonym
     
 =head1 SYNOPSIS
 
@@ -296,6 +155,149 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
-
 =cut
-    
+
+use CCO::Core::Dbxref;
+use CCO::Core::Def;
+use CCO::Util::Set;
+use strict;
+use warnings;
+use Carp;
+
+sub new {
+        my $class                   = shift;
+        my $self                    = {};
+        
+        $self->{TYPE}               = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
+        $self->{DEF}                = CCO::Core::Def->new(); # required
+        $self->{SYNONYM_TYPE_NAME}  = undef;
+        
+        bless ($self, $class);
+        return $self;
+}
+
+=head2 type
+
+  Usage    - print $synonym->type() or $synonym->type("EXACT")
+  Returns  - the synonym scope
+  Args     - the synonym scope: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
+  Function - gets/sets the synonym scope
+  
+=cut
+
+sub type {
+	my ($self, $synonym_type) = @_;
+	if ($synonym_type) {
+		my $possible_types = CCO::Util::Set->new();
+		$possible_types->add_all('EXACT', 'BROAD', 'NARROW', 'RELATED');
+		if ($possible_types->contains($synonym_type)) {
+			$self->{TYPE} = $synonym_type;
+		} else {
+			confess "The synonym type must be one of the following: 'EXACT', 'BROAD', 'NARROW', 'RELATED'";
+		}
+	}
+    return $self->{TYPE};
+}
+
+=head2 def
+
+  Usage    - print $synonym->def() or $synonym->def($def)
+  Returns  - the synonym definition (CCO::Core::Def)
+  Args     - the synonym definition (CCO::Core::Def)
+  Function - gets/sets the synonym definition
+  
+=cut
+
+sub def {
+	my ($self, $def) = @_;
+    if ($def) {
+    	$self->{DEF} = $def; 
+	}
+    return $self->{DEF};
+}
+
+=head2 synonym_type_name
+
+  Usage    - print $synonym->synonym_type_name() or $synonym->synonym_type_name("UK_SPELLING")
+  Returns  - the name of the synonym type associated to this synonym
+  Args     - the synonym type name (string)
+  Function - gets/sets the synonym name
+  
+=cut
+
+sub synonym_type_name {
+	my ($self, $synonym_type_name) = @_;
+	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
+    return $self->{SYNONYM_TYPE_NAME};
+}
+
+=head2 def_as_string
+
+  Usage    - $synonym->def_as_string() or $synonym->def_as_string("Here goes the synonym.", "[GOC:elh, PMID:9334324]")
+  Returns  - the synonym text (string)
+  Args     - the synonym text plus the dbxref list describing the source of this definition
+  Function - gets/sets the definition of this synonym
+  
+=cut
+
+sub def_as_string {
+	my ($self, $text, $dbxref_as_string) = @_;
+	if ($text && $dbxref_as_string){
+		$dbxref_as_string =~ s/^\[//;
+		$dbxref_as_string =~ s/\]$//;
+		$dbxref_as_string =~ s/,\s+/,/g;
+		my @refs = split(/,/, $dbxref_as_string);
+    		
+		my $def = CCO::Core::Def->new();
+		$def->text($text);
+		
+		my $dbxref_set = CCO::Util::DbxrefSet->new();
+		foreach my $ref (@refs) {
+			if ($ref =~ /([\w-]+:[\w-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+				my $dbxref = CCO::Core::Dbxref->new();
+				$dbxref->name($1);
+				$dbxref->description($3) if (defined $3);
+				$dbxref->modifier($5) if (defined $5);
+				$dbxref_set->add($dbxref);
+			} else {
+				confess "There were not defined the references for this synonym: '", $text, "'. Check the 'dbxref' field.";
+			}
+		}
+		$def->dbxref_set($dbxref_set);
+		
+		$self->{DEF} = $def; 
+	}
+	
+	my @result = (); # a Set?
+	foreach my $dbxref ($self->{DEF}->dbxref_set()->get_set()) {
+		push @result, $dbxref->as_string();
+	}
+	# output: "synonym text" [dbxref's]
+	# modify here to have: "synonym text" synonym_type [dbxref's]
+	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+}
+
+=head2 equals
+
+  Usage    - print $synonym->equals($another_synonym)
+  Returns  - either 1 (true) or 0 (false)
+  Args     - the synonym to compare with
+  Function - tells whether this synonym is equal to the parameter
+  
+=cut
+
+sub equals {
+	my ($self, $target) = @_;
+	my $result = 0;
+	if ($target) {
+		
+		confess "The type of this synonym is undefined" if (!defined($self->{TYPE}));
+		confess "The type of the target synonym is undefined" if (!defined($target->{TYPE}));
+		
+		$result = (($self->{TYPE} eq $target->{TYPE}) && ($self->{DEF}->equals($target->{DEF})));
+		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
+	}
+	return $result;
+}
+
+1;    

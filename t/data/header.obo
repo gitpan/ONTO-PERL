@@ -41,7 +41,7 @@ id: CCO:F0000002
 name: dos
 def: "two" [FO:15892874]
 synonym: "twee" EXACT [FO:15892874]
-disjoint_from: CCO:F0000001 ! uno
+disjoint_from: CCO:F0000001
 
 [Term]
 id: CCO:F0000003

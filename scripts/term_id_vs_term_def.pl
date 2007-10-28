@@ -1,4 +1,4 @@
-# $Id: term_id_vs_term_name.pl 1 2006-07-12 15:37:55Z erant $
+# $Id: term_id_vs_term_def.pl 1381 2007-08-06 16:20:15Z erant $
 #
 # Module  : term_id_vs_def_in_go.pl
 # Purpose : Generates a flat file with two columns (TAB separated) with the 

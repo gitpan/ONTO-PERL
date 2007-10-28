@@ -11,9 +11,6 @@ BEGIN {
 
 #########################
 
-# Insert your test code below, the Test::More module is use()ed here so read
-# its man page ( perldoc Test::More ) for help writing this test script.
-
 use CCO::Parser::OBOParser;
 use CCO::Util::XMLIntactParser;
 use CCO::Parser::IntActParser;
@@ -59,7 +56,7 @@ my $new_ontology = $A_t_interactionmanager->work(
 "./t/data/out_I_A_thaliana.obo",
 "3702",
 "./t/data/cco_i_At.ids",
-"./t/data/cco_b_tair.ids",
+"./t/data/cco_b_ath.ids",
 "./t/data/cco_i.ids",
 "./t/data/cco_b.ids",
 @A_t_intact_files 

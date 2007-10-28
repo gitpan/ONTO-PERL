@@ -1,7 +1,7 @@
 INSTALL
 =======
 
-There are two ways:
+There are two typical ways:
 
 Using CPAN.  
 ==========
@@ -48,7 +48,7 @@ http://www.cellcycleontology.org/
 Third part modules
 ==================
 
-1. SWISS Knife (v1.65) is used by the 'UniProtParser':
+1. SWISS Knife (v1.65) is used by the 'UniProtParser' module:
 
 	ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife
 

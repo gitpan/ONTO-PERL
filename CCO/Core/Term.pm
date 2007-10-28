@@ -1,4 +1,4 @@
-# $Id: Term.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: Term.pm 1585 2007-10-12 15:23:38Z erant $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -8,6 +8,224 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Core::Term;
+
+=head1 NAME
+
+CCO::Core::Term  - A universal/term/class/concept in an ontology
+    
+=head1 SYNOPSIS
+
+use CCO::Core::Term;
+
+use CCO::Core::Def;
+
+use CCO::Util::DbxrefSet;
+
+use CCO::Core::Dbxref;
+
+use CCO::Core::Synonym;
+
+use strict;
+
+
+# three new terms
+
+my $n1 = CCO::Core::Term->new();
+
+my $n2 = CCO::Core::Term->new();
+
+my $n3 = CCO::Core::Term->new();
+
+
+# id's
+
+$n1->id("CCO:P0000001");
+
+$n2->id("CCO:P0000002");
+
+$n3->id("CCO:P0000003");
+
+
+# alt_id
+
+$n1->alt_id("CCO:P0000001_alt_id");
+
+$n2->alt_id("CCO:P0000002_alt_id1", "CCO:P0000002_alt_id2", "CCO:P0000002_alt_id3", "CCO:P0000002_alt_id4");
+
+
+# name
+
+$n1->name("One");
+
+$n2->name("Two");
+
+$n3->name("Three");
+
+
+$n1->is_obsolete(1);
+
+$n1->is_obsolete(0);
+
+$n1->is_anonymous(1);
+
+$n1->is_anonymous(0);
+
+
+# synonyms
+
+my $syn1 = CCO::Core::Synonym->new();
+
+$syn1->type('EXACT');
+
+my $def1 = CCO::Core::Def->new();
+
+$def1->text("Hola mundo1");
+
+my $sref1 = CCO::Core::Dbxref->new();
+
+$sref1->name("CCO:vm");
+
+my $srefs_set1 = CCO::Util::DbxrefSet->new();
+
+$srefs_set1->add($sref1);
+
+$def1->dbxref_set($srefs_set1);
+
+$syn1->def($def1);
+
+$n1->synonym($syn1);
+
+
+my $syn2 = CCO::Core::Synonym->new();
+
+$syn2->type('BROAD');
+
+my $def2 = CCO::Core::Def->new();
+
+$def2->text("Hola mundo2");
+
+my $sref2 = CCO::Core::Dbxref->new();
+
+$sref2->name("CCO:ls");
+
+$srefs_set1->add_all($sref1);
+
+my $srefs_set2 = CCO::Util::DbxrefSet->new();
+
+$srefs_set2->add_all($sref1, $sref2);
+
+$def2->dbxref_set($srefs_set2);
+
+$syn2->def($def2);
+
+$n2->synonym($syn2);
+
+
+my $syn3 = CCO::Core::Synonym->new();
+
+$syn3->type('BROAD');
+
+my $def3 = CCO::Core::Def->new();
+
+$def3->text("Hola mundo2");
+
+my $sref3 = CCO::Core::Dbxref->new();
+
+$sref3->name("CCO:ls");
+
+my $srefs_set3 = CCO::Util::DbxrefSet->new();
+
+$srefs_set3->add_all($sref1, $sref2);
+
+$def3->dbxref_set($srefs_set3);
+
+$syn3->def($def3);
+
+$n3->synonym($syn3);
+
+
+# synonym as string
+
+$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
+
+
+# xref
+
+$n1->xref("Uno");
+
+$n1->xref("Eins");
+
+$n1->xref("Een");
+
+$n1->xref("Un");
+
+$n1->xref("Uj");
+
+my $xref_length = $n1->xref()->size();
+
+
+my $def = CCO::Core::Def->new();
+
+$def->text("Hola mundo");
+
+my $ref1 = CCO::Core::Dbxref->new();
+
+my $ref2 = CCO::Core::Dbxref->new();
+
+my $ref3 = CCO::Core::Dbxref->new();
+
+
+$ref1->name("CCO:vm");
+
+$ref2->name("CCO:ls");
+
+$ref3->name("CCO:ea");
+
+
+my $refs_set = CCO::Util::DbxrefSet->new();
+
+$refs_set->add_all($ref1,$ref2,$ref3);
+
+$def->dbxref_set($refs_set);
+
+$n1->def($def);
+
+$n2->def($def);
+
+
+# def as string
+
+$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+
+my @refs_n2 = $n2->def()->dbxref_set()->get_set();
+
+my %r_n2;
+
+foreach my $ref_n2 (@refs_n2) {
+	
+	$r_n2{$ref_n2->name()} = $ref_n2->name();
+	
+}
+
+
+=head1 DESCRIPTION
+
+A Term in the ontology. c.f. OBO flat file specification.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007 by erant
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
 use CCO::Core::Def;
 use CCO::Core::Synonym;
 use CCO::Util::SynonymSet;
@@ -281,7 +499,6 @@ sub synonym_set {
   
 =cut
 sub synonym_as_string {
-	# todo all, check parameters, similar to def_as_string()?
 	my ($self, $synonym_text, $dbxrefs, $scope, $synonym_type_name) = @_;
 	if ($synonym_text && $dbxrefs && $scope) {
 
@@ -313,13 +530,6 @@ sub xref_set {
     	$self->{XREF_SET} = $xref_set;
     }
     return $self->{XREF_SET};
-    
-	# TODO change the behaviour of this method as in 'alt_id':
-#    my $self = shift;
-#    foreach my $xref (@_) {
-#		$self->{XREF_SET}->add($xref);
-#	}
-#	return $self->{XREF_SET};
 }
 
 =head2 xref_set_as_string
@@ -354,15 +564,6 @@ sub xref_set_as_string {
 	my @result = $self->xref_set()->get_set();
 }
 
-sub is_a {
-	my $self = shift;
-    if (@_) { 
-    	# TODO implement.
-    	push @{$self->{IS_A}}, $self->{IS_A};
-    }
-    return $self->{IS_A};
-}
-
 =head2 intersection_of
         
   Usage    - $term->intersection_of() or $term->intersection_of($t1, $t2, $r1, ...)
@@ -372,13 +573,13 @@ sub is_a {
         
 =cut
 sub intersection_of {
-        my $self = shift;
-        if (scalar(@_) > 1) {
-                $self->{INTERSECTION_OF}->add_all(@_);
-        } elsif (scalar(@_) == 1) {
-                $self->{INTERSECTION_OF}->add(shift);
-        }
-        return $self->{INTERSECTION_OF}->get_set();
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{INTERSECTION_OF}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{INTERSECTION_OF}->add(shift);
+	}
+	return $self->{INTERSECTION_OF}->get_set();
 }
 
 =head2 union_of
@@ -390,13 +591,13 @@ sub intersection_of {
         
 =cut    
 sub union_of {
-        my $self = shift;
-        if (scalar(@_) > 1) {
-                $self->{UNION_OF}->add_all(@_);
-        } elsif (scalar(@_) == 1) { 
-                $self->{UNION_OF}->add(shift);
-        }
-        return $self->{UNION_OF}->get_set();
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{UNION_OF}->add_all(@_);
+	} elsif (scalar(@_) == 1) { 
+		$self->{UNION_OF}->add(shift);
+	}
+	return $self->{UNION_OF}->get_set();
 } 
 
 =head2 disjoint_from
@@ -408,7 +609,6 @@ sub union_of {
   
 =cut
 sub disjoint_from {
-	
 	my $self = shift;
 	if (scalar(@_) > 1) {
    		$self->{DISJOINT_FROM}->add_all(@_);
@@ -416,15 +616,6 @@ sub disjoint_from {
 		$self->{DISJOINT_FROM}->add(shift);
 	}
 	return $self->{DISJOINT_FROM}->get_set();
-}
-
-sub relationship {
-	my $self = shift;
-    if (@_) { 
-    	# TODO implement.
-    	push @{$self->{RELATIONSHIP}}, $self->{RELATIONSHIP};
-    }
-    return $self->{RELATIONSHIP};
 }
 
 =head2 is_obsolete
@@ -505,221 +696,3 @@ sub equals {
 }
 
 1;
-=head1 NAME
-
-    CCO::Core::Term  - a universal in an ontology
-    
-=head1 SYNOPSIS
-
-use CCO::Core::Term;
-
-use CCO::Core::Def;
-
-use CCO::Util::DbxrefSet;
-
-use CCO::Core::Dbxref;
-
-use CCO::Core::Synonym;
-
-use strict;
-
-
-# three new terms
-
-my $n1 = CCO::Core::Term->new();
-
-my $n2 = CCO::Core::Term->new();
-
-my $n3 = CCO::Core::Term->new();
-
-
-# id's
-
-$n1->id("CCO:P0000001");
-
-$n2->id("CCO:P0000002");
-
-$n3->id("CCO:P0000003");
-
-
-# alt_id
-
-$n1->alt_id("CCO:P0000001_alt_id");
-
-$n2->alt_id("CCO:P0000002_alt_id1", "CCO:P0000002_alt_id2", "CCO:P0000002_alt_id3", "CCO:P0000002_alt_id4");
-
-
-# name
-
-$n1->name("One");
-
-$n2->name("Two");
-
-$n3->name("Three");
-
-
-$n1->is_obsolete(1);
-
-$n1->is_obsolete(0);
-
-$n1->is_anonymous(1);
-
-$n1->is_anonymous(0);
-
-
-# synonyms
-
-my $syn1 = CCO::Core::Synonym->new();
-
-$syn1->type('EXACT');
-
-my $def1 = CCO::Core::Def->new();
-
-$def1->text("Hola mundo1");
-
-my $sref1 = CCO::Core::Dbxref->new();
-
-$sref1->name("CCO:vm");
-
-my $srefs_set1 = CCO::Util::DbxrefSet->new();
-
-$srefs_set1->add($sref1);
-
-$def1->dbxref_set($srefs_set1);
-
-$syn1->def($def1);
-
-$n1->synonym($syn1);
-
-
-my $syn2 = CCO::Core::Synonym->new();
-
-$syn2->type('BROAD');
-
-my $def2 = CCO::Core::Def->new();
-
-$def2->text("Hola mundo2");
-
-my $sref2 = CCO::Core::Dbxref->new();
-
-$sref2->name("CCO:ls");
-
-$srefs_set1->add_all($sref1);
-
-my $srefs_set2 = CCO::Util::DbxrefSet->new();
-
-$srefs_set2->add_all($sref1, $sref2);
-
-$def2->dbxref_set($srefs_set2);
-
-$syn2->def($def2);
-
-$n2->synonym($syn2);
-
-
-my $syn3 = CCO::Core::Synonym->new();
-
-$syn3->type('BROAD');
-
-my $def3 = CCO::Core::Def->new();
-
-$def3->text("Hola mundo2");
-
-my $sref3 = CCO::Core::Dbxref->new();
-
-$sref3->name("CCO:ls");
-
-my $srefs_set3 = CCO::Util::DbxrefSet->new();
-
-$srefs_set3->add_all($sref1, $sref2);
-
-$def3->dbxref_set($srefs_set3);
-
-$syn3->def($def3);
-
-$n3->synonym($syn3);
-
-
-# synonym as string
-
-$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
-
-
-# xref
-
-$n1->xref("Uno");
-
-$n1->xref("Eins");
-
-$n1->xref("Een");
-
-$n1->xref("Un");
-
-$n1->xref("Uj");
-
-my $xref_length = $n1->xref()->size();
-
-
-my $def = CCO::Core::Def->new();
-
-$def->text("Hola mundo");
-
-my $ref1 = CCO::Core::Dbxref->new();
-
-my $ref2 = CCO::Core::Dbxref->new();
-
-my $ref3 = CCO::Core::Dbxref->new();
-
-
-$ref1->name("CCO:vm");
-
-$ref2->name("CCO:ls");
-
-$ref3->name("CCO:ea");
-
-
-my $refs_set = CCO::Util::DbxrefSet->new();
-
-$refs_set->add_all($ref1,$ref2,$ref3);
-
-$def->dbxref_set($refs_set);
-
-$n1->def($def);
-
-$n2->def($def);
-
-
-# def as string
-
-$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
-
-my @refs_n2 = $n2->def()->dbxref_set()->get_set();
-
-my %r_n2;
-
-foreach my $ref_n2 (@refs_n2) {
-	
-	$r_n2{$ref_n2->name()} = $ref_n2->name();
-	
-}
-
-
-=head1 DESCRIPTION
-
-A Term in the ontology. c.f. OBO flat file specification.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007 by erant
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut
-    

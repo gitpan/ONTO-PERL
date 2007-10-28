@@ -1,4 +1,4 @@
-# $Id: Def.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: Def.pm 1375 2007-08-06 15:56:17Z erant $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.
@@ -8,114 +8,11 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Core::Def;
-use CCO::Util::DbxrefSet;
-use strict;
-use warnings;
-use Carp;
-
-sub new {
-        my $class                   = shift;
-        my $self                    = {};
-        
-        $self->{TEXT}               = undef; # required, scalar (1)
-        $self->{DBXREF_SET}         = CCO::Util::DbxrefSet->new(); # required, Dbxref (0..n)
-        
-        bless ($self, $class);
-        return $self;
-}
-
-=head2 text
-
-  Usage    - print $def->text() or $def->text($text)
-  Returns  - the definition text (string)
-  Args     - the definition text (string)
-  Function - gets/sets the definition text
-  
-=cut
-sub text {
-	my ($self, $text) = @_;
-    if ($text) { $self->{TEXT} = $text }
-    return $self->{TEXT};
-}
-
-=head2 dbxref_set
-
-  Usage    - $def->dbxref_set() or $def->dbxref_set($dbxref_set)
-  Returns  - the definition dbxref set (CCO::Util::DbxrefSet)
-  Args     - the definition dbxref set (CCO::Util::DbxrefSet)
-  Function - gets/sets the definition dbxref set
-  
-=cut
-sub dbxref_set {
-	my ($self, $dbxref_set) = @_;
-	if ($dbxref_set) {
-    	$self->{DBXREF_SET} = $dbxref_set;
-    }
-    return $self->{DBXREF_SET};
-}
-
-=head2 dbxref_set_as_string
-
-  Usage    - $definition->dbxref_set_as_string() or $definition->dbxref_set_as_string("[GOC:elh, PMID:9334324]")
-  Returns  - the dbxref set (string) of this definition; [] if the set is empty
-  Args     - the dbxref set (string) describing the source(s) of this definition
-  Function - gets/sets the dbxref set of this definition. The set operation actually *adds* the new dbxrefs to the existing set
-  
-=cut
-sub dbxref_set_as_string {
-	my ($self, $dbxref_as_string) = @_;
-	if ($dbxref_as_string) {
-		$dbxref_as_string =~ s/^\[//;
-		$dbxref_as_string =~ s/\]$//;
-		my @refs = split(/, /, $dbxref_as_string);
-		
-		###my $dbxref_set = CCO::Util::DbxrefSet->new();
-		foreach my $ref (@refs) {
-			if ($ref =~ /([\w-]+:[~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
-				my $dbxref = CCO::Core::Dbxref->new();
-				$dbxref->name($1);
-				$dbxref->description($3) if (defined $3);
-				$dbxref->modifier($5) if (defined $5);
-				$self->{DBXREF_SET}->add($dbxref);
-			} else {
-				confess "There were not defined the references for this definition: '", $self->text(), "'. Check the 'dbxref' field.";
-			}
-		}
-		###$self->{DBXREF_SET} = $dbxref_set;
-	}
-	my @result = (); # a Set?
-	foreach my $dbxref (sort {lc($a) cmp ($b)} $self->dbxref_set()->get_set()) {
-		unshift @result, $dbxref->as_string();
-	}
-	return "[".join(', ', @result)."]";
-}
-
-=head2 equals
-
-  Usage    - $def->equals($another_def)
-  Returns  - either 1 (true) or 0 (false)
-  Args     - the definition to compare with
-  Function - tells whether this definition is equal to the parameter
-  
-=cut
-sub equals {
-	my ($self, $target) = @_;
-	my $result = 0;
-	if ($target) {
-
-		confess "The text of this definition is undefined" if (!defined($self->{TEXT}));
-		confess "The text of the target definition is undefined" if (!defined($target->{TEXT}));
-		
-		$result = (($self->{TEXT} eq $target->{TEXT}) && ($self->{DBXREF_SET}->equals($target->{DBXREF_SET})));
-	}
-	return $result;
-}
-
-1;
 
 =head1 NAME
 
-    CCO::Core::Def  - Definition structure.
+CCO::Core::Def  - A definition structure of the current term. A term must 
+have zero or one instance of this type per term description.
     
 =head1 SYNOPSIS
 
@@ -193,12 +90,11 @@ foreach my $ref_def2 (@refs_def2) {
 
 =head1 DESCRIPTION
 
-A Def object encapsules a definition for a universal. There must be zero or one 
-instances of this tag per term description. More than one definition for a term 
-must generate a parse error. The value of this tag should be the quote enclosed 
-definition text, followed by a dbxref set containing dbxrefs that describe the 
-origin of this definition (see CCO::Core::Dbxref for information on how dbxref 
-lists are used).
+A CCO::Core::Def object encapsules a definition for a universal. There must be 
+zero or one instance of this type per term description. An object of this type
+should have a quote enclosed definition text, and a CCO::Core::Dbxref set 
+containing data base cross references which describe the origin of this 
+definition (see CCO::Core::Dbxref for information on how Dbxref lists are used).
 
 c.f. OBO flat file specification.
 
@@ -214,6 +110,113 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
-
 =cut
-    
+
+use CCO::Util::DbxrefSet;
+use strict;
+use warnings;
+use Carp;
+
+sub new {
+        my $class                   = shift;
+        my $self                    = {};
+        
+        $self->{TEXT}               = undef; # required, scalar (1)
+        $self->{DBXREF_SET}         = CCO::Util::DbxrefSet->new(); # required, Dbxref (0..n)
+        
+        bless ($self, $class);
+        return $self;
+}
+
+=head2 text
+
+  Usage    - print $def->text() or $def->text($text)
+  Returns  - the definition text (string)
+  Args     - the definition text (string)
+  Function - gets/sets the definition text
+  
+=cut
+
+sub text {
+	my ($self, $text) = @_;
+    if ($text) { $self->{TEXT} = $text }
+    return $self->{TEXT};
+}
+
+=head2 dbxref_set
+
+  Usage    - $def->dbxref_set() or $def->dbxref_set($dbxref_set)
+  Returns  - the definition dbxref set (CCO::Util::DbxrefSet)
+  Args     - the definition dbxref set (CCO::Util::DbxrefSet)
+  Function - gets/sets the definition dbxref set
+  
+=cut
+
+sub dbxref_set {
+	my ($self, $dbxref_set) = @_;
+	if ($dbxref_set) {
+    	$self->{DBXREF_SET} = $dbxref_set;
+    }
+    return $self->{DBXREF_SET};
+}
+
+=head2 dbxref_set_as_string
+
+  Usage    - $definition->dbxref_set_as_string() or $definition->dbxref_set_as_string("[GOC:elh, PMID:9334324]")
+  Returns  - the dbxref set (string) of this definition; [] if the set is empty
+  Args     - the dbxref set (string) describing the source(s) of this definition
+  Function - gets/sets the dbxref set of this definition. The set operation actually *adds* the new dbxrefs to the existing set
+  
+=cut
+
+sub dbxref_set_as_string {
+	my ($self, $dbxref_as_string) = @_;
+	if ($dbxref_as_string) {
+		$dbxref_as_string =~ s/^\[//;
+		$dbxref_as_string =~ s/\]$//;
+		my @refs = split(/, /, $dbxref_as_string);
+		
+		###my $dbxref_set = CCO::Util::DbxrefSet->new();
+		foreach my $ref (@refs) {
+			if ($ref =~ /([\w-]+:[~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)(\s+\"([\w ]+)\")?(\s+(\{[\w ]+=[\w ]+\}))?/) {
+				my $dbxref = CCO::Core::Dbxref->new();
+				$dbxref->name($1);
+				$dbxref->description($3) if (defined $3);
+				$dbxref->modifier($5) if (defined $5);
+				$self->{DBXREF_SET}->add($dbxref);
+			} else {
+				confess "There were not defined the references for this definition: '", $self->text(), "'. Check the 'dbxref' field.";
+			}
+		}
+		###$self->{DBXREF_SET} = $dbxref_set;
+	}
+	my @result = (); # a Set?
+	foreach my $dbxref (sort {lc($a) cmp ($b)} $self->dbxref_set()->get_set()) {
+		unshift @result, $dbxref->as_string();
+	}
+	return "[".join(', ', @result)."]";
+}
+
+=head2 equals
+
+  Usage    - $def->equals($another_def)
+  Returns  - either 1 (true) or 0 (false)
+  Args     - the definition to compare with
+  Function - tells whether this definition is equal to the parameter
+  
+=cut
+
+sub equals {
+	my ($self, $target) = @_;
+	my $result = 0;
+	if ($target) {
+
+		confess "The text of this definition is undefined" if (!defined($self->{TEXT}));
+		confess "The text of the target definition is undefined" if (!defined($target->{TEXT}));
+		
+		$result = (($self->{TEXT} eq $target->{TEXT}) && ($self->{DBXREF_SET}->equals($target->{DBXREF_SET})));
+	}
+	return $result;
+}
+
+1;

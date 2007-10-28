@@ -1,4 +1,4 @@
-# $Id: owl2obo.pl 1 2006-07-12 15:37:55Z erant $
+# $Id: owl2obo.pl 1380 2007-08-06 16:19:56Z erant $
 #
 # Module  : owl2obo.pl
 # Purpose : Converts a file from OWL to OBO.

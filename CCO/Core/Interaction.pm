@@ -1,4 +1,4 @@
-# $Id: Interaction.pm 1 2006-06-01 16:21:45Z erant $
+# $Id: Interaction.pm 1385 2007-08-06 16:41:39Z erant $
 #
 # Module  : Interaction.pm
 # Purpose : An interaction.
@@ -8,6 +8,32 @@
 # Contact : CCO <ccofriends@psb.ugent.be>
 #
 package CCO::Core::Interaction;
+
+=head1 NAME
+
+CCO::Core::Interaction - An interaction from IntAct
+    
+=head1 SYNOPSIS
+
+	my $interaction = CCO::Core::Interaction->new;
+
+=head1 DESCRIPTION
+
+	An object that stores the needed information for an interaction from Intact
+
+=head1 AUTHOR
+
+Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007 by Mikel Egana Aranguren
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
 
 use strict;
 use warnings;
@@ -28,11 +54,29 @@ sub new {
 	return $self;
 }
 
+=head2 primaryRef
+
+  Usage    - print $interaction->primaryRef() or $interaction->primaryRef($primaryRef)
+  Returns  - the IntAct id of the interaction (e.g. EBI-464846)
+  Args     - the IntAct id of the interaction (e.g. EBI-464846)
+  Function - gets/sets the IntAct id of the interaction (e.g. EBI-464846)
+  
+=cut
+
 sub primaryRef {
 	my $self = shift;
 	if (@_) { $self->{primaryRef} = shift }
 	return $self->{primaryRef};
 }
+
+=head2 interactionType
+
+  Usage    - print $interaction->interactionType() or $interaction->interactionType($interactionType)
+  Returns  - the type of the interaction (e.g. "physical interaction")
+  Args     - the type of the interaction (e.g. "physical interaction")
+  Function - gets/sets the type of the interaction (e.g. "physical interaction")
+  
+=cut
 
 sub interactionType {
 	my $self = shift;
@@ -40,11 +84,29 @@ sub interactionType {
 	return $self->{interactionType};
 }
 
+=head2 shortLabel
+
+  Usage    - print $interaction->shortLabel() or $interaction->shortLabel($shortLabel)
+  Returns  - the short label of the interaction (e.g. "q9p7r6-rse1")
+  Args     - the short label of the interaction (e.g. "q9p7r6-rse1")
+  Function - gets/sets the short label of the interaction (e.g. "q9p7r6-rse1")
+  
+=cut
+
 sub shortLabel {
 	my $self = shift;
 	if (@_) { $self->{shortLabel} = shift }
 	return $self->{shortLabel};
 }
+
+=head2 fullName
+
+  Usage    - print $interaction->fullName() or $interaction->fullName($fullName)
+  Returns  - the full name of the interaction (e.g. "Proteomic analysis identifies a new complex required for nuclear pre-mRNA retention and splicing")
+  Args     - the full name of the interaction (e.g. "Proteomic analysis identifies a new complex required for nuclear pre-mRNA retention and splicing")
+  Function - gets/sets the full name of the interaction (e.g. "Proteomic analysis identifies a new complex required for nuclear pre-mRNA retention and splicing")
+  
+=cut
 
 sub fullName {
 	my $self = shift;
@@ -58,6 +120,15 @@ sub fullName {
 # 	return $self->{goodInteractorID};
 # }
 
+=head2 interactorRef
+
+  Usage    - $interaction->interactorRef() or $interaction->interactorRef(@interactorRef)
+  Returns  - the array of interactor ids that participate in this interaction
+  Args     - the array of interactor ids that participate in this interaction
+  Function - gets/sets the array of interactor ids that participate in this interaction
+  
+=cut
+
 sub interactorRef {
 	my $self = shift;
 	if (@_) { $self->{interactorRef} = shift }
@@ -65,6 +136,14 @@ sub interactorRef {
 	return \@interactorRef;
 }
 
+=head2 interactorRefRoles
+
+  Usage    - $interaction->interactorRefRoles() or $interaction->interactorRefRoles(%interactorRefRoles)
+  Returns  - the hash of interactor ids and their roles
+  Args     - the hash of interactor ids and their roles
+  Function - gets/sets the hash of interactor ids and their roles
+  
+=cut
 
 sub interactorRefRoles {
 	my $self = shift;

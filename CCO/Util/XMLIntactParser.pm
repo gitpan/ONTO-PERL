@@ -1,4 +1,4 @@
-# $Id: XMLIntactParser.pm 1 2006-06-01 16:21:45Z erant $
+# $Id: XMLIntactParser.pm 1377 2007-08-06 16:07:14Z erant $
 #
 # Module  : XMLIntactParser.pm
 # Purpose : An XML Parser.
@@ -28,12 +28,32 @@ sub new {
 	return $self;
 }
 
+=head2 work
+
+  Usage    - $XMLIntactParser->work($intact_xml_file)
+  Returns  - Nothing
+  Args     - An IntAct XML file
+  Function - Reads an IntAct XML file and generates two arrays of interactor and interaction objects, to be obtained with the interactors and interactions methods
+  
+=cut
+
 sub work {
 	my $self = shift;
 	my $xml_file_name= shift;
 	my $xml = XMLin($xml_file_name);
-	&read ($self,$xml); # It should be recursive but it gave me problems with the ref to $self, even passing it at eahc round
+	&read ($self,$xml); 
+	# It should be recursive but it gave me problems with 
+	# the ref to $self, even passing it at each round
 }
+
+=head2 interactors
+
+  Usage    - $XMLIntactParser->interactors()
+  Returns  - Array of interactor objects
+  Args     - None
+  Function - Get interactor objects
+  
+=cut
 
 sub interactors{
 	my $self = shift;
@@ -41,6 +61,15 @@ sub interactors{
 	my @interactors = @{$self->{interactors}};
 	return \@interactors;
 }
+
+=head2 interactions
+
+  Usage    - $XMLIntactParser->interactions()
+  Returns  - Array of interaction objects
+  Args     - None
+  Function - Get interaction objects
+  
+=cut
 
 sub interactions{
 	my $self = shift;
@@ -248,3 +277,32 @@ sub read{
 }
 
 1;
+
+=head1 NAME
+
+    CCO::Util::XMLIntactParser;  - An IntAct XML parser
+    
+=head1 SYNOPSIS
+
+my $XMLIntactParser = XMLIntactParser->new;
+$XMLIntactParser->work($intact_xml_file);
+my @xml_interactors = @{$XMLIntactParser->interactors()};
+my @xml_interactions = @{$XMLIntactParser->interactions()};
+
+=head1 DESCRIPTION
+
+A parser for XML Intact files. It produces two arrays of interactor and interaction objects.
+
+=head1 AUTHOR
+
+Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007 by Mikel Egana Aranguren
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

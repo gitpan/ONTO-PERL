@@ -1,4 +1,4 @@
-# $Id: TermSet.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: TermSet.pm 1387 2007-08-06 16:51:02Z erant $
 #
 # Module  : TermSet.pm
 # Purpose : Term set.
@@ -8,55 +8,10 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Util::TermSet;
-our @ISA = qw(CCO::Util::ObjectSet);
-use CCO::Util::ObjectSet;
-
-use strict;
-use warnings;
-use Carp;
-
-=head2 contains_id
-
-  Usage    - $set->contains_id($element_id)
-  Returns  - true if this set contains an element with the given ID
-  Args     - the ID to be checked
-  Function - checks if this set constains an element with the given ID
-  
-=cut
-sub contains_id {
-	my ($self, $id) = @_;
-	return ($self->{MAP}->{$id})?1:0;
-}
-
-=head2 contains_name
-
-  Usage    - $set->contains_name($element_name)
-  Returns  - true if this set contains an element with the given name
-  Args     - the name to be checked
-  Function - checks if this set constains an element with the given name
-  
-=cut
-sub contains_name {
-	my $self = shift;
-	my $result = 0;
-	if (@_) {
-		my $term_id = shift;
-		
-		foreach my $ele (values %{$self->{MAP}}){
-			if ($ele->name() eq $term_id) {
-				$result = 1;
-				last;
-			}
-		}
-	}
-	return $result;
-}
-
-1;
 
 =head1 NAME
 
-    CCO::Util::TermSet  - a Set implementation
+CCO::Util::TermSet - A Set implementation
     
 =head1 SYNOPSIS
 
@@ -175,5 +130,52 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
-
 =cut    
+
+our @ISA = qw(CCO::Util::ObjectSet);
+use CCO::Util::ObjectSet;
+
+use strict;
+use warnings;
+use Carp;
+
+=head2 contains_id
+
+  Usage    - $set->contains_id($element_id)
+  Returns  - true if this set contains an element with the given ID
+  Args     - the ID to be checked
+  Function - checks if this set constains an element with the given ID
+  
+=cut
+
+sub contains_id {
+	my ($self, $id) = @_;
+	return ($self->{MAP}->{$id})?1:0;
+}
+
+=head2 contains_name
+
+  Usage    - $set->contains_name($element_name)
+  Returns  - true if this set contains an element with the given name
+  Args     - the name to be checked
+  Function - checks if this set constains an element with the given name
+  
+=cut
+
+sub contains_name {
+	my $self = shift;
+	my $result = 0;
+	if (@_) {
+		my $term_id = shift;
+		
+		foreach my $ele (values %{$self->{MAP}}){
+			if ($ele->name() eq $term_id) {
+				$result = 1;
+				last;
+			}
+		}
+	}
+	return $result;
+}
+
+1;

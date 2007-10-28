@@ -1,12 +1,10 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         onto-perl
-version:      0.32
+version:      1.0
 version_from: onto-perl.pod
 installdirs:  site
 requires:
-    SWISS::Entry:                  1.65
-    XML::Simple:                   2.16
 
 distribution_type: module
 generated_by: ExtUtils::MakeMaker version 6.17

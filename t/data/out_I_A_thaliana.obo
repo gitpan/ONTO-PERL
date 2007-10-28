@@ -39,65 +39,67 @@ relationship: participates_in CCO:P0000103 ! meiosis
 
 [Term]
 id: CCO:B0000005
-name: Q8H195_ARATH
-def: "26S proteasome AAA-ATPase subunit RPT5a" [IntAct:EBI-594099]
-synonym: "At3g05530" EXACT [IntAct:EBI-594099]
-xref: UniProt:Q8H195
+name: PSB22_ARATH
+def: "Proteasome subunit beta type 2-2" [IntAct:EBI-594189]
+synonym: "At4g14800" EXACT [IntAct:EBI-594189]
+synonym: "DL3440W" EXACT [IntAct:EBI-594189]
+synonym: "PBD2" EXACT [IntAct:EBI-594189]
+synonym: "PRCGA" EXACT [IntAct:EBI-594189]
+xref: UniProt:O24633
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
 id: CCO:B0000006
-name: Q6EMB5_ARATH
-def: "26S proteasome subunit RPN7" [IntAct:EBI-594129]
-synonym: "RPN7" EXACT [IntAct:EBI-594129]
-xref: UniProt:Q6EMB5
+name: O23716_ARATH
+def: "Proteasome subunit beta type{EA11}. Multicatalytic endopeptidase complex, proteasome, beta subunit" [IntAct:EBI-594167]
+synonym: "AT4g31300" EXACT [IntAct:EBI-594167]
+synonym: "At4g31300" EXACT [IntAct:EBI-594167]
+synonym: "PBA1" EXACT [IntAct:EBI-594167]
+synonym: "prcd" EXACT [IntAct:EBI-594167]
+xref: UniProt:O23716
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
 id: CCO:B0000007
-name: Q6EMB3_ARATH
-def: "26S proteasome subunit RPN8a" [IntAct:EBI-594321]
-synonym: "RPN8a" EXACT [IntAct:EBI-594321]
-xref: UniProt:Q6EMB3
+name: Q6XBM5_ARATH
+def: "26S proteasome subunit RPN2b" [IntAct:EBI-594206]
+synonym: "RPN2b" EXACT [IntAct:EBI-594206]
+xref: UniProt:Q6XBM5
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
 id: CCO:B0000008
-name: PRS7_ARATH
-def: "26S protease regulatory subunit 7" [IntAct:EBI-594271]
-synonym: "At1g53750" EXACT [IntAct:EBI-594271]
-synonym: "F22G10.2" EXACT [IntAct:EBI-594271]
-synonym: "RPT1A" EXACT [IntAct:EBI-594271]
-synonym: "T18A20.1" EXACT [IntAct:EBI-594271]
-xref: UniProt:Q9SSB5
+name: Q6XJG7_ARATH
+def: "26S proteasome subunit RPN2a" [IntAct:EBI-594114]
+synonym: "RPN2a" EXACT [IntAct:EBI-594114]
+xref: UniProt:Q6XJG7
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
 id: CCO:B0000009
-name: Q8RWF0_ARATH
-def: "26S proteasome subunit-like protein" [IntAct:EBI-594422]
-synonym: "At5g45620" EXACT [IntAct:EBI-594422]
-synonym: "RPN9a" EXACT [IntAct:EBI-594422]
-xref: UniProt:Q8RWF0
+name: Q8VWK0_ARATH
+def: "AT5g64760/MVP7_9" [IntAct:EBI-594256]
+synonym: "At5g64760" EXACT [IntAct:EBI-594256]
+synonym: "RPN5b" EXACT [IntAct:EBI-594256]
+xref: UniProt:Q8VWK0
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
 id: CCO:B0000010
-name: Q8VWK0_ARATH
-def: "AT5g64760/MVP7_9" [IntAct:EBI-594256]
-synonym: "At5g64760" EXACT [IntAct:EBI-594256]
-synonym: "RPN5b" EXACT [IntAct:EBI-594256]
-xref: UniProt:Q8VWK0
+name: Q8H195_ARATH
+def: "26S proteasome AAA-ATPase subunit RPT5a" [IntAct:EBI-594099]
+synonym: "At3g05530" EXACT [IntAct:EBI-594099]
+xref: UniProt:Q8H195
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
@@ -116,103 +118,17 @@ relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
 id: CCO:B0000012
-name: PSB22_ARATH
-def: "Proteasome subunit beta type 2-2" [IntAct:EBI-594189]
-synonym: "At4g14800" EXACT [IntAct:EBI-594189]
-synonym: "DL3440W" EXACT [IntAct:EBI-594189]
-synonym: "PBD2" EXACT [IntAct:EBI-594189]
-synonym: "PRCGA" EXACT [IntAct:EBI-594189]
-xref: UniProt:O24633
+name: Q9C5U3_ARATH
+def: "AtSUG1 protein" [IntAct:EBI-594402]
+synonym: "At5g19990" EXACT [IntAct:EBI-594402]
+synonym: "AtSUG1" EXACT [IntAct:EBI-594402]
+xref: UniProt:Q9C5U3
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
 id: CCO:B0000013
-name: PSA4_ARATH
-def: "Proteasome subunit alpha type 4" [IntAct:EBI-594361]
-synonym: "At3g22110" EXACT [IntAct:EBI-594361]
-synonym: "MKA23.2" EXACT [IntAct:EBI-594361]
-synonym: "PAC1" EXACT [IntAct:EBI-594361]
-synonym: "PRC9" EXACT [IntAct:EBI-594361]
-synonym: "PRS1" EXACT [IntAct:EBI-594361]
-xref: UniProt:O81148
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000014
-name: PRS6B_ARATH
-def: "26S protease regulatory subunit 6B homolog" [IntAct:EBI-594089]
-synonym: "At5g58290" EXACT [IntAct:EBI-594089]
-synonym: "MCK7.16" EXACT [IntAct:EBI-594089]
-synonym: "RPT3" EXACT [IntAct:EBI-594089]
-xref: UniProt:Q9SEI4
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000015
-name: Q94BQ2_ARATH
-def: "26S proteasome AAA-ATPase subunit RPT6a-like protein" [IntAct:EBI-594412]
-synonym: "At5g20000" EXACT [IntAct:EBI-594412]
-xref: UniProt:Q94BQ2
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000016
-name: PSA52_ARATH
-def: "Proteasome subunit alpha type 5-2" [IntAct:EBI-594159]
-synonym: "At3g14290" EXACT [IntAct:EBI-594159]
-synonym: "MLN21.8" EXACT [IntAct:EBI-594159]
-synonym: "PAE2" EXACT [IntAct:EBI-594159]
-xref: UniProt:Q42134
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000017
-name: O49456_ARATH
-def: "Hypothetical protein F20O9.150" [IntAct:EBI-594066]
-synonym: "AT4g28470" EXACT [IntAct:EBI-594066]
-synonym: "At4g28470" EXACT [IntAct:EBI-594066]
-synonym: "F20O9.150" EXACT [IntAct:EBI-594066]
-xref: UniProt:O49456
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000018
-name: PSB21_ARATH
-def: "Proteasome subunit beta type 2-1" [IntAct:EBI-594180]
-synonym: "At3g22630" EXACT [IntAct:EBI-594180]
-synonym: "F16J14.18" EXACT [IntAct:EBI-594180]
-synonym: "PBD1" EXACT [IntAct:EBI-594180]
-synonym: "PRCGB" EXACT [IntAct:EBI-594180]
-xref: UniProt:O23714
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000019
-name: Q9FIB6_ARATH
-def: "Putative 26S proteasome p55 protein" [IntAct:EBI-594263]
-synonym: "At5g09900" EXACT [IntAct:EBI-594263]
-synonym: "RPN5a" EXACT [IntAct:EBI-594263]
-xref: UniProt:Q9FIB6
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000020
 name: PSA61_ARATH
 def: "Proteasome subunit alpha type 6-1" [IntAct:EBI-594141]
 synonym: "At5g35590" EXACT [IntAct:EBI-594141]
@@ -225,48 +141,50 @@ relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000021
-name: Q9C5U3_ARATH
-def: "AtSUG1 protein" [IntAct:EBI-594402]
-synonym: "At5g19990" EXACT [IntAct:EBI-594402]
-synonym: "AtSUG1" EXACT [IntAct:EBI-594402]
-xref: UniProt:Q9C5U3
+id: CCO:B0000014
+name: PSB1_ARATH
+def: "Proteasome subunit beta type 1" [IntAct:EBI-594382]
+synonym: "At3g60820" EXACT [IntAct:EBI-594382]
+synonym: "PBF1" EXACT [IntAct:EBI-594382]
+synonym: "T4C21_230" EXACT [IntAct:EBI-594382]
+xref: UniProt:P42742
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000022
-name: Q6XJF4_ARATH
-def: "26S proteasome subunit RPN12" [IntAct:EBI-594133]
-synonym: "RPN12" EXACT [IntAct:EBI-594133]
-xref: UniProt:Q6XJF4
+id: CCO:B0000015
+name: O23718_ARATH
+def: "20S proteasome beta subunit PBG1" [IntAct:EBI-594372]
+synonym: "PBG1" EXACT [IntAct:EBI-594372]
+xref: UniProt:O23718
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000023
-name: Q9SEI5_ARATH
-def: "26S proteasome AAA-ATPase subunit RPT2a" [IntAct:EBI-594213]
-synonym: "RPT2a" EXACT [IntAct:EBI-594213]
-xref: UniProt:Q9SEI5
+id: CCO:B0000016
+name: Q9SIV2_ARATH
+def: "26S proteasome regulatory subunit S2" [IntAct:EBI-594056]
+synonym: "At2g20580" EXACT [IntAct:EBI-594056]
+synonym: "RPN1a" EXACT [IntAct:EBI-594056]
+xref: UniProt:Q9SIV2
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000024
-name: Q6XBM5_ARATH
-def: "26S proteasome subunit RPN2b" [IntAct:EBI-594206]
-synonym: "RPN2b" EXACT [IntAct:EBI-594206]
-xref: UniProt:Q6XBM5
+id: CCO:B0000017
+name: Q9SSB4_ARATH
+def: "T18A20.2 protein" [IntAct:EBI-594282]
+synonym: "T18A20.2" EXACT [IntAct:EBI-594282]
+xref: UniProt:Q9SSB4
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000025
+id: CCO:B0000018
 name: PSA11_ARATH
 def: "Proteasome subunit alpha type 1-1" [IntAct:EBI-594430]
 synonym: "At5g42790" EXACT [IntAct:EBI-594430]
@@ -280,7 +198,17 @@ relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000026
+id: CCO:B0000019
+name: Q6EMB3_ARATH
+def: "26S proteasome subunit RPN8a" [IntAct:EBI-594321]
+synonym: "RPN8a" EXACT [IntAct:EBI-594321]
+xref: UniProt:Q6EMB3
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000020
 name: PSA3_ARATH
 def: "Proteasome subunit alpha type 3" [IntAct:EBI-594343]
 synonym: "At2g27020" EXACT [IntAct:EBI-594343]
@@ -293,39 +221,7 @@ relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000027
-name: PSD32_ARATH
-def: "Probable 26S proteasome non-ATPase regulatory subunit 3b" [IntAct:EBI-594082]
-synonym: "At1g75990" EXACT [IntAct:EBI-594082]
-synonym: "T4O12.21" EXACT [IntAct:EBI-594082]
-xref: UniProt:Q9LQR8
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000028
-name: Q9SSB4_ARATH
-def: "T18A20.2 protein" [IntAct:EBI-594282]
-synonym: "T18A20.2" EXACT [IntAct:EBI-594282]
-xref: UniProt:Q9SSB4
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000029
-name: PSD31_ARATH
-def: "Probable 26S proteasome non-ATPase regulatory subunit 3a" [IntAct:EBI-594074]
-synonym: "At1g20200" EXACT [IntAct:EBI-594074]
-synonym: "T20H2.3" EXACT [IntAct:EBI-594074]
-xref: UniProt:Q9LNU4
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000030
+id: CCO:B0000021
 name: PSDE_ARATH
 def: "26S proteasome non-ATPase regulatory subunit 14" [IntAct:EBI-594332]
 synonym: "At5g23540" EXACT [IntAct:EBI-594332]
@@ -337,52 +233,21 @@ relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000031
-name: O23716_ARATH
-def: "Proteasome subunit beta type{EA11}. Multicatalytic endopeptidase complex, proteasome, beta subunit" [IntAct:EBI-594167]
-synonym: "AT4g31300" EXACT [IntAct:EBI-594167]
-synonym: "At4g31300" EXACT [IntAct:EBI-594167]
-synonym: "PBA1" EXACT [IntAct:EBI-594167]
-synonym: "prcd" EXACT [IntAct:EBI-594167]
-xref: UniProt:O23716
+id: CCO:B0000022
+name: PSA4_ARATH
+def: "Proteasome subunit alpha type 4" [IntAct:EBI-594361]
+synonym: "At3g22110" EXACT [IntAct:EBI-594361]
+synonym: "MKA23.2" EXACT [IntAct:EBI-594361]
+synonym: "PAC1" EXACT [IntAct:EBI-594361]
+synonym: "PRC9" EXACT [IntAct:EBI-594361]
+synonym: "PRS1" EXACT [IntAct:EBI-594361]
+xref: UniProt:O81148
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000032
-name: O23718_ARATH
-def: "20S proteasome beta subunit PBG1" [IntAct:EBI-594372]
-synonym: "PBG1" EXACT [IntAct:EBI-594372]
-xref: UniProt:O23718
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000033
-name: Q9SIV2_ARATH
-def: "26S proteasome regulatory subunit S2" [IntAct:EBI-594056]
-synonym: "At2g20580" EXACT [IntAct:EBI-594056]
-synonym: "RPN1a" EXACT [IntAct:EBI-594056]
-xref: UniProt:Q9SIV2
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000034
-name: Q9MAK9_ARATH
-def: "F27F5.8" [IntAct:EBI-594298]
-synonym: "At1g45000" EXACT [IntAct:EBI-594298]
-synonym: "At1g45000/F27F5.8" EXACT [IntAct:EBI-594298]
-xref: UniProt:Q9MAK9
-is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
-
-[Term]
-id: CCO:B0000035
+id: CCO:B0000023
 name: PSA62_ARATH
 def: "Proteasome subunit alpha type 6-2" [IntAct:EBI-594353]
 synonym: "At2g05840" EXACT [IntAct:EBI-594353]
@@ -394,29 +259,87 @@ relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000036
-name: PSB1_ARATH
-def: "Proteasome subunit beta type 1" [IntAct:EBI-594382]
-synonym: "At3g60820" EXACT [IntAct:EBI-594382]
-synonym: "PBF1" EXACT [IntAct:EBI-594382]
-synonym: "T4C21_230" EXACT [IntAct:EBI-594382]
-xref: UniProt:P42742
+id: CCO:B0000024
+name: Q9MAK9_ARATH
+def: "F27F5.8" [IntAct:EBI-594298]
+synonym: "At1g45000" EXACT [IntAct:EBI-594298]
+synonym: "At1g45000/F27F5.8" EXACT [IntAct:EBI-594298]
+xref: UniProt:Q9MAK9
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000037
-name: Q6XJG7_ARATH
-def: "26S proteasome subunit RPN2a" [IntAct:EBI-594114]
-synonym: "RPN2a" EXACT [IntAct:EBI-594114]
-xref: UniProt:Q6XJG7
+id: CCO:B0000025
+name: PRS6B_ARATH
+def: "26S protease regulatory subunit 6B homolog" [IntAct:EBI-594089]
+synonym: "At5g58290" EXACT [IntAct:EBI-594089]
+synonym: "MCK7.16" EXACT [IntAct:EBI-594089]
+synonym: "RPT3" EXACT [IntAct:EBI-594089]
+xref: UniProt:Q9SEI4
 is_a: CCO:U0000005 ! protein
 relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
-id: CCO:B0000038
+id: CCO:B0000026
+name: PSB21_ARATH
+def: "Proteasome subunit beta type 2-1" [IntAct:EBI-594180]
+synonym: "At3g22630" EXACT [IntAct:EBI-594180]
+synonym: "F16J14.18" EXACT [IntAct:EBI-594180]
+synonym: "PBD1" EXACT [IntAct:EBI-594180]
+synonym: "PRCGB" EXACT [IntAct:EBI-594180]
+xref: UniProt:O23714
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000027
+name: Q9SEI5_ARATH
+def: "26S proteasome AAA-ATPase subunit RPT2a" [IntAct:EBI-594213]
+synonym: "RPT2a" EXACT [IntAct:EBI-594213]
+xref: UniProt:Q9SEI5
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000028
+name: PSD32_ARATH
+def: "Probable 26S proteasome non-ATPase regulatory subunit 3b" [IntAct:EBI-594082]
+synonym: "At1g75990" EXACT [IntAct:EBI-594082]
+synonym: "T4O12.21" EXACT [IntAct:EBI-594082]
+xref: UniProt:Q9LQR8
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000029
+name: PRS7_ARATH
+def: "26S protease regulatory subunit 7" [IntAct:EBI-594271]
+synonym: "At1g53750" EXACT [IntAct:EBI-594271]
+synonym: "F22G10.2" EXACT [IntAct:EBI-594271]
+synonym: "RPT1A" EXACT [IntAct:EBI-594271]
+synonym: "T18A20.1" EXACT [IntAct:EBI-594271]
+xref: UniProt:Q9SSB5
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000030
+name: Q6XJF4_ARATH
+def: "26S proteasome subunit RPN12" [IntAct:EBI-594133]
+synonym: "RPN12" EXACT [IntAct:EBI-594133]
+xref: UniProt:Q6XJF4
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000031
 name: Q9LP45_ARATH
 def: "F28N24.15 protein" [IntAct:EBI-594392]
 synonym: "At1g29150" EXACT [IntAct:EBI-594392]
@@ -428,46 +351,123 @@ relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
+id: CCO:B0000032
+name: Q94BQ2_ARATH
+def: "26S proteasome AAA-ATPase subunit RPT6a-like protein" [IntAct:EBI-594412]
+synonym: "At5g20000" EXACT [IntAct:EBI-594412]
+xref: UniProt:Q94BQ2
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000033
+name: Q9FIB6_ARATH
+def: "Putative 26S proteasome p55 protein" [IntAct:EBI-594263]
+synonym: "At5g09900" EXACT [IntAct:EBI-594263]
+synonym: "RPN5a" EXACT [IntAct:EBI-594263]
+xref: UniProt:Q9FIB6
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000034
+name: Q8RWF0_ARATH
+def: "26S proteasome subunit-like protein" [IntAct:EBI-594422]
+synonym: "At5g45620" EXACT [IntAct:EBI-594422]
+synonym: "RPN9a" EXACT [IntAct:EBI-594422]
+xref: UniProt:Q8RWF0
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000035
+name: PSD31_ARATH
+def: "Probable 26S proteasome non-ATPase regulatory subunit 3a" [IntAct:EBI-594074]
+synonym: "At1g20200" EXACT [IntAct:EBI-594074]
+synonym: "T20H2.3" EXACT [IntAct:EBI-594074]
+xref: UniProt:Q9LNU4
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000036
+name: O49456_ARATH
+def: "Hypothetical protein F20O9.150" [IntAct:EBI-594066]
+synonym: "AT4g28470" EXACT [IntAct:EBI-594066]
+synonym: "At4g28470" EXACT [IntAct:EBI-594066]
+synonym: "F20O9.150" EXACT [IntAct:EBI-594066]
+xref: UniProt:O49456
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000037
+name: PSA52_ARATH
+def: "Proteasome subunit alpha type 5-2" [IntAct:EBI-594159]
+synonym: "At3g14290" EXACT [IntAct:EBI-594159]
+synonym: "MLN21.8" EXACT [IntAct:EBI-594159]
+synonym: "PAE2" EXACT [IntAct:EBI-594159]
+xref: UniProt:Q42134
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
+id: CCO:B0000038
+name: Q6EMB5_ARATH
+def: "26S proteasome subunit RPN7" [IntAct:EBI-594129]
+synonym: "RPN7" EXACT [IntAct:EBI-594129]
+xref: UniProt:Q6EMB5
+is_a: CCO:U0000005 ! protein
+relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
+
+[Term]
 id: CCO:I0000001
 name: rpn1-rpt physical interaction
 comment: Copurification of the 26S proteasome
 xref: IntAct:EBI-593759
 is_a: CCO:Y0000025 ! physical interaction
 relationship: has_participant CCO:B0000003 ! Q6XJG8_ARATH
-relationship: has_participant CCO:B0000005 ! Q8H195_ARATH
-relationship: has_participant CCO:B0000006 ! Q6EMB5_ARATH
-relationship: has_participant CCO:B0000007 ! Q6EMB3_ARATH
-relationship: has_participant CCO:B0000008 ! PRS7_ARATH
-relationship: has_participant CCO:B0000009 ! Q8RWF0_ARATH
-relationship: has_participant CCO:B0000010 ! Q8VWK0_ARATH
+relationship: has_participant CCO:B0000005 ! PSB22_ARATH
+relationship: has_participant CCO:B0000006 ! O23716_ARATH
+relationship: has_participant CCO:B0000007 ! Q6XBM5_ARATH
+relationship: has_participant CCO:B0000008 ! Q6XJG7_ARATH
+relationship: has_participant CCO:B0000009 ! Q8VWK0_ARATH
+relationship: has_participant CCO:B0000010 ! Q8H195_ARATH
 relationship: has_participant CCO:B0000011 ! PSA51_ARATH
-relationship: has_participant CCO:B0000012 ! PSB22_ARATH
-relationship: has_participant CCO:B0000013 ! PSA4_ARATH
-relationship: has_participant CCO:B0000014 ! PRS6B_ARATH
-relationship: has_participant CCO:B0000015 ! Q94BQ2_ARATH
-relationship: has_participant CCO:B0000016 ! PSA52_ARATH
-relationship: has_participant CCO:B0000017 ! O49456_ARATH
-relationship: has_participant CCO:B0000018 ! PSB21_ARATH
-relationship: has_participant CCO:B0000019 ! Q9FIB6_ARATH
-relationship: has_participant CCO:B0000020 ! PSA61_ARATH
-relationship: has_participant CCO:B0000021 ! Q9C5U3_ARATH
-relationship: has_participant CCO:B0000022 ! Q6XJF4_ARATH
-relationship: has_participant CCO:B0000023 ! Q9SEI5_ARATH
-relationship: has_participant CCO:B0000024 ! Q6XBM5_ARATH
-relationship: has_participant CCO:B0000025 ! PSA11_ARATH
-relationship: has_participant CCO:B0000026 ! PSA3_ARATH
-relationship: has_participant CCO:B0000027 ! PSD32_ARATH
-relationship: has_participant CCO:B0000028 ! Q9SSB4_ARATH
-relationship: has_participant CCO:B0000029 ! PSD31_ARATH
-relationship: has_participant CCO:B0000030 ! PSDE_ARATH
-relationship: has_participant CCO:B0000031 ! O23716_ARATH
-relationship: has_participant CCO:B0000032 ! O23718_ARATH
-relationship: has_participant CCO:B0000033 ! Q9SIV2_ARATH
-relationship: has_participant CCO:B0000034 ! Q9MAK9_ARATH
-relationship: has_participant CCO:B0000035 ! PSA62_ARATH
-relationship: has_participant CCO:B0000036 ! PSB1_ARATH
-relationship: has_participant CCO:B0000037 ! Q6XJG7_ARATH
-relationship: has_participant CCO:B0000038 ! Q9LP45_ARATH
+relationship: has_participant CCO:B0000012 ! Q9C5U3_ARATH
+relationship: has_participant CCO:B0000013 ! PSA61_ARATH
+relationship: has_participant CCO:B0000014 ! PSB1_ARATH
+relationship: has_participant CCO:B0000015 ! O23718_ARATH
+relationship: has_participant CCO:B0000016 ! Q9SIV2_ARATH
+relationship: has_participant CCO:B0000017 ! Q9SSB4_ARATH
+relationship: has_participant CCO:B0000018 ! PSA11_ARATH
+relationship: has_participant CCO:B0000019 ! Q6EMB3_ARATH
+relationship: has_participant CCO:B0000020 ! PSA3_ARATH
+relationship: has_participant CCO:B0000021 ! PSDE_ARATH
+relationship: has_participant CCO:B0000022 ! PSA4_ARATH
+relationship: has_participant CCO:B0000023 ! PSA62_ARATH
+relationship: has_participant CCO:B0000024 ! Q9MAK9_ARATH
+relationship: has_participant CCO:B0000025 ! PRS6B_ARATH
+relationship: has_participant CCO:B0000026 ! PSB21_ARATH
+relationship: has_participant CCO:B0000027 ! Q9SEI5_ARATH
+relationship: has_participant CCO:B0000028 ! PSD32_ARATH
+relationship: has_participant CCO:B0000029 ! PRS7_ARATH
+relationship: has_participant CCO:B0000030 ! Q6XJF4_ARATH
+relationship: has_participant CCO:B0000031 ! Q9LP45_ARATH
+relationship: has_participant CCO:B0000032 ! Q94BQ2_ARATH
+relationship: has_participant CCO:B0000033 ! Q9FIB6_ARATH
+relationship: has_participant CCO:B0000034 ! Q8RWF0_ARATH
+relationship: has_participant CCO:B0000035 ! PSD31_ARATH
+relationship: has_participant CCO:B0000036 ! O49456_ARATH
+relationship: has_participant CCO:B0000037 ! PSA52_ARATH
+relationship: has_participant CCO:B0000038 ! Q6EMB5_ARATH
 
 [Term]
 id: CCO:P0000001

@@ -10,10 +10,6 @@ BEGIN {
 }
 
 #########################
-
-# Insert your test code below, the Test::More module is use()ed here so read
-# its man page ( perldoc Test::More ) for help writing this test script.
-
 # $Id: Relationship.t 291 2006-06-01 16:21:45Z erant $
 #
 # Purpose : onto-perl usage examples.

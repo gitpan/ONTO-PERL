@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: OBOParser.pm 1585 2007-10-12 15:23:38Z erant $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
@@ -40,15 +40,7 @@ sub work {
 	$self->{OBO_FILE} = shift if (@_);
 	my $result = CCO::Core::Ontology->new();
 	
-	# TODO clean the extra newlines in the given file and separate each chunk by ONLY TWO "\n\n"
-	
 	open (OBO_FILE, $self->{OBO_FILE}) || confess "The OBO file cannot be opened: ", $!;
-	
-	# todo dos2unix
-	#while (<OBO_FILE>) {
-	#	s/\s//;
-	#}
-	#warn "\n.$chunks[$#chunks]."; # print the last chunk
 	$/ = "\n\n";
 	chomp(my @chunks = <OBO_FILE>);
 	chomp(@chunks);
@@ -94,7 +86,7 @@ sub work {
 		$result->subsets($subsetdef->get_set());
 		$result->synonym_type_def_set($synonym_type_def_set->get_set());
 		my $local_idspace = $1, my $uri = $2, my $desc = $4 if ($idspace && $idspace =~ /(\S+)\s+(\S+)\s+(\"(.*)\")?/);
-		$result->idspace_as_string($local_idspace, $uri, $desc);
+		$result->idspace_as_string($local_idspace, $uri, $desc) if (defined $local_idspace && defined $uri);
 		$result->data_version($data_version) if ($data_version);
 		$result->date($date) if ($date);
 		$result->saved_by($saved_by) if ($saved_by);
@@ -109,27 +101,29 @@ sub work {
 			if ($stanza =~ /\[Term\]/) { # treat [Term]
 				my $term;
 				$file_line_number++;
+				my $only_one_id_tag_per_entry   = 0;
+				my $only_one_name_tag_per_entry = 0;
 				foreach my $line (@entry) {
 					$file_line_number++;
-					#warn "Line: ", $line, "\n";
 					if ($line =~ /^id:\s*(\w+:\w+)/) { # get the term id
-						# TODO check to have only one ID field per entry
+						croak "The term with id '", $1, "' has a duplicated 'id' tag in the file '", $self->{OBO_FILE} if ($only_one_id_tag_per_entry);
 						$term = $result->get_term_by_id($1); # does this term is already in the ontology?
 						if (!defined $term){
 							$term = CCO::Core::Term->new();  # if not, create a new term
 							$term->id($1);
 							$result->add_term($term);        # add it to the ontology
+							$only_one_id_tag_per_entry = 1;
 						} elsif (defined $term->def()->text() && $term->def()->text() ne "") {
-							#warn "text: '", $term->def()->text(), "'";
-							# the term is already in the ontology since it has a definition! (maybe empty?)
+							# The term is already in the ontology since it has a definition! (maybe empty?)
 							croak "The term with id '", $1, "' is duplicated in the OBO file.";
 						}
 					} elsif ($line =~ /^name:\s*(.*)/) {
-						# todo check to have only one NAME per entry
+						croak "The term with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
 						if (!defined $1) {
 							croak "The term with id '", $term->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 						} else {
 							$term->name($1);
+							$only_one_name_tag_per_entry = 1;
 						}
 					} elsif ($line =~ /^namespace:\s*(.*)/) {
 						$term->namespace($1); # it is a Set
@@ -145,7 +139,7 @@ sub work {
 					} elsif ($line =~ /^comment:\s*(.*)/) {
 						$term->comment($1);
 					} elsif ($line =~ /^subset:\s*(.*)/) {
-						# todo check that the used subsets belong to the defined in the header
+						# TODO wait until the OBO spec 1.3 is there, then check that the used subsets belong to the defined in the header
 						$term->subset($1);
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) { # OBO spec 1.1
 						$term->synonym_as_string($2, $3, uc($1));
@@ -177,10 +171,11 @@ sub work {
 						$rel->link($term, $target);
 						$result->add_relationship($rel);
 					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
-						# TODO
+						# TODO wait until the OBO spec 1.3 is there
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
-						# TODO distinguish between terms and relations?
-						# TODO check there are at least 2 elements in the 'union_of' set
+						# TODO wait until the OBO spec 1.3 is there
+						# Distinguish between terms and relations?
+						# Check there are at least 2 elements in the 'union_of' set
 						$term->union_of($1);
 					} elsif ($line =~ /^disjoint_from:\s*(\w+:\w+)\s*(\!\s*(.*))?/) {
 						$term->disjoint_from($1); # We are assuming that the other term exists or will exist; otherwise , we have to create it like in the is_a section.
@@ -206,13 +201,12 @@ sub work {
 						$term->consider($1);
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$term->builtin(($1 eq "true")?1:0);
-					} else { # TODO unrecognized token						
+					} else {					
 						confess "A format problem has been detected in: '", $line, "' in the line: ", $file_line_number, " in the file: ", $self->{OBO_FILE};
 					}
 				}
 				# Check for required fields: id and name
 				if (defined $term && !defined $term->id()) {
-					# TODO create a test for getting this croak
 					croak "There is no id for the term:\n", $chunk;
 				} elsif (!defined $term->name()) {
 					croak "The term with id '", $term->id(), "' has no name in the entry:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
@@ -220,6 +214,7 @@ sub work {
 				$file_line_number ++;				
 			} elsif ($stanza =~ /\[Typedef\]/) { # treat [Typedef]
 				my $type;
+				my $only_one_name_tag_per_entry = 0;
 				foreach my $line (@entry) {
 					if ($line =~ /^id:\s*(\w+)/) { # get the type id
 						$type = $result->get_relationship_type_by_id($1); # does this relationship type is already in the ontology?
@@ -232,8 +227,9 @@ sub work {
 							croak "The relationship type with id '", $1, "' is duplicated in the OBO file.";
 						}
 					} elsif ($line =~ /^name:\s*(.*)/) {
-						# todo check to have only one NAME per entry
+						croak "The typedef with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
 						$type->name($1);
+						$only_one_name_tag_per_entry = 1;
 					} elsif ($line =~ /^namespace:\s*(.*)/) {
 						$type->namespace($1); # it is a Set
 					} elsif ($line =~ /^alt_id:\s*(\w+)/) {
@@ -291,7 +287,7 @@ sub work {
 						$rel->link($type, $target); # add a relationship between two relationship types
 						$result->add_relationship($rel);
 					} elsif ($line =~ /^inverse_of:\s*(.*)/) {
-						# TODO implement it in RelationshipType
+						# TODO wait until the OBO spec 1.3 is there, then implement it in RelationshipType
 						#$type->inverse_of($1);
 					} elsif ($line =~ /^transitive_over:\s*(.*)/) {
 						$type->transitive_over($1);
@@ -304,13 +300,11 @@ sub work {
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$type->builtin(($1 eq "true")?1:0);
 					} else {
-						# TODO unrecognized token
 						warn "A format problem has been detected in: ", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 					}	
 				}
 				# Check for required fields: id and name
 				if (!defined $type->id()) {
-					# TODO create a test for getting this croak
 					croak "There is no id for the type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 				} elsif (!defined $type->name()) {
 					croak "The type with id '", $type->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
@@ -320,7 +314,6 @@ sub work {
 		}
 		
 		# Workaround for some ontologies like GO: Add 'is_a' if missing
-		# todo Add an attribute: 'invisible/builtin' so that it is not printed while exporting
 		if (!$result->has_relationship_type_id("is_a")){
 			my $type = CCO::Core::RelationshipType->new();  # if not, create a new type
 			$type->id("is_a");

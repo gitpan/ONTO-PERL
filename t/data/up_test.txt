@@ -1,5 +1,5 @@
-ID   RK20renamed_ARATH              Reviewed;         117 AA.
-AC   P56794; P56795; P56796;
+ID   RK20_ARATH              Reviewed;         117 AA.
+AC   P56795; P56796; P56794;
 DT   30-MAY-2000, integrated into UniProtKB/Swiss-Prot.
 DT   30-MAY-2000, sequence version 1.
 DT   23-JAN-2007, entry version 40.
@@ -149,6 +149,10 @@ DR   InterPro; IPR011989; ARM-like.
 DR   Gene3D; G3DSA:1.25.10.10; ARM-like; 1.
 DR   Pfam; PF01851; PC_rep; 6.
 KW   Proteasome.
+FT   MOD_RES     351    351       Phosphoserine; by MAPK12; and MAPK9 (By
+FT                                similarity).
+FT   MOD_RES     418    418       Phosphoserine (By similarity).
+FT   MOD_RES     421    421       Phosphoserine; by MAPK12 (By similarity).
 SQ   SEQUENCE   891 AA;  97954 MW;  8330D4146ED9F371 CRC64;
      MAPVPDPNSV GGGAKRDEAT TKIPSKDSKK KDDKKEEDLS EEDLQLKQNL ELYVERVQDP
      NPELQKIALE SMRKEIRDST SSMTSVPKPL KFLRPHYGVL KEFHAKMAES DLKKMLADIL
@@ -166,7 +170,7 @@ SQ   SEQUENCE   891 AA;  97954 MW;  8330D4146ED9F371 CRC64;
      LLHACLDMKS IILGKYHYVL YFLVLAMQPR MMLTVDQSLK PISVPVRVGQ AVDVVGQAGR
      PKTITGFQTH STPVLLAAGE RAELATEKYI PLSPILEGFV ILKENPDYRE E
 //
-ID   Q6NMC8_ARATH            Unreviewed;       323 AA.
+ID   CCD51_ARATH            Unreviewed;       323 AA.
 AC   Q6NMC8;
 DT   05-JUL-2004, integrated into UniProtKB/TrEMBL.
 DT   05-JUL-2004, sequence version 1.

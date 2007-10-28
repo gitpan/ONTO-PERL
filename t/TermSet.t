@@ -11,12 +11,8 @@ BEGIN {
 
 #########################
 
-# Insert your test code below, the Test::More module is use()ed here so read
-# its man page ( perldoc Test::More ) for help writing this test script.
-
 use CCO::Util::TermSet;
 use CCO::Core::Term;
-use strict;
 
 # new set
 my $my_set = CCO::Util::TermSet->new();

@@ -6,15 +6,11 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 166;
+    plan tests => 180;
 }
 
 #########################
-
-# Insert your test code below, the Test::More module is use()ed here so read
-# its man page ( perldoc Test::More ) for help writing this test script.
-
-# $Id: Ontology.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: Ontology.t 1596 2007-10-28 15:48:10Z erant $
 #
 # Purpose : onto-perl usage examples.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -26,9 +22,6 @@ use CCO::Core::RelationshipType;
 use CCO::Core::SynonymTypeDef;
 use CCO::Parser::OBOParser;
 use CCO::Util::TermSet;
-
-use Data::Dumper;
-use strict;
 
 # three new terms
 my $n1 = CCO::Core::Term->new();
@@ -178,6 +171,7 @@ my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000
 ok($#odd_processes == 1);
 ok($odd_processes[0]->id() eq "CCO:P0000003");
 ok($odd_processes[1]->id() eq "CCO:P0000005");
+ok($onto->idspace_as_string() eq "");
 $onto->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO", "cell cycle ontology terms");
 ok($onto->idspace()->local_idspace() eq "CCO");
 my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
@@ -209,6 +203,13 @@ ok($onto->get_terms_by_name("Four")->contains($n4));
 # add relationships
 $onto->add_relationship($r12);
 ok($onto->get_relationship_by_id("CCO:P0000001_is_a_CCO:P0000002")->head()->id() eq "CCO:P0000002");
+ok($onto->has_relationship_id("CCO:P0000001_is_a_CCO:P0000002"));
+
+my @relas = @{$onto->get_relationships_by_target_term($onto->get_term_by_id("CCO:P0000002"))};
+ok($relas[0]->id()         eq "CCO:P0000001_is_a_CCO:P0000002");
+ok($relas[0]->tail()->id() eq "CCO:P0000001");
+ok($relas[0]->head()->id() eq "CCO:P0000002");
+
 $onto->add_relationship($r23);
 $onto->add_relationship($r13);
 $onto->add_relationship($r14);
@@ -240,7 +241,8 @@ ok($hr{"CCO:P0000001_participates_in_CCO:P0000003"}->head()->equals($n3));
 ok($hr{"CCO:P0000001_participates_in_CCO:P0000004"}->head()->equals($n4));
 
 # recover a previously stored relationship
-ok($onto->get_relationship_by_id("CCO:P0000001_participates_in_CCO:P0000003")->equals($r13)); 
+ok($onto->get_relationship_by_id("CCO:P0000001_participates_in_CCO:P0000003")->equals($r13));
+ok($onto->has_relationship_id("CCO:P0000001_participates_in_CCO:P0000003"));
 
 # get children
 my @children = @{$onto->get_child_terms($n1)}; 
@@ -502,3 +504,113 @@ ok ($sub_o->get_number_of_terms() == 9);
 $root = $alpha_onto->get_term_by_id("MYO:0000014");
 $sub_o = $alpha_onto->get_subontology_from($root);
 ok ($sub_o->get_number_of_terms() == 2);
+
+# get paths from term1 to term2
+
+my $o1  = CCO::Core::Ontology->new();
+my $d5  = CCO::Core::Term->new();
+my $d2  = CCO::Core::Term->new();
+my $d6  = CCO::Core::Term->new();
+my $d1  = CCO::Core::Term->new();
+my $d7  = CCO::Core::Term->new();
+my $d8  = CCO::Core::Term->new();
+my $d10 = CCO::Core::Term->new();
+my $d11 = CCO::Core::Term->new();
+
+my $d20  = CCO::Core::Term->new();
+my $d21  = CCO::Core::Term->new();
+my $d32  = CCO::Core::Term->new();
+my $d23  = CCO::Core::Term->new();
+my $d24  = CCO::Core::Term->new();
+my $d25  = CCO::Core::Term->new();
+my $d26  = CCO::Core::Term->new();
+my $d27  = CCO::Core::Term->new();
+my $d28  = CCO::Core::Term->new();
+my $d29  = CCO::Core::Term->new();
+
+$d5->id("5");
+$d2->id("2");
+$d6->id("6");
+$d1->id("1");
+$d7->id("7");
+$d8->id("8");
+$d10->id("10");
+$d11->id("11");
+
+$d20->id("20");
+$d21->id("21");
+$d32->id("32");
+$d23->id("23");
+$d24->id("24");
+$d25->id("25");
+$d26->id("26");
+$d27->id("27");
+$d28->id("28");
+$d29->id("29");
+
+
+$d5->name("5");
+$d2->name("2");
+$d6->name("6");
+$d1->name("1");
+$d7->name("7");
+$d8->name("8");
+$d10->name("10");
+$d11->name("11");
+
+$d20->name("20");
+$d21->name("21");
+$d32->name("32");
+$d23->name("23");
+$d24->name("24");
+$d25->name("25");
+$d26->name("26");
+$d27->name("27");
+$d28->name("28");
+$d29->name("29");
+
+my $r = 'is_a';
+$o1->add_relationship_type_as_string($r, $r);
+$o1->create_rel($d5,$r,$d2);
+$o1->create_rel($d2,$r,$d6);
+$o1->create_rel($d2,$r,$d1);
+$o1->create_rel($d2,$r,$d7);
+$o1->create_rel($d7,$r,$d8);
+$o1->create_rel($d7,$r,$d11);
+$o1->create_rel($d1,$r,$d10);
+$o1->create_rel($d1,$r,$d8);
+
+
+$o1->create_rel($d5,$r,$d23);
+$o1->create_rel($d11,$r,$d28);
+$o1->create_rel($d28,$r,$d29);
+$o1->create_rel($d8,$r,$d27);
+$o1->create_rel($d27,$r,$d26);
+$o1->create_rel($d10,$r,$d24);
+$o1->create_rel($d24,$r,$d25);
+$o1->create_rel($d25,$r,$d26);
+$o1->create_rel($d6,$r,$d20);
+$o1->create_rel($d20,$r,$d21);
+$o1->create_rel($d20,$r,$d32);
+$o1->create_rel($d21,$r,$d25);
+
+my @ref_paths = $o1->get_paths_term1_term2($d5->id(), $d26->id());
+ok ($#ref_paths == 3);
+
+@ref_paths = $o1->get_paths_term1_term2($d5->id(), $d29->id());
+ok ($#ref_paths == 0);
+
+my @p = ("5_is_a_2", "2_is_a_7", "7_is_a_11", "11_is_a_28", "28_is_a_29");
+
+foreach my $ref_path (@ref_paths) {
+	foreach my $tt (@$ref_path) {
+		ok ($tt->id() eq shift @p);
+	}
+}
+
+
+my $stop  = CCO::Util::Set->new();
+map {$stop->add($_->id())} @{$o1->get_terms()};
+
+my @pref1 = $o1->get_paths_term_terms($d5->id(), $stop);
+ok ($#pref1 == 22);

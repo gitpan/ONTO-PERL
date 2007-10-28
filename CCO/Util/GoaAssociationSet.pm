@@ -1,4 +1,4 @@
-# $Id: GoaAssociationSet.pm $
+# $Id: GoaAssociationSet.pm 1377 2007-08-06 16:07:14Z erant $
 #
 # Module  : GoaAssociationSet.pm
 # Purpose : GOA association set.
@@ -8,7 +8,7 @@
 # Contact : Vladimir Mironov <vlmir@psb.ugent.be>
 #
 package CCO::Util::GoaAssociationSet;
-our @ISA = qw(CCO::Util::Set);
+our @ISA = qw(CCO::Util::Set);#TODO change inheritence
 use CCO::Util::Set;
 use strict;
 use warnings;

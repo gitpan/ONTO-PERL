@@ -1,4 +1,4 @@
-# $Id: SynonymSet.pm 291 2006-06-01 16:21:45Z erant $
+# $Id: SynonymSet.pm 1585 2007-10-12 15:23:38Z erant $
 #
 # Module  : SynonymSet.pm
 # Purpose : Synonym set.
@@ -8,134 +8,10 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Util::SynonymSet;
-our @ISA = qw(CCO::Util::Set);
-use CCO::Util::Set;
-
-use strict;
-use warnings;
-use Carp;
-
-=head2 add
-
-  Usage    - $set->add()
-  Returns  - true if the element was successfully added
-  Args     - the element (CCO::Core::Synonym) to be added
-  Function - adds an element to this set
-  
-=cut
-sub add {
-	my $self = shift;
-	my $result = 0; # nothing added
-	if (@_) {	
-		my $ele = shift;
-		if ( !$self -> contains($ele) ) {
-			push @{$self->{SET}}, $ele;
-			$result = 1; # successfully added
-		}
-	}
-	return $result;
-}
-
-=head2 remove
-
-  Usage    - $set->remove($element)
-  Returns  - the removed element
-  Args     - the element (CCO::Core::Synonym) to be removed
-  Function - removes an element from this set
-  
-=cut
-sub remove {
-	my $self = shift;
-	my $result = undef;
-	if (@_) {	
-		my $ele = shift;
-		if ($self->size() > 0) {
-			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
-				my $e = ${$self->{SET}}[$i];
-				if ($ele->equals($e)) {
-					if ($self->size() > 1) {
-						my $first_elem = shift (@{$self->{SET}});
-						${$self->{SET}}[$i-1] = $first_elem;
-					} elsif ($self->size() == 1) {
-						shift (@{$self->{SET}});
-					}
-					$result = $ele;
-					last;
-				}
-			}
-		}
-	}
-	return $result;
-}
-
-
-=head2 contains
-
-  Usage    - $set->contains()
-  Returns  - true if this set contains the given element
-  Args     - the element (CCO::Core::Synonym) to be checked
-  Function - checks if this set constains the given element
-  
-=cut
-sub contains {
-	my $self = shift;
-	my $result = 0;
-	if (@_){
-		my $target = shift;
-		
-		foreach my $ele (@{$self->{SET}}){
-			if ($target->equals($ele)) {
-				$result = 1;
-				last;
-			}
-		}
-	}
-	return $result;
-}
-
-
-
-=head2 equals
-
-  Usage    - $set->equals()
-  Returns  - true or false
-  Args     - the set (CCO::Util::SynonymSet) to compare with
-  Function - tells whether this set is equal to the given one
-  
-=cut
-sub equals {
-	my $self = shift;
-	my $result = 0; # I guess they'are NOT identical
-	if (@_) {
-		my $other_set = shift;
-		
-		my %count = ();
-		# TODO parece que esta funcioando este metodo sin necesidad de usar 'equals' a nivel de synonym...los tests pasan...raro...	
-		my @this = map ({scalar $_;} @{$self->{SET}});
-		my @that = map ({scalar $_;} $other_set->get_set());
-		
-		if ($#this == $#that) {
-			foreach (@this, @that) {
-				$count{$_}++;
-			}
-			foreach my $count (values %count) {
-				if ($count != 2) {
-					$result = 0;
-					last;
-				} else {
-					$result = 1;
-				}
-			}
-		}
-	}
-	return $result;
-}
-
-1;
 
 =head1 NAME
 
-    CCO::Util::SynonymSet  - a Set implementation
+CCO::Util::SynonymSet - A Set implementation of Synonyms
     
 =head1 SYNOPSIS
 
@@ -253,5 +129,128 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
+=cut
 
-=cut    
+our @ISA = qw(CCO::Util::Set);
+use CCO::Util::Set;
+
+use strict;
+use warnings;
+use Carp;
+
+=head2 add
+
+  Usage    - $set->add()
+  Returns  - true if the element was successfully added
+  Args     - the element (CCO::Core::Synonym) to be added
+  Function - adds an element to this set
+  
+=cut
+sub add {
+	my $self = shift;
+	my $result = 0; # nothing added
+	if (@_) {	
+		my $ele = shift;
+		if ( !$self -> contains($ele) ) {
+			push @{$self->{SET}}, $ele;
+			$result = 1; # successfully added
+		}
+	}
+	return $result;
+}
+
+=head2 remove
+
+  Usage    - $set->remove($element)
+  Returns  - the removed element
+  Args     - the element (CCO::Core::Synonym) to be removed
+  Function - removes an element from this set
+  
+=cut
+sub remove {
+	my $self = shift;
+	my $result = undef;
+	if (@_) {	
+		my $ele = shift;
+		if ($self->size() > 0) {
+			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){
+				my $e = ${$self->{SET}}[$i];
+				if ($ele->equals($e)) {
+					if ($self->size() > 1) {
+						my $first_elem = shift (@{$self->{SET}});
+						${$self->{SET}}[$i-1] = $first_elem;
+					} elsif ($self->size() == 1) {
+						shift (@{$self->{SET}});
+					}
+					$result = $ele;
+					last;
+				}
+			}
+		}
+	}
+	return $result;
+}
+
+
+=head2 contains
+
+  Usage    - $set->contains()
+  Returns  - true if this set contains the given element
+  Args     - the element (CCO::Core::Synonym) to be checked
+  Function - checks if this set constains the given element
+  
+=cut
+sub contains {
+	my $self = shift;
+	my $result = 0;
+	if (@_){
+		my $target = shift;
+		
+		foreach my $ele (@{$self->{SET}}){
+			if ($target->equals($ele)) {
+				$result = 1;
+				last;
+			}
+		}
+	}
+	return $result;
+}
+
+
+
+=head2 equals
+
+  Usage    - $set->equals()
+  Returns  - true or false
+  Args     - the set (CCO::Util::SynonymSet) to compare with
+  Function - tells whether this set is equal to the given one
+  
+=cut
+sub equals {
+	my $self = shift;
+	my $result = 0; # I guess they'are NOT identical
+	if (@_) {
+		my $other_set = shift;
+		
+		my %count = ();
+		my @this = map ({scalar $_;} @{$self->{SET}});
+		my @that = map ({scalar $_;} $other_set->get_set());
+		
+		if ($#this == $#that) {
+			foreach (@this, @that) {
+				$count{$_}++;
+			}
+			foreach my $count (values %count) {
+				if ($count != 2) {
+					$result = 0;
+					last;
+				} else {
+					$result = 1;
+				}
+			}
+		}
+	}
+	return $result;
+}
+
+1;

@@ -1,4 +1,4 @@
-# $Id: obo2cco.pl 10 2006-01-18 10:52:47Z erant $
+# $Id: obo2cco.pl 1380 2007-08-06 16:19:56Z erant $
 #
 # Script  : obo2cco.pl
 #
@@ -41,7 +41,7 @@ if ($sub_ontology_root_id) {
 	$onto = $onto->get_subontology_from($term);
 }
 
-my $ns = $onto->idspace("CCO");
+my $ns = $onto->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO");
 $onto->default_namespace("cellcycle_ontology");
 $onto->remark("A Cell-Cycle Sub-Ontology");
 
@@ -51,7 +51,7 @@ foreach my $entry (sort {$a->id() cmp $b->id()} @{$onto->get_terms()}){
 
 	my $cco_id = $cco_id_map->get_cco_id_by_term($entry_name);
 	# Has an ID been already associated to this term (repeated entry)?
-	$cco_id = $cco_id_map->get_new_cco_id($ns, $sns, $entry_name) if (!defined $cco_id);
+	$cco_id = $cco_id_map->get_new_cco_id($ns->local_idspace(), $sns, $entry_name) if (!defined $cco_id);
 
 	$onto->set_term_id($entry, $cco_id);
 	# xref's

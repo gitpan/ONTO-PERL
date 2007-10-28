@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: GoaAssociation.pm 1375 2007-08-06 15:56:17Z erant $
 #
 # Module  : GoaAssociation.pm
 # Purpose : GOA associaton entry structure.

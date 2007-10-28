@@ -1,4 +1,4 @@
-# $Id: go2owl.pl 1 2006-07-12 15:37:55Z erant $
+# $Id: go2owl.pl 1380 2007-08-06 16:19:56Z erant $
 #
 # Module  : go2owl.pl
 # Purpose : Converts GO to OWL.
