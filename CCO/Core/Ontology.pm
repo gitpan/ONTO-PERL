@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 1598 2007-10-28 15:59:07Z erant $
+# $Id: Ontology.pm 1607 2007-10-29 17:13:55Z erant $
 #
 # Module  : Ontology.pm
 # Purpose : OBO/OWL ontologies handling.
@@ -12,7 +12,7 @@ package CCO::Core::Ontology;
 =head1 NAME
 
 CCO::Core::Ontology  - An ontology holding terms and their relationships
-    
+ 
 =head1 SYNOPSIS
 
 use CCO::Core::Ontology;
@@ -1948,7 +1948,7 @@ sub export {
 			if (defined $term->def()->text()) {
 				print $file_handle "\t<oboInOwl:hasDefinition>\n";
 				print $file_handle "\t\t<oboInOwl:Definition>\n";
-				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", char_hex_http($term->def()->text()), "</rdfs:label>\n";
+				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", &char_hex_http($term->def()->text()), "</rdfs:label>\n";
 				
 				print_hasDbXref_for_owl($file_handle, $term->def()->dbxref_set(), $oboContentUrl, 3);
 				
@@ -2177,7 +2177,7 @@ sub export {
 			if (defined $relationship_type->def()->text()) {
 				print $file_handle "\t<oboInOwl:hasDefinition>\n";
 				print $file_handle "\t\t<oboInOwl:Definition>\n";
-				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", char_hex_http($relationship_type->def()->text()), "</rdfs:label>\n";
+				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", &char_hex_http($relationship_type->def()->text()), "</rdfs:label>\n";
 				
 				print_hasDbXref_for_owl($file_handle, $relationship_type->def()->dbxref_set(), $oboContentUrl, 3);
 				
@@ -2484,7 +2484,7 @@ sub export {
 			my $term_def_text = $term->def()->text();
 			if ($term_def_text) { 
 				print $file_handle "<desc>\n";
-				print $file_handle char_hex_http($term_def_text), "\n";
+				print $file_handle &char_hex_http($term_def_text), "\n";
 				print $file_handle "</desc>\n";
 			}
 			# xrefs
@@ -2608,7 +2608,7 @@ sub export {
                         my $term_def_text = $term->def()->text();
                         if ($term_def_text) { 
                                 print $file_handle "<desc>\n";
-                                print $file_handle char_hex_http($term_def_text), "\n";
+                                print $file_handle &char_hex_http($term_def_text), "\n";
                                 print $file_handle "</desc>\n";
                         }
 			# xrefs
@@ -2679,7 +2679,7 @@ sub export {
                         my $term_def_text = $term->def()->text();
                         if ($term_def_text) { 
                                 print $file_handle "<desc>\n";
-                                print $file_handle char_hex_http($term_def_text), "\n";
+                                print $file_handle &char_hex_http($term_def_text), "\n";
                                 print $file_handle "</desc>\n";
                         }
                         # xrefs
@@ -2867,7 +2867,7 @@ sub print_hasDbXref_for_owl {
 		# <rdfs:label>URL:http%3A%2F%2Fwww2.merriam-webster.com%2Fcgi-bin%2Fmwmednlm%3Fbook%3DMedical%26va%3Dforebrain</rdfs:label>
 		# <oboInOwl:hasURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http%3A%2F%2Fwww2.merriam-webster.com%2Fcgi-bin%2Fmwmednlm%3Fbook%3DMedical%26va%3Dforebrain</oboInOwl:hasURI>
 		if ($db eq 'http') {
-			my $http_location = char_hex_http($acc);
+			my $http_location = &char_hex_http($acc);
 			print $file_handle $tab2."<rdfs:label>URL:http%3A%2F%2F", $http_location, "</rdfs:label>\n";
 			print $file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$http_location,"</oboInOwl:hasURI>\n";	
 		} else {

@@ -12,23 +12,28 @@ package CCO::Parser::NewIntActParser;
 
 =head1 NAME
 
+CCO::Parser::IntActParser  - An IntAct to OBO parser/filter.
 
+=head1 DESCRIPTION
+
+A new parser for IntAct to OBO conversion. The conversion is filtered 
+according to the proteins already existing in the OBO file and the 
+roles this proteins have in the interactions (prey, bait, neutral 
+component). It deletes any interaction in OBO that it is not present 
+in IntAct, for sync.
 
 =head1 AUTHOR
-
 
 Vladimir Mironov
 vlmir@psb.ugent.be
 
 =head1 COPYRIGHT AND LICENSE
 
-
 Copyright (C) 2006 by Vladimir Mironov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
-
 
 =cut
 

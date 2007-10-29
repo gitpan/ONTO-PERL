@@ -10,7 +10,7 @@ BEGIN {
 }
 
 #########################
-# $Id: Ontology.t 1596 2007-10-28 15:48:10Z erant $
+# $Id: Ontology.t 1608 2007-10-29 17:15:20Z erant $
 #
 # Purpose : onto-perl usage examples.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -249,7 +249,7 @@ my @children = @{$onto->get_child_terms($n1)};
 ok(scalar(@children) == 0);
 
 @children = @{$onto->get_child_terms($n3)}; 
-ok($#{@children} == 1);
+ok($#children == 1);
 my %ct;
 foreach my $child (@children) {
 	$ct{$child->id()} = $child;

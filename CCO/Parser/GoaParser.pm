@@ -1,4 +1,4 @@
-# $Id: GoaParser.pm 1542 2007-09-18 11:33:57Z erant $
+# $Id: GoaParser.pm 1606 2007-10-29 12:37:40Z vlmir $
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files
@@ -25,9 +25,8 @@ The method 'work' incorporates OBJ_SRC, OBJ_ID, OBJ_SYMB, SYNONYM, DESCRIPTION i
 This method assumes: 
 1. the ontology contains already the term 'protein'
 2. the ontology already contains all and only the necessary GO terms. 
-3. the ontology already contains the NCBI taxonomy. 
-4. the ontology already contains the relationship types 'is_a', 'participates_in', "derives_from"
-5. the input GOA association file contains entries for one species only and for GO terms present in the input ontology only
+3. the ontology already contains the relationship types 'is_a', 'participates_in'
+4. the input GOA association file contains entries for one species only and for GO terms present in the input ontology only
 
 =head1 AUTHOR
 
@@ -68,7 +67,7 @@ sub new {
 
 =head2 parse
 
-  Usage    - $GoaParser->parse()
+  Usage    - $GoaParser->parse(GOA_association_file)
   Returns  - An CCO::Util::GoaAssociationSet object
   Args     - GOA associations file
   Function - converts a GOA associations file into a CCO::Util::GoaAssociationSet object
@@ -78,8 +77,9 @@ sub new {
 sub parse {
 	my $self = shift;
 
-	# Get the arguments
+	# Get the argument
 	my $goaAssocFileName = shift;	
+	
 	my $goaAssocSet = CCO::Util::GoaAssociationSet->new();
 	
 	# Open the assoc file
@@ -119,9 +119,9 @@ sub parse {
 
 =head2 work
 
-  Usage    - $GoaParser->work($ref_file_names, 'Arabidopsis thaliana organism')
+  Usage    - $GoaParser->work($ref_file_names)
   Returns  - updated CCO::Core::Ontology object 
-  Args     - 1. reference to a list of filenames(input OBO file, output OBO file, GOA associations file, CCO_id/Uniprot_id map file one taxon only, CCO_id/Uniprot_id map file all taxa), 2. taxon_name
+  Args     - reference to a list of filenames(input OBO file, output OBO file, GOA associations file, CCO_id/Uniprot_id map file one taxon only, CCO_id/Uniprot_id map file all taxa)
   Function - parses a GOA associations file, adds relevant information to the input  ontology, writes OBO and map files 
   
 =cut
@@ -131,7 +131,6 @@ sub work {
 
 	# Get the arguments
 	my ($old_OBO_file, $new_OBO_file, $goa_assoc_file, $short_map_file, $long_map_file, $up_map_file) = @{shift @_}; 
-#	my $taxon_name = shift;
 	
 	# Initialize the OBO parser, load the OBO file, check the assumptions
 	my $my_parser = CCO::Parser::OBOParser->new();
@@ -141,10 +140,9 @@ sub work {
 	my $is_a            = 'is_a';
 	my $participates_in = 'participates_in';
 	my $located_in      = 'located_in';
-	my $derives_from    = 'derives_from';
 	
 	# rel existency check
-	foreach (($is_a, $participates_in, $located_in, $derives_from)){
+	foreach (($is_a, $participates_in, $located_in)){
 		die "Not a valid relationship type" unless($ontology->{RELATIONSHIP_TYPES}->{$_});
 	}
 	
@@ -213,8 +211,6 @@ sub work {
 			# add "new protein is_a protein"
 			$ontology->create_rel($protein, $is_a, $onto_protein);
 			
-			# add "new protein derives_from species" 
-#			$ontology->create_rel($protein, $derives_from, $taxon);
 		}
 		
 		# add relatioships with GO terms 

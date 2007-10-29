@@ -3,29 +3,35 @@
 
 #########################
 
-BEGIN {
-    eval { require Test; };
-    use Test;    
-    plan tests => 4;
-}
+use Test::More tests => 6;
 
 #########################
 
-use CCO::Parser::OWLParser;
+use Carp;
 use strict;
+use warnings;
 
-my $my_parser = CCO::Parser::OWLParser->new();
-
-my $owl_test_file = "./t/data/test_ulo_cco2.owl";
-
-my $onto = $my_parser->work($owl_test_file);
-ok($onto->get_number_of_terms() == 11);
-ok($onto->has_term($onto->get_term_by_id("CCO:U0000009")));
-ok($onto->has_term($onto->get_term_by_id("CCO:U0000001")));
-
-# export to OBO
-open (FH, ">./t/data/test_ulo_cco2.obo") || die "Run as root the tests: ", $!;
-$onto->export(\*FH, 'obo');
-close FH;
-                     
-ok(1);
+SKIP:
+{
+	eval 'use XML::Parser';
+	skip ('because XML::Parser is required for testing the OWLParser parser', 6) if $@;
+	ok(1);
+	
+	require CCO::Parser::OWLParser;
+	my $my_parser = CCO::Parser::OWLParser->new();
+	ok(1);	
+	
+	my $owl_test_file = "./t/data/test_ulo_cco2.owl";
+	
+	my $onto = $my_parser->work($owl_test_file);
+	ok($onto->get_number_of_terms() == 11);
+	ok($onto->has_term($onto->get_term_by_id("CCO:U0000009")));
+	ok($onto->has_term($onto->get_term_by_id("CCO:U0000001")));
+	
+	# export to OBO
+	open (FH, ">./t/data/test_ulo_cco2.obo") || die "Run as root the tests: ", $!;
+	$onto->export(\*FH, 'obo');
+	close FH;
+	                     
+	ok(1);
+}

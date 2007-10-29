@@ -1,4 +1,4 @@
-# $Id: IntActParser.pm 1376 2007-08-06 15:59:00Z erant $
+# $Id: IntActParser.pm 1609 2007-10-29 17:15:46Z erant $
 #
 # Module  : IntActParser.pm
 # Purpose : An IntAct Parser.
@@ -501,7 +501,7 @@ sub lookup (){
 
 =head1 NAME
 
-    CCO::Parser::IntActParser  - An IntAct to OBO parser/filter.
+CCO::Parser::IntActParser  - An IntAct to OBO parser/filter.
     
 =head1 SYNOPSIS
 

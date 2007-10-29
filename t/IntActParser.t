@@ -3,76 +3,75 @@
 
 #########################
 
-BEGIN {
-    eval { require Test; };
-    use Test;    
-    plan tests => 7;
-}
+use Test::More tests => 7;
 
 #########################
 
 use CCO::Parser::OBOParser;
-use CCO::Util::XMLIntactParser;
-use CCO::Parser::IntActParser;
 
 use strict;
 
-# How many proteins have we got for filtering?
-my $my_parser = CCO::Parser::OBOParser->new;
-my $ontology = $my_parser->work("./t/data/out_cco.obo");
-my @gene_names_goa_file = @{$ontology->get_terms("CCO:B.*")};
-my $goa_size = @gene_names_goa_file;
-ok ($goa_size > 0);
-
-# TEST THE PARSER FROM INSIDE ###############################
-
-# Does the XML parser work?
-my $xmlintactparser = CCO::Util::XMLIntactParser->new;
-$xmlintactparser->work("./t/data/arath_small-05.xml");
-ok (1);
-
-# Get interactors
-my @interactors = @{$xmlintactparser->interactors()};
-my $interactors = @interactors;
-ok ($interactors > 0);
-
-# Get interactions
-my @interactions = @{$xmlintactparser->interactions()};
-my $interactions = @interactions;
-ok ($interactions > 0);
-
-# TEST THE PARSER FROM OUTSIDE ###############################
-
-
-
-# my $A_t_intact_files_dir = "/home/pik/Bioinformatics/Erick_two/IntactFiles/At";
-# my @A_t_intact_files = @{&get_intact_files ($A_t_intact_files_dir)};
-
-my @A_t_intact_files = ("./t/data/arath_small-05.xml");
-
-my $A_t_interactionmanager = CCO::Parser::IntActParser->new;
-my $new_ontology = $A_t_interactionmanager->work(
-"./t/data/out_cco.obo.old",
-"./t/data/out_I_A_thaliana.obo",
-"3702",
-"./t/data/cco_i_At.ids",
-"./t/data/cco_b_ath.ids",
-"./t/data/cco_i.ids",
-"./t/data/cco_b.ids",
-@A_t_intact_files 
-);
-ok (1);
-
-# How many new interactions?
-my @new_interactions = @{$new_ontology->get_terms("CCO:I.*")};
-my $new_interactions_size = @new_interactions;
-ok ($new_interactions_size > 0);
-
-# How many new interactors?
-my @new_interactors = @{$new_ontology->get_terms("CCO:B.*")};
-my $new_interactors_size = @new_interactors;
-ok ($new_interactors_size > $goa_size);
-
+SKIP:
+{
+	# How many proteins have we got for filtering?
+	my $my_parser = CCO::Parser::OBOParser->new;
+	my $ontology = $my_parser->work("./t/data/out_cco.obo");
+	my @gene_names_goa_file = @{$ontology->get_terms("CCO:B.*")};
+	my $goa_size = @gene_names_goa_file;
+	ok ($goa_size > 0);
+	
+	eval 'use XML::Simple';
+	skip ('because XML::Simple is required for testing the IntAct parser', 6) if $@;
+	
+	require CCO::Util::XMLIntactParser;
+	require CCO::Parser::IntActParser;
+	
+	# TEST THE PARSER FROM INSIDE ###############################
+	
+	# Does the XML parser work?
+	my $xmlintactparser = CCO::Util::XMLIntactParser->new();
+	$xmlintactparser->work("./t/data/arath_small-05.xml");
+	ok (1);
+	
+	# Get interactors
+	my @interactors = @{$xmlintactparser->interactors()};
+	my $interactors = @interactors;
+	ok ($interactors > 0);
+	
+	# Get interactions
+	my @interactions = @{$xmlintactparser->interactions()};
+	my $interactions = @interactions;
+	ok ($interactions > 0);
+	
+	# TEST THE PARSER FROM OUTSIDE ###############################
+	# my $A_t_intact_files_dir = "/home/pik/Bioinformatics/Erick_two/IntactFiles/At";
+	# my @A_t_intact_files = @{&get_intact_files ($A_t_intact_files_dir)};
+	
+	my @A_t_intact_files = ("./t/data/arath_small-05.xml");
+	
+	my $A_t_interactionmanager = CCO::Parser::IntActParser->new;
+	my $new_ontology = $A_t_interactionmanager->work(
+		"./t/data/out_cco.obo.old",
+		"./t/data/out_I_A_thaliana.obo",
+		"3702",
+		"./t/data/cco_i_At.ids",
+		"./t/data/cco_b_ath.ids",
+		"./t/data/cco_i.ids",
+		"./t/data/cco_b.ids",
+		@A_t_intact_files 
+	);
+	ok (1);
+	
+	# How many new interactions?
+	my @new_interactions = @{$new_ontology->get_terms("CCO:I.*")};
+	my $new_interactions_size = @new_interactions;
+	ok ($new_interactions_size > 0);
+	
+	# How many new interactors?
+	my @new_interactors = @{$new_ontology->get_terms("CCO:B.*")};
+	my $new_interactors_size = @new_interactors;
+	ok ($new_interactors_size > $goa_size);
+}
 sub get_intact_files{
 	my $intact_files_dir = shift;
 	my @intact_files = ();

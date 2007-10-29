@@ -30,3 +30,5 @@ Revision history for onto-perl
 0.32 obo2owl and owl2obo scripts updated and improved, OBO and OWL Parsers enhanced
 
 1.0  Ontology union/intersection methods are now available. Many more tests were added and examples of usage
+
+1.01 CPAN test report fixed (SKIP tests when the required modules are missing)

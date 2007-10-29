@@ -1,5 +1,5 @@
 # Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl IntActParser.t'
+# `make test'. After `make install' it should work as `perl NewIntActParser.t'
 
 #########################
 
@@ -39,7 +39,7 @@ SKIP:
 	ok(1);
 
 	eval 'use XML::XPath';
-	skip ('because XML::XPath is required for testing the IntAct parser', 7) if $@;
+	skip ('because XML::XPath is required for testing the new IntAct parser', 7) if $@;
 		
 	#my $start    = time;
 	my $ontology = $my_parser->work( \@files, $taxa{'3702'} );
