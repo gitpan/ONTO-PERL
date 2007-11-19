@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 32;
+    plan tests => 39;
 }
 
 #########################
@@ -149,5 +149,16 @@ foreach my $xref_r2 (@xrefs_r2) {
 ok($xr_r2{"YCCO:vm"} eq "YCCO:vm");
 ok($xr_r2{"YCCO:ls"} eq "YCCO:ls");
 ok($xr_r2{"YCCO:ea"} eq "YCCO:ea");
+
+# subset
+$r1->subset("CCO:P0000001_subset");
+ok(($r1->subset())[0] eq "CCO:P0000001_subset");
+$r2->subset("CCO:P0000002_subset1", "CCO:P0000002_subset2", "CCO:P0000002_subset3", "CCO:P0000002_subset4");
+ok(($r2->subset())[0] eq "CCO:P0000002_subset1");
+ok(($r2->subset())[1] eq "CCO:P0000002_subset2");
+ok(($r2->subset())[2] eq "CCO:P0000002_subset3");
+ok(($r2->subset())[3] eq "CCO:P0000002_subset4");
+ok(!defined (($r3->subset())[0]));
+ok(!$r3->subset());
 
 ok(1);

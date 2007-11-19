@@ -32,3 +32,5 @@ Revision history for onto-perl
 1.0  Ontology union/intersection methods are now available. Many more tests were added and examples of usage
 
 1.01 CPAN test report fixed (SKIP tests when the required modules are missing)
+
+1.02 'subsets' for relationship types are now supported, test improvements

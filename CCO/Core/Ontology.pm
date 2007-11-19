@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 1607 2007-10-29 17:13:55Z erant $
+# $Id: Ontology.pm 1632 2007-11-19 10:31:18Z erant $
 #
 # Module  : Ontology.pm
 # Purpose : OBO/OWL ontologies handling.
@@ -2778,6 +2778,8 @@ sub get_subontology_from {
 	my $result = CCO::Core::Ontology->new();
 	if ($root_term) {
 		$self->has_term($root_term) || confess "The term '", $root_term,"' does not belong to this ontology";
+		
+		$result->subsets($self->subsets()->get_set()); # add by default of the subsets
 		my @queue = ($root_term);
 		while (scalar(@queue) > 0) {
 			my $unqueued = shift @queue;

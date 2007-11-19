@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 1585 2007-10-12 15:23:38Z erant $
+# $Id: OBOParser.pm 1632 2007-11-19 10:31:18Z erant $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
@@ -241,6 +241,9 @@ sub work {
 						$type->def($def);
 					} elsif ($line =~ /^comment:\s*(.*)/) {
 						$type->comment($1);
+					} elsif ($line =~ /^subset:\s*(.*)/) {
+						# TODO wait until the OBO spec 1.3 is there, then check that the used subsets belong to the defined in the header
+						$type->subset($1);
 					} elsif ($line =~ /^domain:\s*(.*)/) {
 						$type->domain($1);
 					} elsif ($line =~ /^range:\s*(.*)/) {

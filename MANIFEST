@@ -40,6 +40,7 @@ CCO/Util/SynonymTypeDefSet.pm
 CCO/Util/TermSet.pm
 CCO/Util/XMLIntactParser.pm
 scripts/get_ancestor_terms.pl
+scripts/get_descendent_terms.pl
 scripts/go2owl.pl
 scripts/names.xsl
 scripts/obo2cco.pl

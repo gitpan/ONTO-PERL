@@ -1,4 +1,4 @@
-# $Id: RelationshipType.pm 1585 2007-10-12 15:23:38Z erant $
+# $Id: RelationshipType.pm 1632 2007-11-19 10:31:18Z erant $
 #
 # Module  : RelationshipType.pm
 # Purpose : Type of Relationship in the Ontology: is_a, part_of, etc.
@@ -106,6 +106,7 @@ sub new {
         $self->{DEF}                = CCO::Core::Def->new; # (0..1)
         $self->{NAMESPACE_SET}      = CCO::Util::Set->new(); # set (0..N)
         $self->{COMMENT}            = undef; # string (0..1)
+        $self->{SUBSET_SET}         = CCO::Util::Set->new(); # set of scalars (0..N)
         $self->{SYNONYM_SET}        = CCO::Util::SynonymSet->new(); # set of synonyms (0..N)
         $self->{XREF_SET}           = CCO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
         $self->{DOMAIN}             = CCO::Util::Set->new(); # set of scalars (0..N)
@@ -267,6 +268,24 @@ sub comment {
 	my ($self, $comment) = @_;
     if ($comment) { $self->{COMMENT} = $comment }
     return $self->{COMMENT};
+}
+
+=head2 subset
+
+  Usage    - $relationship_type->subset() or $relationship_type->subset($ss1, $ss2, $ss3, ...)
+  Returns  - an array with the subset to which this relationship type belongs
+  Args     - the subset(s) to which this relationship type belongs
+  Function - gets/sets the subset(s) to which this relationship type belongs
+  
+=cut
+sub subset {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+   		$self->{SUBSET_SET}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{SUBSET_SET}->add(shift);
+	}
+	return $self->{SUBSET_SET}->get_set();
 }
 
 =head2 synonym_set
