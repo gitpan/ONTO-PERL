@@ -34,3 +34,5 @@ Revision history for onto-perl
 1.01 CPAN test report fixed (SKIP tests when the required modules are missing)
 
 1.02 'subsets' for relationship types are now supported, test improvements
+
+1.03 export order improved (alphabetical way)

@@ -1,4 +1,4 @@
-# $Id: Ontolome.t 1636 2007-11-19 10:58:53Z erant $
+# $Id: Ontolome.t 1642 2007-11-23 14:10:35Z erant $
 #
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
@@ -601,6 +601,6 @@ $go->create_rel($g38,$s,$g56);
 
 my $go_go = $ome1->intersection($go, $go);
 ok($go_go->get_number_of_terms() == 13);
-ok($go_go->get_number_of_relationships() >= 17); # diff. arch: '>='
+ok($go_go->get_number_of_relationships() >= 16);
 
 ok(1);

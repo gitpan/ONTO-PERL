@@ -70,11 +70,11 @@ relationship: part_of CCO:P0000038 ! M phase
 id: CCO:P0000004
 name: regulation of progression through cell cycle
 def: "Any process that modulates the rate or extent of progression through the cell cycle." [GOC:go_curators]
-synonym: "RHEB small monomeric GTPase activity" RELATED []
 synonym: "cell cycle regulator" RELATED []
 synonym: "control of cell cycle progression" EXACT []
 synonym: "modulation of cell cycle progression" EXACT []
 synonym: "regulation of cell cycle progression" EXACT []
+synonym: "RHEB small monomeric GTPase activity" RELATED []
 synonym: "tumor suppressor" RELATED []
 xref: GO:0000074
 xref: Reactome:156678
@@ -858,17 +858,17 @@ relationship: part_of CCO:P0000069 ! mitosis
 id: CCO:P0000091
 name: anaphase-promoting complex activation during mitotic cell cycle
 def: "Any process that activates, maintains or increases the rate of the ubiquitin ligase activity of the anaphase-promoting complex during the mitotic cell cycle." [GOC:mah, PMID:10871297]
-synonym: "APC activation during mitotic cell cycle" EXACT []
-synonym: "activation of ubiquitin ligase activity of APC during mitotic cell cycle" EXACT []
 synonym: "activation of ubiquitin ligase activity of anaphase promoting complex during mitotic cell cycle" EXACT []
 synonym: "activation of ubiquitin ligase activity of anaphase-promoting complex during mitotic cell cycle" EXACT []
+synonym: "activation of ubiquitin ligase activity of APC during mitotic cell cycle" EXACT []
 synonym: "anaphase promoting complex activation during mitotic cell cycle" EXACT []
-synonym: "mitotic APC activation" EXACT []
-synonym: "mitotic APC activator" NARROW []
+synonym: "APC activation during mitotic cell cycle" EXACT []
 synonym: "mitotic anaphase promoting complex activation" EXACT []
 synonym: "mitotic anaphase promoting complex activator" NARROW []
 synonym: "mitotic anaphase-promoting complex activation" EXACT []
 synonym: "mitotic anaphase-promoting complex activator" NARROW []
+synonym: "mitotic APC activation" EXACT []
+synonym: "mitotic APC activator" NARROW []
 xref: GO:0007092
 xref: Reactome:162659
 xref: Reactome:163010
@@ -1366,9 +1366,9 @@ relationship: part_of CCO:P0000106 ! synapsis
 id: CCO:P0000145
 name: septation initiation signaling
 def: "The series of molecular signals, mediated by the small GTPase Ras, that results in the initiation of contraction of the contractile ring, at the begining of cytokinesis and cell division by septum formation. The pathway coordinates chromosome segregation with mitotic exit and cytokinesis." [GOC:mah, GOC:vw, PMID:16775007]
-synonym: "SIN" EXACT []
 synonym: "septation initiation network" EXACT []
 synonym: "septation initiation signalling" EXACT []
+synonym: "SIN" EXACT []
 xref: GO:0031028
 is_a: CCO:P0000173 ! regulation of contractile ring contraction during cytokinesis
 
@@ -1541,8 +1541,8 @@ id: CCO:P0000165
 name: spindle orientation checkpoint
 def: "A cell cycle checkpoint that monitors and signals errors in the placement or orientation of the spindle in the cell. The result is a cell cycle delay, usually in mitosis, until errors are corrected." [GOC:clt, PMID:14616062]
 synonym: "SOC" EXACT []
-synonym: "SPOC" EXACT []
 synonym: "spindle position checkpoint" EXACT []
+synonym: "SPOC" EXACT []
 xref: GO:0031578
 is_a: CCO:P0000005 ! cell cycle checkpoint
 
@@ -2738,20 +2738,20 @@ relationship: part_of CCO:P0000269 ! interphase
 id: CCO:P0000281
 name: negative regulation of ubiquitin ligase activity during mitotic cell cycle
 def: "Any process that stops, prevents or reduces the frequency, rate or extent of ubiquitin ligase activity during the mitotic cell cycle." [GOC:ai]
-synonym: "APC inhibition during mitotic cell cycle" NARROW []
 synonym: "anaphase promoting complex inhibition during mitotic cell cycle" NARROW []
 synonym: "anaphase-promoting complex inhibition during mitotic cell cycle" NARROW []
+synonym: "APC inhibition during mitotic cell cycle" NARROW []
 synonym: "down regulation of ubiquitin ligase activity during mitotic cell cycle" EXACT []
 synonym: "down-regulation of ubiquitin ligase activity during mitotic cell cycle" EXACT []
 synonym: "downregulation of ubiquitin ligase activity during mitotic cell cycle" EXACT []
 synonym: "inhibition of ubiquitin ligase activity during mitotic cell cycle" NARROW []
-synonym: "mitotic APC inhibition" NARROW []
-synonym: "mitotic APC inhibitor" NARROW []
-synonym: "mitotic SCF complex inhibitor" NARROW []
 synonym: "mitotic anaphase promoting complex inhibition" NARROW []
 synonym: "mitotic anaphase promoting complex inhibitor" NARROW []
 synonym: "mitotic anaphase-promoting complex inhibition" NARROW []
 synonym: "mitotic anaphase-promoting complex inhibitor" NARROW []
+synonym: "mitotic APC inhibition" NARROW []
+synonym: "mitotic APC inhibitor" NARROW []
+synonym: "mitotic SCF complex inhibitor" NARROW []
 synonym: "mitotic ubiquitin ligase inhibitor" NARROW []
 xref: GO:0051436
 is_a: CCO:P0000283 ! regulation of ubiquitin ligase activity during mitotic cell cycle
@@ -2774,9 +2774,9 @@ is_a: CCO:P0000283 ! regulation of ubiquitin ligase activity during mitotic cell
 id: CCO:P0000283
 name: regulation of ubiquitin ligase activity during mitotic cell cycle
 def: "A cell cycle process that modulates the frequency, rate or extent of ubiquitin ligase activity during the mitotic cell cycle." [GOC:ai]
+synonym: "mitotic anaphase-promoting complex regulator" NARROW []
 synonym: "mitotic APC regulator" NARROW []
 synonym: "mitotic SCF complex regulator" NARROW []
-synonym: "mitotic anaphase-promoting complex regulator" NARROW []
 synonym: "mitotic ubiquitin ligase regulator" RELATED []
 synonym: "mitotic ubiquitin-protein ligase regulator" RELATED []
 synonym: "regulation of ubiquitin-protein ligase activity during mitotic cell cycle" EXACT []
@@ -2788,9 +2788,9 @@ relationship: part_of CCO:P0000037 ! mitotic cell cycle
 id: CCO:P0000284
 name: regulation of ubiquitin ligase activity during meiotic cell cycle
 def: "A cell cycle process that modulates the frequency, rate or extent of ubiquitin ligase activity during the meiotic cell cycle." [EC:6.3.2.19, GOC:ai]
+synonym: "meiotic anaphase-promoting complex regulator" NARROW []
 synonym: "meiotic APC regulator" NARROW []
 synonym: "meiotic SCF complex regulator" NARROW []
-synonym: "meiotic anaphase-promoting complex regulator" NARROW []
 synonym: "meiotic ubiquitin ligase regulator" RELATED []
 synonym: "meiotic ubiquitin-protein ligase regulator" RELATED []
 synonym: "regulation of ubiquitin-protein ligase activity during meiotic cell cycle" EXACT []
@@ -2816,20 +2816,20 @@ is_a: CCO:P0000284 ! regulation of ubiquitin ligase activity during meiotic cell
 id: CCO:P0000286
 name: negative regulation of ubiquitin ligase activity during meiotic cell cycle
 def: "Any process that stops, prevents or reduces the frequency, rate or extent of ubiquitin ligase activity during the meiotic cell cycle." [GOC:ai]
-synonym: "APC inhibition during meiotic cell cycle" NARROW []
 synonym: "anaphase promoting complex inhibition during meiotic cell cycle" NARROW []
 synonym: "anaphase-promoting complex inhibition during meiotic cell cycle" NARROW []
+synonym: "APC inhibition during meiotic cell cycle" NARROW []
 synonym: "down regulation of ubiquitin ligase activity during meiotic cell cycle" EXACT []
 synonym: "down-regulation of ubiquitin ligase activity during meiotic cell cycle" EXACT []
 synonym: "downregulation of ubiquitin ligase activity during meiotic cell cycle" EXACT []
 synonym: "inhibition of ubiquitin ligase activity during meiotic cell cycle" NARROW []
-synonym: "meiotic APC inhibition" NARROW []
-synonym: "meiotic APC inhibitor" NARROW []
-synonym: "meiotic SCF complex inhibitor" NARROW []
 synonym: "meiotic anaphase promoting complex inhibition" NARROW []
 synonym: "meiotic anaphase promoting complex inhibitor" NARROW []
 synonym: "meiotic anaphase-promoting complex inhibition" NARROW []
 synonym: "meiotic anaphase-promoting complex inhibitor" NARROW []
+synonym: "meiotic APC inhibition" NARROW []
+synonym: "meiotic APC inhibitor" NARROW []
+synonym: "meiotic SCF complex inhibitor" NARROW []
 synonym: "meiotic ubiquitin ligase inhibitor" NARROW []
 xref: GO:0051442
 is_a: CCO:P0000284 ! regulation of ubiquitin ligase activity during meiotic cell cycle
@@ -2900,16 +2900,16 @@ relationship: part_of CCO:P0000192 ! meiotic sister chromatid segregation
 id: CCO:P0000292
 name: anaphase-promoting complex activation during meiotic cell cycle
 def: "Any process that initiatiates the ubiquitin ligase activity of the anaphase-promoting complex during the meiotic cell cycle." [GOC:mah, PMID:10871297]
-synonym: "APC activation during meiotic cell cycle" EXACT []
-synonym: "activation of ubiquitin ligase activity of APC during meiotic cell cycle" EXACT []
 synonym: "activation of ubiquitin ligase activity of anaphase promoting complex during meiotic cell cycle" EXACT []
 synonym: "activation of ubiquitin ligase activity of anaphase-promoting complex during meiotic cell cycle" EXACT []
+synonym: "activation of ubiquitin ligase activity of APC during meiotic cell cycle" EXACT []
 synonym: "anaphase promoting complex activation during meiotic cell cycle" EXACT []
-synonym: "meiotic APC activation" EXACT []
-synonym: "meiotic APC activator" NARROW []
+synonym: "APC activation during meiotic cell cycle" EXACT []
 synonym: "meiotic anaphase promoting complex activation" EXACT []
 synonym: "meiotic anaphase promoting complex activator" NARROW []
 synonym: "meiotic anaphase-promoting complex activator" NARROW []
+synonym: "meiotic APC activation" EXACT []
+synonym: "meiotic APC activator" NARROW []
 xref: GO:0051487
 is_a: CCO:P0000285 ! positive regulation of ubiquitin ligase activity during meiotic cell cycle
 

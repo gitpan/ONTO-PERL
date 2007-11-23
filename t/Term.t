@@ -136,10 +136,10 @@ ok(($n2->synonym_set())[0]->def()->equals(($n3->synonym_set())[0]->def()));
 ok(($n2->synonym_set())[0]->equals(($n3->synonym_set())[0]));
 
 # synonym as string
-ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]"    || ($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:vm, CCO:ls]");
+ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]");
 $n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
-ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]"    || ($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:vm, CCO:ls]");
-ok(($n2->synonym_as_string())[1] eq "\"Hello world2\" [CCO:ls2, CCO:vm2]" || ($n2->synonym_as_string())[1] eq "\"Hello world2\" [CCO:vm2, CCO:ls2]");
+ok(($n2->synonym_as_string())[0] eq "\"Hello world2\" [CCO:ls2, CCO:vm2]");
+ok(($n2->synonym_as_string())[1] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]");
 
 # xref
 my $xref1 = CCO::Core::Dbxref->new();

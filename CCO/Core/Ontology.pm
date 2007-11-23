@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 1632 2007-11-19 10:31:18Z erant $
+# $Id: Ontology.pm 1638 2007-11-23 13:44:53Z erant $
 #
 # Module  : Ontology.pm
 # Purpose : OBO/OWL ontologies handling.
@@ -1411,7 +1411,7 @@ sub export {
 		
 		# terms
 		my @all_terms = values(%{$self->{TERMS}});
-		foreach my $term (sort {$a->id() cmp $b->id()} @all_terms) {
+		foreach my $term (sort {lc($a->id()) cmp lc($b->id())} @all_terms) {
 			#
 			# [Term]
 			#
@@ -1482,7 +1482,7 @@ sub export {
 			#
 			# synonym:
 			#
-			foreach my $synonym (sort {$a->def()->text() cmp $b->def()->text()} $term->synonym_set()) {
+			foreach my $synonym (sort {lc($a->def()->text()) cmp lc($b->def()->text())} $term->synonym_set()) {
 				my $stn = $synonym->synonym_type_name();
 				if (defined $stn) {
 					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $stn, " ", $synonym->def()->dbxref_set_as_string();
@@ -1494,7 +1494,7 @@ sub export {
 			#
 			# xref:
 			#
-			foreach my $xref (sort {$a->as_string() cmp $b->as_string()} $term->xref_set_as_string()) {
+			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $term->xref_set_as_string()) {
 				print $file_handle "\nxref: ", $xref->as_string();
 			}
 	    	
@@ -1504,7 +1504,7 @@ sub export {
 			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 					if (defined $head->name()) {
 						print $file_handle "\nis_a: ", $head->id(), " ! ", $head->name();
 					} else {
@@ -1540,7 +1540,7 @@ sub export {
 			foreach $rt (@{$self->get_relationship_types()}) {
 				if ($rt->id() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						print $file_handle "\nrelationship: ", $rt->id(), " ", $head->id(), " ! ", $head->name();
 					}
 				}
@@ -1572,7 +1572,7 @@ sub export {
 		}
 		# relationship types
 		my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
-		foreach my $relationship_type (sort {$a->id() cmp $b->id()} @all_relationship_types) {
+		foreach my $relationship_type (sort {lc($a->id()) cmp lc($b->id())} @all_relationship_types) {
 			print $file_handle "\n[Typedef]";
 			print $file_handle "\nid: ", $relationship_type->id();
 			print $file_handle "\nname: ", $relationship_type->name();
@@ -1584,7 +1584,7 @@ sub export {
 				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
 			}
 	    	
-			foreach my $xref (sort {$a->as_string() cmp $b->as_string()} $relationship_type->xref_set_as_string()) {
+			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $relationship_type->xref_set_as_string()) {
 				print $file_handle "\nxref: ", $xref->as_string();
 			}
 
@@ -1674,7 +1674,7 @@ sub export {
 		print $file_handle "\t\t<remark>", $self->remark(), "</remark>\n" if ($self->remark());
 		print $file_handle "\t</header>\n\n";
 		
-		foreach my $term (sort {$a->id() cmp $b->id()} @all_terms) {
+		foreach my $term (sort {lc($a->id()) cmp lc($b->id())} @all_terms) {
 			#
 			# [Term]
 			#
@@ -1733,7 +1733,7 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 					if (defined $head->name()) {
 						print $file_handle "\t\t<is_a id=\"", $head->id(), "\">", $head->name(), "</is_a>\n";
 					} else {
@@ -1748,7 +1748,7 @@ sub export {
 			foreach $rt (@{$self->get_relationship_types()}) {
 				if ($rt->name() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						print $file_handle "\t\t<relationship>\n";
 						print $file_handle "\t\t\t<type>", $rt->name(), "</type>\n";
 						print $file_handle "\t\t\t<target id=\"", $head->id(), "\">", $head->name(),"</target>\n";
@@ -1772,7 +1772,7 @@ sub export {
 			#
 			# xref:
 			#
-			foreach my $xref (sort {$a cmp $b} $term->xref_set_as_string()) {
+			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $term->xref_set_as_string()) {
 				print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
 			}
 	    	
@@ -1789,7 +1789,7 @@ sub export {
 		
 		# relationship types
 		my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
-		foreach my $relationship_type (sort {$a->id() cmp $b->id()} @all_relationship_types) {
+		foreach my $relationship_type (sort {lc($a->id()) cmp lc($b->id())} @all_relationship_types) {
 			print $file_handle "\t<typedef>\n";
 			print $file_handle "\t\t<id>", $relationship_type->id(), "</id>\n";
 			print $file_handle "\t\t<name>", $relationship_type->name(), "</name>\n";
@@ -1805,7 +1805,7 @@ sub export {
 			print $file_handle "\t\t<is_anti_symmetric>true</is_anti_symmetric>" if ($relationship_type->is_anti_symmetric() == 1);
 			print $file_handle "\t\t<is_transitive>true</is_transitive>" if ($relationship_type->is_transitive() == 1);
 			print $file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>" if ($relationship_type->is_metadata_tag() == 1);
-			foreach my $xref (sort {$a cmp $b} $relationship_type->xref_set_as_string()) {
+			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $relationship_type->xref_set_as_string()) {
 				print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
 			}
 	    	
@@ -1914,7 +1914,7 @@ sub export {
 		#
 		my @all_terms = values(%{$self->{TERMS}});
 		# visit the terms
-		foreach my $term (sort {$a->id() cmp $b->id()} @all_terms){
+		foreach my $term (sort {lc($a->id()) cmp lc($b->id())} @all_terms){
 			
 			# for the URLs
 			my $term_id = $term->id();
@@ -2010,7 +2010,7 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
 		    		my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-		    		foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+		    		foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						print $file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
 		    		
 #					#
@@ -2040,7 +2040,7 @@ sub export {
 			foreach $rt (@{$self->get_relationship_types()}) {
 				if ($rt->name() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						print $file_handle "\t<rdfs:subClassOf>\n";
 						print $file_handle "\t\t<owl:Restriction>\n";
 						print $file_handle "\t\t\t<owl:onProperty>\n"; 
@@ -2150,7 +2150,7 @@ sub export {
 #		print $file_handle "</owl:TransitiveProperty>\n";
 		
 		my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
-		foreach my $relationship_type (sort {$a->id() cmp $b->id()} @all_relationship_types) {
+		foreach my $relationship_type (sort {lc($a->id()) cmp lc($b->id())} @all_relationship_types) {
 
 			my $relationship_type_id = $relationship_type->id();
 
@@ -2232,7 +2232,7 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
 		    		my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
-		    		foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+		    		foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						print $file_handle "\t<rdfs:subPropertyOf rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
 		    		}
 			}
@@ -2310,7 +2310,7 @@ sub export {
 		# terms
 		my @all_terms = values(%{$self->{TERMS}});
 		print $file_handle "\n\tedge [label=\"is a\"];";
-		foreach my $term (sort {$a->id() cmp $b->id()} @all_terms) {
+		foreach my $term (sort {lc($a->id()) cmp lc($b->id())} @all_terms) {
 	    	
 			my $term_id = $term->id();
 	    	
@@ -2320,7 +2320,7 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 					if (!defined $term->name()) {
 						confess "The term with id: ", $term_id, " has no name!" ;
 					} elsif (!defined $head->name()) {
@@ -2338,7 +2338,7 @@ sub export {
 				if ($rt->name() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 					print $file_handle "\n\tedge [label=\"", $rt->name(), "\"];" if (@heads);
-					foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						if (!defined $term->name()) {
 				    		confess "The term with id: ", $term_id, " has no name!" ;
 				    	} elsif (!defined $head->name()) {
@@ -2372,7 +2372,7 @@ sub export {
 		my %gml_id;
 		# terms
 		my @all_terms = values(%{$self->{TERMS}});
-		foreach my $term (sort {$a->id() cmp $b->id()} @all_terms) {
+		foreach my $term (sort {lc($a->id()) cmp lc($b->id())} @all_terms) {
 	    	
 			my $term_id = $term->id();
 			#
@@ -2405,7 +2405,7 @@ sub export {
 	    	#
 	    	foreach my $rt (@{$self->get_relationship_types()}) {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 					if (!defined $term->name()) {
 				   		confess "The term with id: ", $term_id, " has no name!" ;
 				   	} elsif (!defined $head->name()) {
@@ -2445,7 +2445,7 @@ sub export {
 		for my $letter ('A'..'Z') {
 			$sn{$letter} = $i++;
 		}
-		my @sorted_terms = sort {$a->id() cmp $b->id()} @all_terms;
+		my @sorted_terms = sort {lc($a->id()) cmp lc($b->id())} @all_terms;
 		foreach my $term (@sorted_terms) {
 
 			my $term_id = $term->id();
@@ -2458,7 +2458,7 @@ sub export {
 			my $RGB = $R." ".$G." ".$B;
 
 			# synonyms
-			my @sorted_synonyms = sort {$a->def()->text() cmp $b->def()->text()} $term->synonym_set();
+			my @sorted_synonyms = sort {lc($a->def()->text()) cmp lc($b->def()->text())} $term->synonym_set();
 			my $amount_syns = $#sorted_synonyms;
 			my $alias_buffer = "";
 			if ($amount_syns > -1) {
@@ -2488,13 +2488,13 @@ sub export {
 				print $file_handle "</desc>\n";
 			}
 			# xrefs
-			foreach my $xref (sort {$a->as_string() cmp $b->as_string()} $term->xref_set_as_string()) {
+			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $term->xref_set_as_string()) {
 				print $file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
 			}
 			# relationships
 			foreach my $rt (@{$self->get_relationship_types()}) {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 					my $rt_id = $rt->id();
                                         print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
 					print $file_handle "<desc>\n";
@@ -2518,7 +2518,7 @@ sub export {
 #			my $rt = $self->get_relationship_type_by_name("is_a");
 #			if (defined $rt)  {
 #				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-#                                foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+#                                foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 #					my $head_id = $head->id();
 #					my $int_head_id = $sn{$2}.$3 if ($head_id =~ /(.*):([A-Z])?(\d+)/);
 ##					print $file_handle "<VEdge from=\"", $int_id, "\" to=\"", $int_head_id, "\" elabel=\"is_a\" la=\"T\"/>\n";
@@ -2529,7 +2529,7 @@ sub export {
 #			foreach $rt (@{$self->get_relationship_types()}) {
 #				if ($rt->id() ne "is_a") { # is_a is printed above
 #					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-#					foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+#					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 #						my $head_id = $head->id();
 #						my $int_head_id = $sn{$2}.$3 if ($head_id =~ /(.*):([A-Z])?(\d+)/);
 ##						print $file_handle "<VEdge from=\"", $int_id, "\" to=\"", $int_head_id, "\" elabel=\"", $rt->id(), "\" la=\"T\"/>\n";
@@ -2557,7 +2557,7 @@ sub export {
                 }
 		my %interaction_group;
 		# Interactions
-		my @sorted_terms = sort {$a->id() cmp $b->id()} @interactions;
+		my @sorted_terms = sort {lc($a->id()) cmp lc($b->id())} @interactions;
 		foreach my $term (@sorted_terms) {
 			my $term_id = $term->id();
 			my $int_id = $sn{$2}.$3 if ($term_id =~ /(.*):([A-Z])?(\d+)/);
@@ -2568,7 +2568,7 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("has_participant");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+				foreach my $head (sort {ls($a->id()) cmp lc($b->id())} @heads) {
 					my $head_id = $head->id();
 					my $int_head_id = $sn{$2}.$3 if ($head_id =~ /(.*):([A-Z])?(\d+)/);
 					print $file_handle $head->name(), ",";
@@ -2584,7 +2584,7 @@ sub export {
 			print $file_handle "</VNodes>\n\n";
 		}
 		# Proteins
-		@sorted_terms = sort {$a->id() cmp $b->id()} @proteins;
+		@sorted_terms = sort {lc($a->id()) cmp lc($b->id())} @proteins;
 		foreach my $term (@sorted_terms) {
 			my $term_id = $term->id();
                        my $int_id = $sn{$2}.$3 if ($term_id =~ /(.*):([A-Z])?(\d+)/);
@@ -2593,7 +2593,7 @@ sub export {
 			my $g = ($first_group)?"group=\"$first_group\"":"";
                         print $file_handle "<VNodes x=\"276\" y=\"322\" counter=\"-1\" w=\"0\" h=\"0\" $g>\n";
 			# synonyms
-			my @sorted_synonyms = sort {$a->def()->text() cmp $b->def()->text()} $term->synonym_set();
+			my @sorted_synonyms = sort {lc($a->def()->text()) cmp lc($b->def()->text())} $term->synonym_set();
 			my $amount_syns = $#sorted_synonyms;
 			my $alias_buffer = "";
 			if ($amount_syns > -1) {
@@ -2605,27 +2605,27 @@ sub export {
 			my $alias = ($alias_buffer)?"alias=\"$alias_buffer\"":"";
 			print $file_handle "<data name=\"", $term->name(), "\" index=\"$int_id\" type=\"0\" $alias>\n";
 			# def
-                        my $term_def_text = $term->def()->text();
-                        if ($term_def_text) { 
-                                print $file_handle "<desc>\n";
-                                print $file_handle &char_hex_http($term_def_text), "\n";
-                                print $file_handle "</desc>\n";
-                        }
+			my $term_def_text = $term->def()->text();
+			if ($term_def_text) { 
+				print $file_handle "<desc>\n";
+				print $file_handle &char_hex_http($term_def_text), "\n";
+				print $file_handle "</desc>\n";
+			}
 			# xrefs
-                        foreach my $xref (sort {$a->as_string() cmp $b->as_string()} $term->xref_set_as_string()) {
-                                print $file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
-                        }
+			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $term->xref_set_as_string()) {
+				print $file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
+			}
 			# relationships
-                        foreach my $rt (@{$self->get_relationship_types()}) {
-                                my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-                                foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
-                                        print $file_handle "<link to=\"", $head->name(), "\" method=\"M7000\" toType=\"2\">\n";
-                                        print $file_handle "<desc>\n";
-                                        print $file_handle $rt->id(), "\n";
-                                        print $file_handle "</desc>\n";
-                                        print $file_handle "</link>\n";
-                                }
-                        }
+			foreach my $rt (@{$self->get_relationship_types()}) {
+				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
+				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+					print $file_handle "<link to=\"", $head->name(), "\" method=\"M7000\" toType=\"2\">\n";
+					print $file_handle "<desc>\n";
+					print $file_handle $rt->id(), "\n";
+					print $file_handle "</desc>\n";
+					print $file_handle "</link>\n";
+				}
+			}
 			# group
 			chop($group_buffer);
 			print $file_handle "<group name=\"common\" value=\"$group_buffer\"/>\n" if ($group_buffer);
@@ -2650,7 +2650,7 @@ sub export {
                 for my $letter ('A'..'Z') {
                         $sn{$letter} = $i++;
                 }
-                my @sorted_terms = sort {$a->id() cmp $b->id()} @all_terms;
+                my @sorted_terms = sort {lc($a->id()) cmp lc($b->id())} @all_terms;
                 foreach my $term (@sorted_terms) {
 
                         my $term_id = $term->id();
@@ -2662,7 +2662,7 @@ sub export {
                         my $B = 0;
 
                         # synonyms
-                        my @sorted_synonyms = sort {$a->def()->text() cmp $b->def()->text()} $term->synonym_set();
+                        my @sorted_synonyms = sort {lc($a->def()->text()) cmp lc($b->def()->text())} $term->synonym_set();
                         my $amount_syns = $#sorted_synonyms;
                         my $alias_buffer = "";
                         if ($amount_syns > -1) {
@@ -2683,13 +2683,13 @@ sub export {
                                 print $file_handle "</desc>\n";
                         }
                         # xrefs
-                        foreach my $xref (sort {$a->as_string() cmp $b->as_string()} $term->xref_set_as_string()) {
+                        foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $term->xref_set_as_string()) {
                                 print $file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
                         }
                         # relationships
                         foreach my $rt (@{$self->get_relationship_types()}) {
                                 my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-                                foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+                                foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
                                         print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
                                         print $file_handle "<desc>\n";
                                         print $file_handle $rt->id(), "\n";
@@ -2710,7 +2710,7 @@ sub export {
 				# relationships
 				foreach my $rt (@{$self->get_relationship_types()}) {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {$a->id() cmp $b->id()} @heads) {
+					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
 						print $file_handle "<desc>\n";
 						print $file_handle $rt->id(), "\n";

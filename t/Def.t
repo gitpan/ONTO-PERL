@@ -67,11 +67,6 @@ foreach my $ref_def2 (@refs_def2) {
 ok($r_def2{"CCO:vm"} eq "CCO:vm");
 ok($r_def2{"CCO:ls"} eq "CCO:ls");
 ok($r_def2{"CCO:ea"} eq "CCO:ea");
-ok($def2->dbxref_set_as_string() eq "[CCO:ea \"Erick Antezana\" {opt=first}, CCO:ls, CCO:vm]" 
-|| $def2->dbxref_set_as_string() eq "[CCO:ea \"Erick Antezana\" {opt=first}, CCO:vm, CCO:ls]"
-|| $def2->dbxref_set_as_string() eq "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\" {opt=first}]"
-|| $def2->dbxref_set_as_string() eq "[CCO:vm, CCO:ea \"Erick Antezana\" {opt=first}], CCO:vm"
-|| $def2->dbxref_set_as_string() eq "[CCO:ls, CCO:vm, CCO:ea \"Erick Antezana\" {opt=first}]"
-|| $def2->dbxref_set_as_string() eq "[CCO:ls, CCO:ea \"Erick Antezana\" {opt=first}], CCO:vm");
+ok($def2->dbxref_set_as_string() eq "[CCO:ea \"Erick Antezana\" {opt=first}, CCO:ls, CCO:vm]");
 
 ok(1);

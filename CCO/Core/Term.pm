@@ -1,4 +1,4 @@
-# $Id: Term.pm 1585 2007-10-12 15:23:38Z erant $
+# $Id: Term.pm 1640 2007-11-23 14:00:55Z erant $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -416,7 +416,7 @@ sub def_as_string {
 		$self->{DEF} = $def; 
 	}
 	my @result = (); # a Set?
-	foreach my $dbxref (sort {$a->as_string() cmp $b->as_string()} $self->{DEF}->dbxref_set()->get_set()) {
+	foreach my $dbxref (sort {lc($a->as_string()) cmp lc($b->as_string())} $self->{DEF}->dbxref_set()->get_set()) {
 		push @result, $dbxref->as_string();
 	}
 	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
@@ -510,7 +510,7 @@ sub synonym_as_string {
 		return; # set operation
 	}
 	my @result;
-	foreach my $synonym ($self->{SYNONYM_SET}->get_set()) {
+	foreach my $synonym (sort {lc($a->def_as_string()) cmp lc($b->def_as_string())} $self->{SYNONYM_SET}->get_set()) {
 		push @result, $synonym->def_as_string();
    	}
 	return @result;

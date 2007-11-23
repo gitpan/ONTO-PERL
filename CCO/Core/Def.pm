@@ -1,4 +1,4 @@
-# $Id: Def.pm 1375 2007-08-06 15:56:17Z erant $
+# $Id: Def.pm 1644 2007-11-23 14:12:07Z erant $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.
@@ -191,7 +191,7 @@ sub dbxref_set_as_string {
 		###$self->{DBXREF_SET} = $dbxref_set;
 	}
 	my @result = (); # a Set?
-	foreach my $dbxref (sort {lc($a) cmp ($b)} $self->dbxref_set()->get_set()) {
+	foreach my $dbxref (sort {lc($b->as_string()) cmp lc($a->as_string())} $self->dbxref_set()->get_set()) {
 		unshift @result, $dbxref->as_string();
 	}
 	return "[".join(', ', @result)."]";

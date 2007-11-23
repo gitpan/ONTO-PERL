@@ -107,11 +107,6 @@ ok($syn3->def()->dbxref_set()->size == 3);
 ok($r_syn3{"CCO:vm"} eq "CCO:vm");
 ok($r_syn3{"CCO:ls"} eq "CCO:ls");
 ok($r_syn3{"CCO:ea"} eq "CCO:ea");
-ok($syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ea \"Erick Antezana\", CCO:ls, CCO:vm]"
-|| $syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ea \"Erick Antezana\", CCO:vm, CCO:ls]"
-|| $syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:vm, CCO:ea \"Erick Antezana\", CCO:ls]"
-|| $syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]"
-|| $syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ls, CCO:ea \"Erick Antezana\", CCO:vm]" 
-|| $syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ls, CCO:vm, CCO:ea \"Erick Antezana\"]"); # diff. arch.
+ok($syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ea \"Erick Antezana\", CCO:ls, CCO:vm]");
 
 ok(1);

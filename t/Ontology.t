@@ -10,7 +10,7 @@ BEGIN {
 }
 
 #########################
-# $Id: Ontology.t 1635 2007-11-19 10:51:36Z erant $
+# $Id: Ontology.t 1642 2007-11-23 14:10:35Z erant $
 #
 # Purpose : onto-perl usage examples.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -183,8 +183,7 @@ ok($#no_processes == -1);
 ok($onto->get_term_by_id("CCO:P0000001")->name() eq "Uj");
 ok($onto->get_term_by_name("Uj")->equals($n1));
 $n1->synonym_as_string("Uno", "[CCO:ls, CCO:vm]", "EXACT");
-ok(($n1->synonym_as_string())[0] eq "\"Uno\" [CCO:ls, CCO:vm]"
-|| ($n1->synonym_as_string())[0] eq "\"Uno\" [CCO:vm, CCO:ls]"); # other architecture
+ok(($n1->synonym_as_string())[0] eq "\"Uno\" [CCO:ls, CCO:vm]");
 $n1->synonym_as_string("One", "[CCO:ls, CCO:vm]", "BROAD");
 ok($onto->get_term_by_name_or_synonym("Uno")->equals($n1)); # needs to be EXACT
 ok($onto->get_term_by_name_or_synonym("One") eq ''); # undef due to BROAD
