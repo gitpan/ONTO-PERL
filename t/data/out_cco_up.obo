@@ -19,7 +19,7 @@ xref: EMBL:AAS49095.1
 xref: EMBL:BAD94450.1
 xref: UniProt:Q6NMC8
 is_a: CCO:B0000000 ! core cell cycle protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
 
@@ -34,7 +34,7 @@ xref: UniProt:P56794
 xref: UniProt:P56795
 xref: UniProt:P56796
 is_a: CCO:B0000000 ! core cell cycle protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000027 ! establishment of mitotic spindle orientation
 relationship: encoded_by CCO:G0000001 ! rpl20_arath
 
@@ -45,7 +45,7 @@ def: "26S proteasome subunit RPN1b" [UniProt:Q6XJG8]
 xref: EMBL:AAP86656.1
 xref: UniProt:Q6XJG8
 is_a: CCO:B0000000 ! core cell cycle protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
 
@@ -57,7 +57,7 @@ xref: EMBL:AAO42019.1
 xref: EMBL:AAO50726.1
 xref: UniProt:Q84JF0
 is_a: CCO:B0000000 ! core cell cycle protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000103 ! meiosis
 relationship: encoded_by CCO:G0000002 ! At5g67520_arath
 
@@ -68,8 +68,8 @@ def: "Protein Q6XJG8_ARATH with the residue 351 substituted with Phosphoserine" 
 comment: by MAPK12; and MAPK9; By similarity
 xref: UniProt:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000040
@@ -78,8 +78,8 @@ def: "Protein Q6XJG8_ARATH with the residue 418 substituted with Phosphoserine" 
 comment: By similarity
 xref: UniProt:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000041
@@ -88,8 +88,8 @@ def: "Protein Q6XJG8_ARATH with the residue 421 substituted with Phosphoserine" 
 comment: by MAPK12; By similarity
 xref: UniProt:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:G0000001
@@ -98,8 +98,8 @@ def: "Chloroplast 50S ribosomal protein L20 gene" [UniProt:P56795]
 synonym: "AtCg00660" EXACT [UniProt:P56795]
 xref: EMBL:AP000423
 xref: TAIR:AtCg00660
-is_a: CCO:U0000004 ! gene
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+is_a: CCO:U0000008 ! cell cycle gene
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:G0000002
@@ -109,8 +109,8 @@ xref: EMBL:BT003977
 xref: EMBL:BT005193
 xref: TAIR:At5g67520
 xref: UniGene:At.28808
-is_a: CCO:U0000004 ! gene
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+is_a: CCO:U0000008 ! cell cycle gene
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:G0000003
@@ -121,8 +121,8 @@ xref: EMBL:AY230829
 xref: EMBL:BT011732
 xref: TAIR:At4g37630
 xref: UniGene:At.43466
-is_a: CCO:U0000004 ! gene
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+is_a: CCO:U0000008 ! cell cycle gene
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:P0000001
@@ -3630,21 +3630,22 @@ is_a: CCO:U0000003 ! biopolymer
 
 [Term]
 id: CCO:U0000007
-name: interaction
-def: "Any reciprocal or mutual action or effect between two continuants." [CCO:ea]
-is_a: CCO:U0000002 ! cell-cycle process
+name: cell cycle protein
+def: "Cell cycle proteins are polymeric macromolecules composed of one or more long chains of amino acids linked by peptide bonds, usually coiled and folded into complex globular or fibrous structures." [CCO:ea]
+is_a: CCO:U0000001 ! cell-cycle continuant
+is_a: CCO:U0000005 ! protein
 
 [Term]
 id: CCO:U0000008
-name: pathway
-def: "A chain of interactions undergone by a given biopolymer or molecular entity in a particular organism." [CCO:ea]
-is_a: CCO:U0000002 ! cell-cycle process
+name: cell cycle gene
+def: "Cell cycle units of heredity which (except for polygenes) may be regarded as the controlling agents in the expression of single phenotypic characters and are usually segments of a chromosome at fixed positions relative to each other." [CCO:ea]
+is_a: CCO:U0000001 ! cell-cycle continuant
+is_a: CCO:U0000004 ! gene
 
 [Term]
 id: CCO:U0000009
-name: small molecule
-def: "A small structural unit of matter consisting of one or more atoms." [CCO:ea]
-is_a: CCO:U0000001 ! cell-cycle continuant
+name: interaction
+is_a: CCO:U0000002 ! cell-cycle process
 
 [Term]
 id: CCO:U0000010
@@ -3661,7 +3662,7 @@ is_a: CCO:U0000005 ! protein
 [Term]
 id: CCO:Y0000025
 name: physical interaction
-is_a: CCO:U0000007 ! interaction
+is_a: CCO:U0000009 ! interaction
 
 [Typedef]
 id: adjacent_to
@@ -3683,6 +3684,12 @@ name: association
 def: "C in association with C' produces C'' if and only if for all c belonging to C and c' belongin to C', exists a c'' (belonging to C'') which is the result of the reversible union between c and c'." [CCO:ea]
 comment: Ternary relationship. See http://www.w3.org/TR/swbp-n-aryRelations/ for the OWL equivalent. The dissociation is a reversible splitting into simpler entities.
 xref: CCO_REL:association
+is_a: relationship ! relationship
+
+[Typedef]
+id: belongs_to
+name: belongs_to
+def: "o belongs to O where o is an specific species (e.g. homo sapiens) and O the organism." [CCO:ea]
 is_a: relationship ! relationship
 
 [Typedef]

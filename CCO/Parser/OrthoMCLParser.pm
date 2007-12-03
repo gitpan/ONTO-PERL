@@ -1,4 +1,4 @@
-# $Id: OrthoMCLParser.pm 1540 2007-09-17 13:02:18Z erant $
+# $Id: OrthoMCLParser.pm 1648 2007-11-23 16:01:56Z erant $
 #
 # Module  : UniProtParser.pm
 # Purpose : Parse UniProt files and add data to an ontology
@@ -122,7 +122,7 @@ sub work {
 	
 	# populate ontology
 	$ontology->add_relationship_type_as_string('is_a', 'is_a');
-	$ontology->add_relationship_type_as_string('derives_from', 'derives_from');
+	$ontology->add_relationship_type_as_string('belongs_to', 'belongs_to');
 	
 	my $protein = CCO::Core::Term->new();# upper level ontology term
 	$protein->name('protein');
@@ -167,7 +167,7 @@ sub work {
 			}
 			$ontology->add_term($clust_protein);
 			$ontology->create_rel($clust_protein, 'is_a', $cluster);
-			$ontology->create_rel($clust_protein, 'derives_from', $taxa{$taxon_lab}->[3]);
+			$ontology->create_rel($clust_protein, 'belongs_to', $taxa{$taxon_lab}->[3]);
 		}
 	}
 	

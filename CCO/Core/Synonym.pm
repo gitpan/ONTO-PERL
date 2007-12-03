@@ -1,4 +1,4 @@
-# $Id: Synonym.pm 1585 2007-10-12 15:23:38Z erant $
+# $Id: Synonym.pm 1681 2007-12-03 17:35:11Z erant $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
@@ -268,8 +268,9 @@ sub def_as_string {
 		$self->{DEF} = $def; 
 	}
 	
-	my @result = (); # a Set?
-	foreach my $dbxref ($self->{DEF}->dbxref_set()->get_set()) {
+	my @result  = (); # a Set?
+	my @dbxrefs = $self->{DEF}->dbxref_set()->get_set();
+	foreach my $dbxref (sort {($a && $b)?(lc($a->as_string()) cmp lc($b->as_string())):0} @dbxrefs) {
 		push @result, $dbxref->as_string();
 	}
 	# output: "synonym text" [dbxref's]

@@ -3825,3 +3825,10 @@ name: transformed_into
 xref: OBO_REL:transformed_into
 is_transitive: true
 is_a: relationship ! relationship
+
+[Typedef]
+id: belongs_to
+name: belongs_to
+is_a: relationship
+def: "o belongs to O where o is an specific species (e.g. homo sapiens) and O the organism." [CCO:ea]
+

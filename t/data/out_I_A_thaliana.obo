@@ -47,7 +47,7 @@ synonym: "PBD2" EXACT [IntAct:EBI-594189]
 synonym: "PRCGA" EXACT [IntAct:EBI-594189]
 xref: UniProt:O24633
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -60,7 +60,7 @@ synonym: "PBA1" EXACT [IntAct:EBI-594167]
 synonym: "prcd" EXACT [IntAct:EBI-594167]
 xref: UniProt:O23716
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -70,7 +70,7 @@ def: "26S proteasome subunit RPN2b" [IntAct:EBI-594206]
 synonym: "RPN2b" EXACT [IntAct:EBI-594206]
 xref: UniProt:Q6XBM5
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -80,7 +80,7 @@ def: "26S proteasome subunit RPN2a" [IntAct:EBI-594114]
 synonym: "RPN2a" EXACT [IntAct:EBI-594114]
 xref: UniProt:Q6XJG7
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -91,7 +91,7 @@ synonym: "At5g64760" EXACT [IntAct:EBI-594256]
 synonym: "RPN5b" EXACT [IntAct:EBI-594256]
 xref: UniProt:Q8VWK0
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -101,7 +101,7 @@ def: "26S proteasome AAA-ATPase subunit RPT5a" [IntAct:EBI-594099]
 synonym: "At3g05530" EXACT [IntAct:EBI-594099]
 xref: UniProt:Q8H195
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -113,7 +113,7 @@ synonym: "PAE1" EXACT [IntAct:EBI-594151]
 synonym: "T18A20.8" EXACT [IntAct:EBI-594151]
 xref: UniProt:O81149
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -124,7 +124,7 @@ synonym: "At5g19990" EXACT [IntAct:EBI-594402]
 synonym: "AtSUG1" EXACT [IntAct:EBI-594402]
 xref: UniProt:Q9C5U3
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -137,7 +137,7 @@ synonym: "PAA1" EXACT [IntAct:EBI-594141]
 synonym: "PRC1" EXACT [IntAct:EBI-594141]
 xref: UniProt:O81146
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -149,7 +149,7 @@ synonym: "PBF1" EXACT [IntAct:EBI-594382]
 synonym: "T4C21_230" EXACT [IntAct:EBI-594382]
 xref: UniProt:P42742
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -159,7 +159,7 @@ def: "20S proteasome beta subunit PBG1" [IntAct:EBI-594372]
 synonym: "PBG1" EXACT [IntAct:EBI-594372]
 xref: UniProt:O23718
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -170,7 +170,7 @@ synonym: "At2g20580" EXACT [IntAct:EBI-594056]
 synonym: "RPN1a" EXACT [IntAct:EBI-594056]
 xref: UniProt:Q9SIV2
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -180,7 +180,7 @@ def: "T18A20.2 protein" [IntAct:EBI-594282]
 synonym: "T18A20.2" EXACT [IntAct:EBI-594282]
 xref: UniProt:Q9SSB4
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -194,7 +194,7 @@ synonym: "PRS1" EXACT [IntAct:EBI-594430]
 synonym: "PSM30" EXACT [IntAct:EBI-594430]
 xref: UniProt:P34066
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -204,7 +204,7 @@ def: "26S proteasome subunit RPN8a" [IntAct:EBI-594321]
 synonym: "RPN8a" EXACT [IntAct:EBI-594321]
 xref: UniProt:Q6EMB3
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -217,7 +217,7 @@ synonym: "PRC8" EXACT [IntAct:EBI-594343]
 synonym: "T20P8.7" EXACT [IntAct:EBI-594343]
 xref: UniProt:O23715
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -229,7 +229,7 @@ synonym: "MQM1.19" EXACT [IntAct:EBI-594332]
 synonym: "RPN11" EXACT [IntAct:EBI-594332]
 xref: UniProt:Q9LT08
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -243,7 +243,7 @@ synonym: "PRC9" EXACT [IntAct:EBI-594361]
 synonym: "PRS1" EXACT [IntAct:EBI-594361]
 xref: UniProt:O81148
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -255,7 +255,7 @@ synonym: "PAA2" EXACT [IntAct:EBI-594353]
 synonym: "T6P5.4" EXACT [IntAct:EBI-594353]
 xref: UniProt:O81147
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -266,7 +266,7 @@ synonym: "At1g45000" EXACT [IntAct:EBI-594298]
 synonym: "At1g45000/F27F5.8" EXACT [IntAct:EBI-594298]
 xref: UniProt:Q9MAK9
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -278,7 +278,7 @@ synonym: "MCK7.16" EXACT [IntAct:EBI-594089]
 synonym: "RPT3" EXACT [IntAct:EBI-594089]
 xref: UniProt:Q9SEI4
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -291,7 +291,7 @@ synonym: "PBD1" EXACT [IntAct:EBI-594180]
 synonym: "PRCGB" EXACT [IntAct:EBI-594180]
 xref: UniProt:O23714
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -301,7 +301,7 @@ def: "26S proteasome AAA-ATPase subunit RPT2a" [IntAct:EBI-594213]
 synonym: "RPT2a" EXACT [IntAct:EBI-594213]
 xref: UniProt:Q9SEI5
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -312,7 +312,7 @@ synonym: "At1g75990" EXACT [IntAct:EBI-594082]
 synonym: "T4O12.21" EXACT [IntAct:EBI-594082]
 xref: UniProt:Q9LQR8
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -325,7 +325,7 @@ synonym: "RPT1A" EXACT [IntAct:EBI-594271]
 synonym: "T18A20.1" EXACT [IntAct:EBI-594271]
 xref: UniProt:Q9SSB5
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -335,7 +335,7 @@ def: "26S proteasome subunit RPN12" [IntAct:EBI-594133]
 synonym: "RPN12" EXACT [IntAct:EBI-594133]
 xref: UniProt:Q6XJF4
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -347,7 +347,7 @@ synonym: "F28N24.15" EXACT [IntAct:EBI-594392]
 synonym: "RPN6a" EXACT [IntAct:EBI-594392]
 xref: UniProt:Q9LP45
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -357,7 +357,7 @@ def: "26S proteasome AAA-ATPase subunit RPT6a-like protein" [IntAct:EBI-594412]
 synonym: "At5g20000" EXACT [IntAct:EBI-594412]
 xref: UniProt:Q94BQ2
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -368,7 +368,7 @@ synonym: "At5g09900" EXACT [IntAct:EBI-594263]
 synonym: "RPN5a" EXACT [IntAct:EBI-594263]
 xref: UniProt:Q9FIB6
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -379,7 +379,7 @@ synonym: "At5g45620" EXACT [IntAct:EBI-594422]
 synonym: "RPN9a" EXACT [IntAct:EBI-594422]
 xref: UniProt:Q8RWF0
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -390,7 +390,7 @@ synonym: "At1g20200" EXACT [IntAct:EBI-594074]
 synonym: "T20H2.3" EXACT [IntAct:EBI-594074]
 xref: UniProt:Q9LNU4
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -402,7 +402,7 @@ synonym: "At4g28470" EXACT [IntAct:EBI-594066]
 synonym: "F20O9.150" EXACT [IntAct:EBI-594066]
 xref: UniProt:O49456
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -414,7 +414,7 @@ synonym: "MLN21.8" EXACT [IntAct:EBI-594159]
 synonym: "PAE2" EXACT [IntAct:EBI-594159]
 xref: UniProt:Q42134
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -424,7 +424,7 @@ def: "26S proteasome subunit RPN7" [IntAct:EBI-594129]
 synonym: "RPN7" EXACT [IntAct:EBI-594129]
 xref: UniProt:Q6EMB5
 is_a: CCO:U0000005 ! protein
-relationship: derives_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:I0000001 ! rpn1-rpt physical interaction
 
 [Term]
@@ -4027,6 +4027,12 @@ name: association
 def: "C in association with C' produces C'' if and only if for all c belonging to C and c' belongin to C', exists a c'' (belonging to C'') which is the result of the reversible union between c and c'." [CCO:ea]
 comment: Ternary relationship. See http://www.w3.org/TR/swbp-n-aryRelations/ for the OWL equivalent. The dissociation is a reversible splitting into simpler entities.
 xref: CCO_REL:association
+is_a: relationship ! relationship
+
+[Typedef]
+id: belongs_to
+name: belongs_to
+def: "o belongs to O where o is an specific species (e.g. homo sapiens) and O the organism." [CCO:ea]
 is_a: relationship ! relationship
 
 [Typedef]

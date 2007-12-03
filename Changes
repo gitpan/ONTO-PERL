@@ -36,3 +36,5 @@ Revision history for onto-perl
 1.02 'subsets' for relationship types are now supported, test improvements
 
 1.03 export order improved (alphabetical way)
+
+1.04 more 'order' improvements in test files

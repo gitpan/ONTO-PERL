@@ -5680,3 +5680,9 @@ is_reflexive: true
 is_anti_symmetric: true
 is_transitive: true
 xref: OBO_REL:integral_part_of
+
+[Typedef]
+id: belongs_to
+name: belongs_to
+is_a: relationship
+def: "o belongs to O where o is an specific species (e.g. homo sapiens) and O the organism." [CCO:ea]

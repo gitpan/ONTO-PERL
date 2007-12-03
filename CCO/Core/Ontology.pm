@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 1638 2007-11-23 13:44:53Z erant $
+# $Id: Ontology.pm 1656 2007-11-27 10:05:03Z erant $
 #
 # Module  : Ontology.pm
 # Purpose : OBO/OWL ontologies handling.
@@ -2391,7 +2391,7 @@ sub export {
 			#print $file_handle "\t\t\ty	255.0\n";
 			print $file_handle "\t\t\tw	40.0\n";
 			print $file_handle "\t\t\th	40.0\n";
-			print $file_handle "\t\t\tfill	\"#".$color_id{$term_sns}."\"\n";
+			print $file_handle "\t\t\tfill	\"#".$color_id{$term_sns}."\"\n" if $color_id{$term_sns};
 			print $file_handle "\t\t\toutline	\"#000000\"\n";
 			print $file_handle "\t\t\toutline_width	1.0\n";
 			print $file_handle "\t\t]\n";

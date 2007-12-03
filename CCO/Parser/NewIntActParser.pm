@@ -1,4 +1,4 @@
-#
+# $Id: NewIntActParser.pm 1441 2007-08-21 11:58:25Z erant $
 #
 # Module  : NewIntActParser.pm
 # Purpose : Parse IntAct files
@@ -80,13 +80,13 @@ sub work {
 	# Initialize the OBO parser, load the OBO file, check the assumptions
 	my $obo_parser = CCO::Parser::OBOParser->new();
 	my $ontology   = $obo_parser->work($old_OBO_file);
-	my @rel_types = ( 'is_a', 'participates_in', 'located_in', 'derives_from' );
+	my @rel_types = ( 'is_a', 'participates_in', 'located_in', 'belongs_to' );
 	foreach (@rel_types) {
-		die "Not a valid relationship type"
+		confess "Not a valid relationship type"
 		  unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
 	}
 	my $onto_protein = $ontology->get_term_by_name("protein")
-	  || die "the term 'protein' is not defined", $!;
+	  || confess "the term 'protein' is not defined", $!;
 
 	# Initialize CCO_ID_Map objects
 	my $short_b_map =
@@ -96,7 +96,7 @@ sub work {
 	my $short_i_map =
 	  CCO::Util::CCO_ID_Term_Map->new($short_i_file);    # Taxon specific
 	my $long_i_map =
-	  CCO::Util::CCO_ID_Term_Map->new($long_i_file);     #Set of interaction IDs
+	  CCO::Util::CCO_ID_Term_Map->new($long_i_file);     # Set of interaction IDs
 
 	# Read UniProt maps (keys - accession numbers, values - protein IDs)
 	open my $fh, '<', $up_cc_map_file or croak "Can't open file $up_cc_map_file : $!";

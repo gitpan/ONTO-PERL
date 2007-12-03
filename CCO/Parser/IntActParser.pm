@@ -1,4 +1,4 @@
-# $Id: IntActParser.pm 1609 2007-10-29 17:15:46Z erant $
+# $Id: IntActParser.pm 1655 2007-11-27 10:02:13Z erant $
 #
 # Module  : IntActParser.pm
 # Purpose : An IntAct Parser.
@@ -68,7 +68,7 @@ sub work {
 	my $participates_in = ($ontology->get_relationship_type_by_name("participates_in"))->id;
 	my $has_participant = ($ontology->get_relationship_type_by_name("has_participant"))->id;
 	my $is_a = ($ontology->get_relationship_type_by_name("is_a"))->id;
-	my $derives_from = ($ontology->get_relationship_type_by_name("derives_from"))->id;
+	my $derives_from = ($ontology->get_relationship_type_by_name("belongs_to"))->id;
 
 	# Interactor roles
 	my $neutral_component = "neutral component";
@@ -102,7 +102,7 @@ sub work {
 				my $cco_protein_uniprot_id = &get_xref_acc("UniProt",$cco_protein);
 				
 				# IMPORTANT: 'modified protein' is also child of protein
-				next if ($cco_protein->id eq "CCO:U0000011"); # skip the 'modified protein'
+				next if ($cco_protein->id eq "CCO:U0000010"); # skip the 'modified protein'
 				# Interactor in CCO found: get interactions and other interactors
 				confess "interactor_name note defined" if (!defined $interactor_name);
 				confess "cco_protein_uniprot_id note defined for ", $cco_protein->id if (!defined $cco_protein_uniprot_id);
@@ -449,7 +449,7 @@ sub add_interaction(){
 
   Usage    - add_interactor ($interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$derives_from,$taxon)
   Returns  - added interactor OBO term 
-  Args     - interactor object, ontology, protein id map (taxon), protein id map (general), is_a relationship type id, derives_from relationship type id, taxon id (e.g. 3702)
+  Args     - interactor object, ontology, protein id map (taxon), protein id map (general), is_a relationship type id, belongs_to relationship type id, taxon id (e.g. 3702)
   Function - add an interactor to CCO
   
 =cut

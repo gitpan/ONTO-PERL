@@ -1,4 +1,4 @@
-# $Id: UniProtParser.pm 1520 2007-09-14 08:52:04Z vlmir $
+# $Id: UniProtParser.pm 1678 2007-12-03 12:51:11Z erant $
 #
 # Module  : UniProtParser.pm
 # Purpose : Parse UniProt files and add data to an ontology
@@ -30,7 +30,7 @@ This method assumes:
 
 - the input ontology already contains the NCBI taxonomy. 
 
-- the input ontology already contains the relationship types 'is_a', 'encoded_by', "derives_from", "tranformation_of"
+- the input ontology already contains the relationship types 'is_a', 'encoded_by', "belongs_to", "tranformation_of"
 
 - the input UniProt file contains entries for one species only and for protein terms present in the input ontology only
 
@@ -104,13 +104,14 @@ sub work {
 	my $my_parser = CCO::Parser::OBOParser->new();
 	my $ontology  = $my_parser->work($old_OBO_file);
 	
-	my @rel_types = ( 'is_a', 'derives_from', 'encoded_by' );
+	my @rel_types = ( 'is_a', 'belongs_to', 'encoded_by' );
 	foreach (@rel_types) {
-		die "Not a valid relationship type (valid values: ", @rel_types, ")" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
+		confess "Not a valid relationship type (valid values: ", @rel_types, ")" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
 	}
 	
 	my $taxon = $ontology->get_term_by_name($taxon_name) || die "No term for $taxon_name is defined in file '$old_OBO_file'";
-	my $onto_gene = $ontology->get_term_by_name('gene')  || die "No term for 'gene' is defined in file '$old_OBO_file'";
+	# TODO Connect the core cell cycle genes to 'core cell cycle gene'
+	my $onto_gene = $ontology->get_term_by_name('cell cycle gene')  || die "No term for 'cell cycle gene' is defined in file '$old_OBO_file'";
 	my @gene_dbs = ( 'EMBL', 'Ensemble', 'GeneDB_Spombe', 'HGNC', 'SGD', 'TAIR', 'UniGene' );
 
 	# Initialize CCO_ID_Term_Map objects
@@ -137,7 +138,8 @@ sub work {
 			$protein = $ontology->get_term_by_xref('UniProt', $ac);
 			last if (defined $protein);
 		}
-		confess "None of the UniProt AC's (", join(", ", @all_acs),") were found in file '$old_OBO_file': ", $! if (!defined $protein);
+		warn "None of the UniProt AC's (", join(", ", @all_acs),") were found in file '$old_OBO_file': ", $! if (!defined $protein);
+		next if (!defined $protein);
 		# Question: do we keep the $accession as the primary AC in our entries? (it is used many times below...)
 		# NB: all the AC's should go to the xref field (see below)
 		#>>EASR
@@ -165,7 +167,22 @@ sub work {
 			$protein->synonym_as_string( $_->{text}, "[UniProt:$accession]", 'EXACT' );
 		}
 		
-		$ontology->create_rel( $protein,    'derives_from', $taxon );
+		# <<EASR: add the is_a missing link for the proteins but core cycle ones
+		my @heads = @{$ontology->get_head_by_relationship_type($protein, $ontology->get_relationship_type_by_name('is_a'))};
+		my $link_found = 0;
+		foreach my $head (@heads) {
+			if ($head->name() eq 'core cell cycle protein') {
+				$link_found = 1;
+				last;
+			}
+		}
+		if (!$link_found) { # assuming the term 'cell cycle protein' exists in the ontology
+			my $cell_cycle_protein_term = $ontology->get_term_by_name("cell cycle protein"); # CCO:U0000007
+			$ontology->create_rel( $protein, 'is_a', $cell_cycle_protein_term);
+		}
+		# >>EASR
+		
+		$ontology->create_rel( $protein, 'belongs_to', $taxon );
 
 		# add post-translationally modified derivatives of the protein
 		if(my @fts = @{$entry->FTs->{list}}){#an array of references to arrays corresponding to individual FT lines 
@@ -204,7 +221,7 @@ sub work {
 				$mod_prot_obj->comment($mod_prot_comment);                
 				$ontology->add_term($mod_prot_obj);
 
-				$ontology->create_rel( $mod_prot_obj,    'derives_from', $taxon );
+				$ontology->create_rel( $mod_prot_obj,    'belongs_to', $taxon );
 				$ontology->create_rel( $mod_prot_obj,    'transformation_of', $protein );
 				$ontology->create_rel( $mod_prot_obj,    'is_a', $ontology->get_term_by_name('modified protein') );	
 			}
@@ -235,7 +252,7 @@ sub work {
 			# add relationtionships
 			$ontology->create_rel( $gene,    'is_a',         $onto_gene );
 			$ontology->create_rel( $protein, 'encoded_by',   $gene );
-			$ontology->create_rel( $gene,    'derives_from', $taxon );
+			$ontology->create_rel( $gene,    'belongs_to', $taxon );
 		} elsif ( scalar @gene_groups > 1 ) {    # multiple genes associated with the protein
 			foreach my $gene_group (@gene_groups) {
 				my $gene_name;
@@ -255,7 +272,7 @@ sub work {
 				# add relationtionships
 				$ontology->create_rel( $gene,    'is_a',         $onto_gene );
 				$ontology->create_rel( $protein, 'encoded_by',   $gene );
-				$ontology->create_rel( $gene,    'derives_from', $taxon );
+				$ontology->create_rel( $gene,    'belongs_to', $taxon );
 			}
 		}
 	}
