@@ -6,11 +6,11 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 180;
+    plan tests => 182;
 }
 
 #########################
-# $Id: Ontology.t 1642 2007-11-23 14:10:35Z erant $
+# $Id: Ontology.t 1686 2007-12-04 20:06:01Z erant $
 #
 # Purpose : onto-perl usage examples.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -286,7 +286,8 @@ my @ancestors1 = @{$onto->get_ancestor_terms($n1)};
 ok(scalar(@ancestors1) == 4);
 my @ancestors2 = @{$onto->get_ancestor_terms($n2)};
 ok(scalar(@ancestors2) == 2);
-ok($ancestors2[0]->id eq "CCO:P0000003");
+ok($ancestors2[0]->id() eq "CCO:P0000003" || $ancestors2[0]->id() eq "CCO:P0000005");
+ok($ancestors2[1]->id() eq "CCO:P0000003" || $ancestors2[1]->id() eq "CCO:P0000005");
 my @ancestors3 = @{$onto->get_ancestor_terms($n3)};
 ok(scalar(@ancestors3) == 1);
 
@@ -306,7 +307,8 @@ ok(scalar(@descendents3) == 0);
 ok(scalar(@ancestors1) == 4);
 @ancestors2 = @{$onto->get_ancestor_terms_by_subnamespace($n2, 'P')}; 
 ok(scalar(@ancestors2) == 2);
-ok($ancestors2[0]->id eq "CCO:P0000003");
+ok($ancestors2[0]->id() eq "CCO:P0000003" || $ancestors2[0]->id() eq "CCO:P0000005");
+ok($ancestors2[1]->id() eq "CCO:P0000003" || $ancestors2[1]->id() eq "CCO:P0000005");
 @ancestors3 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'P')};
 ok(scalar(@ancestors3) == 1);
 @ancestors3 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'R')};

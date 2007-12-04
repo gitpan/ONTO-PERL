@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 1656 2007-11-27 10:05:03Z erant $
+# $Id: Ontology.pm 1686 2007-12-04 20:06:01Z erant $
 #
 # Module  : Ontology.pm
 # Purpose : OBO/OWL ontologies handling.
@@ -1381,7 +1381,7 @@ sub export {
 	if ($format eq "obo") { 
 		# preambule: OBO header tags
 		print $file_handle "format-version: 1.2\n";
-		chomp(my $local_date = `date '+%d:%m:%Y %H:%M'`);
+		chomp(my $local_date = __date()); # `date '+%d:%m:%Y %H:%M'` # date: 11:05:2007 12:52
 		print $file_handle "date: ", (defined $self->date())?$self->date():$local_date, "\n";
 		print $file_handle "auto-generated-by: onto-perl\n"; # TODO store this value?
 		
@@ -1666,7 +1666,7 @@ sub export {
 		
 		print $file_handle "\t<header>\n";
 		print $file_handle "\t\t<format-version>1.2</format-version>\n";
-		chomp(my $date = (defined $self->date())?$self->date():`date '+%d:%m:%Y %H:%M'`);
+		chomp(my $date = (defined $self->date())?$self->date():__date()); #`date '+%d:%m:%Y %H:%M'`);
 		print $file_handle "\t\t<hasDate>", $date, "</hasDate>\n";
 		print $file_handle "\t\t<savedBy>", $self->saved_by(), "</savedBy>\n" if ($self->saved_by());
 		print $file_handle "\t\t<default-namespace>", $self->default_namespace(), "</default-namespace>\n" if ($self->default_namespace());
@@ -1829,7 +1829,7 @@ sub export {
 		print $file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";
 		print $file_handle "\txmlns:oboInOwl=\"".$oboInOwlUrl."\"\n";
 		print $file_handle "\txmlns:oboContent=\"".$oboContentUrl."\"\n";
-		print $file_handle "\txml:base=\"".$oboContentUrl."\"\n";
+		print $file_handle "\txml:base=\"".$oboContentUrl."CCO\"\n";
 
 		#print $file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
 		#print $file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
@@ -2297,7 +2297,7 @@ sub export {
 		# EOF:
 		#
 		print $file_handle "</rdf:RDF>\n\n";
-		print $file_handle "<!--\nGenerated with onto-perl: ".$0.", ".`date`."\n-->";
+		print $file_handle "<!--\nGenerated with onto-perl: ".$0.", ".__date()."\n-->";
 		
 	} elsif ($format eq "dot") {
 		#
@@ -2922,11 +2922,11 @@ sub get_ancestor_terms {
 	if ($term) {
 		my @queue = @{$self->get_parent_terms($term)};
 		while (scalar(@queue) > 0) {
-    			my $unqueued = pop @queue;
+			my $unqueued = pop @queue;
 			$result->add($unqueued);
 			my @parents = @{$self->get_parent_terms($unqueued)};
 			@queue = (@parents, @queue);
-    		}
+		}
 	}
 	my @arr = $result->get_set();
 	return \@arr;
@@ -3395,6 +3395,11 @@ sub _dfs () {
 		}
 		$p_id = $n_id;
 	}
+}
+
+sub __date {
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	my $result = sprintf "%02d:%02d:%4d %02d:%02d", $mday,$mon+1,$year+1900,$hour,$min; # e.g. 11:05:2007 12:52
 }
 
 1;
