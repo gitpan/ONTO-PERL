@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 1632 2007-11-19 10:31:18Z erant $
+# $Id: OBOParser.pm 1704 2007-12-06 17:33:49Z erant $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
@@ -8,6 +8,58 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Parser::OBOParser;
+
+=head1 NAME
+
+CCO::Parser::OBOParser  - An OBO (Open Biomedical Ontologies) file parser.
+    
+=head1 SYNOPSIS
+
+use CCO::Parser::OBOParser;
+
+use strict;
+
+my $my_parser = CCO::Parser::OBOParser->new;
+
+my $ontology = $my_parser->work("cco.obo");
+
+$ontology->has_term($ontology->get_term_by_id("CCO:B9999993"));
+
+$ontology->has_term($ontology->get_term_by_name("small molecule"));
+
+$ontology->get_relationship_by_id("CCO:B9999998_is_a_CCO:B0000000")->type() eq "is_a";
+
+$ontology->get_relationship_by_id("CCO:B9999996_part_of_CCO:B9999992")->type() eq "part_of"; 
+
+
+my $ontology2 = $my_parser->work("cco.obo");
+
+$ontology2->has_term($ontology2->get_term_by_id("CCO:B9999993"));
+
+$ontology2->has_term($ontology2->get_term_by_name("cell cycle"));
+
+$ontology2->get_relationship_by_id("CCO:P0000274_is_a_CCO:P0000262")->type() eq "is_a";
+
+$ontology2->get_relationship_by_id("CCO:P0000274_part_of_CCO:P0000271")->type() eq "part_of"; 
+
+=head1 DESCRIPTION
+
+An OBOParser object works on parsing an OBO file.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007 by erant
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
 use CCO::Core::Term;
 use CCO::Core::Ontology;
 use CCO::Core::Dbxref;
@@ -201,6 +253,8 @@ sub work {
 						$term->consider($1);
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$term->builtin(($1 eq "true")?1:0);
+					} elsif ($line =~ /^!/) {
+						# skip line
 					} else {					
 						confess "A format problem has been detected in: '", $line, "' in the line: ", $file_line_number, " in the file: ", $self->{OBO_FILE};
 					}
@@ -216,7 +270,7 @@ sub work {
 				my $type;
 				my $only_one_name_tag_per_entry = 0;
 				foreach my $line (@entry) {
-					if ($line =~ /^id:\s*(\w+)/) { # get the type id
+					if ($line =~ /^id:\s*(.*)/) { # get the type id
 						$type = $result->get_relationship_type_by_id($1); # does this relationship type is already in the ontology?
 						if (!defined $type){
 							$type = CCO::Core::RelationshipType->new();  # if not, create a new type
@@ -302,6 +356,8 @@ sub work {
 						$type->consider($1);
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$type->builtin(($1 eq "true")?1:0);
+					} elsif ($line =~ /^!/) {
+						# skip line
 					} else {
 						warn "A format problem has been detected in: ", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 					}	
@@ -333,55 +389,3 @@ sub work {
 }
 
 1;
-
-=head1 NAME
-
-    CCO::Parser::OBOParser  - An OBO (Open Biomedical Ontologies) file parser.
-    
-=head1 SYNOPSIS
-
-use CCO::Parser::OBOParser;
-use strict;
-
-my $my_parser = CCO::Parser::OBOParser->new;
-
-my $ontology = $my_parser->work("cco.obo");
-
-$ontology->has_term($ontology->get_term_by_id("CCO:B9999993"));
-
-$ontology->has_term($ontology->get_term_by_name("small molecule"));
-
-$ontology->get_relationship_by_id("CCO:B9999998_is_a_CCO:B0000000")->type() eq "is_a";
-
-$ontology->get_relationship_by_id("CCO:B9999996_part_of_CCO:B9999992")->type() eq "part_of"; 
-
-
-my $ontology2 = $my_parser->work("cco.obo");
-
-$ontology2->has_term($ontology2->get_term_by_id("CCO:B9999993"));
-
-$ontology2->has_term($ontology2->get_term_by_name("cell cycle"));
-
-$ontology2->get_relationship_by_id("CCO:P0000274_is_a_CCO:P0000262")->type() eq "is_a";
-
-$ontology2->get_relationship_by_id("CCO:P0000274_part_of_CCO:P0000271")->type() eq "part_of"; 
-
-=head1 DESCRIPTION
-
-An OBOParser object works on parsing an OBO file.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007 by erant
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut
-   

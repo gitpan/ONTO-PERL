@@ -1,4 +1,4 @@
-# $Id: XMLIntactParser.pm 1377 2007-08-06 16:07:14Z erant $
+# $Id: XMLIntactParser.pm 1704 2007-12-06 17:33:49Z erant $
 #
 # Module  : XMLIntactParser.pm
 # Purpose : An XML Parser.
@@ -8,6 +8,35 @@
 # Contact : CCO <ccofriends@psb.ugent.be>
 #
 package CCO::Util::XMLIntactParser;
+
+=head1 NAME
+
+CCO::Util::XMLIntactParser - An IntAct XML parser
+    
+=head1 SYNOPSIS
+
+my $XMLIntactParser = XMLIntactParser->new;
+$XMLIntactParser->work($intact_xml_file);
+my @xml_interactors = @{$XMLIntactParser->interactors()};
+my @xml_interactions = @{$XMLIntactParser->interactions()};
+
+=head1 DESCRIPTION
+
+A parser for XML Intact files. It produces two arrays of interactor and interaction objects.
+
+=head1 AUTHOR
+
+Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007 by Mikel Egana Aranguren
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
 
 use XML::Simple;
 use CCO::Core::Interactor;
@@ -78,38 +107,29 @@ sub interactions{
 	return \@interactions;
 }
 
-
 sub read{
 	my $self = shift;
 	my $entries = shift;
 	my @new_interactors = ();
 	my @new_interactions = ();
-
-	
-
 	while ( my ($key, $value) = each(%{$entries}) ) {
 		
 		if($key eq "entry"){
 			while ( my ($key1, $value1) = each(%{$value}) ){
-# 				print $key1,"-",$value1,"\n";
 				if($key1 eq "interactionList"){
 					my %interactions=%{$value1->{'interaction'}};
 					
 					while (my($key_a, $value_a) = each(%interactions)){
-# 						print $key_a,"--",$value_a,"\n";
 						my $interaction = CCO::Core::Interaction->new;
 						while (my($key_3, $value_3) = each(%{$value_a})){
-# 							print $key_3,"---",$value_3,"\n";
 							if($key_3 eq "names"){
 								my %names_proper = %{$value_3};
 								while(my($key_name, $value_name) = each(%names_proper)){
 									if($key_name eq "shortLabel"){
-# 										print "SHORTLABEL:",$value_name,"!\n";	
 										$interaction->shortLabel($value_name);
 									}
 									# Some interactions don't have full name
 									if($key_name eq "fullName"){
-# 										print "FULLNAME:",$value_name,"!\n";	
 										$interaction->fullName($value_name);
 									}
 								}
@@ -118,7 +138,6 @@ sub read{
 								my %primaryRef = %{$value_3->{"primaryRef"}};
 								while(my($key_name, $value_name) = each(%primaryRef)){
 									if ($key_name eq "id"){
-# 										print "XREF:",$value_name,"!\n";
 										$interaction->primaryRef($value_name);
 									}
 								}
@@ -127,18 +146,10 @@ sub read{
 								my %types = %{$value_3->{"names"}};
 								my $interactionType = "";
 								while(my($key_name, $value_name) = each(%types)){
-# 									print $key_name," ----- ",$value_name,"\n";
 									if($key_name eq "shortLabel"){
 										$interactionType = $value_name;
 									}
-# 									if($key_name eq "shortLabel"){
-# 										$interactionType = $interactionType.$value_name;
-# 									}
-# 									if($key_name eq "alias"){
-# 										$interactionType = $interactionType.":".$value_name;
-# 									}
 								}
-# 								print $interactionType,"\n";
 								$interaction->interactionType($interactionType);
 							}
 							
@@ -149,13 +160,11 @@ sub read{
 								
 								while(my($key_name, $value_name) = each(%participant)){
 									if($key_name =~ m/\d+/){
-# 										print $key_name,"\n";
 										my $interactorRef = $value_name->{"interactorRef"};
 										push(@interactor_ids,$interactorRef);
 										my %possibleRoles = %{$value_name->{"experimentalRoleList"}};
 										my $interactorRole = $possibleRoles{"experimentalRole"}{"names"}{"shortLabel"};
 										$interactorRefRole{$interactorRef}=$interactorRole;
-# 										
 									}
 								}
 								$interaction->interactorRef(\@interactor_ids);
@@ -170,10 +179,8 @@ sub read{
 					while (my($key_interactor, $value_interactor) = each(%interactors)){
 						while(my($key_in, $value_in) = each(%{$value_interactor})){
 							my $interactor = CCO::Core::Interactor->new;
-# 							print "interactorlist INTERACTOR ID:",$key_in,":\n";
 							$interactor->id($key_in);
 							my %interactor_info = %{$value_in};
-# 							print "INTERACTOR :::::::::::::::\n";
 							while (my($key_int, $value_int) = each(%interactor_info)){
 								if($key_int eq "names"){
 									my %interactor_names = %{$value_int};
@@ -182,7 +189,6 @@ sub read{
 										if($key_name eq "alias" && $value_name =~ m/HASH/){
 											while(my($k_alias, $v_alias) = each(%{$value_name})){
 												if($k_alias eq "content"){
-# 													print "ALIAS HASH:",$v_alias,"\n";
 													push(@aliases,$v_alias);
 												}
 											}
@@ -191,7 +197,6 @@ sub read{
 											for my $alias_names (@{$value_name}){
 												while(my($k_alias, $v_alias) = each(%{$alias_names})){
 													if($k_alias eq "content"){
-# 														print "ALIAS ARRAY:",$v_alias,"\n";
 														push(@aliases,$v_alias);
 													}
 												}
@@ -199,11 +204,9 @@ sub read{
 										}
 										$interactor->alias(\@aliases);
 										if($key_name eq "shortLabel"){
-# 											print "SHORTLABEL:",$value_name,"\n";	
 											$interactor->shortLabel($value_name);
 										}
 										if($key_name eq "fullName"){
-# 											print "FULLNAME:",$value_name,"\n";
 											$interactor->fullName($value_name);	
 										}	
 									}
@@ -212,7 +215,6 @@ sub read{
 									my %organism_names = %{$value_int};
 									while(my($key_name, $value_name) = each(%organism_names)){
 										if($key_name eq "ncbiTaxId" && $value_name !~ m/HASH/){
-# 											print "ORGANISM:",$value_name,"\n";
 											$interactor->ncbiTaxId($value_name);
 										} 
 									}
@@ -237,28 +239,14 @@ sub read{
 									
 									if(!defined $value_int->{'secondaryRef'}){
 										$interactor->ebi_id($ebi_id_for_no_sec_ref);
-# 										print $interactor->id,"!?\n";
-# 										print $value_int,"\n";
-# 										my %value_hash = %{$value_int};
-# 										for my $f_key (keys %value_hash){
-# 											print %value_hash->{$f_key},"\n";
-# 											my %hash_again = %{%value_hash->{$f_key}};
-# 											for my $FF_key (keys %hash_again){
-# 												print %hash_again->{$FF_key},"\n";
-# 											}
-# 										}
 									}
 									else{
-	# 									print $value_int->{'secondaryRef'},"\n";
 										my %secondaryInteractorRefs = %{$value_int->{'secondaryRef'}};
 										while(my($key_name, $value_name) = each(%secondaryInteractorRefs)){
-# 											print "----",$key_name,"-----",$value_name,"\n";
 											if($key_name =~ m/EBI/){
-	# 											print "INTERACTOR EBI ID:",$key_name,"\n";
 												$interactor->ebi_id($key_name);
 											}
 											if($value_name =~ m/EBI/){
-	# 											print "INTERACTOR EBI ID:",$value_name,"\n";
 												$interactor->ebi_id($value_name);
 											}
 										}
@@ -277,32 +265,3 @@ sub read{
 }
 
 1;
-
-=head1 NAME
-
-    CCO::Util::XMLIntactParser;  - An IntAct XML parser
-    
-=head1 SYNOPSIS
-
-my $XMLIntactParser = XMLIntactParser->new;
-$XMLIntactParser->work($intact_xml_file);
-my @xml_interactors = @{$XMLIntactParser->interactors()};
-my @xml_interactions = @{$XMLIntactParser->interactions()};
-
-=head1 DESCRIPTION
-
-A parser for XML Intact files. It produces two arrays of interactor and interaction objects.
-
-=head1 AUTHOR
-
-Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2007 by Mikel Egana Aranguren
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut

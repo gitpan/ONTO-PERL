@@ -1,7 +1,7 @@
-# $Id: OrthoMCLParser.pm 1648 2007-11-23 16:01:56Z erant $
+# $Id: OrthoMCLParser.pm 1702 2007-12-06 17:01:36Z erant $
 #
-# Module  : UniProtParser.pm
-# Purpose : Parse UniProt files and add data to an ontology
+# Module  : OrthoMCLParser.pm
+# Purpose : Parse OrthoMCL files and add data to an ontology
 # License : Copyright (c) 2006 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
@@ -12,7 +12,7 @@ package CCO::Parser::OrthoMCLParser;
 
 =head1 NAME
 
-CCO::Parser::orthoMCLParser - An orthoMCL data  to OBO translator
+CCO::Parser::OrthoMCLParser - An orthoMCL data to OBO translator
 
 =head1 DESCRIPTION
 
@@ -22,10 +22,8 @@ orthoMCL can be obtained from http://orthomcl.cbil.upenn.edu/cgi-bin/OrthoMclWeb
 
 The method 'parse()' parses an orthoMCL output data file  into a data structure (hash of arrays)
 The method 'work()' incorporates data from an orthoMCL data file into an ontology, writes the ontology into an OBO file, writes map files.
- 
 
 =head1 AUTHOR
-
 
 Vladimir Mironov
 vlmir@psb.ugent.be

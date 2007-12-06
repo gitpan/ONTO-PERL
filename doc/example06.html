@@ -1,0 +1,26 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+<title>List the terms that are obsolete</title>
+</head>
+<body>
+
+	<ol>
+	<li> Get all the obsolete terms in a given ontology:
+		<pre>
+		
+			use CCO::Parser::OBOParser;
+			
+			my $my_parser = CCO::Parser::OBOParser->new();
+			my $ontology = $my_parser->work("my_obo_ontology.obo");
+			
+			foreach my $term (@{$ontology->get_terms()}) {
+				print $term->id(), "\t", $term->def()->text(), "\n" if (defined $term->id() && $term->def()->text() && $term->is_obsolete());
+			}
+			
+		</pre>
+	</li>
+	</ol>
+	
+</body>
+</html>

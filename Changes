@@ -40,3 +40,5 @@ Revision history for onto-perl
 1.04 more 'order' improvements in test files
 
 1.05 dates treatment is now WindowsTM compatible
+
+1.06 documentation has been enhanced: many more examples, PODs, etc.

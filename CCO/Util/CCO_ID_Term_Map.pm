@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Term_Map.pm 1584 2007-10-12 14:38:50Z erant $
+# $Id: CCO_ID_Term_Map.pm 1704 2007-12-06 17:33:49Z erant $
 #
 # Module  : CCO_ID_Term_Map.pm
 # Purpose : A (birectional) map CCO_ID vs Term name.
@@ -8,6 +8,46 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Util::CCO_ID_Term_Map;
+
+=head1 NAME
+
+CCO::Util::CCO_ID_Term_Map - A map between CCO IDs and term names.
+    
+=head1 SYNOPSIS
+
+use CCO::Util::CCO_ID_Term_Map;
+
+$cco_id_set  = CCO_ID_Term_Map -> new;
+
+$cco_id_set->file("ontology.ids");
+
+$file = $cco_id_set -> file;
+
+$size = $cco_id_set -> size;
+
+$cco_id_set->file("CCO");
+
+if ($cco_id_set->add("CCO:C1234567")) { ... }
+
+$new_id = $cco_id_set->get_new_id("CCO", "C");
+
+=head1 DESCRIPTION
+
+The CCO::Util::CCO_ID_Term_Map class implements a map for storing CCO IDs and their corresponding names.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007 by erant
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
 
 use Carp;
 use strict;
@@ -304,45 +344,3 @@ sub remove_by_key () {
     return $value;
 }
 1;
-
-=head1 NAME
-
-    CCO::Util::CCO_ID_Term_Map - a map between CCO IDs and term names.
-    
-=head1 SYNOPSIS
-
-use CCO::Util::CCO_ID_Term_Map;
-
-$cco_id_set  = CCO_ID_Term_Map -> new;
-
-$cco_id_set->file("ontology.ids");
-
-$file = $cco_id_set -> file;
-
-$size = $cco_id_set -> size;
-
-$cco_id_set->file("CCO");
-
-if ($cco_id_set->add("CCO:C1234567")) { ... }
-
-$new_id = $cco_id_set->get_new_id("CCO", "C");
-
-=head1 DESCRIPTION
-
-The CCO::Util::CCO_ID_Term_Map class implements a map for storing CCO IDs and their corresponding names.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007 by erant
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut
-

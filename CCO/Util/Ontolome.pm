@@ -11,7 +11,7 @@ package CCO::Util::Ontolome;
 
 =head1 NAME
 
-CCO::Util::Ontolome  - a set of ontologies
+CCO::Util::Ontolome  - A set of ontologies
     
 =head1 SYNOPSIS
 

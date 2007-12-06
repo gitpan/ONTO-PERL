@@ -1,4 +1,4 @@
-# $Id: NCBIParser.pm 1441 2007-08-21 11:58:25Z erant $
+# $Id: NCBIParser.pm 1704 2007-12-06 17:33:49Z erant $
 #
 # Module  : NCBIParser.pm
 # Purpose : Parse NCBI files: names and nodes
@@ -8,6 +8,41 @@
 # Contact : CCO <ccofriends@psb.ugent.be>
 #
 package CCO::Parser::NCBIParser;
+
+=head1 NAME
+
+CCO::Parser::NCBIParser - A NCBI taxonomy to OBO translator.
+
+=head1 DESCRIPTION
+
+This parser converts chosen parts of the NCBI taxonomy-tree into an OBO file. 
+Some taxa are given to the parser and the whole tree till the root is 
+reconstructed in a given OBO ontology, using scientific names.
+
+The dump files (nodes.dmp and names.dmp) should be obtained from: 
+
+	ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
+
+TODO: include ranks and disjoints only in correlating ranks.
+
+=head1 AUTHOR
+
+Mikel Egana Aranguren 
+
+http://www.mikeleganaranguren.com
+
+eganaarm@cs.man.ac.uk
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006 by Mikel Egana Aranguren
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
 use CCO::Parser::OBOParser;
 use CCO::Core::Ontology;
 use CCO::Core::Relationship;
@@ -193,45 +228,3 @@ sub getParentsRecursively (){
 }
 
 1;
-
-=head1 NAME
-
-
-    CCO::Parser::NCBIParser - A NCBI taxonomy to OBO translator.
-
-
-=head1 DESCRIPTION
-
-
-This parser converts chosen parts of the NCBI taxonomy-tree into an OBO file. 
-Some taxa are given to the parser and the whole tree till the root is 
-reconstructed in a given OBO ontology, using scientific names.
-
-The dump files (nodes.dmp and names.dmp) should be obtained from: 
-
-	ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
-
-TODO: include ranks and disjoints only in correlating ranks.
-
-
-=head1 AUTHOR
-
-
-Mikel Egana Aranguren 
-
-http://www.mikeleganaranguren.com
-
-eganaarm@cs.man.ac.uk
-
-
-=head1 COPYRIGHT AND LICENSE
-
-
-Copyright (C) 2006 by Mikel Egana Aranguren
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut

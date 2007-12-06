@@ -6,6 +6,7 @@ default-namespace: test_namespace
 [Term]
 id: MYO:0000000
 name: A
+!TODO This is a TODO
 
 [Term]
 id: MYO:0000001
@@ -92,3 +93,4 @@ relationship: part_of MYO:0000005 ! F
 [Typedef]
 id: part_of
 name: part_of
+!TODO This is a TODO

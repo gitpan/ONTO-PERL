@@ -1,4 +1,4 @@
-# $Id: GoaAssociation.pm 1375 2007-08-06 15:56:17Z erant $
+# $Id: GoaAssociation.pm 1704 2007-12-06 17:33:49Z erant $
 #
 # Module  : GoaAssociation.pm
 # Purpose : GOA associaton entry structure.
@@ -8,6 +8,52 @@
 # Contact : Vladimir Mironov <vlmir@psb.ugent.be>
 #
 package CCO::Core::GoaAssociation;
+
+=head1 NAME
+
+CCO::Core::GoaAssociation - A GOA association record
+
+=head1 SYNOPSIS
+
+use CCO::Core::GoaAssociation;
+use strict;
+
+# three new assoc's
+my $goa_association1 = CCO::Core::GoaAssociation->new();
+my $goa_association2 = CCO::Core::GoaAssociation->new();
+my $goa_association3 = CCO::Core::GoaAssociation->new();
+
+$goa_association1->assc_id("CCO:vm");
+$goa_association1->description("this is a description");
+
+$goa_association2->assc_id("CCO:ls");
+$goa_association3->assc_id("CCO:ea");
+
+my $goa_association4 = $goa_association3;
+
+my $goa_association5 = CCO::Core::GoaAssociation->new();
+$goa_association5->assc_id("CCO:vm");
+$goa_association5->description("this is a description");
+
+
+=head1 DESCRIPTION
+
+A goa_association object encapsulates the structure of a GOA association record.
+
+=head1 AUTHOR
+
+Vladimir Mironov, E<lt>vlmir@psb.ugent.beE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006 by vlmir
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
 use strict;
 use warnings;
 use Carp;
@@ -355,51 +401,4 @@ sub equals {
 	}		
 }
 
-1;
-
-=head1 NAME
-
-    CCO::Core::GoaAssociation  - a GOA association record.
-
-=head1 SYNOPSIS
-
-use CCO::Core::GoaAssociation;
-use strict;
-
-# three new assoc's
-my $goa_association1 = CCO::Core::GoaAssociation->new();
-my $goa_association2 = CCO::Core::GoaAssociation->new();
-my $goa_association3 = CCO::Core::GoaAssociation->new();
-
-$goa_association1->assc_id("CCO:vm");
-$goa_association1->description("this is a description");
-
-$goa_association2->assc_id("CCO:ls");
-$goa_association3->assc_id("CCO:ea");
-
-my $goa_association4 = $goa_association3;
-
-my $goa_association5 = CCO::Core::GoaAssociation->new();
-$goa_association5->assc_id("CCO:vm");
-$goa_association5->description("this is a description");
-
-
-=head1 DESCRIPTION
-
-A goa_association object encapsulates the structure of a GOA association record.
-
-=head1 AUTHOR
-
-Vladimir Mironov, E<lt>vlmir@psb.ugent.beE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006 by vlmir
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut
-    
+1;    

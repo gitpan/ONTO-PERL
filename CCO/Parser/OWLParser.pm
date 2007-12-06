@@ -1,4 +1,4 @@
-# $Id: OWLParser.pm 1586 2007-10-12 15:24:06Z erant $
+# $Id: OWLParser.pm 1704 2007-12-06 17:33:49Z erant $
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
@@ -8,6 +8,39 @@
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 package CCO::Parser::OWLParser;
+
+=head1 NAME
+
+CCO::Parser::OWLParser  - An OWL parser (oboInOwl mapping).
+    
+=head1 SYNOPSIS
+
+use CCO::Parser::OWLParser;
+
+use strict;
+
+my $my_parser = CCO::Parser::OWLParser->new;
+
+my $ontology = $my_parser->work("cco.owl");
+
+=head1 DESCRIPTION
+
+An OWLParser object works on parsing an OWL file.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006 by erant
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
 use CCO::Core::Term;
 use CCO::Core::Ontology;
 use CCO::Core::Dbxref;
@@ -729,36 +762,3 @@ sub char_hex2ascii {
 }
 
 1;
-
-=head1 NAME
-
-    CCO::Parser::OWLParser  - An OWL parser (oboInOwl mapping).
-    
-=head1 SYNOPSIS
-
-use CCO::Parser::OWLParser;
-use strict;
-
-my $my_parser = CCO::Parser::OWLParser->new;
-
-my $ontology = $my_parser->work("cco.owl");
-
-=head1 DESCRIPTION
-
-An OWLParser object works on parsing an OWL file.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006 by erant
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut
-   

@@ -1,0 +1,47 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+<title>Retrieve ancentors of a given term</title>
+</head>
+<body>
+	<ol>
+	<li> Get all the ancestor terms of a given term:
+		<pre>
+		
+			use CCO::Parser::OBOParser;
+			
+			my $my_parser = CCO::Parser::OBOParser->new();
+			my $ontology = $my_parser->work("my_obo_ontology.obo");
+			
+			my $interesting_term = $ontology->get_term_by_name("protein");
+			
+			my @descendents = @{$onto->get_ancestor_terms($interesting_term)};
+			
+			foreach my $t (@descendents) {
+				print "The name of the ancestor term is: ", $t->name();
+			}
+			
+		</pre>
+	</li>
+
+	<li> Get the only the parent terms of a given term:
+		<pre>
+		
+			use CCO::Parser::OBOParser;
+			
+			my $my_parser = CCO::Parser::OBOParser->new();
+			my $ontology = $my_parser->work("my_obo_ontology.obo");
+			
+			my $interesting_term = $ontology->get_term_by_name("protein");
+			
+			my @children = @{$onto->get_parent_terms($interesting_term)};
+			
+			foreach my $t (@children) {
+				print "The name of the parent term is: ", $t->name();
+			}
+			
+		</pre>
+	</li>
+	</ol>
+</body>
+</html>

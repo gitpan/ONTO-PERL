@@ -1,4 +1,4 @@
-# $Id: GoaAssociationSet.pm 1377 2007-08-06 16:07:14Z erant $
+# $Id: GoaAssociationSet.pm 1704 2007-12-06 17:33:49Z erant $
 #
 # Module  : GoaAssociationSet.pm
 # Purpose : GOA association set.
@@ -8,13 +8,87 @@
 # Contact : Vladimir Mironov <vlmir@psb.ugent.be>
 #
 package CCO::Util::GoaAssociationSet;
-our @ISA = qw(CCO::Util::Set);#TODO change inheritence
+our @ISA = qw(CCO::Util::Set); # TODO change inheritence
+
+=head1 NAME
+
+CCO::Util::GoaAssociationSet - A GoaAssociationSet implementation
+   
+=head1 SYNOPSIS
+
+use CCO::Util::GoaAssociationSet;
+use CCO::Core::GoaAssociation;
+use strict;
+
+my $my_set = CCO::Util::GoaAssociationSet->new();
+
+# three new goa_association's
+my $goa_association1 = CCO::Core::GoaAssociation->new();
+my $goa_association2 = CCO::Core::GoaAssociation->new();
+my $goa_association3 = CCO::Core::GoaAssociation->new();
+
+$goa_association1->assc_id("CCO:vm");
+$goa_association2->assc_id("CCO:ls");
+$goa_association3->assc_id("CCO:ea");
+
+# remove from my_set
+$my_set->remove($goa_association1);
+$my_set->add($goa_association1);
+$my_set->remove($goa_association1);
+
+### set versions ###
+$my_set->add($goa_association1);
+$my_set->add($goa_association2);
+$my_set->add($goa_association3);
+
+my $goa_association4 = CCO::Core::GoaAssociation->new();
+my $goa_association5 = CCO::Core::GoaAssociation->new();
+my $goa_association6 = CCO::Core::GoaAssociation->new();
+
+$goa_association4->assc_id("CCO:ef");
+$goa_association5->assc_id("CCO:sz");
+$goa_association6->assc_id("CCO:qa");
+
+$my_set->add_all($goa_association4, $goa_association5, $goa_association6);
+
+$my_set->add_all($goa_association4, $goa_association5, $goa_association6);
+
+# remove from my_set
+$my_set->remove($goa_association4);
+
+my $goa_association7 = $goa_association4;
+my $goa_association8 = $goa_association5;
+my $goa_association9 = $goa_association6;
+
+my $my_set2 = CCO::Util::GoaAssociationSet->new();
+
+$my_set->add_all($goa_association4, $goa_association5, $goa_association6);
+$my_set2->add_all($goa_association7, $goa_association8, $goa_association9, $goa_association1, $goa_association2, $goa_association3);
+
+$my_set2->clear();
+
+=head1 DESCRIPTION
+
+A set (CCO::Util::Set) of goa_association records.
+
+=head1 AUTHOR
+
+Vladimir Mironov, E<lt>vlmir@psb.ugent.beE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006 by erant
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
 use CCO::Util::Set;
 use strict;
 use warnings;
 use Carp;
-
-
 
 =head2 add
 
@@ -173,79 +247,3 @@ sub equals {
 }
 
 1;
-
-=head1 NAME
-
-   CCO::Util::GoaAssociationSet  - a GoaAssociationSet implementation
-   
-=head1 SYNOPSIS
-
-use CCO::Util::GoaAssociationSet;
-use CCO::Core::GoaAssociation;
-use strict;
-
-my $my_set = CCO::Util::GoaAssociationSet->new();
-
-# three new goa_association's
-my $goa_association1 = CCO::Core::GoaAssociation->new();
-my $goa_association2 = CCO::Core::GoaAssociation->new();
-my $goa_association3 = CCO::Core::GoaAssociation->new();
-
-$goa_association1->assc_id("CCO:vm");
-$goa_association2->assc_id("CCO:ls");
-$goa_association3->assc_id("CCO:ea");
-
-# remove from my_set
-$my_set->remove($goa_association1);
-$my_set->add($goa_association1);
-$my_set->remove($goa_association1);
-
-### set versions ###
-$my_set->add($goa_association1);
-$my_set->add($goa_association2);
-$my_set->add($goa_association3);
-
-my $goa_association4 = CCO::Core::GoaAssociation->new();
-my $goa_association5 = CCO::Core::GoaAssociation->new();
-my $goa_association6 = CCO::Core::GoaAssociation->new();
-
-$goa_association4->assc_id("CCO:ef");
-$goa_association5->assc_id("CCO:sz");
-$goa_association6->assc_id("CCO:qa");
-
-$my_set->add_all($goa_association4, $goa_association5, $goa_association6);
-
-$my_set->add_all($goa_association4, $goa_association5, $goa_association6);
-
-# remove from my_set
-$my_set->remove($goa_association4);
-
-my $goa_association7 = $goa_association4;
-my $goa_association8 = $goa_association5;
-my $goa_association9 = $goa_association6;
-
-my $my_set2 = CCO::Util::GoaAssociationSet->new();
-
-$my_set->add_all($goa_association4, $goa_association5, $goa_association6);
-$my_set2->add_all($goa_association7, $goa_association8, $goa_association9, $goa_association1, $goa_association2, $goa_association3);
-
-$my_set2->clear();
-
-=head1 DESCRIPTION
-
-A set (CCO::Util::Set) of goa_association records.
-
-=head1 AUTHOR
-
-Vladimir Mironov, E<lt>vlmir@psb.ugent.beE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006 by erant
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut 

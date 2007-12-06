@@ -12,7 +12,7 @@ package CCO::Parser::NewIntActParser;
 
 =head1 NAME
 
-CCO::Parser::IntActParser  - An IntAct to OBO parser/filter.
+CCO::Parser::NewIntActParser - A new IntAct to OBO parser/filter.
 
 =head1 DESCRIPTION
 

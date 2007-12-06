@@ -1,4 +1,4 @@
-# $Id: InteractionManager.pm 1376 2007-08-06 15:59:00Z erant $
+# $Id: InteractionManager.pm 1702 2007-12-06 17:01:36Z erant $
 #
 # Module  : InteractionManager.pm
 # Purpose : An interaction manager.
@@ -8,6 +8,64 @@
 # Contact : CCO <ccofriends@psb.ugent.be>
 #
 package CCO::Parser::InteractionManager;
+
+=head1 NAME
+
+CCO::Parser::InteractionManager  - An IntAct to OBO parser/filter manager.
+    
+=head1 SYNOPSIS
+
+use CCO::Parser::InteractionManager;
+use strict;
+
+my $A_t_intact_files_dir = "/home/pik/Bioinformatics/Erick/IntactFiles/At/";
+my @A_t_intact_files = @{&get_intact_files ($A_t_intact_files_dir)};
+
+my $A_t_interactionmanager = InteractionManager->new;
+$A_t_interactionmanager->work(
+"/home/pik/Bioinformatics/Erick/onto-perl-Intact-Optimized/DATA/pre_cco/pre_cco_A_thaliana.obo",
+"/home/pik/Bioinformatics/Erick/onto-perl-Intact-Optimized/DATA/pre_cco/cco_I_A_thaliana.obo",
+"3702",
+"/home/pik/Bioinformatics/Erick/onto-perl-Intact-Optimized/DATA/cco_ids/cco_i_A_thaliana.ids",
+"/home/pik/Bioinformatics/Erick/onto-perl-Intact-Optimized/DATA/cco_ids/cco_b_A_thaliana.ids",
+"/home/pik/Bioinformatics/Erick/onto-perl-Intact-Optimized/DATA/cco_ids/cco_i.ids",
+"/home/pik/Bioinformatics/Erick/onto-perl-Intact-Optimized/DATA/cco_ids/cco_b.ids",
+@A_t_intact_files 
+);  
+
+
+sub get_intact_files{
+	my $intact_files_dir = shift;
+	my @intact_files = ();
+	opendir(DIR, $intact_files_dir) || die "can't opendir $intact_files_dir: $!";
+	my @files = readdir(DIR);
+	for my $file (@files){
+		if (!($file eq ".") and !($file eq "..")) {
+		push (@intact_files,$intact_files_dir.$file);	
+		}
+	}
+	closedir DIR;
+	return \@intact_files;
+}
+
+=head1 DESCRIPTION
+
+A parser for IntAct to OBO conversion. The conversion is filtered 
+according to the proteins already existing in the OBO file.
+
+=head1 AUTHOR
+
+Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007 by Mikel Egana Aranguren
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
 
 use CCO::Util::CCO_ID_Term_Map;
 use CCO::Util::XMLIntactParser;
@@ -458,62 +516,4 @@ sub generate_cco_y_ids(){
 }
 
 1;
-
-=head1 NAME
-
-    CCO::Core::InteractionManager  - An IntAct to OBO parser/filter.
-    
-=head1 SYNOPSIS
-
-use CCO::Core::InteractionManager;
-use strict;
-
-my $A_t_intact_files_dir = "/home/pik/Bioinformatics/Erick_two/IntactFiles/At/";
-my @A_t_intact_files = @{&get_intact_files ($A_t_intact_files_dir)};
-
-my $A_t_interactionmanager = InteractionManager->new;
-$A_t_interactionmanager->work(
-"/home/pik/Bioinformatics/Erick_two/onto-perl-Intact-Optimized/DATA/pre_cco/pre_cco_A_thaliana.obo",
-"/home/pik/Bioinformatics/Erick_two/onto-perl-Intact-Optimized/DATA/pre_cco/cco_I_A_thaliana.obo",
-"3702",
-"/home/pik/Bioinformatics/Erick_two/onto-perl-Intact-Optimized/DATA/cco_ids/cco_i_A_thaliana.ids",
-"/home/pik/Bioinformatics/Erick_two/onto-perl-Intact-Optimized/DATA/cco_ids/cco_b_A_thaliana.ids",
-"/home/pik/Bioinformatics/Erick_two/onto-perl-Intact-Optimized/DATA/cco_ids/cco_i.ids",
-"/home/pik/Bioinformatics/Erick_two/onto-perl-Intact-Optimized/DATA/cco_ids/cco_b.ids",
-@A_t_intact_files 
-);  
-
-
-sub get_intact_files{
-	my $intact_files_dir = shift;
-	my @intact_files = ();
-	opendir(DIR, $intact_files_dir) || die "can't opendir $intact_files_dir: $!";
-	my @files = readdir(DIR);
-	for my $file (@files){
-		if (!($file eq ".") and !($file eq "..")){
-# 		print $intact_files_dir.$file,"\n";
-		push (@intact_files,$intact_files_dir.$file);	
-		}
-	}
-	closedir DIR;
-	return \@intact_files;
-}
-
-=head1 DESCRIPTION
-
-A parser for IntAct to OBO conversion. The conversion is filtered according to the proteins already existing in the OBO file.
-
-=head1 AUTHOR
-
-Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2007 by Mikel Egana Aranguren
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
 

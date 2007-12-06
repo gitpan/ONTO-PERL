@@ -1,0 +1,101 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+<title>Exporting ontologies into different formats</title>
+</head>
+<body>
+	
+	<ol>
+	<li> Export a given ontology to OWL format (oboInOwl mapping):
+		<pre>
+					
+			use CCO::Parser::OBOParser;
+			use strict;
+						
+			my $my_parser = CCO::Parser::OBOParser->new();
+			
+			my $o = $my_parser->work("gene_ontology.obo");
+			
+			# export to OWL: gene_ontology.owl
+			open (FH, ">gene_ontology_by_cco.owl");
+			$o->export(\*FH, 'owl');
+			close FH;
+			
+		</pre>
+	</li>
+		
+	<li> Export a given ontology to GML format:
+		<pre>
+
+			use CCO::Parser::OBOParser;
+			use strict;
+						
+			my $my_parser = CCO::Parser::OBOParser->new();
+			
+			my $o = $my_parser->work("gene_ontology.obo");
+			
+			# export to GML: gene_ontology.gml
+			open (FH, ">gene_ontology_by_cco.gml");
+			$o->export(\*FH, 'gml');
+			close FH;
+			
+		</pre>
+	</li>
+		
+	<li> Export a given ontology to XML format:
+		<pre>	
+		
+			use CCO::Parser::OBOParser;
+			use strict;
+						
+			my $my_parser = CCO::Parser::OBOParser->new();
+			
+			my $o = $my_parser->work("gene_ontology.obo");
+					
+			# export to XML: gene_ontology.xml
+			open (FH, ">gene_ontology_by_cco.xml");
+			$o->export(\*FH, 'xml');
+			close FH;
+			
+		</pre>
+	</li>
+		
+	<li> Export a given ontology to DOT format:
+		<pre>				
+			
+			use CCO::Parser::OBOParser;
+			use strict;
+						
+			my $my_parser = CCO::Parser::OBOParser->new();
+			
+			my $o = $my_parser->work("gene_ontology.obo");
+						
+			# export to DOT: gene_ontology.dot
+			open (FH, ">gene_ontology_by_cco.dot");
+			$o->export(\*FH, 'dot');
+			close FH;
+			
+		</pre>
+	</li>
+		
+	<li> Export a given ontology to OBO format (spec 1.2):
+		<pre>
+		
+			use CCO::Parser::OBOParser;
+			use strict;
+						
+			my $my_parser = CCO::Parser::OBOParser->new();
+			
+			my $o = $my_parser->work("gene_ontology.obo");
+							
+			# export to OBO: gene_ontology.obo
+			open (FH, ">gene_ontology_by_cco.obo");
+			$o->export(\*FH, 'obo');
+			close FH;
+						
+		</pre>
+	</li>
+	</ol>
+	
+</body>
+</html>

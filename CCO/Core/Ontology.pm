@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 1686 2007-12-04 20:06:01Z erant $
+# $Id: Ontology.pm 1697 2007-12-05 16:03:52Z erant $
 #
 # Module  : Ontology.pm
 # Purpose : OBO/OWL ontologies handling.
@@ -1928,7 +1928,7 @@ sub export {
 			#
 			# label name = class name
 			#
-			print $file_handle "\t<rdfs:label xml:lang=\"en\">", $term->name(), "</rdfs:label>\n";
+			print $file_handle "\t<rdfs:label xml:lang=\"en\">", $term->name(), "</rdfs:label>\n" if ($term->name());
 			
 			#
 			# comment
