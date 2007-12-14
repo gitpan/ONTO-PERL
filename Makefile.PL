@@ -10,7 +10,7 @@ if (!eval "require $p") {
 
    XML::XPath is missing. This module is only required in order to
    perform parsing operations with IntAct-XML files. However, this 
-   module is not required for using onto-perl. If you do not intend 
+   module is not required for using ONTO-PERL. If you do not intend 
    to use IntAct XML files, then you may continue, and install 
    XML::XPath in the future.
 
@@ -24,7 +24,7 @@ if (!eval "require $p") {
 
    SWISS::Entry is missing. This module is only required in order to
    perform parsing operations with UniProt files. However, this 
-   module is not required for using onto-perl. If you do not intend 
+   module is not required for using ONTO-PERL. If you do not intend 
    to use UniProt files, then you may continue, and install 
    SWISS::Entry in the future.
 
@@ -38,7 +38,7 @@ if (!eval "require $p") {
 
    XML::Parser is missing. This module is only required in order to
    perform parsing operations with XML files (obo2owl). However, this 
-   module is not fully required for using onto-perl. If you do not intend 
+   module is not fully required for using ONTO-PERL. If you do not intend 
    to convert your files to OWL, then you may continue, and install 
    XML::Parser in the future.
 
@@ -47,10 +47,10 @@ MSG
 }
 
 WriteMakefile(
-    NAME              => 'CCO',
-    DISTNAME          => 'onto-perl',
+    NAME              => 'ONTO-PERL',
+    DISTNAME          => 'ONTO-PERL',
     ABSTRACT          => 'PERL Modules for biomedical ontologies such as the Cell Cycle Ontology (CCO) and OBO ontologies in general like Gene Ontology (GO)',
-    VERSION_FROM      => 'onto-perl.pod', # finds $VERSION
+    VERSION_FROM      => 'ONTO-PERL.pod', # finds $VERSION
     #LICENSE          => 'perl',
     #PREREQ_PM         => {
 	#		'SWISS::Entry' => 1.65,

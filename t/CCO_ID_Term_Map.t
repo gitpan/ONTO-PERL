@@ -12,10 +12,10 @@ BEGIN {
 #########################
 
 use Data::Dumper;
-use CCO::Util::CCO_ID_Term_Map;
+use OBO::CCO::CCO_ID_Term_Map;
 use strict;
 
-my $my_set = CCO::Util::CCO_ID_Term_Map->new("./t/data/cco_id_term.map");
+my $my_set = OBO::CCO::CCO_ID_Term_Map->new("./t/data/cco_id_term.map");
 
 #
 # check the current entries:

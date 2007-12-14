@@ -11,17 +11,17 @@ BEGIN {
 
 #########################
 
-use CCO::Core::Term;
-use CCO::Core::Def;
-use CCO::Util::DbxrefSet;
-use CCO::Core::Dbxref;
-use CCO::Core::Synonym;
+use OBO::Core::Term;
+use OBO::Core::Def;
+use OBO::Util::DbxrefSet;
+use OBO::Core::Dbxref;
+use OBO::Core::Synonym;
 use strict;
 
 # three new terms
-my $n1 = CCO::Core::Term->new();
-my $n2 = CCO::Core::Term->new();
-my $n3 = CCO::Core::Term->new();
+my $n1 = OBO::Core::Term->new();
+my $n2 = OBO::Core::Term->new();
+my $n3 = OBO::Core::Term->new();
 
 # name, namespace, code
 ok($n1->idspace() eq "NN");
@@ -88,26 +88,26 @@ ok($n1->is_anonymous() == 0);
 ok($n1->is_anonymous() != 1);
 
 # synonyms
-my $syn1 = CCO::Core::Synonym->new();
+my $syn1 = OBO::Core::Synonym->new();
 $syn1->type('EXACT');
-my $def1 = CCO::Core::Def->new();
+my $def1 = OBO::Core::Def->new();
 $def1->text("Hola mundo1");
-my $sref1 = CCO::Core::Dbxref->new();
+my $sref1 = OBO::Core::Dbxref->new();
 $sref1->name("CCO:vm");
-my $srefs_set1 = CCO::Util::DbxrefSet->new();
+my $srefs_set1 = OBO::Util::DbxrefSet->new();
 $srefs_set1->add($sref1);
 $def1->dbxref_set($srefs_set1);
 $syn1->def($def1);
 $n1->synonym_set($syn1);
 
-my $syn2 = CCO::Core::Synonym->new();
+my $syn2 = OBO::Core::Synonym->new();
 $syn2->type('BROAD');
-my $def2 = CCO::Core::Def->new();
+my $def2 = OBO::Core::Def->new();
 $def2->text("Hola mundo2");
-my $sref2 = CCO::Core::Dbxref->new();
+my $sref2 = OBO::Core::Dbxref->new();
 $sref2->name("CCO:ls");
 $srefs_set1->add_all($sref1);
-my $srefs_set2 = CCO::Util::DbxrefSet->new();
+my $srefs_set2 = OBO::Util::DbxrefSet->new();
 $srefs_set2->add_all($sref1, $sref2);
 $def2->dbxref_set($srefs_set2);
 $syn2->def($def2);
@@ -116,13 +116,13 @@ $n2->synonym_set($syn2);
 ok(!defined (($n3->synonym_set())[0]));
 ok(!$n3->synonym_set());
 
-my $syn3 = CCO::Core::Synonym->new();
+my $syn3 = OBO::Core::Synonym->new();
 $syn3->type('BROAD');
-my $def3 = CCO::Core::Def->new();
+my $def3 = OBO::Core::Def->new();
 $def3->text("Hola mundo2");
-my $sref3 = CCO::Core::Dbxref->new();
+my $sref3 = OBO::Core::Dbxref->new();
 $sref3->name("CCO:ls");
-my $srefs_set3 = CCO::Util::DbxrefSet->new();
+my $srefs_set3 = OBO::Util::DbxrefSet->new();
 $srefs_set3->add_all($sref1, $sref2);
 $def3->dbxref_set($srefs_set3);
 $syn3->def($def3);
@@ -136,17 +136,17 @@ ok(($n2->synonym_set())[0]->def()->equals(($n3->synonym_set())[0]->def()));
 ok(($n2->synonym_set())[0]->equals(($n3->synonym_set())[0]));
 
 # synonym as string
-ok(($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]");
-$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
-ok(($n2->synonym_as_string())[0] eq "\"Hello world2\" [CCO:ls2, CCO:vm2]");
-ok(($n2->synonym_as_string())[1] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]");
+ok(($n2->synonym_as_string())[0] eq '"Hola mundo2" [CCO:ls, CCO:vm]');
+$n2->synonym_as_string("Hello world2", '[CCO:vm2, CCO:ls2]', "EXACT");
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2]');
+ok(($n2->synonym_as_string())[1] eq '"Hola mundo2" [CCO:ls, CCO:vm]');
 
 # xref
-my $xref1 = CCO::Core::Dbxref->new();
-my $xref2 = CCO::Core::Dbxref->new();
-my $xref3 = CCO::Core::Dbxref->new();
-my $xref4 = CCO::Core::Dbxref->new();
-my $xref5 = CCO::Core::Dbxref->new();
+my $xref1 = OBO::Core::Dbxref->new();
+my $xref2 = OBO::Core::Dbxref->new();
+my $xref3 = OBO::Core::Dbxref->new();
+my $xref4 = OBO::Core::Dbxref->new();
+my $xref5 = OBO::Core::Dbxref->new();
 
 $xref1->name("XCCO:vm");
 $xref2->name("XCCO:ls");
@@ -154,7 +154,7 @@ $xref3->name("XCCO:ea");
 $xref4->name("XCCO:vm");
 $xref5->name("XCCO:ls");
 
-my $xrefs_set = CCO::Util::DbxrefSet->new();
+my $xrefs_set = OBO::Util::DbxrefSet->new();
 $xrefs_set->add_all($xref1, $xref2, $xref3, $xref4, $xref5);
 $n1->xref_set($xrefs_set);
 ok($n1->xref_set()->contains($xref3));
@@ -164,7 +164,7 @@ ok($xref_length == 3);
 # xref_set_as_string
 my @empty_refs = $n2->xref_set_as_string();
 ok($#empty_refs == -1);
-$n2->xref_set_as_string("[YCCO:vm, YCCO:ls, YCCO:ea \"Erick Antezana\"] {opt=first}");
+$n2->xref_set_as_string('[YCCO:vm, YCCO:ls, YCCO:ea "Erick Antezana" {opt=first}]');
 my @xrefs_n2 = $n2->xref_set()->get_set();
 my %xr_n2;
 foreach my $xref_n2 (@xrefs_n2) {
@@ -175,17 +175,17 @@ ok($xr_n2{"YCCO:ls"} eq "YCCO:ls");
 ok($xr_n2{"YCCO:ea"} eq "YCCO:ea");
 
 # def
-my $def = CCO::Core::Def->new();
+my $def = OBO::Core::Def->new();
 $def->text("Hola mundo");
-my $ref1 = CCO::Core::Dbxref->new();
-my $ref2 = CCO::Core::Dbxref->new();
-my $ref3 = CCO::Core::Dbxref->new();
+my $ref1 = OBO::Core::Dbxref->new();
+my $ref2 = OBO::Core::Dbxref->new();
+my $ref3 = OBO::Core::Dbxref->new();
 
 $ref1->name("CCO:vm");
 $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 
-my $refs_set = CCO::Util::DbxrefSet->new();
+my $refs_set = OBO::Util::DbxrefSet->new();
 $refs_set->add_all($ref1,$ref2,$ref3);
 $def->dbxref_set($refs_set);
 $n1->def($def);
@@ -194,8 +194,8 @@ ok($n1->def()->dbxref_set()->size == 3);
 $n2->def($def);
 
 # def as string
-ok($n2->def_as_string() eq "\"Hola mundo\" [CCO:ea, CCO:ls, CCO:vm]");
-$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\" {opt=first}]");
+ok($n2->def_as_string() eq '"Hola mundo" [CCO:ea, CCO:ls, CCO:vm]');
+$n2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}]');
 ok($n2->def()->text() eq "This is a dummy definition");
 my @refs_n2 = $n2->def()->dbxref_set()->get_set();
 my %r_n2;
@@ -206,7 +206,7 @@ ok($n2->def()->dbxref_set()->size == 3);
 ok($r_n2{"CCO:vm"} eq "CCO:vm");
 ok($r_n2{"CCO:ls"} eq "CCO:ls");
 ok($r_n2{"CCO:ea"} eq "CCO:ea");
-ok($n2->def_as_string() eq "\"This is a dummy definition\" [CCO:ea \"Erick Antezana\" {opt=first}, CCO:ls, CCO:vm]");
+ok($n2->def_as_string() eq '"This is a dummy definition" [CCO:ea "Erick Antezana" {opt=first}, CCO:ls, CCO:vm]');
 
 # disjoint_from:
 $n2->disjoint_from($n1->id(), $n3->id());

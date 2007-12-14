@@ -9,9 +9,9 @@
 	<li> Find all the terms in a given ontology:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology = $my_parser->work("my_obo_ontology.obo");
 			
 			my @my_terms = $ontology->@{$onto->get_terms()}; # get all the terms
@@ -26,9 +26,9 @@
 	<li> Find all the relationships in a given ontology:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology = $my_parser->work("my_obo_ontology.obo");
 			
 			my @my_rels= @{$ontology->get_relationships()}; # get all the relationships
@@ -43,9 +43,9 @@
 	<li> Find all the terms using a regular expression for the ID:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology = $my_parser->work("my_obo_ontology.obo");
 			
 			my @my_terms = @{$ontology->get_terms("CCO:G.*")}; # get all the terms with such an ID
@@ -60,9 +60,9 @@
 	<li> Get a specific term by name:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology = $my_parser->work("my_obo_ontology.obo");
 			
 			my $my_term = $ontology->get_term_by_name("protein"); # get the term by name
@@ -75,9 +75,9 @@
 	<li> Get a specific term by ID:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology1 = $my_parser->work("go.obo");
 			my $ontology2 = $my_parser->work("cco.obo");
 			

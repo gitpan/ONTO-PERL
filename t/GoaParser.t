@@ -10,7 +10,7 @@ BEGIN {
 }
 #########################
 
-use CCO::Parser::GoaParser;
+use OBO::CCO::GoaParser;
 use Carp;
 use strict;
 use warnings;
@@ -28,7 +28,7 @@ my @files = ("./t/data/pre_cco_core.obo",
 			"./t/data/cco_b.ids",
 			"./t/data/Ath_cc_up.map",
 			);
-my $my_parser = CCO::Parser::GoaParser->new();
+my $my_parser = OBO::CCO::GoaParser->new();
 ok(1);
 my $goaAssocSet = $my_parser->parse("./t/data/goa_assoc_filt.txt");
 #my $start = time;

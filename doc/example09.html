@@ -8,9 +8,9 @@
 	<li> Building an ontology from an existing sub-ontology:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $onto = $my_parser->work("gene_ontology.obo");        # load: gene_ontology.obo
 			
 			my $sub_ontology_root_id = "GO:0007126";                 # term: meiosis
@@ -18,7 +18,7 @@
 			my @descendents = @{$onto->get_descendent_terms($term)}; # get its descendants
 			unshift @descendents, $term;
 			
-			my $term_set = CCO::Util::TermSet->new();
+			my $term_set = OBO::Util::TermSet->new();
 			$term_set->add_all(@descendents);                        # collect the descendants
 			my $so = $onto->subontology_by_terms($term_set);         # get the sub-ontology
 			$so->default_namespace("meiosis_ontology");

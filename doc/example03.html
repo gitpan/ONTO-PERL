@@ -8,9 +8,9 @@
 	<li> Get all the ancestor terms of a given term:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology = $my_parser->work("my_obo_ontology.obo");
 			
 			my $interesting_term = $ontology->get_term_by_name("protein");
@@ -27,9 +27,9 @@
 	<li> Get the only the parent terms of a given term:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology = $my_parser->work("my_obo_ontology.obo");
 			
 			my $interesting_term = $ontology->get_term_by_name("protein");

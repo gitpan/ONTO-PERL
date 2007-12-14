@@ -1,0 +1,73 @@
+# $Id: ONTO-PERL.pod 291 2006-06-01 16:21:45Z erant $
+#
+# see also - http://www.cellcycleontology.org and 
+#          - http://search.cpan.org/~easr/ONTO-PERL/
+#
+# This library is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself, either Perl version 5.8.7 or,
+# at your option, any later version of Perl 5 you may have available.
+
+=head1 NAME
+
+ONTO-PERL           - perl modules for CCO and OBO ontologies
+
+=head1 DESCRIPTION
+
+'ONTO-PERL' a collection of perl modules for dealing with the Cell
+Cycle Ontology (CCO) and in general with OBO ontologies (like the
+Gene Ontology). This code distribution gathers object-oriented 
+modules (for dealing with the ontology elements such as Term, 
+Relationship, and so forth), scripts (for typical tasks such as 
+format conversions: obo2owl, owl2obo; besides, there are also
+many examples that can be easily adapted for specific applications),
+and a set of test files for ensuring the implementation quality.
+
+
+Some files in 'ONTO-PERL':
+
+README						Readme file
+
+INSTALL						How to install ONTO-PERL (requirements)
+
+LICENSE						ONTO-PERL's license
+
+ONTO-PERL-x.y.tar.gz		ONTO-PERL API: version x.y
+
+ONTO-PERL-latest.tar.gz		ONTO-PERL API: latest version
+
+Changes						Description about the changes in 'ONTO-PERL'
+
+
+Remark:
+
+'ONTO-PERL' is provided "as-is". The current version is stable; 
+nonetheless, improvements are expected as well as feedback is 
+very welcome. Please visit constantly this repository for checking 
+up-to-date versions of this distribution.
+
+
+Contact:
+
+Any comments, suggestions can be addressed to: 
+
+	Erick Antezana <erant@psb.ugent.be>
+	Computational Biology Division
+	http://www.psb.ugent.be/cbd/
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007 by erant
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
+package ONTO-PERL;
+$VERSION='1.07';
+1;

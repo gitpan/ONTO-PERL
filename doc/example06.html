@@ -9,9 +9,9 @@
 	<li> Get all the obsolete terms in a given ontology:
 		<pre>
 		
-			use CCO::Parser::OBOParser;
+			use OBO::Parser::OBOParser;
 			
-			my $my_parser = CCO::Parser::OBOParser->new();
+			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology = $my_parser->work("my_obo_ontology.obo");
 			
 			foreach my $term (@{$ontology->get_terms()}) {

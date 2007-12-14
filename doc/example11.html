@@ -8,17 +8,17 @@
 	<li> Manipulating Ontology Terms (names, IDs, xref's, definitions, and so forth):
 		<pre>
 			
-			use CCO::Core::Term;
-			use CCO::Core::Def;
-			use CCO::Util::DbxrefSet;
-			use CCO::Core::Dbxref;
-			use CCO::Core::Synonym;
+			use OBO::Core::Term;
+			use OBO::Core::Def;
+			use OBO::Util::DbxrefSet;
+			use OBO::Core::Dbxref;
+			use OBO::Core::Synonym;
 			use strict;
 			
 			# three new terms
-			my $n1 = CCO::Core::Term->new();
-			my $n2 = CCO::Core::Term->new();
-			my $n3 = CCO::Core::Term->new();
+			my $n1 = OBO::Core::Term->new();
+			my $n2 = OBO::Core::Term->new();
+			my $n3 = OBO::Core::Term->new();
 			
 			# setting up id's
 			$n1->id("CCO:P0000001");
@@ -68,32 +68,32 @@
 			}
 			
 			# synonyms
-			my $syn1 = CCO::Core::Synonym->new();
+			my $syn1 = OBO::Core::Synonym->new();
 			$syn1->type('EXACT');         # set the type of synonym
 			
-			my $def1 = CCO::Core::Def->new();
+			my $def1 = OBO::Core::Def->new();
 			$def1->text("Hola mundo1");   # set a definition
 			
-			my $sref1 = CCO::Core::Dbxref->new();
+			my $sref1 = OBO::Core::Dbxref->new();
 			$sref1->name("CCO:vm");       # set the DB and ACC of the dbxref
 			
-			my $srefs_set1 = CCO::Util::DbxrefSet->new();
+			my $srefs_set1 = OBO::Util::DbxrefSet->new();
 			$srefs_set1->add($sref1);
 			$def1->dbxref_set($srefs_set1);
 			$syn1->def($def1);
 			$n1->synonym_set($syn1);
 			
-			my $syn2 = CCO::Core::Synonym->new();
+			my $syn2 = OBO::Core::Synonym->new();
 			$syn2->type('BROAD');         # set the type of synonym
 			
-			my $def2 = CCO::Core::Def->new();
+			my $def2 = OBO::Core::Def->new();
 			$def2->text("Hola mundo2");   # set a definition
 			
-			my $sref2 = CCO::Core::Dbxref->new();
+			my $sref2 = OBO::Core::Dbxref->new();
 			$sref2->name("CCO:ls");       # set the DB and ACC of the dbxref
 			
 			$srefs_set1->add_all($sref1);
-			my $srefs_set2 = CCO::Util::DbxrefSet->new();
+			my $srefs_set2 = OBO::Util::DbxrefSet->new();
 			$srefs_set2->add_all($sref1, $sref2);
 			$def2->dbxref_set($srefs_set2);
 			$syn2->def($def2);
@@ -101,16 +101,16 @@
 			
 			# n3 has no synonyms so far; therefore, $n3->synonym_set() is empty, let's add some...
 			
-			my $syn3 = CCO::Core::Synonym->new();
+			my $syn3 = OBO::Core::Synonym->new();
 			$syn3->type('BROAD');
 			
-			my $def3 = CCO::Core::Def->new();
+			my $def3 = OBO::Core::Def->new();
 			$def3->text("Hola mundo2");
 			
-			my $sref3 = CCO::Core::Dbxref->new();
+			my $sref3 = OBO::Core::Dbxref->new();
 			$sref3->name("CCO:ls");
 			
-			my $srefs_set3 = CCO::Util::DbxrefSet->new();
+			my $srefs_set3 = OBO::Util::DbxrefSet->new();
 			$srefs_set3->add_all($sref1, $sref2);
 			$def3->dbxref_set($srefs_set3);
 			$syn3->def($def3);
@@ -153,11 +153,11 @@
 			(($n2->synonym_as_string())[1] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]");
 			
 			# xref
-			my $xref1 = CCO::Core::Dbxref->new();
-			my $xref2 = CCO::Core::Dbxref->new();
-			my $xref3 = CCO::Core::Dbxref->new();
-			my $xref4 = CCO::Core::Dbxref->new();
-			my $xref5 = CCO::Core::Dbxref->new();
+			my $xref1 = OBO::Core::Dbxref->new();
+			my $xref2 = OBO::Core::Dbxref->new();
+			my $xref3 = OBO::Core::Dbxref->new();
+			my $xref4 = OBO::Core::Dbxref->new();
+			my $xref5 = OBO::Core::Dbxref->new();
 			
 			$xref1->name("XCCO:vm");
 			$xref2->name("XCCO:ls");
@@ -165,7 +165,7 @@
 			$xref4->name("XCCO:vm");
 			$xref5->name("XCCO:ls");
 			
-			my $xrefs_set = CCO::Util::DbxrefSet->new();
+			my $xrefs_set = OBO::Util::DbxrefSet->new();
 			$xrefs_set->add_all($xref1, $xref2, $xref3, $xref4, $xref5);
 			$n1->xref_set($xrefs_set);
 			if ($n1->xref_set()->contains($xref3)){
@@ -180,17 +180,17 @@
 			my @xrefs_n2 = $n2->xref_set()->get_set();
 			
 			# def
-			my $def = CCO::Core::Def->new();
+			my $def = OBO::Core::Def->new();
 			$def->text("Hola mundo");
-			my $ref1 = CCO::Core::Dbxref->new();
-			my $ref2 = CCO::Core::Dbxref->new();
-			my $ref3 = CCO::Core::Dbxref->new();
+			my $ref1 = OBO::Core::Dbxref->new();
+			my $ref2 = OBO::Core::Dbxref->new();
+			my $ref3 = OBO::Core::Dbxref->new();
 			
 			$ref1->name("CCO:vm");
 			$ref2->name("CCO:ls");
 			$ref3->name("CCO:ea");
 			
-			my $refs_set = CCO::Util::DbxrefSet->new();
+			my $refs_set = OBO::Util::DbxrefSet->new();
 			$refs_set->add_all($ref1,$ref2,$ref3);
 			$def->dbxref_set($refs_set);
 			$n1->def($def);

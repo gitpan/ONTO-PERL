@@ -11,10 +11,10 @@ BEGIN {
 
 #########################
 
-use CCO::Parser::NCBIParser;
+use OBO::CCO::NCBIParser;
 use strict;
 
-my $my_parser = CCO::Parser::NCBIParser->new();
+my $my_parser = OBO::CCO::NCBIParser->new();
 ok(1);
 
 my $taxa_ontology = $my_parser->work("./t/data/pre_cco.obo", "./t/data/pre_cco_taxa.obo", "./t/data/cco_t.ids", "./t/data/nodes_dummy.dmp", "./t/data/names_dummy.dmp", "3702", "9606");

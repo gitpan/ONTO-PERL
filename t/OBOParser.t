@@ -11,10 +11,10 @@ BEGIN {
 
 #########################
 
-use CCO::Parser::OBOParser;
+use OBO::Parser::OBOParser;
 use strict;
 
-my $my_parser = CCO::Parser::OBOParser->new();
+my $my_parser = OBO::Parser::OBOParser->new();
 ok(1);
 
 my $mini_onto = $my_parser->work("./t/data/header.obo");
@@ -94,5 +94,18 @@ close FH;
 open (FH, ">./t/data/test_ulo_cco.dot") || die "Run as root the tests: ", $!;
 $ontology3->export(\*FH, 'dot');
 close FH;
+
+# Internal parsing tests with huge OBO ontologies
+#my $ontologia = $my_parser->work("./t/data/mammalian_phenotype.obo");
+#$ontologia = $my_parser->work("./t/data/environment_ontology.obo");
+#my $ontologia = $my_parser->work("./t/data/gene_ontology_edit.obo");
+#$ontologia = $my_parser->work("./t/data/MPheno_OBO.ontology");
+#$ontologia = $my_parser->work("./t/data/PSI-MOD.obo");
+#$ontologia = $my_parser->work("./t/data/fma_obo.obo");
+#$ontologia = $my_parser->work("./t/data/psi-mod.obo");
+#$ontologia = $my_parser->work("./t/data/zea_mays_anatomy.obo");
+#open (FH, ">./t/data/MPheno_OBO.ontology2") || die "Run as root the tests: ", $!;
+#$ontologia->export(\*FH, 'obo');
+#close FH;
 
 ok(1);

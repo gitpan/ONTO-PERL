@@ -8,36 +8,36 @@
 	<ol>
 	<li> Find out the intersection of two given ontologies <b>o1</b> and <b>o3</b>:
 		<pre>
-				use CCO::Core::Ontology;
-				use CCO::Util::Ontolome;
-				use CCO::Core::Term;
-				use CCO::Core::Relationship;
-				use CCO::Core::RelationshipType;
-				use CCO::Parser::OBOParser;
+				use OBO::Core::Ontology;
+				use OBO::Util::Ontolome;
+				use OBO::Core::Term;
+				use OBO::Core::Relationship;
+				use OBO::Core::RelationshipType;
+				use OBO::Parser::OBOParser;
 				
-				my $ome  = CCO::Util::Ontolome->new();			
+				my $ome  = OBO::Util::Ontolome->new();			
 				
-				my $o1  = CCO::Core::Ontology->new();
+				my $o1  = OBO::Core::Ontology->new();
 				
 				# Create some terms
-				my $d5   = CCO::Core::Term->new();
-				my $d2   = CCO::Core::Term->new();
-				my $d6   = CCO::Core::Term->new();
-				my $d1   = CCO::Core::Term->new();
-				my $d7   = CCO::Core::Term->new();
-				my $d8   = CCO::Core::Term->new();
-				my $d10  = CCO::Core::Term->new();
-				my $d11  = CCO::Core::Term->new();
-				my $d20  = CCO::Core::Term->new();
-				my $d21  = CCO::Core::Term->new();
-				my $d32  = CCO::Core::Term->new();
-				my $d23  = CCO::Core::Term->new();
-				my $d24  = CCO::Core::Term->new();
-				my $d25  = CCO::Core::Term->new();
-				my $d26  = CCO::Core::Term->new();
-				my $d27  = CCO::Core::Term->new();
-				my $d28  = CCO::Core::Term->new();
-				my $d29  = CCO::Core::Term->new();
+				my $d5   = OBO::Core::Term->new();
+				my $d2   = OBO::Core::Term->new();
+				my $d6   = OBO::Core::Term->new();
+				my $d1   = OBO::Core::Term->new();
+				my $d7   = OBO::Core::Term->new();
+				my $d8   = OBO::Core::Term->new();
+				my $d10  = OBO::Core::Term->new();
+				my $d11  = OBO::Core::Term->new();
+				my $d20  = OBO::Core::Term->new();
+				my $d21  = OBO::Core::Term->new();
+				my $d32  = OBO::Core::Term->new();
+				my $d23  = OBO::Core::Term->new();
+				my $d24  = OBO::Core::Term->new();
+				my $d25  = OBO::Core::Term->new();
+				my $d26  = OBO::Core::Term->new();
+				my $d27  = OBO::Core::Term->new();
+				my $d28  = OBO::Core::Term->new();
+				my $d29  = OBO::Core::Term->new();
 		
 				# Set the IDs of the just created terms
 				$d5->id("5");
@@ -106,27 +106,27 @@
 				$o1->create_rel($d21,$r,$d25);
 				
 				# Create another ontology
-				my $o3  = CCO::Core::Ontology->new();
+				my $o3  = OBO::Core::Ontology->new();
 				
 				# Create some new terms			
-				my $de5   = CCO::Core::Term->new();
-				my $de2   = CCO::Core::Term->new();
-				my $de6   = CCO::Core::Term->new();
-				my $de1   = CCO::Core::Term->new();
-				my $de7   = CCO::Core::Term->new();
-				my $de8   = CCO::Core::Term->new();
-				my $de10  = CCO::Core::Term->new();
-				my $de11  = CCO::Core::Term->new();			
-				my $de20  = CCO::Core::Term->new();
-				my $de21  = CCO::Core::Term->new();
-				my $de32  = CCO::Core::Term->new();
-				my $de23  = CCO::Core::Term->new();
-				my $de24  = CCO::Core::Term->new();
-				my $de25  = CCO::Core::Term->new();
-				my $de26  = CCO::Core::Term->new();
-				my $de27  = CCO::Core::Term->new();
-				my $de28  = CCO::Core::Term->new();
-				my $de29  = CCO::Core::Term->new();
+				my $de5   = OBO::Core::Term->new();
+				my $de2   = OBO::Core::Term->new();
+				my $de6   = OBO::Core::Term->new();
+				my $de1   = OBO::Core::Term->new();
+				my $de7   = OBO::Core::Term->new();
+				my $de8   = OBO::Core::Term->new();
+				my $de10  = OBO::Core::Term->new();
+				my $de11  = OBO::Core::Term->new();			
+				my $de20  = OBO::Core::Term->new();
+				my $de21  = OBO::Core::Term->new();
+				my $de32  = OBO::Core::Term->new();
+				my $de23  = OBO::Core::Term->new();
+				my $de24  = OBO::Core::Term->new();
+				my $de25  = OBO::Core::Term->new();
+				my $de26  = OBO::Core::Term->new();
+				my $de27  = OBO::Core::Term->new();
+				my $de28  = OBO::Core::Term->new();
+				my $de29  = OBO::Core::Term->new();
 	
 				# Set the IDs of the just created terms			
 				$de5->id("5");

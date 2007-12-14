@@ -11,11 +11,11 @@ BEGIN {
 
 #########################
 
-use CCO::Util::TermSet;
-use CCO::Core::Term;
+use OBO::Util::TermSet;
+use OBO::Core::Term;
 
 # new set
-my $my_set = CCO::Util::TermSet->new();
+my $my_set = OBO::Util::TermSet->new();
 ok(1);
 ok($my_set->is_empty() == 1);
 
@@ -23,9 +23,9 @@ my @arr = $my_set->get_set();
 ok($#{@arr} == -1);
 
 # three new terms
-my $n1 = CCO::Core::Term->new();
-my $n2 = CCO::Core::Term->new();
-my $n3 = CCO::Core::Term->new();
+my $n1 = OBO::Core::Term->new();
+my $n2 = OBO::Core::Term->new();
+my $n3 = OBO::Core::Term->new();
 
 $n1->id("CCO:P0000001");
 $n2->id("CCO:P0000002");
@@ -53,7 +53,7 @@ $my_set->add($n3);
 ok($my_set->contains($n3));
 
 ok($my_set->size() == 3);
-my $n3_idem = CCO::Core::Term->new();
+my $n3_idem = OBO::Core::Term->new();
 $n3_idem->id("CCO:P0000003");
 $n3_idem->name("Three");
 $my_set->add($n3_idem);
@@ -67,9 +67,9 @@ $my_set->add($n3_idem);
 $my_set->add($n3_idem);
 ok($my_set->size() == 3);
 
-my $n4 = CCO::Core::Term->new();
-my $n5 = CCO::Core::Term->new();
-my $n6 = CCO::Core::Term->new();
+my $n4 = OBO::Core::Term->new();
+my $n5 = OBO::Core::Term->new();
+my $n6 = OBO::Core::Term->new();
 
 $n4->id("CCO:P0000004");
 $n5->id("CCO:P0000005");
@@ -104,7 +104,7 @@ my $n7 = $n4;
 my $n8 = $n5;
 my $n9 = $n6;
 
-my $my_set2 = CCO::Util::TermSet->new();
+my $my_set2 = OBO::Util::TermSet->new();
 ok(1);
 
 ok($my_set2->is_empty());

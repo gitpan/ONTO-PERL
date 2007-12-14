@@ -11,20 +11,20 @@ BEGIN {
 
 #########################
 
-use CCO::Util::DbxrefSet;
-use CCO::Core::Dbxref;
+use OBO::Util::DbxrefSet;
+use OBO::Core::Dbxref;
 use strict;
 
 #################
 # class methods #
 #################
-my $my_set = CCO::Util::DbxrefSet->new;
+my $my_set = OBO::Util::DbxrefSet->new;
 ok(1);
 
 # three new dbxref's
-my $ref1 = CCO::Core::Dbxref->new;
-my $ref2 = CCO::Core::Dbxref->new;
-my $ref3 = CCO::Core::Dbxref->new;
+my $ref1 = OBO::Core::Dbxref->new;
+my $ref2 = OBO::Core::Dbxref->new;
+my $ref3 = OBO::Core::Dbxref->new;
 
 $ref1->name("CCO:vm");
 $ref2->name("CCO:ls");
@@ -52,9 +52,9 @@ ok($my_set->contains($ref2));
 $my_set->add($ref3);
 ok($my_set->contains($ref3));
 
-my $ref4 = CCO::Core::Dbxref->new;
-my $ref5 = CCO::Core::Dbxref->new;
-my $ref6 = CCO::Core::Dbxref->new;
+my $ref4 = OBO::Core::Dbxref->new;
+my $ref5 = OBO::Core::Dbxref->new;
+my $ref6 = OBO::Core::Dbxref->new;
 
 $ref4->name("CCO:ef");
 $ref5->name("CCO:sz");
@@ -84,7 +84,7 @@ my $ref7 = $ref4;
 my $ref8 = $ref5;
 my $ref9 = $ref6;
 
-my $my_set2 = CCO::Util::DbxrefSet->new;
+my $my_set2 = OBO::Util::DbxrefSet->new;
 ok(1);
 
 ok($my_set2->is_empty());

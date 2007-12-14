@@ -11,13 +11,13 @@ BEGIN {
 
 #########################
 
-use CCO::Core::IDspace;
+use OBO::Core::IDspace;
 use strict;
 
 # three new IDspace's
-my $ref1 = CCO::Core::IDspace->new();
-my $ref2 = CCO::Core::IDspace->new();
-my $ref3 = CCO::Core::IDspace->new();
+my $ref1 = OBO::Core::IDspace->new();
+my $ref2 = OBO::Core::IDspace->new();
+my $ref3 = OBO::Core::IDspace->new();
 
 $ref1->local_idspace("CCO");
 $ref1->uri("http://www.cellcycle.org/ontology/CCO");
@@ -46,7 +46,7 @@ ok($ref3->equals($ref1));
 ok($ref3->equals($ref2));
 ok($ref3->as_string() eq "CCO http://www.cellcycle.org/ontology/CCO \"cell cycle ontology terms\"");
 
-my $ref4 = CCO::Core::IDspace->new();
+my $ref4 = OBO::Core::IDspace->new();
 ok($ref4->as_string() eq "");
 
 ok(1);

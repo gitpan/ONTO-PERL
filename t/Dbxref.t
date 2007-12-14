@@ -11,13 +11,13 @@ BEGIN {
 
 #########################
 
-use CCO::Core::Dbxref;
+use OBO::Core::Dbxref;
 use strict;
 
 # three new dbxref's
-my $ref1 = CCO::Core::Dbxref->new();
-my $ref2 = CCO::Core::Dbxref->new();
-my $ref3 = CCO::Core::Dbxref->new();
+my $ref1 = OBO::Core::Dbxref->new();
+my $ref2 = OBO::Core::Dbxref->new();
+my $ref3 = OBO::Core::Dbxref->new();
 
 $ref1->name("CCO:vm");
 $ref1->description("this is a description");
@@ -41,7 +41,7 @@ ok($ref3->equals($ref3));
 my $ref4 = $ref3;
 ok($ref4->name() eq $ref3->name() && $ref4->description() eq $ref3->description() && $ref4->modifier() eq $ref3->modifier());
 
-my $ref5 = CCO::Core::Dbxref->new();
+my $ref5 = OBO::Core::Dbxref->new();
 $ref5->name("CCO:vm");
 $ref5->description("this is a description");
 $ref5->modifier("{opt=123}");
@@ -51,11 +51,11 @@ ok($ref1->equals($ref5));
 
 ok($ref1->as_string() eq "CCO:vm \"this is a description\" {opt=123}");
 
-my $ref6 = CCO::Core::Dbxref->new();
+my $ref6 = OBO::Core::Dbxref->new();
 $ref6->name("IUPAC:1");
 ok($ref6->name() eq "IUPAC:1");
 
-my $ref7 = CCO::Core::Dbxref->new();
+my $ref7 = OBO::Core::Dbxref->new();
 $ref7->name("NIST_Chemistry_WebBook:1");
 ok($ref7->name() eq "NIST_Chemistry_WebBook:1");
 

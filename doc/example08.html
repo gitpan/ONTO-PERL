@@ -8,26 +8,26 @@
 	<ol>
 	<li> Find out the union of two given ontologies <b>o1</b> and <b>o4</b>:
 		<pre>
-		use CCO::Core::Ontology;
-		use CCO::Util::Ontolome;
-		use CCO::Core::Term;
-		use CCO::Core::Relationship;
-		use CCO::Core::RelationshipType;
-		use CCO::Parser::OBOParser;
+		use OBO::Core::Ontology;
+		use OBO::Util::Ontolome;
+		use OBO::Core::Term;
+		use OBO::Core::Relationship;
+		use OBO::Core::RelationshipType;
+		use OBO::Parser::OBOParser;
 	
 	
 		# new ontolome
-		my $ome    = CCO::Util::Ontolome->new();
-		my $onto1  = CCO::Core::Ontology->new();
-		my $onto2  = CCO::Core::Ontology->new();
-		my $onto22 = CCO::Core::Ontology->new();
+		my $ome    = OBO::Util::Ontolome->new();
+		my $onto1  = OBO::Core::Ontology->new();
+		my $onto2  = OBO::Core::Ontology->new();
+		my $onto22 = OBO::Core::Ontology->new();
 	
 		my $onto3 = $ome1->union($onto1, $onto2);
 		my $o3_terms = $onto3->get_number_of_terms();         # should be 0
 		my $o3_rels  = $onto3->get_number_of_relationships(); # should be 0
 	
-		my $n1 = CCO::Core::Term->new();
-		my $n2 = CCO::Core::Term->new();
+		my $n1 = OBO::Core::Term->new();
+		my $n2 = OBO::Core::Term->new();
 	
 		$n1->id("CCO:D0000001");
 		$n2->id("CCO:D0000001"); # same ID!
@@ -55,8 +55,8 @@
 		# $n->xref_set()->get_set() should have 2 elements
 
 		# more terms in onto1
-		my $n3 = CCO::Core::Term->new();
-		my $n5 = CCO::Core::Term->new();
+		my $n3 = OBO::Core::Term->new();
+		my $n5 = OBO::Core::Term->new();
 		$n3->id("CCO:D0000003");
 		$n5->id("CCO:D0000005");
 		$n3->name("Three");
@@ -68,8 +68,8 @@
 		# $onto1->get_number_of_terms() should be 3
 
 		# two new relationships
-		my $r51 = CCO::Core::Relationship->new();
-		my $r31 = CCO::Core::Relationship->new();
+		my $r51 = OBO::Core::Relationship->new();
+		my $r31 = OBO::Core::Relationship->new();
 
 		$r51->id("CCO:D0000005_is_a_CCO:D0000001");
 		$r31->id("CCO:D0000003_part_of_CCO:D0000001");
@@ -84,8 +84,8 @@
 		# $onto1->get_number_of_terms() should be 3
 
 		# more terms in onto2
-		my $n4 = CCO::Core::Term->new();
-		my $n6 = CCO::Core::Term->new();
+		my $n4 = OBO::Core::Term->new();
+		my $n6 = OBO::Core::Term->new();
 		$n4->id("CCO:D0000004");
 		$n6->id("CCO:D0000006");
 		$n4->name("Four");
@@ -95,8 +95,8 @@
 		$onto2->add_term($n6);
 
 		# two new relationships
-		my $r42 = CCO::Core::Relationship->new();
-		my $r64 = CCO::Core::Relationship->new();
+		my $r42 = OBO::Core::Relationship->new();
+		my $r64 = OBO::Core::Relationship->new();
 
 		$r42->id("CCO:D0000004_is_a_CCO:D0000001");
 		$r64->id("CCO:D0000006_part_of_CCO:D0000004");

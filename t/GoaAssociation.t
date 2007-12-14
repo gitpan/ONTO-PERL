@@ -11,13 +11,13 @@ BEGIN {
 
 #########################
 
-use CCO::Core::GoaAssociation;
+use OBO::Core::GoaAssociation;
 use strict;
 
 # three new goa_association's
-my $assc1 = CCO::Core::GoaAssociation->new();
-my $assc2 = CCO::Core::GoaAssociation->new();
-my $assc3 = CCO::Core::GoaAssociation->new();
+my $assc1 = OBO::Core::GoaAssociation->new();
+my $assc2 = OBO::Core::GoaAssociation->new();
+my $assc3 = OBO::Core::GoaAssociation->new();
 
 $assc1->annot_src("annot_src1");
 $assc1->aspect("aspect1");
@@ -83,7 +83,7 @@ ok($assc4->equals($assc3));
 $assc3->annot_src("annot_src4");
 ok($assc4->equals($assc3));
 
-my $assc5 = CCO::Core::GoaAssociation->new();
+my $assc5 = OBO::Core::GoaAssociation->new();
 $assc5->annot_src("annot_src1");
 $assc5->aspect("aspect1");
 $assc5->assc_id("assc_id1");

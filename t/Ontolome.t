@@ -19,26 +19,26 @@ use strict;
 
 #use Test::More 'no_plan';
 
-use CCO::Core::Ontology;
-use CCO::Util::Ontolome;
-use CCO::Core::Term;
-use CCO::Core::Relationship;
-use CCO::Core::RelationshipType;
-use CCO::Parser::OBOParser;
+use OBO::Core::Ontology;
+use OBO::Util::Ontolome;
+use OBO::Core::Term;
+use OBO::Core::Relationship;
+use OBO::Core::RelationshipType;
+use OBO::Parser::OBOParser;
 
 
 # new ontolome
-my $ome1   = CCO::Util::Ontolome->new();
-my $onto1  = CCO::Core::Ontology->new();
-my $onto2  = CCO::Core::Ontology->new();
-my $onto22 = CCO::Core::Ontology->new();
+my $ome1   = OBO::Util::Ontolome->new();
+my $onto1  = OBO::Core::Ontology->new();
+my $onto2  = OBO::Core::Ontology->new();
+my $onto22 = OBO::Core::Ontology->new();
 
 my $onto3 = $ome1->union($onto1, $onto2);
 ok($onto3->get_number_of_terms() == 0);
 ok($onto3->get_number_of_relationships() == 0);
 
-my $n1 = CCO::Core::Term->new();
-my $n2 = CCO::Core::Term->new();
+my $n1 = OBO::Core::Term->new();
+my $n2 = OBO::Core::Term->new();
 
 $n1->id("CCO:D0000001");
 $n2->id("CCO:D0000001"); # same ID!
@@ -66,8 +66,8 @@ ok($n->def_as_string() eq "\"My definition.\" [CCO:ea]");
 ok($n->xref_set()->get_set() == 2);
 
 # more terms in onto1
-my $n3 = CCO::Core::Term->new();
-my $n5 = CCO::Core::Term->new();
+my $n3 = OBO::Core::Term->new();
+my $n5 = OBO::Core::Term->new();
 $n3->id("CCO:D0000003");
 $n5->id("CCO:D0000005");
 $n3->name("Three");
@@ -79,8 +79,8 @@ $onto1->add_term($n5);
 ok($onto1->get_number_of_terms() == 3);
 
 # two new relationships
-my $r51 = CCO::Core::Relationship->new();
-my $r31 = CCO::Core::Relationship->new();
+my $r51 = OBO::Core::Relationship->new();
+my $r31 = OBO::Core::Relationship->new();
 
 $r51->id("CCO:D0000005_is_a_CCO:D0000001");
 $r31->id("CCO:D0000003_part_of_CCO:D0000001");
@@ -95,8 +95,8 @@ $onto1->add_relationship($r31);
 ok($onto1->get_number_of_terms() ==3);
 
 # more terms in onto2
-my $n4 = CCO::Core::Term->new();
-my $n6 = CCO::Core::Term->new();
+my $n4 = OBO::Core::Term->new();
+my $n6 = OBO::Core::Term->new();
 $n4->id("CCO:D0000004");
 $n6->id("CCO:D0000006");
 $n4->name("Four");
@@ -106,8 +106,8 @@ $onto2->add_term($n4);
 $onto2->add_term($n6);
 
 # two new relationships
-my $r42 = CCO::Core::Relationship->new();
-my $r64 = CCO::Core::Relationship->new();
+my $r42 = OBO::Core::Relationship->new();
+my $r64 = OBO::Core::Relationship->new();
 
 $r42->id("CCO:D0000004_is_a_CCO:D0000001");
 $r64->id("CCO:D0000006_part_of_CCO:D0000004");
@@ -139,10 +139,10 @@ my $nn5 = $onto4->get_term_by_id("CCO:D0000005");
 my @relatives3 = @{$onto4->get_ancestor_terms($nn5)};
 ok(scalar(@relatives3) == 1);
 
-#my $my_parser = CCO::Parser::OBOParser->new();
+#my $my_parser = OBO::Parser::OBOParser->new();
 #my $mini_onto = $my_parser->work("./t/data/export/cco/obo/o1.obo");
 #
-#my $my_parser2 = CCO::Parser::OBOParser->new();
+#my $my_parser2 = OBO::Parser::OBOParser->new();
 #my $mini_onto2 = $my_parser2->work("./t/data/export/cco/obo/o2.obo");
 #
 #ok($mini_onto2->has_term_id("CCO:C0000948"));
@@ -174,18 +174,18 @@ my $onto1_reflex = $ome1->intersection($onto1, $onto1);
 ok($onto1_reflex->get_number_of_terms() == 3);
 ok($onto1_reflex->get_number_of_relationships() == 2);
 
-my $t1  = CCO::Core::Term->new();
-my $t2  = CCO::Core::Term->new();
-my $t3  = CCO::Core::Term->new();
-my $t4  = CCO::Core::Term->new();
-my $t5  = CCO::Core::Term->new();
-my $t6  = CCO::Core::Term->new();
-my $t7  = CCO::Core::Term->new();
-my $t8  = CCO::Core::Term->new();
-my $t9  = CCO::Core::Term->new();
-my $t10 = CCO::Core::Term->new();
-my $t11 = CCO::Core::Term->new();
-my $t12 = CCO::Core::Term->new();
+my $t1  = OBO::Core::Term->new();
+my $t2  = OBO::Core::Term->new();
+my $t3  = OBO::Core::Term->new();
+my $t4  = OBO::Core::Term->new();
+my $t5  = OBO::Core::Term->new();
+my $t6  = OBO::Core::Term->new();
+my $t7  = OBO::Core::Term->new();
+my $t8  = OBO::Core::Term->new();
+my $t9  = OBO::Core::Term->new();
+my $t10 = OBO::Core::Term->new();
+my $t11 = OBO::Core::Term->new();
+my $t12 = OBO::Core::Term->new();
 
 $t1->id('CCO:T0000001');
 $t2->id('CCO:T0000002');
@@ -234,15 +234,15 @@ ok($onto22_reflex->get_number_of_terms() == 12);
 ok($onto22_reflex->get_number_of_relationships() == 12);
 ok($onto22_reflex->has_relationship_id("CCO:T0000002_is_a_CCO:T0000001"));
 
-my $onto23 = CCO::Core::Ontology->new();
-my $tt0  = CCO::Core::Term->new();
-my $tt1  = CCO::Core::Term->new();
-my $tt4  = CCO::Core::Term->new();
-my $tt5  = CCO::Core::Term->new();
-my $tt6  = CCO::Core::Term->new();
-my $tt8  = CCO::Core::Term->new();
-my $tt9  = CCO::Core::Term->new();
-my $tt11 = CCO::Core::Term->new(); 
+my $onto23 = OBO::Core::Ontology->new();
+my $tt0  = OBO::Core::Term->new();
+my $tt1  = OBO::Core::Term->new();
+my $tt4  = OBO::Core::Term->new();
+my $tt5  = OBO::Core::Term->new();
+my $tt6  = OBO::Core::Term->new();
+my $tt8  = OBO::Core::Term->new();
+my $tt9  = OBO::Core::Term->new();
+my $tt11 = OBO::Core::Term->new(); 
 
 $tt0->id('CCO:T0000000');
 $tt1->id('CCO:T0000001');
@@ -284,25 +284,25 @@ ok(!($onto22_23->has_relationship_id("CCO:T0000006_is_a_CCO:T0000008")));
 ok(!($onto22_23->has_relationship_id("CCO:T0000001_is_a_CCO:T0000009")));
 ok(!($onto22_23->has_relationship_id("CCO:T0000005_is_a_CCO:T0000011")));
 
-my $o1  = CCO::Core::Ontology->new();
-my $d5  = CCO::Core::Term->new();
-my $d2  = CCO::Core::Term->new();
-my $d6  = CCO::Core::Term->new();
-my $d1  = CCO::Core::Term->new();
-my $d7  = CCO::Core::Term->new();
-my $d8  = CCO::Core::Term->new();
-my $d10 = CCO::Core::Term->new();
-my $d11 = CCO::Core::Term->new();
-my $d20  = CCO::Core::Term->new();
-my $d21  = CCO::Core::Term->new();
-my $d32  = CCO::Core::Term->new();
-my $d23  = CCO::Core::Term->new();
-my $d24  = CCO::Core::Term->new();
-my $d25  = CCO::Core::Term->new();
-my $d26  = CCO::Core::Term->new();
-my $d27  = CCO::Core::Term->new();
-my $d28  = CCO::Core::Term->new();
-my $d29  = CCO::Core::Term->new();
+my $o1  = OBO::Core::Ontology->new();
+my $d5  = OBO::Core::Term->new();
+my $d2  = OBO::Core::Term->new();
+my $d6  = OBO::Core::Term->new();
+my $d1  = OBO::Core::Term->new();
+my $d7  = OBO::Core::Term->new();
+my $d8  = OBO::Core::Term->new();
+my $d10 = OBO::Core::Term->new();
+my $d11 = OBO::Core::Term->new();
+my $d20  = OBO::Core::Term->new();
+my $d21  = OBO::Core::Term->new();
+my $d32  = OBO::Core::Term->new();
+my $d23  = OBO::Core::Term->new();
+my $d24  = OBO::Core::Term->new();
+my $d25  = OBO::Core::Term->new();
+my $d26  = OBO::Core::Term->new();
+my $d27  = OBO::Core::Term->new();
+my $d28  = OBO::Core::Term->new();
+my $d29  = OBO::Core::Term->new();
 
 $d5->id("5");
 $d2->id("2");
@@ -365,15 +365,15 @@ $o1->create_rel($d20,$r,$d21);
 $o1->create_rel($d20,$r,$d32);
 $o1->create_rel($d21,$r,$d25);
 
-my $o2   = CCO::Core::Ontology->new();
-my $d52  = CCO::Core::Term->new();
-my $d22  = CCO::Core::Term->new();
-my $d62  = CCO::Core::Term->new();
-my $d12  = CCO::Core::Term->new();
-my $d72  = CCO::Core::Term->new();
-my $d82  = CCO::Core::Term->new();
-my $d102 = CCO::Core::Term->new();
-my $d112 = CCO::Core::Term->new();
+my $o2   = OBO::Core::Ontology->new();
+my $d52  = OBO::Core::Term->new();
+my $d22  = OBO::Core::Term->new();
+my $d62  = OBO::Core::Term->new();
+my $d12  = OBO::Core::Term->new();
+my $d72  = OBO::Core::Term->new();
+my $d82  = OBO::Core::Term->new();
+my $d102 = OBO::Core::Term->new();
+my $d112 = OBO::Core::Term->new();
 
 $d52->id("5");
 $d22->id("2");
@@ -416,7 +416,7 @@ $ome1->intersection($o2, $o1);
 #
 # Biger file
 #
-#my $p       = CCO::Parser::OBOParser->new();
+#my $p       = OBO::Parser::OBOParser->new();
 #my $h_onto  = $p->work("./t/data/pre_cco_taxa.obo");
 #my $h_onto  = $p->work("./t/data/cco_A_thaliana.obo");
 #my $h_inter = $ome1->intersection($h_onto, $h_onto);
@@ -431,7 +431,7 @@ $ome1->intersection($o2, $o1);
 #
 # get_paths_term_terms
 #
-my $stop = CCO::Util::Set->new();
+my $stop = OBO::Util::Set->new();
 $stop->add($d26->id());
 $stop->add($d27->id());
 $stop->add($d25->id());
@@ -444,26 +444,26 @@ my $cc = 0;
 map {map {$cc++} @$_} @ref_paths;
 ok ($cc ==  32);
 
-my $o3  = CCO::Core::Ontology->new();
-my $de5  = CCO::Core::Term->new();
-my $de2  = CCO::Core::Term->new();
-my $de6  = CCO::Core::Term->new();
-my $de1  = CCO::Core::Term->new();
-my $de7  = CCO::Core::Term->new();
-my $de8  = CCO::Core::Term->new();
-my $de10 = CCO::Core::Term->new();
-my $de11 = CCO::Core::Term->new();
+my $o3  = OBO::Core::Ontology->new();
+my $de5  = OBO::Core::Term->new();
+my $de2  = OBO::Core::Term->new();
+my $de6  = OBO::Core::Term->new();
+my $de1  = OBO::Core::Term->new();
+my $de7  = OBO::Core::Term->new();
+my $de8  = OBO::Core::Term->new();
+my $de10 = OBO::Core::Term->new();
+my $de11 = OBO::Core::Term->new();
 
-my $de20  = CCO::Core::Term->new();
-my $de21  = CCO::Core::Term->new();
-my $de32  = CCO::Core::Term->new();
-my $de23  = CCO::Core::Term->new();
-my $de24  = CCO::Core::Term->new();
-my $de25  = CCO::Core::Term->new();
-my $de26  = CCO::Core::Term->new();
-my $de27  = CCO::Core::Term->new();
-my $de28  = CCO::Core::Term->new();
-my $de29  = CCO::Core::Term->new();
+my $de20  = OBO::Core::Term->new();
+my $de21  = OBO::Core::Term->new();
+my $de32  = OBO::Core::Term->new();
+my $de23  = OBO::Core::Term->new();
+my $de24  = OBO::Core::Term->new();
+my $de25  = OBO::Core::Term->new();
+my $de26  = OBO::Core::Term->new();
+my $de27  = OBO::Core::Term->new();
+my $de28  = OBO::Core::Term->new();
+my $de29  = OBO::Core::Term->new();
 
 $de5->id("5");
 $de2->id("2");
@@ -536,21 +536,21 @@ ok($ontito->has_relationship_id("5_is_a_23"));
 # from GO
 #
 
-my $go  = CCO::Core::Ontology->new();
+my $go  = OBO::Core::Ontology->new();
 
-my $g60  = CCO::Core::Term->new();
-my $g59  = CCO::Core::Term->new();
-my $g242  = CCO::Core::Term->new();
-my $g29  = CCO::Core::Term->new();
-my $g265  = CCO::Core::Term->new();
-my $g56  = CCO::Core::Term->new();
-my $g2 = CCO::Core::Term->new();
-my $g0 = CCO::Core::Term->new();
-my $g118  = CCO::Core::Term->new();
-my $g117  = CCO::Core::Term->new();
-my $g103  = CCO::Core::Term->new();
-my $g271  = CCO::Core::Term->new();
-my $g38  = CCO::Core::Term->new();
+my $g60  = OBO::Core::Term->new();
+my $g59  = OBO::Core::Term->new();
+my $g242  = OBO::Core::Term->new();
+my $g29  = OBO::Core::Term->new();
+my $g265  = OBO::Core::Term->new();
+my $g56  = OBO::Core::Term->new();
+my $g2 = OBO::Core::Term->new();
+my $g0 = OBO::Core::Term->new();
+my $g118  = OBO::Core::Term->new();
+my $g117  = OBO::Core::Term->new();
+my $g103  = OBO::Core::Term->new();
+my $g271  = OBO::Core::Term->new();
+my $g38  = OBO::Core::Term->new();
 
 $g60->id("60");
 $g59->id("59");

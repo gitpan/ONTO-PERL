@@ -11,16 +11,16 @@ BEGIN {
 
 #########################
 
-use CCO::Util::CCO_ID_Set;
+use OBO::CCO::CCO_ID_Set;
 
-use CCO::Util::CCO_ID;
+use OBO::CCO::CCO_ID;
 
 use strict;
 
-my $my_set = CCO::Util::CCO_ID_Set->new();
+my $my_set = OBO::CCO::CCO_ID_Set->new();
 ok(1);
 
-my $id1 = CCO::Util::CCO_ID->new();
+my $id1 = OBO::CCO::CCO_ID->new();
 
 $id1->id_as_string("CCO:P0000001");
 
@@ -28,15 +28,15 @@ $my_set->add($id1);
 
 ok($my_set->contains($id1));
 
-my $id2 = CCO::Util::CCO_ID->new();
+my $id2 = OBO::CCO::CCO_ID->new();
 
 $id2->id_as_string("CCO:P0000002");
 
-my $id3 = CCO::Util::CCO_ID->new();
+my $id3 = OBO::CCO::CCO_ID->new();
 
 $id3->id_as_string("CCO:P0000003");
 
-my $id4 = CCO::Util::CCO_ID->new();
+my $id4 = OBO::CCO::CCO_ID->new();
 
 ok(!$my_set->contains($id4));
 
@@ -59,7 +59,7 @@ $my_set->add_as_string($id5_string);
 
 ok($my_set->size() == 5);
 
-my $my_set2 = CCO::Util::CCO_ID_Set->new();
+my $my_set2 = OBO::CCO::CCO_ID_Set->new();
 
 ok(1);
 

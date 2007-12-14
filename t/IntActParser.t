@@ -7,14 +7,14 @@ use Test::More tests => 7;
 
 #########################
 
-use CCO::Parser::OBOParser;
+use OBO::Parser::OBOParser;
 
 use strict;
 
 SKIP:
 {
 	# How many proteins have we got for filtering?
-	my $my_parser = CCO::Parser::OBOParser->new;
+	my $my_parser = OBO::Parser::OBOParser->new;
 	my $ontology = $my_parser->work("./t/data/out_cco.obo");
 	my @gene_names_goa_file = @{$ontology->get_terms("CCO:B.*")};
 	my $goa_size = @gene_names_goa_file;
@@ -23,13 +23,13 @@ SKIP:
 	eval 'use XML::Simple';
 	skip ('because XML::Simple is required for testing the IntAct parser', 6) if $@;
 	
-	require CCO::Util::XMLIntactParser;
-	require CCO::Parser::IntActParser;
+	require OBO::CCO::XMLIntactParser;
+	require OBO::CCO::IntActParser;
 	
 	# TEST THE PARSER FROM INSIDE ###############################
 	
 	# Does the XML parser work?
-	my $xmlintactparser = CCO::Util::XMLIntactParser->new();
+	my $xmlintactparser = OBO::CCO::XMLIntactParser->new();
 	$xmlintactparser->work("./t/data/arath_small-05.xml");
 	ok (1);
 	
@@ -49,7 +49,7 @@ SKIP:
 	
 	my @A_t_intact_files = ("./t/data/arath_small-05.xml");
 	
-	my $A_t_interactionmanager = CCO::Parser::IntActParser->new;
+	my $A_t_interactionmanager = OBO::CCO::IntActParser->new;
 	my $new_ontology = $A_t_interactionmanager->work(
 		"./t/data/out_cco.obo.old",
 		"./t/data/out_I_A_thaliana.obo",

@@ -34,8 +34,8 @@ SKIP:
 		"./t/data/Ath_up.map",
 		"./t/data/arath_small-07.xml",
 	);
-	require CCO::Parser::NewIntActParser;
-	my $my_parser = CCO::Parser::NewIntActParser->new();
+	require OBO::CCO::NewIntActParser;
+	my $my_parser = OBO::CCO::NewIntActParser->new();
 	ok(1);
 
 	eval 'use XML::XPath';

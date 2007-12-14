@@ -11,13 +11,13 @@ BEGIN {
 
 #########################
 
-use CCO::Core::Synonym;
-use CCO::Core::Dbxref;
+use OBO::Core::Synonym;
+use OBO::Core::Dbxref;
 
-my $syn1 = CCO::Core::Synonym->new();
-my $syn2 = CCO::Core::Synonym->new();
-my $syn3 = CCO::Core::Synonym->new();
-my $syn4 = CCO::Core::Synonym->new();
+my $syn1 = OBO::Core::Synonym->new();
+my $syn2 = OBO::Core::Synonym->new();
+my $syn3 = OBO::Core::Synonym->new();
+my $syn4 = OBO::Core::Synonym->new();
 
 # type
 ok(!defined $syn1->type());
@@ -27,34 +27,34 @@ $syn3->type('NARROW');
 $syn4->type('NARROW');
 
 # def
-my $def1 = CCO::Core::Def->new();
-my $def2 = CCO::Core::Def->new();
-my $def3 = CCO::Core::Def->new();
-my $def4 = CCO::Core::Def->new();
+my $def1 = OBO::Core::Def->new();
+my $def2 = OBO::Core::Def->new();
+my $def3 = OBO::Core::Def->new();
+my $def4 = OBO::Core::Def->new();
 
 $def1->text("Hola mundo1");
 $def2->text("Hola mundo2");
 $def3->text("Hola mundo3");
 $def4->text("Hola mundo3");
 
-my $ref1 = CCO::Core::Dbxref->new();
-my $ref2 = CCO::Core::Dbxref->new();
-my $ref3 = CCO::Core::Dbxref->new();
-my $ref4 = CCO::Core::Dbxref->new();
+my $ref1 = OBO::Core::Dbxref->new();
+my $ref2 = OBO::Core::Dbxref->new();
+my $ref3 = OBO::Core::Dbxref->new();
+my $ref4 = OBO::Core::Dbxref->new();
 
 $ref1->name("CCO:vm");
 $ref2->name("CCO:ls");
 $ref3->name("CCO:ea");
 $ref4->name("CCO:ea");
 
-my $refs_set1 = CCO::Util::DbxrefSet->new();
+my $refs_set1 = OBO::Util::DbxrefSet->new();
 $refs_set1->add_all($ref1,$ref2,$ref3,$ref4);
 $def1->dbxref_set($refs_set1);
 $syn1->def($def1);
 ok($syn1->def()->text() eq "Hola mundo1");
 ok($syn1->def()->dbxref_set()->size == 3);
 
-my $refs_set2 = CCO::Util::DbxrefSet->new();
+my $refs_set2 = OBO::Util::DbxrefSet->new();
 ok($syn1->def()->dbxref_set()->size == 3);
 ok($syn2->def()->dbxref_set()->size == 0);
 $refs_set2->add($ref2);
@@ -64,7 +64,7 @@ ok($syn2->def()->text() eq "Hola mundo2");
 ok($syn2->def()->dbxref_set()->size == 1);
 ok(($syn2->def()->dbxref_set()->get_set())[0]->equals($ref2));
 
-my $refs_set3 = CCO::Util::DbxrefSet->new();
+my $refs_set3 = OBO::Util::DbxrefSet->new();
 ok($syn1->def()->dbxref_set()->size == 3);
 ok($syn2->def()->dbxref_set()->size == 1);
 ok($syn3->def()->dbxref_set()->size == 0);
@@ -75,7 +75,7 @@ ok($syn3->def()->text() eq "Hola mundo3");
 ok($syn3->def()->dbxref_set()->size == 1);
 ok(($syn3->def()->dbxref_set()->get_set())[0]->name() eq "CCO:ea");
 
-my $refs_set4 = CCO::Util::DbxrefSet->new();
+my $refs_set4 = OBO::Util::DbxrefSet->new();
 ok($syn1->def()->dbxref_set()->size == 3);
 ok($syn2->def()->dbxref_set()->size == 1);
 ok($syn3->def()->dbxref_set()->size == 1);

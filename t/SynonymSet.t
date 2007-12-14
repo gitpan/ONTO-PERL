@@ -11,11 +11,11 @@ BEGIN {
 
 #########################
 
-use CCO::Util::SynonymSet;
-use CCO::Core::Synonym;
+use OBO::Util::SynonymSet;
+use OBO::Core::Synonym;
 
 # new set
-my $my_set = CCO::Util::SynonymSet->new();
+my $my_set = OBO::Util::SynonymSet->new();
 ok(1);
 ok($my_set->is_empty() == 1);
 
@@ -23,9 +23,9 @@ my @arr = $my_set->get_set();
 ok($#{@arr} == -1);
 
 # three new synonyms
-my $sn1 = CCO::Core::Synonym->new();
-my $sn2 = CCO::Core::Synonym->new();
-my $sn3 = CCO::Core::Synonym->new();
+my $sn1 = OBO::Core::Synonym->new();
+my $sn2 = OBO::Core::Synonym->new();
+my $sn3 = OBO::Core::Synonym->new();
 
 # type and def
 $sn1->type('EXACT');
@@ -54,9 +54,9 @@ ok($my_set->contains($sn2));
 $my_set->add($sn3);
 ok($my_set->contains($sn3));
 
-my $sn4 = CCO::Core::Synonym->new();
-my $sn5 = CCO::Core::Synonym->new();
-my $sn6 = CCO::Core::Synonym->new();
+my $sn4 = OBO::Core::Synonym->new();
+my $sn5 = OBO::Core::Synonym->new();
+my $sn6 = OBO::Core::Synonym->new();
 
 # type and def
 $sn4->type('EXACT');
@@ -90,7 +90,7 @@ my $sn8 = $sn5;
 my $sn9 = $sn6;
 
 # a second set
-my $my_set2 = CCO::Util::SynonymSet->new();
+my $my_set2 = OBO::Util::SynonymSet->new();
 ok(1);
 
 ok($my_set2->is_empty());
@@ -114,8 +114,8 @@ ok($my_set2->size() == 0);
 #
 # more tests
 #
-my $snA = CCO::Core::Synonym->new();
-my $snB = CCO::Core::Synonym->new();
+my $snA = OBO::Core::Synonym->new();
+my $snB = OBO::Core::Synonym->new();
 
 $snA->type('EXACT');
 $snB->type('EXACT');
@@ -131,7 +131,7 @@ ok($my_set2->contains($snA));
 #
 # one more
 #
-my $snC = CCO::Core::Synonym->new();
+my $snC = OBO::Core::Synonym->new();
 $snC->type('EXACT');
 $snC->def_as_string("SPCC645.04", "[]");
 $my_set2->clear();

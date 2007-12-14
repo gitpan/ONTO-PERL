@@ -10,7 +10,7 @@ BEGIN {
 }
 #########################
 
-use CCO::Parser::OrthoMCLParser;
+use OBO::CCO::OrthoMCLParser;
 use Carp;
 use strict;
 use warnings;
@@ -28,7 +28,7 @@ my @files = (
 	"./t/data/cco_b.ids",
 );
 			
-my $my_parser = CCO::Parser::OrthoMCLParser->new();
+my $my_parser = OBO::CCO::OrthoMCLParser->new();
 ok(1);
 my $omcl_data_file = "./t/data/test_orthomcl.dat";
 ok(my $clusters = $my_parser->parse($omcl_data_file));

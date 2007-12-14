@@ -11,16 +11,16 @@ BEGIN {
 
 #########################
 
-use CCO::Util::CCO_ID;
+use OBO::CCO::CCO_ID;
 use strict;
 
-my $my_id = CCO::Util::CCO_ID->new();
+my $my_id = OBO::CCO::CCO_ID->new();
 $my_id->idspace("CCO");
 $my_id->subnamespace("P");
 $my_id->number("3000001");
 ok($my_id->id_as_string() eq "CCO:P3000001");
 
-my $my_id2 = CCO::Util::CCO_ID->new();
+my $my_id2 = OBO::CCO::CCO_ID->new();
 $my_id2->idspace("CCO");
 $my_id2->subnamespace("P");
 $my_id2->number("3000001");

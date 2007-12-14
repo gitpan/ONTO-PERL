@@ -1,4 +1,4 @@
-Revision history for onto-perl
+Revision history for ONTO-PERL
 ==============================
 
 0.01  Wed Jun  7 13:05:23 2006
@@ -42,3 +42,5 @@ Revision history for onto-perl
 1.05 dates treatment is now WindowsTM compatible
 
 1.06 documentation has been enhanced: many more examples, PODs, etc.
+
+10.7 dbxref's parsing has been relaxed and improved. 'onto-perl' became 'ONTO-PERL' and some files were moved to more meaningful directories

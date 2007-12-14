@@ -11,11 +11,11 @@ BEGIN {
 
 #########################
 
-use CCO::Util::SynonymTypeDefSet;
-use CCO::Core::SynonymTypeDef;
+use OBO::Util::SynonymTypeDefSet;
+use OBO::Core::SynonymTypeDef;
 
 # new set
-my $my_set = CCO::Util::SynonymTypeDefSet->new();
+my $my_set = OBO::Util::SynonymTypeDefSet->new();
 ok(1);
 ok($my_set->is_empty() == 1);
 
@@ -23,9 +23,9 @@ my @arr = $my_set->get_set();
 ok($#{@arr} == -1);
 
 # three new synonyms
-my $std1 = CCO::Core::SynonymTypeDef->new();
-my $std2 = CCO::Core::SynonymTypeDef->new();
-my $std3 = CCO::Core::SynonymTypeDef->new();
+my $std1 = OBO::Core::SynonymTypeDef->new();
+my $std2 = OBO::Core::SynonymTypeDef->new();
+my $std3 = OBO::Core::SynonymTypeDef->new();
 
 # filling them...
 $std1->synonym_type_def_as_string("goslim_plant1", "Plant GO slim1", "EXACT");
@@ -51,9 +51,9 @@ ok($my_set->contains($std2));
 $my_set->add($std3);
 ok($my_set->contains($std3));
 
-my $std4 = CCO::Core::SynonymTypeDef->new();
-my $std5 = CCO::Core::SynonymTypeDef->new();
-my $std6 = CCO::Core::SynonymTypeDef->new();
+my $std4 = OBO::Core::SynonymTypeDef->new();
+my $std5 = OBO::Core::SynonymTypeDef->new();
+my $std6 = OBO::Core::SynonymTypeDef->new();
 
 # filling them...
 $std4->synonym_type_def_as_string("goslim_plant4", "Plant GO slim4", "EXACT");
@@ -83,7 +83,7 @@ my $std8 = $std5;
 my $std9 = $std6;
 
 # a second set
-my $my_set2 = CCO::Util::SynonymTypeDefSet->new();
+my $my_set2 = OBO::Util::SynonymTypeDefSet->new();
 ok(1);
 
 ok($my_set2->is_empty());
@@ -107,8 +107,8 @@ ok($my_set2->size() == 0);
 #
 # more tests
 #
-my $stdA = CCO::Core::SynonymTypeDef->new();
-my $stdB = CCO::Core::SynonymTypeDef->new();
+my $stdA = OBO::Core::SynonymTypeDef->new();
+my $stdB = OBO::Core::SynonymTypeDef->new();
 
 $stdA->synonym_type_def_as_string("dummy", "Plant dummy", "EXACT");
 $stdB->synonym_type_def_as_string("dummy", "Plant dummy", "EXACT");

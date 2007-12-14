@@ -14,12 +14,12 @@ use strict;
 use warnings;
 
 BEGIN {
-push @INC, '..'; # Running without installing 'onto-perl'
+push @INC, '..'; # Running without installing 'ONTO-PERL'
 }
 
-use CCO::Parser::OBOParser;
+use OBO::Parser::OBOParser;
 
-my $my_parser = CCO::Parser::OBOParser->new();
+my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
 $ontology->export(\*STDOUT, "owl");
 

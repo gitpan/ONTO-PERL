@@ -1,7 +1,7 @@
-onto-perl modules
+ONTO-PERL modules
 =================
 
-'onto-perl' a collection of perl modules for dealing with the Cell
+'ONTO-PERL' a collection of perl modules for dealing with the Cell
 Cycle Ontology (CCO) and in general with OBO ontologies (like the
 Gene Ontology). This code distribution gathers object-oriented 
 modules (for dealing with the ontology elements such as Term, 
@@ -12,11 +12,11 @@ and a set of test files for ensuring the implementation quality.
 
 See also:
 
-  perldoc onto-perl.pod
+  perldoc ONTO-PERL.pod
 
 Visit the following URLs:
 
-http://search.cpan.org/~easr/onto-perl/
+http://search.cpan.org/~easr/ONTO-PERL/
 http://www.cellcycleontology.org/
 
 For installing this collection of modules:
@@ -34,7 +34,7 @@ type the following:
 
 DEPENDENCIES
 
-onto-perl might require the following modules:
+ONTO-PERL might require the following modules:
 
 1. SWISS Knife (v1.65) is used by the 'UniProtParser':
 

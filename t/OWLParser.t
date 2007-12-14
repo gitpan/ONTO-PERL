@@ -17,8 +17,8 @@ SKIP:
 	skip ('because XML::Parser is required for testing the OWLParser parser', 6) if $@;
 	ok(1);
 	
-	require CCO::Parser::OWLParser;
-	my $my_parser = CCO::Parser::OWLParser->new();
+	require OBO::Parser::OWLParser;
+	my $my_parser = OBO::Parser::OWLParser->new();
 	ok(1);	
 	
 	my $owl_test_file = "./t/data/test_ulo_cco2.owl";

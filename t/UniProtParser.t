@@ -32,8 +32,8 @@ SKIP:
 				"./t/data/cco_g.ids"
 				);
 				
-	require CCO::Parser::UniProtParser;
-	my $my_parser = CCO::Parser::UniProtParser->new();
+	require OBO::CCO::UniProtParser;
+	my $my_parser = OBO::CCO::UniProtParser->new();
 	ok(1);
 	
 	my $start = time;

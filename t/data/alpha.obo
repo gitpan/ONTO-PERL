@@ -1,6 +1,10 @@
 format-version: 1.0
 date: 11:05:2007 12:52
 saved-by: erant
+synonymtypedef: IUPAC_NAME "IUPAC NAME"
+synonymtypedef: FORMULA "FORMULA" RELATED
+synonymtypedef: SMILES "SMILES"
+synonymtypedef: InChI "InChI"
 default-namespace: test_namespace
 
 [Term]
@@ -85,10 +89,35 @@ is_a: MYO:0000009 ! J
 [Term]
 id: MYO:0000016
 name: P
+def: "This is a definition having a partial dbxref." [EASR:]
 is_a: MYO:0000009 ! J
 relationship: part_of MYO:0000003 ! D
 relationship: part_of MYO:0000004 ! E
 relationship: part_of MYO:0000005 ! F
+
+[Term]
+id: MYO:0000557
+name: granulocyte monocyte progenitor cell
+def: "A progenitor cell committed to the granulocyte and monocyte lineages." [http://www.copewithcytokines.de, ISBN:0721601464, PMID:15684376, PMID:15867096]
+exact_synonym: "CFU-GM" [PMID:15867096, ISBN:0721601464, PMID:15684376]
+exact_synonym: "colony forming unit granulocyte macrophage" [PMID:15867096, ISBN:0721601464, PMID:15684376]
+exact_synonym: "GMP" [PMID:15867096, ISBN:0721601464, PMID:15684376]
+exact_synonym: "granulocyte-macrophage progenitor" [PMID:15867096, ISBN:0721601464, PMID:15684376]
+broad_synonym: "CFU-C , Colony forming unit in culture" [http://www.copewithcytokines.de]
+
+[Term]
+id: MYO:0000050
+name: msa_name
+def: "The name given to the multiple sequence alignment." [RO:jt]
+synonym: "aln_name" []
+synonym: "aln_name2" [TEST:]
+xref_unknown: RO:jt
+
+[Term]
+id: MYO:33820
+name: iduronate
+synonym: "C6H9O7" RELATED FORMULA [ChEBI:]
+synonym: "C6H9O7" RELATED IUPAC_NAME [ChEBI:]
 
 [Typedef]
 id: part_of

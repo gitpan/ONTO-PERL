@@ -23,16 +23,16 @@ use strict;
 use Carp;
 
 BEGIN {
-	push @INC, '/group/biocomp/users/erant/workspace/onto-perl';
+	push @INC, '/group/biocomp/users/erant/workspace/ONTO-PERL';
 }
 
-use CCO::Parser::OBOParser;
-use CCO::Util::CCO_ID_Term_Map;
+use OBO::Parser::OBOParser;
+use OBO::CCO::CCO_ID_Term_Map;
 ##############################################################################
-my $my_parser = CCO::Parser::OBOParser->new();
+my $my_parser = OBO::Parser::OBOParser->new();
 
 my $onto = $my_parser->work(shift @ARGV);                      # input file
-my $cco_id_map = CCO::Util::CCO_ID_Term_Map->new(shift @ARGV); # IDs file
+my $cco_id_map = OBO::CCO::CCO_ID_Term_Map->new(shift @ARGV); # IDs file
 my $sns = shift @ARGV || 'Z';                                  # subnamespace
 my $sub_ontology_root_id = shift @ARGV;                        # root term e.g. MI:0190
 
@@ -55,13 +55,13 @@ foreach my $entry (sort {$a->id() cmp $b->id()} @{$onto->get_terms()}){
 
 	$onto->set_term_id($entry, $cco_id);
 	# xref's
-	my $xref = CCO::Core::Dbxref->new();
+	my $xref = OBO::Core::Dbxref->new();
 	$xref->name($current_id);
 	my $xref_set = $onto->get_term_by_id($entry->id())->xref_set();
 	$xref_set->add($xref);
 	# add the alt_id's as xref's
 	foreach my $alt_id ($entry->alt_id()->get_set()){
-		my $xref_alt_id = CCO::Core::Dbxref->new();
+		my $xref_alt_id = OBO::Core::Dbxref->new();
 		$xref_alt_id->name($alt_id);
 		$xref_set->add($xref_alt_id);
 	}

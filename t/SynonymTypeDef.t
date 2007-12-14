@@ -11,12 +11,12 @@ BEGIN {
 
 #########################
 
-use CCO::Core::SynonymTypeDef;
+use OBO::Core::SynonymTypeDef;
 
 use strict;
 
-my $std1 = CCO::Core::SynonymTypeDef->new();
-my $std2 = CCO::Core::SynonymTypeDef->new();
+my $std1 = OBO::Core::SynonymTypeDef->new();
+my $std2 = OBO::Core::SynonymTypeDef->new();
 
 
 # synonym_type_name
@@ -38,7 +38,7 @@ $std2->scope("BROAD");
 ok ($std2->scope() eq "BROAD");
 # synonym type def as string
 
-my $std3 = CCO::Core::SynonymTypeDef->new();
+my $std3 = OBO::Core::SynonymTypeDef->new();
 
 $std3->synonym_type_def_as_string("goslim_plant", "Plant GO slim", "EXACT");
 

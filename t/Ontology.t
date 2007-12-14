@@ -10,26 +10,26 @@ BEGIN {
 }
 
 #########################
-# $Id: Ontology.t 1686 2007-12-04 20:06:01Z erant $
+# $Id: Ontology.t 1717 2007-12-12 00:05:33Z erant $
 #
-# Purpose : onto-perl usage examples.
+# Purpose : ONTO-PERL usage examples.
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
-use CCO::Core::Ontology;
-use CCO::Core::Term;
-use CCO::Core::Relationship;
-use CCO::Core::RelationshipType;
-use CCO::Core::SynonymTypeDef;
-use CCO::Parser::OBOParser;
-use CCO::Util::TermSet;
+use OBO::Core::Ontology;
+use OBO::Core::Term;
+use OBO::Core::Relationship;
+use OBO::Core::RelationshipType;
+use OBO::Core::SynonymTypeDef;
+use OBO::Parser::OBOParser;
+use OBO::Util::TermSet;
 
 # three new terms
-my $n1 = CCO::Core::Term->new();
-my $n2 = CCO::Core::Term->new();
-my $n3 = CCO::Core::Term->new();
+my $n1 = OBO::Core::Term->new();
+my $n2 = OBO::Core::Term->new();
+my $n3 = OBO::Core::Term->new();
 
 # new ontology
-my $onto = CCO::Core::Ontology->new();
+my $onto = OBO::Core::Ontology->new();
 ok($onto->get_number_of_terms() == 0);
 ok($onto->get_number_of_relationships() == 0);
 ok(1);
@@ -42,11 +42,11 @@ $n1->name("One");
 $n2->name("Two");
 $n3->name("Three");
 
-my $def1 = CCO::Core::Def->new();
+my $def1 = OBO::Core::Def->new();
 $def1->text("Definition of One");
-my $def2 = CCO::Core::Def->new();
+my $def2 = OBO::Core::Def->new();
 $def2->text("Definition of Two");
-my $def3 = CCO::Core::Def->new();
+my $def3 = OBO::Core::Def->new();
 $def3->text("Definition of Tres");
 $n1->def($def1);
 $n2->def($def2);
@@ -84,10 +84,10 @@ ok($onto->get_number_of_terms() == 3);
 ok($onto->get_number_of_relationships() == 0);
 
 # new term
-my $n4 = CCO::Core::Term->new();
+my $n4 = OBO::Core::Term->new();
 $n4->id("CCO:P0000004");
 $n4->name("Four");
-my $def4 = CCO::Core::Def->new();
+my $def4 = OBO::Core::Def->new();
 $def4->text("Definition of Four");
 $n4->def($def4);
 ok($onto->has_term($n4) == 0);
@@ -98,18 +98,18 @@ ok($onto->has_term($n4) == 1);
 
 # add term as string
 my $new_term = $onto->add_term_as_string("CCO:P0000005", "Five");
-$new_term->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+$new_term->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
 ok($onto->has_term($new_term) == 1);
 ok($onto->get_term_by_id("CCO:P0000005")->equals($new_term));
 ok($onto->get_number_of_terms() == 5);
 my $n5 = $new_term; 
 
 # five new relationships
-my $r12 = CCO::Core::Relationship->new();
-my $r23 = CCO::Core::Relationship->new();
-my $r13 = CCO::Core::Relationship->new();
-my $r14 = CCO::Core::Relationship->new();
-my $r35 = CCO::Core::Relationship->new();
+my $r12 = OBO::Core::Relationship->new();
+my $r23 = OBO::Core::Relationship->new();
+my $r13 = OBO::Core::Relationship->new();
+my $r14 = OBO::Core::Relationship->new();
+my $r35 = OBO::Core::Relationship->new();
 
 $r12->id("CCO:P0000001_is_a_CCO:P0000002");
 $r23->id("CCO:P0000002_part_of_CCO:P0000003");
@@ -219,11 +219,11 @@ ok($onto->get_number_of_terms() == 5);
 ok($onto->get_number_of_relationships() == 5);
 
 # add relationships and terms linked by this relationship
-my $n11 = CCO::Core::Term->new();
-my $n21 = CCO::Core::Term->new();
+my $n11 = OBO::Core::Term->new();
+my $n21 = OBO::Core::Term->new();
 $n11->id("CCO:P0000011"); $n11->name("One one"); $n11->def_as_string("Definition One one", "");
 $n21->id("CCO:P0000021"); $n21->name("Two one"); $n21->def_as_string("Definition Two one", "");
-my $r11_21 = CCO::Core::Relationship->new();
+my $r11_21 = OBO::Core::Relationship->new();
 $r11_21->id("CCO:L0001121"); $r11_21->type("r11-21");
 $r11_21->link($n11, $n21);
 $onto->add_relationship($r11_21); # adds to the ontology the terms linked by this relationship
@@ -316,9 +316,9 @@ ok(scalar(@ancestors3) == 0);
 
 
 # three new relationships types
-my $r1 = CCO::Core::RelationshipType->new();
-my $r2 = CCO::Core::RelationshipType->new();
-my $r3 = CCO::Core::RelationshipType->new();
+my $r1 = OBO::Core::RelationshipType->new();
+my $r2 = OBO::Core::RelationshipType->new();
+my $r3 = OBO::Core::RelationshipType->new();
 
 $r1->id("is_a");
 $r2->id("part_of");
@@ -430,7 +430,7 @@ $onto->remark("This is a test ontology");
 #$onto->export(\*STDERR);
 
 # subontology_by_terms
-my $terms = CCO::Util::TermSet->new();
+my $terms = OBO::Util::TermSet->new();
 $terms->add_all($n1, $n2, $n3);
 my $so = $onto->subontology_by_terms($terms);
 ok($so->get_number_of_terms() == 3);
@@ -467,16 +467,16 @@ ok($so->idspace->uri() eq "http://www.cellcycleontology.org/ontology/CCO");
 ok($so->idspace->description() eq "cell cycle terms");
 $so->remark("This is a test ontology");
 $so->subsets("Jukumari Term used for jukumari", "Jukucha Term used for jukucha");
-my $std1 = CCO::Core::SynonymTypeDef->new();
-my $std2 = CCO::Core::SynonymTypeDef->new();
+my $std1 = OBO::Core::SynonymTypeDef->new();
+my $std2 = OBO::Core::SynonymTypeDef->new();
 $std1->synonym_type_def_as_string("acronym", "acronym", "EXACT");
 $std2->synonym_type_def_as_string("common_name", "common name", "EXACT");
 $so->synonym_type_def_set($std1, $std2);
 $n1->subset("Jukumari");
 $n1->subset("Jukucha");
-$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+$n2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}]');
 $n1->xref_set_as_string("CCO:ea");
-$n3->synonym_as_string("This is a dummy synonym definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}", "EXACT");
+$n3->synonym_as_string("This is a dummy synonym definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}]', "EXACT");
 $n3->alt_id("CCO:P0000033");
 $n3->namespace("cellcycle");
 $n3->is_obsolete("1");
@@ -492,7 +492,7 @@ ok($onto->get_number_of_relationships() == 7);
 ok(1);
 
 # subontology tests
-my $my_parser = CCO::Parser::OBOParser->new();
+my $my_parser = OBO::Parser::OBOParser->new();
 my $alpha_onto = $my_parser->work("./t/data/alpha.obo");
 
 my $root = $alpha_onto->get_term_by_id("MYO:0000000");
@@ -509,26 +509,26 @@ ok ($sub_o->get_number_of_terms() == 2);
 
 # get paths from term1 to term2
 
-my $o1  = CCO::Core::Ontology->new();
-my $d5  = CCO::Core::Term->new();
-my $d2  = CCO::Core::Term->new();
-my $d6  = CCO::Core::Term->new();
-my $d1  = CCO::Core::Term->new();
-my $d7  = CCO::Core::Term->new();
-my $d8  = CCO::Core::Term->new();
-my $d10 = CCO::Core::Term->new();
-my $d11 = CCO::Core::Term->new();
+my $o1  = OBO::Core::Ontology->new();
+my $d5  = OBO::Core::Term->new();
+my $d2  = OBO::Core::Term->new();
+my $d6  = OBO::Core::Term->new();
+my $d1  = OBO::Core::Term->new();
+my $d7  = OBO::Core::Term->new();
+my $d8  = OBO::Core::Term->new();
+my $d10 = OBO::Core::Term->new();
+my $d11 = OBO::Core::Term->new();
 
-my $d20  = CCO::Core::Term->new();
-my $d21  = CCO::Core::Term->new();
-my $d32  = CCO::Core::Term->new();
-my $d23  = CCO::Core::Term->new();
-my $d24  = CCO::Core::Term->new();
-my $d25  = CCO::Core::Term->new();
-my $d26  = CCO::Core::Term->new();
-my $d27  = CCO::Core::Term->new();
-my $d28  = CCO::Core::Term->new();
-my $d29  = CCO::Core::Term->new();
+my $d20  = OBO::Core::Term->new();
+my $d21  = OBO::Core::Term->new();
+my $d32  = OBO::Core::Term->new();
+my $d23  = OBO::Core::Term->new();
+my $d24  = OBO::Core::Term->new();
+my $d25  = OBO::Core::Term->new();
+my $d26  = OBO::Core::Term->new();
+my $d27  = OBO::Core::Term->new();
+my $d28  = OBO::Core::Term->new();
+my $d29  = OBO::Core::Term->new();
 
 $d5->id("5");
 $d2->id("2");
@@ -611,7 +611,7 @@ foreach my $ref_path (@ref_paths) {
 }
 
 
-my $stop  = CCO::Util::Set->new();
+my $stop  = OBO::Util::Set->new();
 map {$stop->add($_->id())} @{$o1->get_terms()};
 
 my @pref1 = $o1->get_paths_term_terms($d5->id(), $stop);

@@ -11,10 +11,10 @@ BEGIN {
 
 #########################
 
-use CCO::Util::Set;
+use OBO::Util::Set;
 use strict;
 
-my $my_set = CCO::Util::Set->new();
+my $my_set = OBO::Util::Set->new();
 ok(1);
 
 $my_set->add("CCO:P0000001");
@@ -25,7 +25,7 @@ $my_set->add_all("CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
 
 ok($my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
 
-my $my_set2 = CCO::Util::Set->new();
+my $my_set2 = OBO::Util::Set->new();
 
 ok(1);
 
