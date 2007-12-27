@@ -41,6 +41,21 @@ open (FH, ">./t/data/test1.obo") || die "Run as root the tests: ", $!;
 $ontology->export(\*FH);
 close FH;
 
+# export to RDF
+
+# for RDF get the whole ontology, as we need interactions, processes ...
+my $rdf_ontology = $my_parser->work("./t/data/out_I_A_thaliana.obo");
+open (FH, ">./t/data/test1.rdf") || die "Run as root the tests: ", $!;
+$rdf_ontology->export(\*FH, 'rdf');
+close FH;
+
+# export to RDF (generic)
+
+my $rdf_ontology_gen = $my_parser->work("./t/data/cell.obo");
+open (FH, ">./t/data/test2.rdf") || die "Run as root the tests: ", $!;
+$rdf_ontology_gen->export(\*FH, 'rdf');
+close FH;
+
 # export to XML 1
 open (FH, ">./t/data/test1.xml") || die "Run as root the tests: ", $!;
 $ontology->export(\*FH, 'xml');

@@ -119,8 +119,9 @@ sub work {
 	my $ontology = OBO::Core::Ontology->new();
 	
 	# populate ontology
-	$ontology->add_relationship_type_as_string('is_a', 'is_a');
-	$ontology->add_relationship_type_as_string('belongs_to', 'belongs_to');
+	$ontology->add_relationship_type_as_string ('is_a',       'is_a');
+	$ontology->add_relationship_type_as_string ('belongs_to', 'belongs_to');
+	#$ontology->add_relationship_type_as_string ('owns',       'owns');
 	
 	my $protein = OBO::Core::Term->new();# upper level ontology term
 	$protein->name('protein');
@@ -165,7 +166,9 @@ sub work {
 			}
 			$ontology->add_term($clust_protein);
 			$ontology->create_rel($clust_protein, 'is_a', $cluster);
-			$ontology->create_rel($clust_protein, 'belongs_to', $taxa{$taxon_lab}->[3]);
+			
+			$ontology->create_rel($clust_protein,         'belongs_to',   $taxa{$taxon_lab}->[3]);
+			#$ontology->create_rel($taxa{$taxon_lab}->[3], 'owns',         $clust_protein);
 		}
 	}
 	

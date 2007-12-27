@@ -5,8 +5,25 @@
 </head>
 <body>
 	
+<h2>Exporting ontologies into different formats</h2>
+	
+<ol>
+	<li><a href="#1">Export a given ontology to OWL format (oboInOwl mapping).</a></li>
+		
+	<li><a href="#2">Export a given ontology to GML format.</a></li>
+		
+	<li><a href="#3">Export a given ontology to XML format.</a></li>
+		
+	<li><a href="#4">Export a given ontology to DOT format.</a></li>
+		
+	<li><a href="#5">Export a given ontology to OBO format (spec 1.2).</a></li>
+	
+	<li><a href="#6">Export a given ontology to RDF format.</a></li>
+
+</ol>
+	
 	<ol>
-	<li> Export a given ontology to OWL format (oboInOwl mapping):
+	<li> <b><a name="1">Export a given ontology to OWL format (oboInOwl mapping):</a></b>
 		<pre>
 					
 			use OBO::Parser::OBOParser;
@@ -24,7 +41,7 @@
 		</pre>
 	</li>
 		
-	<li> Export a given ontology to GML format:
+	<li> <b><a name="2">Export a given ontology to GML format:</a></b>
 		<pre>
 
 			use OBO::Parser::OBOParser;
@@ -42,7 +59,7 @@
 		</pre>
 	</li>
 		
-	<li> Export a given ontology to XML format:
+	<li> <b><a name="3">Export a given ontology to XML format:</a></b>
 		<pre>	
 		
 			use OBO::Parser::OBOParser;
@@ -60,7 +77,7 @@
 		</pre>
 	</li>
 		
-	<li> Export a given ontology to DOT format:
+	<li> <b><a name="4">Export a given ontology to DOT format:</a></b>
 		<pre>				
 			
 			use OBO::Parser::OBOParser;
@@ -78,7 +95,7 @@
 		</pre>
 	</li>
 		
-	<li> Export a given ontology to OBO format (spec 1.2):
+	<li> <b><a name="5">Export a given ontology to OBO format (spec 1.2):</a></b>
 		<pre>
 		
 			use OBO::Parser::OBOParser;
@@ -95,6 +112,25 @@
 						
 		</pre>
 	</li>
+		
+	<li> <b><a name="6">Export a given ontology to RDF format:</a></b>
+		<pre>
+		
+			use OBO::Parser::OBOParser;
+			use strict;
+						
+			my $my_parser = OBO::Parser::OBOParser->new();
+			
+			my $o = $my_parser->work("gene_ontology.obo");
+							
+			# export to RDF: gene_ontology.rdf
+			open (FH, ">gene_ontology_by_cco.rdf");
+			$o->export(\*FH, 'rdf');
+			close FH;
+						
+		</pre>
+	</li>
+		
 	</ol>
 	
 </body>

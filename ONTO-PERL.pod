@@ -1,7 +1,8 @@
 # $Id: ONTO-PERL.pod 291 2006-06-01 16:21:45Z erant $
 #
-# see also - http://www.cellcycleontology.org and 
-#          - http://search.cpan.org/~easr/ONTO-PERL/
+# see also - http://search.cpan.org/~easr/ONTO-PERL/
+#          - http://www.cellcycleontology.org/api/doc/example00.html 
+#          - http://cellcycleonto.svn.sourceforge.net/viewvc/cellcycleonto/ONTO-PERL/
 #
 # This library is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -69,5 +70,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package ONTO-PERL;
-$VERSION='1.07';
+$VERSION='1.08';
 1;

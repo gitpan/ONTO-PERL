@@ -1,11 +1,23 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
-<title>Manipulating an Ontology</title>
+<title>Working with an Ontology</title>
 </head>
 <body>
+	
+<h2>Working with an Ontology</h2>
+	
 <ol>
-	<li> Manipulating an Ontology:
+	<li><a href="#1">Manipulating an Ontology.</a></li>
+		
+	<li><a href="#2">Getting sub-ontologies from a given ontology.</a></li>
+	
+	<li><a href="#3">Get paths from a given term A to a term B and/or from A to a set of given terms.</a></li>
+
+</ol>
+	
+<ol>
+	<li> <b><a name="1">Manipulating an Ontology:</a></b>
 		<pre>
 			
 			use OBO::Core::Ontology;
@@ -511,7 +523,7 @@
 		</pre>
 	</li>
 
-	<li> Getting sub-ontologies from a given ontology:
+	<li> <b><a name="2">Getting sub-ontologies from a given ontology:</a></b>
 		<pre>
 			
 			my $my_parser = OBO::Parser::OBOParser->new();
@@ -529,7 +541,7 @@
 		</pre>
 	</li>
 
-	<li> Get paths from a given term A to a term B and/or from A to a set of given terms:
+	<li> <b><a name="3">Get paths from a given term A to a term B and/or from A to a set of given terms:</a></b>
 		<pre>
 			
 			# get paths from term1 to term2

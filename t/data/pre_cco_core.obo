@@ -3631,6 +3631,15 @@ is_a: relationship ! relationship
 xref: CCO_REL:encoded_by
 
 [Typedef]
+id: codes_for
+name: codes_for
+def: "g encodes for p where g a Gene and p is a Protein." [CCO:ea]
+synonym: "produces" EXACT [CCO:ea]
+synonym: "encodes_for" EXACT [CCO:ea]
+is_a: relationship ! relationship
+xref: CCO_REL:codes_for
+
+[Typedef]
 id: has_agent
 name: has_agent
 def: "As for has_participant, but with the additional condition that the component instance is causally active in the relevant process" [PMID:15892874]
@@ -3796,15 +3805,22 @@ is_transitive: true
 xref: OBO_REL:transformation_of
 
 [Typedef]
-id: transformed_into
-name: transformed_into
+id: transforms_into
+name: transforms_into
 is_a: relationship ! relationship
 is_transitive: true
-xref: OBO_REL:transformed_into
+xref: CCO_REL:transforms_into
 
 [Typedef]
 id: belongs_to
 name: belongs_to
-is_a: relationship
-def: "o belongs to O where o is an specific species (e.g. homo sapiens) and O the organism." [CCO:ea]
+def: "o belongs to O where o is a gene or gene product and O an organism." [CCO:ea]
+is_a: relationship ! relationship
+xref: CCO_REL:belongs_to
 
+[Typedef]
+id: owns
+name: owns
+def: "O owns o where O is an organism and o a gene or gene product." [CCO:ea]
+is_a: relationship ! relationship
+xref: CCO_REL:owns

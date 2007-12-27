@@ -110,6 +110,7 @@ t/data/cco_id_term.map
 t/data/cco_o.ids
 t/data/cco_t.ids
 t/data/cco_u.ids
+t/data/cell.obo
 t/data/fake_ulo_cco.obo
 t/data/goa_assoc_filt.txt
 t/data/goa_assoc.txt

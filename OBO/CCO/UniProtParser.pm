@@ -30,7 +30,7 @@ This method assumes:
 
 - the input ontology already contains the NCBI taxonomy. 
 
-- the input ontology already contains the relationship types 'is_a', 'encoded_by', "belongs_to", "tranformation_of"
+- the input ontology already contains the relationship types 'is_a', 'encoded_by', 'codes_for', 'belongs_to', 'tranformation_of', 'owns'
 
 - the input UniProt file contains entries for one species only and for protein terms present in the input ontology only
 
@@ -104,9 +104,9 @@ sub work {
 	my $my_parser = OBO::Parser::OBOParser->new();
 	my $ontology  = $my_parser->work($old_OBO_file);
 	
-	my @rel_types = ( 'is_a', 'belongs_to', 'encoded_by' );
+	my @rel_types = ( 'is_a', 'belongs_to', 'owns', 'encoded_by', 'codes_for', 'transformation_of', 'transforms_into' );
 	foreach (@rel_types) {
-		confess "Not a valid relationship type (valid values: ", @rel_types, ")" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
+		confess "Not a valid relationship type: '", $_,"' (valid values: ", join(", ", @rel_types), ")" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
 	}
 	
 	my $taxon = $ontology->get_term_by_name($taxon_name) || die "No term for $taxon_name is defined in file '$old_OBO_file'";
@@ -183,6 +183,7 @@ sub work {
 		# >>EASR
 		
 		$ontology->create_rel( $protein, 'belongs_to', $taxon );
+		#$ontology->create_rel( $taxon,   'owns',       $protein);
 
 		# add post-translationally modified derivatives of the protein
 		if(my @fts = @{$entry->FTs->{list}}){#an array of references to arrays corresponding to individual FT lines 
@@ -221,9 +222,13 @@ sub work {
 				$mod_prot_obj->comment($mod_prot_comment);                
 				$ontology->add_term($mod_prot_obj);
 
-				$ontology->create_rel( $mod_prot_obj,    'belongs_to', $taxon );
-				$ontology->create_rel( $mod_prot_obj,    'transformation_of', $protein );
-				$ontology->create_rel( $mod_prot_obj,    'is_a', $ontology->get_term_by_name('modified protein') );	
+				$ontology->create_rel( $mod_prot_obj,    'belongs_to',         $taxon );
+				#$ontology->create_rel( $taxon,           'owns',               $mod_prot_obj );
+				
+				$ontology->create_rel( $mod_prot_obj,    'transformation_of',  $protein );
+				$ontology->create_rel( $protein,         'transforms_into',    $mod_prot_obj);				
+				
+				$ontology->create_rel( $mod_prot_obj,    'is_a',               $ontology->get_term_by_name('modified protein') );	
 			}
 		}
         
@@ -250,9 +255,14 @@ sub work {
 			$ontology->add_term($gene);
 	
 			# add relationtionships
-			$ontology->create_rel( $gene,    'is_a',         $onto_gene );
-			$ontology->create_rel( $protein, 'encoded_by',   $gene );
-			$ontology->create_rel( $gene,    'belongs_to', $taxon );
+			$ontology->create_rel( $gene,    'is_a',        $onto_gene );
+			
+			$ontology->create_rel( $protein, 'encoded_by',  $gene );
+			$ontology->create_rel( $gene,    'codes_for',   $protein ); # inverse of 'encoded_by'
+			
+			$ontology->create_rel( $gene,    'belongs_to',  $taxon );
+			#$ontology->create_rel( $taxon,   'owns',        $gene);
+			
 		} elsif ( scalar @gene_groups > 1 ) {    # multiple genes associated with the protein
 			foreach my $gene_group (@gene_groups) {
 				my $gene_name;
@@ -271,8 +281,12 @@ sub work {
 
 				# add relationtionships
 				$ontology->create_rel( $gene,    'is_a',         $onto_gene );
+				
 				$ontology->create_rel( $protein, 'encoded_by',   $gene );
-				$ontology->create_rel( $gene,    'belongs_to', $taxon );
+				$ontology->create_rel( $gene,    'codes_for',    $protein ); # inverse of 'encoded_by'
+				
+				$ontology->create_rel( $gene,    'belongs_to',   $taxon );
+				#$ontology->create_rel( $taxon,   'owns',         $gene );
 			}
 		}
 	}

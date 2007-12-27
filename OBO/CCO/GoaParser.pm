@@ -25,7 +25,7 @@ The method 'work' incorporates OBJ_SRC, OBJ_ID, OBJ_SYMB, SYNONYM, DESCRIPTION i
 This method assumes: 
 1. the ontology contains already the term 'protein'
 2. the ontology already contains all and only the necessary GO terms. 
-3. the ontology already contains the relationship types 'is_a', 'participates_in'
+3. the ontology already contains the relationship types 'is_a', 'participates_in', 'has_participant'
 4. the input GOA association file contains entries for one species only and for GO terms present in the input ontology only
 
 =head1 AUTHOR
@@ -138,11 +138,15 @@ sub work {
 	
 	# rels
 	my $is_a            = 'is_a';
+	
 	my $participates_in = 'participates_in';
+	my $has_participant = 'has_participant';
+	
 	my $located_in      = 'located_in';
+	my $location_of     = 'location_of';
 	
 	# rel existency check
-	foreach (($is_a, $participates_in, $located_in)){
+	foreach (($is_a, $participates_in, $has_participant, $located_in, $location_of)){
 		die "Not a valid relationship type" unless($ontology->{RELATIONSHIP_TYPES}->{$_});
 	}
 	
@@ -209,6 +213,7 @@ sub work {
 			$ontology->add_term($protein);
 			
 			# add "new protein is_a protein"
+			confess "The following protein is missing: '", $name_of_parent_of_the_new_proteins, "'" if (!defined $onto_protein);
 			$ontology->create_rel($protein, $is_a, $onto_protein);
 			
 		}
@@ -219,10 +224,18 @@ sub work {
 		my $prefix = 'CCO:'.$aspect; 
 		$id =~ s/GO:/$prefix/;
 		my $cco_go_term = $ontology->get_term_by_id($id);
+		
+		if (!defined $cco_go_term){
+			warn "The following term is missing: '", $id, "'";
+			next;
+		}
+		
 		if ($aspect eq 'P') {
-			$ontology->create_rel($protein, $participates_in, $cco_go_term);			
+			$ontology->create_rel($protein,     $participates_in, $cco_go_term);
+			$ontology->create_rel($cco_go_term, $has_participant, $protein); # inverse of 'participates_in'			
 		} elsif ($aspect eq 'C') {
-			$ontology->create_rel($protein, $located_in, $cco_go_term);
+			$ontology->create_rel($protein,     $located_in,  $cco_go_term);
+			$ontology->create_rel($cco_go_term, $location_of, $protein); # inverse of 'located_in'
 		} elsif ($aspect eq 'F') {
 			# TODO add the 'F' data
 			#$ontology->create_rel($protein, $acts_in, $cco_go_term);

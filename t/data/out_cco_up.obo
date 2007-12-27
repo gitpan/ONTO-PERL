@@ -20,8 +20,8 @@ xref: EMBL:BAD94450.1
 xref: UniProt:Q6NMC8
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
+relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 
 [Term]
 id: CCO:B0000002
@@ -35,8 +35,8 @@ xref: UniProt:P56795
 xref: UniProt:P56796
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:P0000027 ! establishment of mitotic spindle orientation
 relationship: encoded_by CCO:G0000001 ! rpl20_arath
+relationship: participates_in CCO:P0000027 ! establishment of mitotic spindle orientation
 
 [Term]
 id: CCO:B0000003
@@ -46,8 +46,11 @@ xref: EMBL:AAP86656.1
 xref: UniProt:Q6XJG8
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
+relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
+relationship: transforms_into CCO:B0000039 ! Q6XJG8_ARATH-Phosphoserine351
+relationship: transforms_into CCO:B0000040 ! Q6XJG8_ARATH-Phosphoserine418
+relationship: transforms_into CCO:B0000041 ! Q6XJG8_ARATH-Phosphoserine421
 
 [Term]
 id: CCO:B0000004
@@ -58,8 +61,8 @@ xref: EMBL:AAO50726.1
 xref: UniProt:Q84JF0
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
-relationship: participates_in CCO:P0000103 ! meiosis
 relationship: encoded_by CCO:G0000002 ! At5g67520_arath
+relationship: participates_in CCO:P0000103 ! meiosis
 
 [Term]
 id: CCO:B0000039
@@ -68,8 +71,8 @@ def: "Protein Q6XJG8_ARATH with the residue 351 substituted with Phosphoserine" 
 comment: by MAPK12; and MAPK9; By similarity
 xref: UniProt:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
-relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
 id: CCO:B0000040
@@ -78,8 +81,8 @@ def: "Protein Q6XJG8_ARATH with the residue 418 substituted with Phosphoserine" 
 comment: By similarity
 xref: UniProt:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
-relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
 id: CCO:B0000041
@@ -88,8 +91,8 @@ def: "Protein Q6XJG8_ARATH with the residue 421 substituted with Phosphoserine" 
 comment: by MAPK12; By similarity
 xref: UniProt:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
-relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
 id: CCO:G0000001
@@ -100,6 +103,7 @@ xref: EMBL:AP000423
 xref: TAIR:AtCg00660
 is_a: CCO:U0000008 ! cell cycle gene
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: codes_for CCO:B0000002 ! RK20_ARATH
 
 [Term]
 id: CCO:G0000002
@@ -111,6 +115,7 @@ xref: TAIR:At5g67520
 xref: UniGene:At.28808
 is_a: CCO:U0000008 ! cell cycle gene
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: codes_for CCO:B0000004 ! Q84JF0_ARATH
 
 [Term]
 id: CCO:G0000003
@@ -123,6 +128,8 @@ xref: TAIR:At4g37630
 xref: UniGene:At.43466
 is_a: CCO:U0000008 ! cell cycle gene
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: codes_for CCO:B0000001 ! CCD51_ARATH
+relationship: codes_for CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
 id: CCO:P0000001
@@ -376,6 +383,7 @@ xref: GO:0000132
 xref: GO:0030607
 xref: GO:0030609
 is_a: CCO:P0000177 ! establishment of mitotic spindle localization
+relationship: has_participant CCO:B0000002 ! RK20_ARATH
 
 [Term]
 id: CCO:P0000028
@@ -797,6 +805,8 @@ name: activation of transcription on exit from mitosis
 def: "The cell cycle process whereby transcription is positively regulated as the cell leaves M phase. M phase is the part of the mitotic cell cycle during which mitosis and cytokinesis take place." [GOC:isa_complete]
 xref: GO:0007072
 is_a: CCO:P0000308 ! cell cycle process
+relationship: has_participant CCO:B0000001 ! CCD51_ARATH
+relationship: has_participant CCO:B0000003 ! Q6XJG8_ARATH
 relationship: part_of CCO:P0000016 ! M phase of mitotic cell cycle
 
 [Term]
@@ -1062,6 +1072,7 @@ name: meiosis
 def: "Progression through meiosis, the specialized nuclear and cell division in which a single diploid cell undergoes two nuclear divisions following a single round of DNA replication in order to produce four daughter cells that contain half the number of chromosomes as the diploid cell. Meiosis occurs during the formation of gametes from diploid organisms and at the beginning of haplophase in those organisms that alternate between diploid and haploid generations." [PMID:9334324]
 xref: GO:0007126
 is_a: CCO:P0000309 ! cell cycle phase
+relationship: has_participant CCO:B0000004 ! Q84JF0_ARATH
 relationship: part_of CCO:P0000271 ! M phase of meiotic cell cycle
 
 [Term]
@@ -3689,7 +3700,8 @@ is_a: relationship ! relationship
 [Typedef]
 id: belongs_to
 name: belongs_to
-def: "o belongs to O where o is an specific species (e.g. homo sapiens) and O the organism." [CCO:ea]
+def: "o belongs to O where o is a gene or gene product and O an organism." [CCO:ea]
+xref: CCO_REL:belongs_to
 is_a: relationship ! relationship
 
 [Typedef]
@@ -3699,6 +3711,15 @@ def: "C catalyses P if and only if for all c (catalyst) belonging to C, exists a
 comment: C inhibits P if and only if for all c (inhibitor) belonging to C, exists a p (belonging to P) which chemical reaction rate is reduced or prevented by c.
 synonym: "activates" EXACT []
 xref: CCO_REL:catalyses
+is_a: relationship ! relationship
+
+[Typedef]
+id: codes_for
+name: codes_for
+def: "g encodes for p where g a Gene and p is a Protein." [CCO:ea]
+synonym: "produces" EXACT [CCO:ea]
+synonym: "encodes_for" EXACT [CCO:ea]
+xref: CCO_REL:codes_for
 is_a: relationship ! relationship
 
 [Typedef]
@@ -3858,6 +3879,13 @@ is_transitive: true
 is_a: relationship ! relationship
 
 [Typedef]
+id: owns
+name: owns
+def: "O owns o where O is an organism and o a gene or gene product." [CCO:ea]
+xref: CCO_REL:owns
+is_a: relationship ! relationship
+
+[Typedef]
 id: part_of
 name: part_of
 def: "For continuants: C part_of C' if and only if: given any c that instantiates C at a time t, there is some c' such that c' instantiates C' at time t, and c *part_of* c' at t. For processes: P part_of P' if and only if: given any p that instantiates P at a time t, there is some p' such that p' instantiates P' at time t, and p *part_of* p' at t. (Here *part_of* is the instance-level part-relation.)" [PMID:15892874]
@@ -3916,8 +3944,8 @@ is_transitive: true
 is_a: relationship ! relationship
 
 [Typedef]
-id: transformed_into
-name: transformed_into
-xref: OBO_REL:transformed_into
+id: transforms_into
+name: transforms_into
+xref: CCO_REL:transforms_into
 is_transitive: true
 is_a: relationship ! relationship

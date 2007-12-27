@@ -9,6 +9,62 @@
 #
 package OBO::CCO::IntActParser;
 
+=head1 NAME
+
+OBO::CCO::IntActParser  - An IntAct to OBO parser/filter.
+    
+=head1 SYNOPSIS
+
+use OBO::CCO::IntActParser;
+use strict;
+
+my $A_t_intact_files_dir = "/home/pik/Bioinformatics/Erick_two/IntactFiles/At/";
+my @A_t_intact_files = @{&get_intact_files ($A_t_intact_files_dir)};
+
+my $A_t_interactionmanager = InteractionManager->new;
+$A_t_interactionmanager->work(
+"pre_cco_A_thaliana.obo",
+"cco_I_A_thaliana.obo",
+"3702",
+"cco_i_A_thaliana.ids",
+"cco_b_A_thaliana.ids",
+"cco_i.ids",
+"cco_b.ids",
+@A_t_intact_files 
+);  
+
+
+sub get_intact_files{
+	my $intact_files_dir = shift;
+	my @intact_files = ();
+	opendir(DIR, $intact_files_dir) || die "can't opendir $intact_files_dir: $!";
+	my @files = readdir(DIR);
+	for my $file (@files){
+		if (!($file eq ".") and !($file eq "..")){
+		push (@intact_files,$intact_files_dir.$file);	
+		}
+	}
+	closedir DIR;
+	return \@intact_files;
+}
+
+=head1 DESCRIPTION
+
+A parser for IntAct to OBO conversion. The conversion is filtered according to the proteins already existing in the OBO file and the roles this proteins have in the interactions (prey, bait, neutral component). It deletes any interaction in OBO that it is not present in IntAct, for sync.
+
+=head1 AUTHOR
+
+Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007 by Mikel Egana Aranguren
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
 
 use OBO::CCO::CCO_ID_Term_Map;
 use OBO::CCO::XMLIntactParser;
@@ -498,61 +554,3 @@ sub lookup (){
 }
 
 1;
-
-=head1 NAME
-
-OBO::CCO::IntActParser  - An IntAct to OBO parser/filter.
-    
-=head1 SYNOPSIS
-
-use OBO::CCO::IntActParser;
-use strict;
-
-my $A_t_intact_files_dir = "/home/pik/Bioinformatics/Erick_two/IntactFiles/At/";
-my @A_t_intact_files = @{&get_intact_files ($A_t_intact_files_dir)};
-
-my $A_t_interactionmanager = InteractionManager->new;
-$A_t_interactionmanager->work(
-"pre_cco_A_thaliana.obo",
-"cco_I_A_thaliana.obo",
-"3702",
-"cco_i_A_thaliana.ids",
-"cco_b_A_thaliana.ids",
-"cco_i.ids",
-"cco_b.ids",
-@A_t_intact_files 
-);  
-
-
-sub get_intact_files{
-	my $intact_files_dir = shift;
-	my @intact_files = ();
-	opendir(DIR, $intact_files_dir) || die "can't opendir $intact_files_dir: $!";
-	my @files = readdir(DIR);
-	for my $file (@files){
-		if (!($file eq ".") and !($file eq "..")){
-		push (@intact_files,$intact_files_dir.$file);	
-		}
-	}
-	closedir DIR;
-	return \@intact_files;
-}
-
-=head1 DESCRIPTION
-
-A parser for IntAct to OBO conversion. The conversion is filtered according to the proteins already existing in the OBO file and the roles this proteins have in the interactions (prey, bait, neutral component). It deletes any interaction in OBO that it is not present in IntAct, for sync.
-
-=head1 AUTHOR
-
-Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2007 by Mikel Egana Aranguren
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-

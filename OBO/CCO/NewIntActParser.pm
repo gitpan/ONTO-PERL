@@ -80,7 +80,7 @@ sub work {
 	# Initialize the OBO parser, load the OBO file, check the assumptions
 	my $obo_parser = OBO::Parser::OBOParser->new();
 	my $ontology   = $obo_parser->work($old_OBO_file);
-	my @rel_types = ( 'is_a', 'participates_in', 'located_in', 'belongs_to' );
+	my @rel_types = ( 'is_a', 'participates_in', 'has_participant', 'located_in', 'belongs_to', 'owns' );
 	foreach (@rel_types) {
 		confess "Not a valid relationship type"
 		  unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
@@ -295,7 +295,8 @@ sub add_participant {
 		$ontology->add_term($protein);
 	}
 	$protein->name($prot_name);
-	$ontology->create_rel( $protein, 'participates_in', $int_term );
+	$ontology->create_rel( $protein,  'participates_in', $int_term );
+	$ontology->create_rel( $int_term, 'has_participant', $protein); # inverse of 'participates_in'
 	return ($ontology);
 }
 
