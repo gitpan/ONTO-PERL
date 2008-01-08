@@ -1,8 +1,8 @@
-# $Id: UniProtParser.pm 1678 2007-12-03 12:51:11Z erant $
+# $Id: UniProtParser.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : UniProtParser.pm
 # Purpose : Parse UniProt files and add data to an ontology
-# License : Copyright (c) 2006 Cell Cycle Ontology. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : CCO <ccofriends@psb.ugent.be>
@@ -138,8 +138,15 @@ sub work {
 			$protein = $ontology->get_term_by_xref('UniProt', $ac);
 			last if (defined $protein);
 		}
-		warn "None of the UniProt AC's (", join(", ", @all_acs),") were found in file '$old_OBO_file': ", $! if (!defined $protein);
-		next if (!defined $protein);
+		
+		#
+		# Report the non-existing ACs in the OBO file (cco_I_$organism.obo)
+		#
+		if (!defined $protein) {
+			warn "None of the UniProt AC's (", join(", ", @all_acs),") were found in file '$old_OBO_file': ", $!;
+			next;
+		}
+		
 		# Question: do we keep the $accession as the primary AC in our entries? (it is used many times below...)
 		# NB: all the AC's should go to the xref field (see below)
 		#>>EASR

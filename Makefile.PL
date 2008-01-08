@@ -1,4 +1,4 @@
-# $Id
+# $Id: Makefile.PL 1843 2008-01-08 12:26:36Z erant $
 use 5.006;
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
@@ -61,6 +61,7 @@ WriteMakefile(
 								scripts/go2owl.pl
 								scripts/obo2cco.pl
 								scripts/obo2owl.pl
+								scripts/obo2rdf.pl
 								scripts/obo2xml.pl
 								scripts/obsolete_term_id_vs_def_in_go.pl
 								scripts/obsolete_term_id_vs_name_in_go.pl

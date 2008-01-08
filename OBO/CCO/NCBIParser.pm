@@ -1,8 +1,8 @@
-# $Id: NCBIParser.pm 1704 2007-12-06 17:33:49Z erant $
+# $Id: NCBIParser.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : NCBIParser.pm
 # Purpose : Parse NCBI files: names and nodes
-# License : Copyright (c) 2006 Cell Cycle Ontology. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : CCO <ccofriends@psb.ugent.be>

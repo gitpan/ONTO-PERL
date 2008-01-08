@@ -1,4 +1,4 @@
-# $Id: RelationshipType.pm 1725 2007-12-13 14:31:11Z erant $
+# $Id: RelationshipType.pm 1845 2008-01-08 12:33:09Z erant $
 #
 # Module  : RelationshipType.pm
 # Purpose : Type of Relationship in the Ontology: is_a, part_of, etc.
@@ -11,7 +11,7 @@ package OBO::Core::RelationshipType;
 
 =head1 NAME
 
-OBO::Core::RelationshipType - A type of relationship type in an ontology
+OBO::Core::RelationshipType - A type of relationship type in an ontology.
     
 =head1 SYNOPSIS
 
@@ -79,7 +79,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007 by erant
+Copyright (C) 2006, 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

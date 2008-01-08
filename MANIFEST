@@ -39,6 +39,7 @@ OBO/Util/Set.pm
 OBO/Util/SynonymSet.pm
 OBO/Util/SynonymTypeDefSet.pm
 OBO/Util/TermSet.pm
+doc/example00.html
 doc/example01.html
 doc/example02.html
 doc/example03.html

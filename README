@@ -51,7 +51,7 @@ ONTO-PERL might require the following modules:
 
 COPYRIGHT AND LICENCE
 
-Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
+Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 

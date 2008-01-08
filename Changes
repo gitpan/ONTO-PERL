@@ -46,3 +46,5 @@ Revision history for ONTO-PERL
 1.07 dbxref's parsing has been relaxed and improved. 'onto-perl' became 'ONTO-PERL' and some files were moved to more meaningful directories
 
 1.08 RDF export is now available (obo2rdf.pl). Improved documentation.
+
+1.09 Minor documentation improvements. Performance improvement for CCO-related modules. 

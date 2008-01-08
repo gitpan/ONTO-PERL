@@ -1,4 +1,4 @@
-# $Id: GoaAssociation.pm 1704 2007-12-06 17:33:49Z erant $
+# $Id: GoaAssociation.pm 1845 2008-01-08 12:33:09Z erant $
 #
 # Module  : GoaAssociation.pm
 # Purpose : GOA associaton entry structure.
@@ -11,7 +11,7 @@ package OBO::Core::GoaAssociation;
 
 =head1 NAME
 
-OBO::Core::GoaAssociation - A GOA association record
+OBO::Core::GoaAssociation - A GOA association record.
 
 =head1 SYNOPSIS
 

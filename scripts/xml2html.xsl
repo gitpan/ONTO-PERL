@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id: xml2html.xsl 1380 2007-08-06 16:19:56Z erant $
+<!-- $Id: xml2html.xsl 1847 2008-01-08 12:38:58Z erant $
 
  Module  : xml2html.xsl
  Purpose : Transform the XML CCO version into HTML.

@@ -1,8 +1,8 @@
-# $Id: NewIntActParser.pm 1441 2007-08-21 11:58:25Z erant $
+# $Id: NewIntActParser.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : NewIntActParser.pm
 # Purpose : Parse IntAct files
-# License : Copyright (c) 2006 Cell Cycle Ontology. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : CCO <ccofriends@psb.ugent.be>
@@ -82,11 +82,9 @@ sub work {
 	my $ontology   = $obo_parser->work($old_OBO_file);
 	my @rel_types = ( 'is_a', 'participates_in', 'has_participant', 'located_in', 'belongs_to', 'owns' );
 	foreach (@rel_types) {
-		confess "Not a valid relationship type"
-		  unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
+		confess "Not a valid relationship type" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
 	}
-	my $onto_protein = $ontology->get_term_by_name("protein")
-	  || confess "the term 'protein' is not defined", $!;
+	my $onto_protein = $ontology->get_term_by_name("protein") || confess "the term 'protein' is not defined", $!;
 
 	# Initialize CCO_ID_Map objects
 	my $short_b_map =
@@ -128,44 +126,41 @@ sub work {
 		my $int_set = $xpath->find("/entrySet/entry/interactionList/interaction");
 		foreach my $interaction ( $int_set->get_nodelist() ) {
 			my $int_id = $interaction->find( "\@id", $interaction );
-			$int_id = $int_id->string_value();		
-			my $int_name =
-			  $interaction->find( "names/shortLabel/text()", $interaction );
-			$int_name = $int_name->string_value();    # interaction name
-			my $int_comment =
-			  $interaction->find( "names/fullName/text()", $interaction );
+			$int_id = $int_id->string_value();
+					
+			my $int_name =  $interaction->find( "names/shortLabel/text()", $interaction );
+			$int_name = $int_name->string_value();          # interaction name
+			
+			my $int_comment = $interaction->find( "names/fullName/text()", $interaction );
 			$int_comment = $int_comment->string_value();    # interaction full name
-			my $int_type =
-			  $interaction->find( "interactionType/names/shortLabel/text()",
-				$interaction );# $int_type is an object XML::XPath::NodeSet
-			$int_type = $int_type->string_value(); # interaction type
+			
+			my $int_type = $interaction->find( "interactionType/names/shortLabel/text()", $interaction ); # $int_type is an object XML::XPath::NodeSet
+			$int_type = $int_type->string_value();          # interaction type
+			
 			my $ref = $interaction->find( "xref/primaryRef/\@id", $interaction );
 			$ref = $ref->string_value();
-			my $participants =
-			  $xpath->find("/entrySet/entry/interactionList/interaction[\@id = $int_id]/participantList/participant");
+			
+			my $participants = $xpath->find("/entrySet/entry/interactionList/interaction[\@id = $int_id]/participantList/participant");
+			
 			my %exp_roles;
 			my %cc_interactors;
 			my %accs;
 			foreach my $participant ( $participants->get_nodelist() ) {
+				
 				my $part_id = $participant->find("\@id");
-				$part_id = $part_id->string_value();    # participant id
-				my $int_ref =
-				  $participant->find( "interactorRef/text()", $participant );
-				$int_ref =  $int_ref->string_value();  # ref for the interactor    
-				my $acc =
-				  $xpath->find("/entrySet/entry/interactorList/interactor[\@id = $int_ref]/xref/primaryRef/\@id");
-				$acc = $acc->string_value();
-				my $role = $participant->find("experimentalRoleList/experimentalRole/names/shortLabel/text()", $participant);
-				$role = $role->string_value();#print Dumper($role);
-				if ( contains_key( $up_map, $acc ) ) {    # only homologous proteins are accepted
+				$part_id    = $part_id->string_value();  # participant id
+				my $int_ref = $participant->find( "interactorRef/text()", $participant );
+				$int_ref    = $int_ref->string_value();  # ref for the interactor    
+				my $acc     = $xpath->find("/entrySet/entry/interactorList/interactor[\@id = $int_ref]/xref/primaryRef/\@id");
+				$acc        = $acc->string_value();
+				my $role    = $participant->find("experimentalRoleList/experimentalRole/names/shortLabel/text()", $participant);
+				$role       = $role->string_value();     # print Dumper($role);
+				
+				if ( contains_key( $up_map, $acc ) ) {   # only homologous proteins are accepted
 					$exp_roles{$part_id} = $role;
 					$accs{$part_id}      = $acc;
-					if ( contains_key( $up_cc_map, $acc ) )
-					{    # the interactor is a core cell cycle protein
-						$cc_interactors{$part_id} = 1;
-					} else {
-						$cc_interactors{$part_id} = 0;
-					}
+					
+					$cc_interactors{$part_id} = (contains_key( $up_cc_map, $acc ))?1:0; # the interactor is a core cell cycle protein = 1
 				} else {
 					#warn "$acc is either a heterologous protein or not a protein at all";
 				}
@@ -182,11 +177,11 @@ sub work {
 			my $int_term = OBO::Core::Term->new();
 			$int_term->name("$int_name $int_type");
 			$int_comment =~ s/\n+//g; # cleaning the comment lines
-			$int_comment =~ s/\t+//g;
-			$int_comment =~ s/\r+//g;
+			$int_comment =~ s/\t+//g; # cleaning the comment lines
+			$int_comment =~ s/\r+//g; # cleaning the comment lines
 			$int_term->comment("$int_comment");
 			$int_term->xref_set_as_string("[IntAct:$ref]");
-			my ($int_cco_id) =  set_cco_id( $short_i_map, $long_i_map, "$int_name $int_type", 'I' );
+			my ($int_cco_id) = set_cco_id( $short_i_map, $long_i_map, "$int_name $int_type", 'I' );
 			$int_term->id($int_cco_id);
 			$ontology->add_term($int_term);
 					
@@ -200,10 +195,8 @@ sub work {
 	
 			# creating participant terms
 			if ($neutral_comp) {# the interaction involves neutral components
-	
 				foreach ( keys %accs ) {
-					$ontology = add_participant( $ontology, $int_term, $short_b_map,
-						$long_b_map, \%up_map, \%accs );
+					$ontology = add_participant( $ontology, $int_term, $short_b_map, $long_b_map, \%up_map, \%accs );
 				}
 			} elsif ($bait) {# the interaction contains a bait
 				my $bait_key;
@@ -215,18 +208,13 @@ sub work {
 				}
 				if ( $cc_interactors{$bait_key} ) {# the bait is a core cell cycle protein
 					foreach ( keys %accs ) {
-						$ontology =
-						  add_participant( $ontology, $int_term, $short_b_map,
-							$long_b_map, \%up_map, \%accs );
+						$ontology = add_participant( $ontology, $int_term, $short_b_map, $long_b_map, \%up_map, \%accs );
 					}
 				} else {
 					foreach ( keys %accs ) {
 						# the protein is either a cell cycle protein or a bait
-						if ( $cc_interactors{$_} or ( $exp_roles{$_} eq 'bait' ) )
-						{    
-							$ontology =
-							  add_participant( $ontology, $int_term, $short_b_map,
-								$long_b_map, \%up_map, \%accs );
+						if ( $cc_interactors{$_} or ( $exp_roles{$_} eq 'bait' ) ) {    
+							$ontology = add_participant( $ontology, $int_term, $short_b_map, $long_b_map, \%up_map, \%accs );
 						}
 					}
 				}
@@ -258,9 +246,7 @@ sub contains_value {
 	select( ( select(STDOUT), $| = 1 )[0] );    # flushing the buffer
 
 	foreach ( keys %{$hash} ) {
-		if ( "$hash->{$_}" eq $value ) {
-			return 1;
-		}
+		return 1 if ( "$hash->{$_}" eq $value );
 	}
 	return 0;
 }

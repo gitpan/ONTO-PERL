@@ -1,9 +1,9 @@
-# $Id: get_descendent_terms.pl 1380 2007-08-06 16:19:56Z erant $
+# $Id: get_descendent_terms.pl 1847 2008-01-08 12:38:58Z erant $
 #
 # Script  : get_descendent_terms.pl
 # Purpose : Collects the descendent terms from a given term in the given OBO ontology
 # Usage   : /usr/bin/perl -w get_descendent_terms.pl my_ontology.obo term_id > descendents.txt
-# License : Copyright (c) 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -42,7 +42,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 by erant
+Copyright (C) 2007, 2008 by erant
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

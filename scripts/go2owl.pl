@@ -1,9 +1,9 @@
-# $Id: go2owl.pl 1380 2007-08-06 16:19:56Z erant $
+# $Id: go2owl.pl 1847 2008-01-08 12:38:58Z erant $
 #
 # Module  : go2owl.pl
 # Purpose : Converts GO to OWL.
 # Usage: /usr/bin/perl -w go2owl.pl gene_ontology.obo > gene_ontology.owl
-# License : Copyright (c) 2006 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>

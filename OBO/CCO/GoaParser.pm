@@ -1,8 +1,8 @@
-# $Id: GoaParser.pm 1606 2007-10-29 12:37:40Z vlmir $
+# $Id: GoaParser.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files
-# License : Copyright (c) 2006 Cell Cycle Ontology. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : CCO <ccofriends@psb.ugent.be>

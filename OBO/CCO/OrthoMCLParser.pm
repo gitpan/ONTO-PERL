@@ -1,8 +1,8 @@
-# $Id: OrthoMCLParser.pm 1702 2007-12-06 17:01:36Z erant $
+# $Id: OrthoMCLParser.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : OrthoMCLParser.pm
 # Purpose : Parse OrthoMCL files and add data to an ontology
-# License : Copyright (c) 2006 Cell Cycle Ontology. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : CCO <ccofriends@psb.ugent.be>

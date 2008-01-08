@@ -1,8 +1,8 @@
-# $Id: SynonymTypeDef.pm 1585 2007-10-12 15:23:38Z erant $
+# $Id: SynonymTypeDef.pm 1845 2008-01-08 12:33:09Z erant $
 #
 # Module  : SynonymTypeDef.pm
 # Purpose : A synonym type definition.
-# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -73,7 +73,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007 by erant
+Copyright (C) 2006, 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -1,8 +1,8 @@
-# $Id: GoaAssociationSet.pm 1704 2007-12-06 17:33:49Z erant $
+# $Id: GoaAssociationSet.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : GoaAssociationSet.pm
 # Purpose : GOA association set.
-# License : Copyright (c) 2006 Vladimir Mironov. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Vladimir Mironov. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Vladimir Mironov <vlmir@psb.ugent.be>
@@ -77,7 +77,7 @@ Vladimir Mironov, E<lt>vlmir@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

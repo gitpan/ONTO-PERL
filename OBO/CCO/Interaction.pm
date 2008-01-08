@@ -1,8 +1,8 @@
-# $Id: Interaction.pm 1385 2007-08-06 16:41:39Z erant $
+# $Id: Interaction.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : Interaction.pm
 # Purpose : An interaction.
-# License : Copyright (c) 2007 Cell Cycle Ontology. All rights reserved.
+# License : Copyright (c) 2007, 2008 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : CCO <ccofriends@psb.ugent.be>

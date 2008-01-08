@@ -1,8 +1,8 @@
-# $Id: Synonym.pm 1725 2007-12-13 14:31:11Z erant $
+# $Id: Synonym.pm 1845 2008-01-08 12:33:09Z erant $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
-# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -11,7 +11,7 @@ package OBO::Core::Synonym;
 
 =head1 NAME
 
-OBO::Core::Synonym  - A term synonym
+OBO::Core::Synonym  - A term synonym.
     
 =head1 SYNOPSIS
 
@@ -149,7 +149,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007 by erant
+Copyright (C) 2006, 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

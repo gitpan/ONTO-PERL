@@ -1,8 +1,8 @@
-# $Id: Interactor.pm 1385 2007-08-06 16:41:39Z erant $
+# $Id: Interactor.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : Interactor.pm
 # Purpose : An interactor.
-# License : Copyright (c) 2007 Cell Cycle Ontology. All rights reserved.
+# License : Copyright (c) 2007, 2008 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : CCO <ccofriends@psb.ugent.be>
@@ -27,7 +27,7 @@ Mikel Egana Aranguren, mikel.eganaaranguren@cs.man.ac.uk
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 by Mikel Egana Aranguren
+Copyright (C) 2007, 2008 by Mikel Egana Aranguren
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

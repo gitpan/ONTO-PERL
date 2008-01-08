@@ -1,8 +1,8 @@
-# $Id: DbxrefSet.pm 1704 2007-12-06 17:33:49Z erant $
+# $Id: DbxrefSet.pm 1846 2008-01-08 12:35:31Z erant $
 #
 # Module  : DbxrefSet.pm
 # Purpose : Reference structure set.
-# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -12,7 +12,7 @@ our @ISA = qw(OBO::Util::ObjectSet);
 
 =head1 NAME
 
-OBO::Util::DbxrefSet  - A DbxrefSet implementation
+OBO::Util::DbxrefSet  - A Dbxref set implementation.
     
 =head1 SYNOPSIS
 
@@ -77,7 +77,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007 by erant
+Copyright (C) 2006, 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

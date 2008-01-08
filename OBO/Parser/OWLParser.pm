@@ -1,8 +1,8 @@
-# $Id: OWLParser.pm 1704 2007-12-06 17:33:49Z erant $
+# $Id: OWLParser.pm 1846 2008-01-08 12:35:31Z erant $
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
-# License : Copyright (c) 2006 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -33,7 +33,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006, 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

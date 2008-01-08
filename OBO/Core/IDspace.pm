@@ -1,8 +1,8 @@
-# $Id: IDspace.pm 1375 2007-08-06 15:56:17Z erant $
+# $Id: IDspace.pm 1845 2008-01-08 12:33:09Z erant $
 #
 # Module  : IDspace.pm
 # Purpose : A mapping between a "local" ID space and a "global" ID space.
-# License : Copyright (c) 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -11,7 +11,7 @@ package OBO::Core::IDspace;
 
 =head1 NAME
 
-OBO::Core::IDspace - A mapping between a "local" ID space and a "global" ID space
+OBO::Core::IDspace - A mapping between a "local" ID space and a "global" ID space.
     
 =head1 SYNOPSIS
 
@@ -38,7 +38,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 by erant
+Copyright (C) 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -65,7 +65,7 @@ sub new {
 =head2 local_idspace
 
   Usage    - print $idspace->local_idspace() or $idspace->local_idspace($local_idspace)
-  Returns  - the lcoal ID space(string)
+  Returns  - the local ID space (string)
   Args     - the local ID space (string)
   Function - gets/sets the local ID space
   
@@ -77,7 +77,7 @@ sub local_idspace {
 		$self->{LOCAL_IDSPACE} = $local_idspace;
 	} else { # get-mode
                 confess "The local ID space of this ID space is not defined." if (!defined($self->{LOCAL_IDSPACE}));
-        }
+	}
 	return $self->{LOCAL_IDSPACE};
 }
 

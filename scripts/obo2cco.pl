@@ -1,4 +1,4 @@
-# $Id: obo2cco.pl 1380 2007-08-06 16:19:56Z erant $
+# $Id: obo2cco.pl 1847 2008-01-08 12:38:58Z erant $
 #
 # Script  : obo2cco.pl
 #
@@ -12,7 +12,7 @@
 # Usage:
 #           perl obo2cco.pl input_file.obo cco_z.ids Z MI:0190 > output_file.obo
 #
-# License : Copyright (c) 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #

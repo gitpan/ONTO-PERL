@@ -1,8 +1,8 @@
-# $Id: Ontology.pm 1697 2007-12-05 16:03:52Z erant $
+# $Id: Ontology.pm 1845 2008-01-08 12:33:09Z erant $
 #
 # Module  : Ontology.pm
-# Purpose : OBO/OWL ontologies handling.
-# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
+# Purpose : OBO ontologies handling.
+# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -11,7 +11,7 @@ package OBO::Core::Ontology;
 
 =head1 NAME
 
-OBO::Core::Ontology  - An ontology holding terms and their relationships
+OBO::Core::Ontology  - An ontology holding terms and their relationships.
  
 =head1 SYNOPSIS
 
@@ -419,7 +419,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007 by erant
+Copyright (C) 2006, 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -456,7 +456,7 @@ sub new {
 	#$self->{TERMS_SET}            = OBO::Util::TermSet->new(); # Terms (0..n)
 	$self->{RELATIONSHIP_TYPES}   = {}; # map: relationship_type_id vs. relationship_type  (0..n)
 	$self->{RELATIONSHIPS}        = {}; # (0..N) 
-	# TODO implement RELATIONSHIP_SET
+	# TODO Implement RELATIONSHIP_SET
 	$self->{TARGET_RELATIONSHIPS} = {}; # (0..N)
 	$self->{SOURCE_RELATIONSHIPS} = {}; # (0..N)
         
@@ -782,7 +782,7 @@ sub delete_term {
 			#$self->{TERMS_SET}->remove($term);
 		}
 		
-		# TODO delete the relationships: to its parents and children!
+		# TODO Delete the relationships: to its parents and children!
     }
 }
 
@@ -873,9 +873,8 @@ sub equals {
 	my $self = shift;
 	my $result =  0; 
 	
-	# TODO implement this method
-	# This will be part of the Ontolome packages
-	confess "Method: OBO::Core:Ontology::equals in not implemented yet";
+	# TODO Implement this method
+	confess "Method: OBO::Core:Ontology::equals in not implemented yet, use OBO::Util::Ontolome meanwhile";
 	
 	return $result;
 }
@@ -898,7 +897,7 @@ sub get_terms {
 		}
     } else {
 		@terms = values(%{$self->{TERMS}});
-		#@terms = $self->{TERMS_SET}->get_set(); # TODO this TERMS_SET is giving wrong results....
+		#@terms = $self->{TERMS_SET}->get_set(); # TODO This TERMS_SET was giving wrong results....
     }
     return \@terms;
 }
@@ -1032,7 +1031,7 @@ sub set_term_id {
 				$term->id($new_term_id);
 				$self->{TERMS}->{$new_term_id} = $self->{TERMS}->{$old_id};
 				delete $self->{TERMS}->{$old_id};
-				# TODO adapt the relationship ids of this term: CCO:P0000001_is_a_CCO:P0000002  => CCO:P0000003_is_a_CCO:P0000002
+				# TODO Adapt the relationship ids of this term: CCO:P0000001_is_a_CCO:P0000002  => CCO:P0000003_is_a_CCO:P0000002
 				return $self->{TERMS}->{$new_term_id};
     		} else {
     			confess "The given new ID (", $new_term_id,") is already used by: ", $self->get_term_by_id($new_term_id)->name();
@@ -1119,7 +1118,7 @@ sub get_terms_by_name {
 		my @terms = @{$self->get_terms()};
 		$result = OBO::Util::TermSet->new();
 		
-		# TODO the following two lines are equivalent to the 'for' loop
+		# NB. the following two lines are equivalent to the 'for' loop
 		#my @found_terms = grep {lc($_->name()) =~ /$name/} @terms;
 		#$result->add_all(@found_terms);
 		
@@ -1381,9 +1380,9 @@ sub export {
 	if ($format eq "obo") { 
 		# preambule: OBO header tags
 		print $file_handle "format-version: 1.2\n";
-		chomp(my $local_date = __date()); # `date '+%d:%m:%Y %H:%M'` # date: 11:05:2007 12:52
+		chomp(my $local_date = __date()); # `date '+%d:%m:%Y %H:%M'` # date: 11:05:2008 12:52
 		print $file_handle "date: ", (defined $self->date())?$self->date():$local_date, "\n";
-		print $file_handle "auto-generated-by: ONTO-PERL\n"; # TODO store this value?
+		print $file_handle "auto-generated-by: ONTO-PERL\n";
 		
 		# import
 		foreach my $import ($self->imports()->get_set()) {
@@ -1656,11 +1655,10 @@ sub export {
 			#
 			print $file_handle "\n";
 		}
-####iii
 	} elsif ($format eq "rdf") {
 		
-		# TODO: a method for getting the namespace directly from the ontology
-		# TODO: a method for getting the root term of the ontology
+		# TODO A method for getting the namespace directly from the ontology
+		# TODO A method for getting the root term of the ontology
 
 		my @all_terms = values(%{$self->{TERMS}});
 		
@@ -1855,8 +1853,7 @@ sub export {
 		# EOF:
 		#
 		print $file_handle "</rdf:RDF>\n\n";
-		print $file_handle "<!--\nGenerated with ONTO-PERL: ".$0.", ".__date()."\n-->";
-####iii		
+		print $file_handle "<!--\nGenerated with ONTO-PERL: ".$0.", ".__date()."\n-->";	
 	} elsif ($format eq "xml") {
 		# terms
 		my @all_terms = values(%{$self->{TERMS}});
@@ -2172,7 +2169,7 @@ sub export {
 				} elsif ($st eq "RELATED") {
 					$synonym_type = "hasRelatedSynonym";
 				} else {
-					# todo consider the synonym types defined in the header: 'synonymtypedef' tag
+					# TODO Consider the synonym types defined in the header: 'synonymtypedef' tag
 					confess "A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED";
 				}
 				print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
@@ -2275,9 +2272,9 @@ sub export {
 				print $file_handle "\t\t<owl:Class>\n";
 				print $file_handle "\t\t\t<owl:intersectionOf rdf:parseType=\"Collection\">\n";
 				foreach my $tr (@intersection_of) {
-					# TODO improve the parsing of the 'interection_of' elements
+					# TODO Improve the parsing of the 'interection_of' elements
 					my @inter = split(/\s+/, $tr);
-					# TODO check the idspace of the terms in the set 'intersection_of' and optimize the code: only one call to $self->idspace()->local_idspace()
+					# TODO Check the idspace of the terms in the set 'intersection_of' and optimize the code: only one call to $self->idspace()->local_idspace()
 					my $idspace = ($tr =~ /([A-Z]+):/)?$1:$local_idspace;      
 					if (scalar @inter == 1) {
 						my $idspace = ($tr =~ /([A-Z]+):/)?$1:$local_idspace;
@@ -2307,7 +2304,7 @@ sub export {
 				print $file_handle "\t\t<owl:Class>\n";
 				print $file_handle "\t\t\t<owl:unionOf rdf:parseType=\"Collection\">\n";
 				foreach my $tr (@union_of) {
-					# TODO check the idspace of the terms in the set 'union_of'
+					# TODO Check the idspace of the terms in the set 'union_of'
 					my $idspace = ($tr =~ /([A-Z]+):/)?$1:$local_idspace; 
 					print $file_handle "\t\t\t<owl:Class rdf:about=\"", $oboContentUrl, $idspace, "/", obo_id2owl_id($tr), "\"/>\n";
 				}
@@ -2401,7 +2398,7 @@ sub export {
 				} elsif ($st eq "RELATED") {
 					$synonym_type = "hasRelatedSynonym";
 				} else {
-					# todo consider the synonym types defined in the header: 'synonymtypedef' tag
+					# TODO Consider the synonym types defined in the header: 'synonymtypedef' tag
 					confess "A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED";
 				}
 				print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
@@ -2527,7 +2524,7 @@ sub export {
 					} elsif (!defined $head->name()) {
 						confess "The term with id: ", $head->id(), " has no name!" ;
 					} else {
-						# TODO write down the name() instead of the id()
+						# TODO Write down the name() instead of the id()
 						print $file_handle "\n\t", obo_id2owl_id($term_id), " -> ", obo_id2owl_id($head->id()), ";";
 					}
 				}
@@ -3092,7 +3089,7 @@ sub print_hasDbXref_for_owl {
 =cut
 
 sub get_descendent_terms {
-	# TODO implement another method: get_descendent_terms(string)
+	# TODO Implement another method: get_descendent_terms(string)
 	my ($self, $term) = @_;
 	my $result = OBO::Util::TermSet->new();
 	if ($term) {    	
@@ -3600,8 +3597,8 @@ sub _dfs () {
 
 sub __date {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	my $result = sprintf "%02d:%02d:%4d %02d:%02d", $mday,$mon+1,$year+1900,$hour,$min; # e.g. 11:05:2007 12:52
+	my $result = sprintf "%02d:%02d:%4d %02d:%02d", $mday,$mon+1,$year+1900,$hour,$min; # e.g. 11:05:2008 12:52
 }
 
 1;
-# TODO implement 'get_relationships_type_by_name()' in a similar way to 'get_terms_by_name' (using RelationshipSet)
+# TODO Implement 'get_relationships_type_by_name()' in a similar way to 'get_terms_by_name' (using RelationshipSet)

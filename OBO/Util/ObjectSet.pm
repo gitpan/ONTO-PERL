@@ -1,8 +1,8 @@
-# $Id: ObjectSet.pm 1387 2007-08-06 16:51:02Z erant $
+# $Id: ObjectSet.pm 1846 2008-01-08 12:35:31Z erant $
 #
 # Module  : ObjectSet.pm
 # Purpose : A generic set of ontology objects (terms, relationships, dbwrefs, etc).
-# License : Copyright (c) 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -12,7 +12,7 @@ package OBO::Util::ObjectSet;
 
 =head1 NAME
 
-OBO::Util::ObjectSet - An implementation of a set of ontology objects
+OBO::Util::ObjectSet - An implementation of a set of ontology objects.
 
 =head1 SYNOPSIS
 
@@ -36,7 +36,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 by erant
+Copyright (C) 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -1,4 +1,4 @@
-# $Id: XMLIntactParser.pm 1704 2007-12-06 17:33:49Z erant $
+# $Id: XMLIntactParser.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : XMLIntactParser.pm
 # Purpose : An XML Parser.

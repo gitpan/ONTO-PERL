@@ -1,8 +1,8 @@
-# $Id: CCO_ID_Set.pm 1461 2007-08-24 10:17:20Z erant $
+# $Id: CCO_ID_Set.pm 1844 2008-01-08 12:30:37Z erant $
 #
 # Module  : CCO_ID_Set.pm
 # Purpose : A set of CCO id's.
-# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -42,7 +42,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by erant
+Copyright (C) 2006 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

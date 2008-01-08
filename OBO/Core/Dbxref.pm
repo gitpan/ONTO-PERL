@@ -1,8 +1,8 @@
-# $Id: Dbxref.pm 1710 2007-12-10 11:46:26Z erant $
+# $Id: Dbxref.pm 1845 2008-01-08 12:33:09Z erant $
 #
 # Module  : Dbxref.pm
 # Purpose : Reference structure.
-# License : Copyright (c) 2006, 2007 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
@@ -11,7 +11,7 @@ package OBO::Core::Dbxref;
 
 =head1 NAME
 
-OBO::Core::Dbxref - Reference structure.
+OBO::Core::Dbxref -  A database reference structure.
     
 =head1 SYNOPSIS
 
@@ -60,7 +60,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007 by erant
+Copyright (C) 2006, 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
