@@ -48,3 +48,5 @@ Revision history for ONTO-PERL
 1.08 RDF export is now available (obo2rdf.pl). Improved documentation.
 
 1.09 Minor documentation improvements. Performance improvement for CCO-related modules. 
+
+1.10 Added missing file (obo2rdf.pl)

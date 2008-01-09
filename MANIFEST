@@ -59,6 +59,7 @@ scripts/go2owl.pl
 scripts/names.xsl
 scripts/obo2cco.pl
 scripts/obo2owl.pl
+scripts/obo2rdf.pl
 scripts/obo2xml.pl
 scripts/obsolete_term_id_vs_def_in_go.pl
 scripts/obsolete_term_id_vs_name_in_go.pl
