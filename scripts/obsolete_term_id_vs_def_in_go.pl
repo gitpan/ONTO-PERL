@@ -1,4 +1,4 @@
-# $Id: obsolete_term_id_vs_def_in_go.pl 1847 2008-01-08 12:38:58Z erant $
+# $Id: obsolete_term_id_vs_def_in_go.pl 1893 2008-02-14 14:23:26Z erant $
 #
 # Script  : obsolete_term_id_vs_def_in_go.pl
 # Purpose : Collects the obsolete GO terms: id vs. def.
@@ -24,7 +24,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007, 2008 by erant
+Copyright (C) 2007, 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

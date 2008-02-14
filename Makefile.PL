@@ -1,4 +1,4 @@
-# $Id: Makefile.PL 1843 2008-01-08 12:26:36Z erant $
+# $Id: Makefile.PL 1896 2008-02-14 14:49:23Z erant $
 use 5.006;
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
@@ -51,13 +51,14 @@ WriteMakefile(
     DISTNAME          => 'ONTO-PERL',
     ABSTRACT          => 'PERL Modules for biomedical ontologies such as the Cell Cycle Ontology (CCO) and OBO ontologies in general like Gene Ontology (GO)',
     VERSION_FROM      => 'ONTO-PERL.pod', # finds $VERSION
-    #LICENSE          => 'perl',
+    #LICENCE           => 'perl',
     #PREREQ_PM         => {
 	#		'SWISS::Entry' => 1.65,
 	#		'XML::Simple'  => 2.16}, # e.g., Module::Name => 1.1
 	EXE_FILES         => [
 							qw(
 								scripts/get_ancestor_terms.pl
+								scripts/get_descendent_terms.pl
 								scripts/go2owl.pl
 								scripts/obo2cco.pl
 								scripts/obo2owl.pl

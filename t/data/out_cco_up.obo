@@ -13,11 +13,11 @@ is_a: CCO:U0000005 ! protein
 [Term]
 id: CCO:B0000001
 name: CCD51_ARATH
-def: "At4g37630 gene protein" [UniProt:Q6NMC8]
-synonym: "Hypothetical protein At4g37630" EXACT [UniProt:Q6NMC8]
+def: "At4g37630 gene protein" [UniProtKB:Q6NMC8]
+synonym: "Hypothetical protein At4g37630" EXACT [UniProtKB:Q6NMC8]
 xref: EMBL:AAS49095.1
 xref: EMBL:BAD94450.1
-xref: UniProt:Q6NMC8
+xref: UniProtKB:Q6NMC8
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
@@ -26,13 +26,13 @@ relationship: participates_in CCO:P0000074 ! activation of transcription on exit
 [Term]
 id: CCO:B0000002
 name: RK20_ARATH
-def: "Chloroplast 50S ribosomal protein L20" [UniProt:P56795]
-synonym: "CRAP" EXACT [UniProt:P56795]
-synonym: "SHIT" EXACT [UniProt:P56795]
+def: "Chloroplast 50S ribosomal protein L20" [UniProtKB:P56795]
+synonym: "CRAP" EXACT [UniProtKB:P56795]
+synonym: "SHIT" EXACT [UniProtKB:P56795]
 xref: EMBL:BAA84408.1
-xref: UniProt:P56794
-xref: UniProt:P56795
-xref: UniProt:P56796
+xref: UniProtKB:P56794
+xref: UniProtKB:P56795
+xref: UniProtKB:P56796
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: encoded_by CCO:G0000001 ! rpl20_arath
@@ -41,9 +41,9 @@ relationship: participates_in CCO:P0000027 ! establishment of mitotic spindle or
 [Term]
 id: CCO:B0000003
 name: Q6XJG8_ARATH
-def: "26S proteasome subunit RPN1b" [UniProt:Q6XJG8]
+def: "26S proteasome subunit RPN1b" [UniProtKB:Q6XJG8]
 xref: EMBL:AAP86656.1
-xref: UniProt:Q6XJG8
+xref: UniProtKB:Q6XJG8
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
@@ -55,10 +55,10 @@ relationship: transforms_into CCO:B0000041 ! Q6XJG8_ARATH-Phosphoserine421
 [Term]
 id: CCO:B0000004
 name: Q84JF0_ARATH
-def: "Putative adenylylsulfate kinase" [UniProt:Q84JF0]
+def: "Putative adenylylsulfate kinase" [UniProtKB:Q84JF0]
 xref: EMBL:AAO42019.1
 xref: EMBL:AAO50726.1
-xref: UniProt:Q84JF0
+xref: UniProtKB:Q84JF0
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: encoded_by CCO:G0000002 ! At5g67520_arath
@@ -67,9 +67,9 @@ relationship: participates_in CCO:P0000103 ! meiosis
 [Term]
 id: CCO:B0000039
 name: Q6XJG8_ARATH-Phosphoserine351
-def: "Protein Q6XJG8_ARATH with the residue 351 substituted with Phosphoserine" [UniProt:Q6XJG8]
+def: "Protein Q6XJG8_ARATH with the residue 351 substituted with Phosphoserine" [UniProtKB:Q6XJG8]
 comment: by MAPK12; and MAPK9; By similarity
-xref: UniProt:Q6XJG8
+xref: UniProtKB:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
@@ -77,9 +77,9 @@ relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 [Term]
 id: CCO:B0000040
 name: Q6XJG8_ARATH-Phosphoserine418
-def: "Protein Q6XJG8_ARATH with the residue 418 substituted with Phosphoserine" [UniProt:Q6XJG8]
+def: "Protein Q6XJG8_ARATH with the residue 418 substituted with Phosphoserine" [UniProtKB:Q6XJG8]
 comment: By similarity
-xref: UniProt:Q6XJG8
+xref: UniProtKB:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
@@ -87,9 +87,9 @@ relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 [Term]
 id: CCO:B0000041
 name: Q6XJG8_ARATH-Phosphoserine421
-def: "Protein Q6XJG8_ARATH with the residue 421 substituted with Phosphoserine" [UniProt:Q6XJG8]
+def: "Protein Q6XJG8_ARATH with the residue 421 substituted with Phosphoserine" [UniProtKB:Q6XJG8]
 comment: by MAPK12; By similarity
-xref: UniProt:Q6XJG8
+xref: UniProtKB:Q6XJG8
 is_a: CCO:U0000011 ! modified protein
 relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
@@ -97,8 +97,8 @@ relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 [Term]
 id: CCO:G0000001
 name: rpl20_arath
-def: "Chloroplast 50S ribosomal protein L20 gene" [UniProt:P56795]
-synonym: "AtCg00660" EXACT [UniProt:P56795]
+def: "Chloroplast 50S ribosomal protein L20 gene" [UniProtKB:P56795]
+synonym: "AtCg00660" EXACT [UniProtKB:P56795]
 xref: EMBL:AP000423
 xref: TAIR:AtCg00660
 is_a: CCO:U0000008 ! cell cycle gene
@@ -108,7 +108,7 @@ relationship: codes_for CCO:B0000002 ! RK20_ARATH
 [Term]
 id: CCO:G0000002
 name: At5g67520_arath
-def: "Putative adenylylsulfate kinase gene" [UniProt:Q84JF0]
+def: "Putative adenylylsulfate kinase gene" [UniProtKB:Q84JF0]
 xref: EMBL:BT003977
 xref: EMBL:BT005193
 xref: TAIR:At5g67520
@@ -120,7 +120,7 @@ relationship: codes_for CCO:B0000004 ! Q84JF0_ARATH
 [Term]
 id: CCO:G0000003
 name: RPN1b_arath
-def: "26S proteasome subunit RPN1b gene" [UniProt:Q6XJG8]
+def: "26S proteasome subunit RPN1b gene" [UniProtKB:Q6XJG8]
 xref: EMBL:AK221431
 xref: EMBL:AY230829
 xref: EMBL:BT011732

@@ -1,4 +1,4 @@
-# $Id: OrthoMCLParser.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: OrthoMCLParser.pm 1882 2008-01-17 12:43:45Z erant $
 #
 # Module  : OrthoMCLParser.pm
 # Purpose : Parse OrthoMCL files and add data to an ontology
@@ -20,7 +20,7 @@ Includes methods for adding information from orthoMCL data files to ontologies
 
 orthoMCL can be obtained from http://orthomcl.cbil.upenn.edu/cgi-bin/OrthoMclWeb.cgi
 
-The method 'parse()' parses an orthoMCL output data file  into a data structure (hash of arrays)
+The method 'parse()' parses an orthoMCL output data file into a data structure (hash of arrays)
 The method 'work()' incorporates data from an orthoMCL data file into an ontology, writes the ontology into an OBO file, writes map files.
 
 =head1 AUTHOR
@@ -30,7 +30,7 @@ vlmir@psb.ugent.be
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by Vladimir Mironov
+Copyright (C) 2006, 2007, 2008 by Vladimir Mironov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -59,7 +59,7 @@ sub new {
 =head2 parse
 
   Usage    - $OrthoMCLParser->parse()
-  Returns  - A a reference to a data structure (hash of hases) containing orthoMCL output data
+  Returns  - a reference to a data structure (hash of hashes) containing orthoMCL output data
   Args     - orthoMCL output data file
   Function - parses an orthoMCL output data file  into a data structure
   
@@ -67,19 +67,19 @@ sub new {
 
 sub parse {
 	my $self = shift;
-	#get orthoMCL data file
+	# get orthoMCL data file
 	my $omclDataFile = shift;	
 	open(my $FH, '<', $omclDataFile) || die("Cannot open file '$omclDataFile': $!");
 	
-	#parse orthoMCL output
-	my %clusters;# %clusters{protein_name}{taxon_label}
+	# parse orthoMCL output
+	my %clusters; # %clusters{protein_name}{taxon_label}
 	while(<$FH>){
 		my ($cluster, $proteins) = split /:\s+/xms;
 		my $cluster_num = $.-1;
 		$cluster = "cluster$cluster_num";
 		my @proteins = split /\s/xms, $proteins;
 		foreach ( @proteins) {
-			$_ =~/\A(\w+?)\((\w+?)\)/xms;# $1 is protein name, $2 is taxon label (e.g Hsa)
+			$_ =~/\A(\w+?)\((\w+?)\)/xms; # $1 is protein name, $2 is taxon label (e.g Hsa)
 			$clusters{$cluster}->{$1} =  $2;			
 		}
 	}		
@@ -102,8 +102,6 @@ sub work {
 	my %taxa = %{$tax};
 	# input/output files
 	my ($new_OBO_file, $u_map_file, $t_map_file, $o_map_file, $b_map_file) = @{$files}; 
-	
-	
 	
 	# Initialize  maps (OBO::CCO::CCO_ID_Term_Map objects)
 	my $u_map = OBO::CCO::CCO_ID_Term_Map->new($u_map_file); #map for Upper Level Ontology terms
@@ -172,8 +170,6 @@ sub work {
 		}
 	}
 	
-
-	
 	# Write the new ontology and maps to disk
 	open (my $FH, ">".$new_OBO_file) || die "Cannot write OBO file: ", $!;
 	$ontology->export(\*$FH);
@@ -187,14 +183,13 @@ sub work {
 	$u_map -> write_map();
 	return $ontology;
 }
-
 #############################################################################################################
 #
 # sub assign_biomol_id
 #
 #############################################################################################################
 sub assign_biomol_id {
-	#used to obtain IDs for biomolecule terms 
+	# used to obtain IDs for biomolecule terms 
 	# arguments: taxon specific map (OBO::CCO::CCO_ID_Term_Map object), cumulative map for all taxa, protein name
 	my ($short_map, $long_map, $term_name) = @_;
 	my $term_id;
@@ -203,19 +198,18 @@ sub assign_biomol_id {
 		return $term_id;
 	} else {
 		$term_id = $long_map->get_new_cco_id( "CCO", "B", $term_name );
-		$short_map->put( $term_id, $term_name );#updates the species specific maps
+		$short_map->put( $term_id, $term_name ); # updates the species specific maps
 		return  $term_id;
 	}
 }
-
 #############################################################################################################
 #
 # sub assign_term_id
 #
 #############################################################################################################
 sub assign_term_id {
-	#used to obtain IDs for terms other than biomolecules
-	#arguments: map (OBO::CCO::CCO_ID_Term_Map object), subdomain (a single character [BOTU]), term name
+	# used to obtain IDs for terms other than biomolecules
+	# arguments: map (OBO::CCO::CCO_ID_Term_Map object), subdomain (a single character [BOTU]), term name
 	my ($map, $subdomain, $term_name) = @_;
 	my $term_id;
 	if ($map->contains_value($term_name)) {
@@ -226,5 +220,4 @@ sub assign_term_id {
 		$term_id = $map->get_new_cco_id( "CCO", $subdomain, $term_name );
 	}
 }
-
 1;

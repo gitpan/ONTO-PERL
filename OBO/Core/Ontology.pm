@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: Ontology.pm 1889 2008-02-12 11:48:07Z erant $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -652,7 +652,7 @@ sub subsets {
 =head2 synonym_type_def_set
 
   Usage    - $onto->synonym_type_def_set() or $onto->synonym_type_def_set($st1, $st2, $st3, ...)
-  Returns  - a set (OBO::Util::SynonymTypeDefSet) with the synonym type defintions used in this ontology. A synonym type is a description of a user-defined synonym type 
+  Returns  - a set (OBO::Util::SynonymTypeDefSet) with the synonym type definitions used in this ontology. A synonym type is a description of a user-defined synonym type 
   Args     - the synonym type defintion(s) (OBO::Core::SynonymTypeDef) used in this ontology 
   Function - gets/sets the synonym type definitions (s) of this ontology
         
@@ -1679,7 +1679,7 @@ sub export {
 		print $file_handle "<rdf:RDF\n";
 		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
 		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-		print $file_handle "\txmlns:",$ns,"=\"http://www.cellcycleontology.org/obo/rdf/",$NS,"#\">\n";
+		print $file_handle "\txmlns:",$ns,"=\"http://www.cellcycleontology.org/ontology/rdf/",$NS,"#\">\n";
 
 		#
 		# Terms
@@ -1699,6 +1699,7 @@ sub export {
 			#	U	Upper Level Ontology (CCO)
 			#	L	Relationship type (e.g. is_a)
 			#	Y	Interaction type
+			#	O	Orthology cluster
 			#	Z	Unknown
 
 			my $subnamespace = $term->subnamespace();
@@ -1715,13 +1716,14 @@ sub export {
 			elsif($subnamespace eq "U"){$rdf_subnamespace = "upper_level_ontology";}
 			elsif($subnamespace eq "L"){$rdf_subnamespace = "relationship_type";}
 			elsif($subnamespace eq "Y"){$rdf_subnamespace = "interaction_type";}
+			elsif($subnamespace eq "O"){$rdf_subnamespace = "orthology_cluster";}
 			elsif($subnamespace eq "Z"){$rdf_subnamespace = "unknown";}
 			elsif($subnamespace eq "X"){$rdf_subnamespace = "term";}
 			else{$rdf_subnamespace = "term";}
 
 			my $term_id = $term->id();
 			$term_id =~ s/:/_/g;
-			print $file_handle "\t<",$ns,":".$rdf_subnamespace." rdf:about=\"".$term_id."\">\n";
+			print $file_handle "\t<",$ns,":".$rdf_subnamespace." rdf:about=\"#".$term_id."\">\n";
 
 			#
 			# name:
@@ -1762,7 +1764,7 @@ sub export {
 
 			foreach my $disjoint_term_id ($term->disjoint_from()) {
 				$disjoint_term_id =~ s/:/_/g;
-				print $file_handle "\t\t<",$ns,":disjoint_from rdf:resource=\"", $disjoint_term_id, "\"/>\n";
+				print $file_handle "\t\t<",$ns,":disjoint_from rdf:resource=\"#", $disjoint_term_id, "\"/>\n";
 			}
 			
 			#
@@ -1775,7 +1777,7 @@ sub export {
 					if (defined $head->name()) {
 						my $head_id = $head->id();
 						$head_id =~ s/:/_/g;
-						print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"", $head_id, "\"/>\n";
+						print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
 					} else {
 						confess "The term with id: ", $head->id(), " has no name!" ;
 					}
@@ -1791,7 +1793,7 @@ sub export {
 					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						my $head_id = $head->id();
 						$head_id =~ s/:/_/g;
-						print $file_handle "\t\t<",$ns,":",$rt->name()," rdf:resource=\"", $head_id, "\"/>\n";
+						print $file_handle "\t\t<",$ns,":",$rt->name()," rdf:resource=\"#", $head_id, "\"/>\n";
 					}
 				}
 			}
@@ -2013,7 +2015,7 @@ sub export {
 		print $file_handle "</cco>\n";
 	} elsif ($format eq "owl") {
 
-		my $oboContentUrl = "http://www.cellcycleontology.org/obo/owl/"; # "http://purl.org/obo/owl/"; #
+		my $oboContentUrl = "http://www.cellcycleontology.org/ontology/owl/"; # "http://purl.org/obo/owl/"; #
 		my $oboInOwlUrl = "http://www.cellcycleontology.org/formats/oboInOwl#"; # "http://www.geneontology.org/formats/oboInOwl#"; #
 		#
 		# preambule
@@ -2186,7 +2188,7 @@ sub export {
 			# namespace
 			#
 			foreach my $ns ($term->namespace()) {
-				print $file_handle "\t<oboInOwl:hasNamespace>", $ns, "</oboInOwl:hasNamespace>\n";
+				print $file_handle "\t<oboInOwl:hasOBONamespace>", $ns, "</oboInOwl:hasOBONamespace>\n";
 			}
 
 			#
@@ -2414,7 +2416,7 @@ sub export {
 			# namespace: TODO implement namespace in relationship
 			#
 			foreach my $ns ($relationship_type->namespace()) {
-				print $file_handle "\t<oboInOwl:hasNamespace>", $ns, "</oboInOwl:hasNamespace>\n";
+				print $file_handle "\t<oboInOwl:hasOBONamespace>", $ns, "</oboInOwl:hasOBONamespace>\n";
 			}
 			
 			#

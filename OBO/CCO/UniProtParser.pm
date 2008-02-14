@@ -1,4 +1,4 @@
-# $Id: UniProtParser.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: UniProtParser.pm 1888 2008-02-08 16:59:22Z erant $
 #
 # Module  : UniProtParser.pm
 # Purpose : Parse UniProt files and add data to an ontology
@@ -135,7 +135,7 @@ sub work {
         my $protein;
 		my @all_acs = ( $accession, @accs );
 		foreach my $ac (@all_acs) {
-			$protein = $ontology->get_term_by_xref('UniProt', $ac);
+			$protein = $ontology->get_term_by_xref('UniProtKB', $ac);
 			last if (defined $protein);
 		}
 		
@@ -155,11 +155,11 @@ sub work {
         
 
 		# add protein definition
-		$protein->def_as_string( $definition, "UniProt:$accession" );
+		$protein->def_as_string( $definition, "UniProtKB:$accession" );
 
 		# add secondary accessions
 		foreach (@all_acs) {
-			$protein->xref_set_as_string("[UniProt:$_]");
+			$protein->xref_set_as_string("[UniProtKB:$_]");
 		}
 
 		# add DB cross references to the protein
@@ -171,7 +171,7 @@ sub work {
 
 		# add synonyms to the protein
 		foreach (@syns) {
-			$protein->synonym_as_string( $_->{text}, "[UniProt:$accession]", 'EXACT' );
+			$protein->synonym_as_string( $_->{text}, "[UniProtKB:$accession]", 'EXACT' );
 		}
 		
 		# <<EASR: add the is_a missing link for the proteins but core cycle ones
@@ -224,8 +224,8 @@ sub work {
 				my $mod_prot_obj = OBO::Core::Term->new();
 				$mod_prot_obj->name($mod_prot_name);
 				$mod_prot_obj->id($mod_prot_id);
-				$mod_prot_obj->def_as_string($mod_prot_def, "[UniProt:$accession]");
-				$mod_prot_obj->xref_set_as_string("[UniProt:$accession]");
+				$mod_prot_obj->def_as_string($mod_prot_def, "[UniProtKB:$accession]");
+				$mod_prot_obj->xref_set_as_string("[UniProtKB:$accession]");
 				$mod_prot_obj->comment($mod_prot_comment);                
 				$ontology->add_term($mod_prot_obj);
 
@@ -340,12 +340,12 @@ sub new_gene {
                 
 				if (@names) {    # if there are other names of this type
 					foreach (@names) {
-						$gene->synonym_as_string( $_->{text}, "[UniProt:$accession]", 'EXACT' );
+						$gene->synonym_as_string( $_->{text}, "[UniProtKB:$accession]", 'EXACT' );
 					}
 				}
 			} else {   # the name has already been assigned from another name type
 				foreach ( $name, @names ) {
-					$gene->synonym_as_string( $_->{text}, "[UniProt:$accession]", 'EXACT' );
+					$gene->synonym_as_string( $_->{text}, "[UniProtKB:$accession]", 'EXACT' );
 				}
 			}
 		}
@@ -355,8 +355,8 @@ sub new_gene {
 	# Remark: if the gene is associated with multiple proteins the definition is derived from the first one
 	# TODO take gene definitions from the original gene databases
 	$definition =~ /^(\w+.* gene) protein/
-		? $gene->def_as_string( $1,                  "UniProt:$accession" )
-		: $gene->def_as_string( $definition.' gene', "UniProt:$accession" );
+		? $gene->def_as_string( $1,                  "UniProtKB:$accession" )
+		: $gene->def_as_string( $definition.' gene', "UniProtKB:$accession" );
 
 	return $gene;
 }

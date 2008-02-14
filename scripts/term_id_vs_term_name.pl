@@ -1,4 +1,4 @@
-# $Id: term_id_vs_term_name.pl 1847 2008-01-08 12:38:58Z erant $
+# $Id: term_id_vs_term_name.pl 1893 2008-02-14 14:23:26Z erant $
 #
 # Module  : term_id_vs_def_in_go.pl
 # Purpose : Generates a flat file with two columns (TAB separated) with the 
@@ -18,7 +18,7 @@ BEGIN {
 push @INC, '..';
 }
 use OBO::Parser::OBOParser;
-################################################################################
+
 my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
 

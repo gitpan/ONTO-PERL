@@ -46,6 +46,12 @@ For more information about these modules, check:
  - http://search.cpan.org/~easr/ONTO-PERL/
  - http://www.cellcycleontology.org/api/doc/example00.html 
  - http://cellcycleonto.svn.sourceforge.net/viewvc/cellcycleonto/ONTO-PERL/
+ 
+ See also:
+ 
+   ONTO-PERL: An API supporting the development and analysis of bio-ontologies
+   E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
+   Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
 Third part modules
 ==================

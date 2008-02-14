@@ -1,4 +1,4 @@
-# $Id: OWLParser.pm 1846 2008-01-08 12:35:31Z erant $
+# $Id: OWLParser.pm 1890 2008-02-14 10:59:57Z erant $
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
@@ -25,7 +25,10 @@ my $ontology = $my_parser->work("cco.owl");
 
 =head1 DESCRIPTION
 
-An OWLParser object works on parsing an OWL file.
+An OWLParser object works on parsing an OWL file which is compliant with
+the OBO to OWL  mapping described here: 
+
+http://www.bioontology.org/wiki/index.php/OboInOwl:Main_Page
 
 =head1 AUTHOR
 

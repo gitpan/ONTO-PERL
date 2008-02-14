@@ -12,7 +12,11 @@ and a set of test files for ensuring the implementation quality.
 
 See also:
 
-  perldoc ONTO-PERL.pod
+  1. perldoc ONTO-PERL.pod
+  
+  2. ONTO-PERL: An API supporting the development and analysis of bio-ontologies
+     E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
+     Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
 Visit the following URLs:
 

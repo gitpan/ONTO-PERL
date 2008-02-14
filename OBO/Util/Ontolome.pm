@@ -1,4 +1,4 @@
-# $Id: Ontolome.pm 1846 2008-01-08 12:35:31Z erant $
+# $Id: Ontolome.pm 1892 2008-02-14 11:00:42Z erant $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
@@ -86,6 +86,7 @@ sub union () {
 	foreach my $ontology (@ontos) {
 		$result->idspace($ontology->idspace()); # assuming the same idspace
 		$result->subsets($ontology->subsets()->get_set()); # add all subsets by default
+		$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 	
 		my @terms = @{$ontology->get_terms()};
 		foreach my $term (@terms){
