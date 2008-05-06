@@ -3578,6 +3578,19 @@ def: "A modified protein" [CCO:ea]
 is_a: CCO:U0000005 ! protein
 
 [Term]
+id: CCO:U0000012
+name: cell cycle modified protein
+def: "A cell cycle protein which underwent any sort of modification (e.g. phosphorylation)" [CCO:ea]
+is_a: CCO:U0000007 ! cell cycle protein
+is_a: CCO:U0000011 ! modified protein
+
+[Term]
+id: CCO:U0000030
+name: modified protein
+def: "A protein which underwent any sort of modification (e.g. phosphorylation)" [CCO:ea]
+is_a: CCO:U0000005 ! protein
+
+[Term]
 id: CCO:Y0000025
 name: physical interaction
 is_a: CCO:U0000009 ! interaction
@@ -3602,13 +3615,6 @@ name: association
 def: "C in association with C' produces C'' if and only if for all c belonging to C and c' belongin to C', exists a c'' (belonging to C'') which is the result of the reversible union between c and c'." [CCO:ea]
 comment: Ternary relationship. See http://www.w3.org/TR/swbp-n-aryRelations/ for the OWL equivalent. The dissociation is a reversible splitting into simpler entities.
 xref: CCO_REL:association
-is_a: relationship ! relationship
-
-[Typedef]
-id: belongs_to
-name: belongs_to
-def: "o belongs to O where o is a gene or gene product and O an organism." [CCO:ea]
-xref: CCO_REL:belongs_to
 is_a: relationship ! relationship
 
 [Typedef]
@@ -3683,6 +3689,12 @@ id: has_agent
 name: has_agent
 def: "As for has_participant, but with the additional condition that the component instance is causally active in the relevant process" [PMID:15892874]
 xref: OBO_REL:has_agent
+is_a: relationship ! relationship
+
+[Typedef]
+id: has_function
+name: has_function
+xref: OBO_REL:has_function
 is_a: relationship ! relationship
 
 [Typedef]
@@ -3786,10 +3798,10 @@ is_transitive: true
 is_a: relationship ! relationship
 
 [Typedef]
-id: owns
-name: owns
-def: "O owns o where O is an organism and o a gene or gene product." [CCO:ea]
-xref: CCO_REL:owns
+id: originates_from
+name: originates_from
+def: "o originates from O where o is a gene or gene product and O an organism." [CCO:ea]
+xref: CCO_REL:originates_from
 is_a: relationship ! relationship
 
 [Typedef]
@@ -3840,6 +3852,13 @@ id: relationship
 name: relationship
 def: "A relationship between two classes (terms). Relationships between classes are expressed in terms of relations on underlying instances." []
 xref: OBO_REL:relationship
+
+[Typedef]
+id: source_of
+name: source_of
+def: "O source of o where O is an organism and o a gene or gene product." [CCO:ea]
+xref: CCO_REL:source_of
+is_a: relationship ! relationship
 
 [Typedef]
 id: transformation_of

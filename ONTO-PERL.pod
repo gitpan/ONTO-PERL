@@ -23,6 +23,14 @@ format conversions: obo2owl, owl2obo; besides, there are also
 many examples that can be easily adapted for specific applications),
 and a set of test files for ensuring the implementation quality.
 
+See also:
+
+  1. perldoc ONTO-PERL.pod
+  
+  2. ONTO-PERL: An API supporting the development and analysis of bio-ontologies
+     E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
+     Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
+
 
 Some files in 'ONTO-PERL':
 
@@ -70,5 +78,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package ONTO-PERL;
-$VERSION='1.11';
+$VERSION='1.12';
 1;

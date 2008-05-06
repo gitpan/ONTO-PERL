@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Term_Map.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: CCO_ID_Term_Map.pm 2004 2008-03-17 13:11:40Z Erick Antezana $
 #
 # Module  : CCO_ID_Term_Map.pm
 # Purpose : A (birectional) map CCO_ID vs Term name.
@@ -72,11 +72,14 @@ sub new {
         open( CCO_ID_MAP_IN_FH, "<$self->{FILE}" );
         while (<CCO_ID_MAP_IN_FH>) {
             chomp;
-            my ( $key, $value ) = ( $1, $2 )
-              if ( $_ =~ /(CCO:[A-Z][0-9]{7})\s+(\w+.*)/ )
-              ;    # e.g.: CCO:I1234567		test
-            $self->{MAP_BY_ID}->{$key}     = $value;    #put
-            $self->{MAP_BY_TERM}->{$value} = $key;      #put
+            if ( $_ =~ /(CCO:[A-Z][0-9]{7})\s+(.*)/ ) {
+				my ( $key, $value ) = ( $1, $2 ) ;        # e.g.: CCO:I1234567		test
+            	
+				$self->{MAP_BY_ID}->{$key}     = $value;  # put
+				$self->{MAP_BY_TERM}->{$value} = $key;    # put
+            } else {
+            	warn "\nThe following entry: '", $_, "' found in '", $self->{FILE}, "' is not recognized as valid a CCO key-value pair!";
+            }
         }
         close CCO_ID_MAP_IN_FH;
     }

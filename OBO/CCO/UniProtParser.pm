@@ -1,4 +1,4 @@
-# $Id: UniProtParser.pm 1888 2008-02-08 16:59:22Z erant $
+# $Id: UniProtParser.pm 2030 2008-04-18 11:58:36Z vlmir $
 #
 # Module  : UniProtParser.pm
 # Purpose : Parse UniProt files and add data to an ontology
@@ -18,39 +18,42 @@ OBO::CCO::UniProtParser - A UniProt to OBO translator.
 
 Includes methods for adding information from UniProt files to ontologies
 
-UniProt files can be obtained from ftp://ftp.expasy.org/databases/uniprot/knowledgebase/
+UniProt files can be obtained from:
 
-The method 'work' incorporates relevant data from a UniProt file into the input ontology, writes the ontology into an OBO file, writes map files.
+	ftp://ftp.expasy.org/databases/uniprot/knowledgebase/
+
+The method 'work' incorporates relevant data from a UniProt file into the 
+input ontology, writes the ontology into an OBO file, writes map files.
  
 This method assumes: 
 
-- the input ontology contains already the term 'gene', 'protein', 'modified protein'
+- the input ontology contains already the term 'gene', 'protein', 'cell cycle modified protein'
 
 - the input ontology already contains relevant protein terms. 
 
 - the input ontology already contains the NCBI taxonomy. 
 
-- the input ontology already contains the relationship types 'is_a', 'encoded_by', 'codes_for', 'belongs_to', 'tranformation_of', 'owns'
+- the input ontology already contains the relationship types 'is_a', 'encoded_by', 
+  'codes_for', 'originates_from', 'tranformation_of', 'source_of'
 
-- the input UniProt file contains entries for one species only and for protein terms present in the input ontology only
+- the input UniProt file contains entries for one species only and for protein 
+  terms present in the input ontology only
 
-- the full map file ($long_file_name, the UNION of the species specific map files ($short_file_name)) contains all the proteins to be processed by the UniProtParser 
+- the full map file ($long_file_name, the UNION of the species specific map files 
+  ($short_file_name)) contains all the proteins to be processed by the UniProtParser 
 
 =head1 AUTHOR
-
 
 Vladimir Mironov
 vlmir@psb.ugent.be
 
 =head1 COPYRIGHT AND LICENSE
 
-
 Copyright (C) 2006 by Vladimir Mironov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
-
 
 =cut
 
@@ -79,8 +82,16 @@ sub new {
 
   Usage    - $UniProtParser->work($ref_file_names, 'Arabidopsis thaliana organism')
   Returns  - updated OBO::Core::Ontology object 
-  Args     - 1. reference to a list of filenames(input OBO file, output OBO file, UniProt file, CCO_id/protein_name map file one taxon only, CCO_id/protein_name map file all taxa), 2. taxon_name
-  Function - parses a Uniprot file, adds relevant information to the input  ontology, writes OBO and map files 
+  Args     - 1. reference to a list of filenames: 
+                - input OBO file, 
+                - output OBO file, 
+                - UniProt file, 
+                - CCO_id/protein_name map file one taxon only, 
+                - CCO_id/protein_name map file all taxa,
+                - CCO_id/gene_name map file one taxon only, 
+                - CCO_id/gene_name map file all taxa,
+             2. taxon_name
+  Function - parses a Uniprot file, adds relevant information to the input ontology, writes OBO and map files 
   
 =cut
 
@@ -104,12 +115,13 @@ sub work {
 	my $my_parser = OBO::Parser::OBOParser->new();
 	my $ontology  = $my_parser->work($old_OBO_file);
 	
-	my @rel_types = ( 'is_a', 'belongs_to', 'owns', 'encoded_by', 'codes_for', 'transformation_of', 'transforms_into' );
+	my @rel_types = ( 'is_a', 'originates_from', 'source_of', 'encoded_by', 'codes_for', 'transformation_of', 'transforms_into' );
 	foreach (@rel_types) {
 		confess "Not a valid relationship type: '", $_,"' (valid values: ", join(", ", @rel_types), ")" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
 	}
 	
 	my $taxon = $ontology->get_term_by_name($taxon_name) || die "No term for $taxon_name is defined in file '$old_OBO_file'";
+	
 	# TODO Connect the core cell cycle genes to 'core cell cycle gene'
 	my $onto_gene = $ontology->get_term_by_name('cell cycle gene')  || die "No term for 'cell cycle gene' is defined in file '$old_OBO_file'";
 	my @gene_dbs = ( 'EMBL', 'Ensemble', 'GeneDB_Spombe', 'HGNC', 'SGD', 'TAIR', 'UniGene' );
@@ -138,33 +150,31 @@ sub work {
 			$protein = $ontology->get_term_by_xref('UniProtKB', $ac);
 			last if (defined $protein);
 		}
+		## Added by ERICK to overcome the orthoMCL issues: orthoMCL does not provide AC's!
+		if (!defined $protein) {
+			my $p_name = $entry->ID;
+			$protein = $ontology->get_term_by_name($p_name);
+			#warn "The name '$p_name' was looked up in file '$old_OBO_file' giving this: ", $protein->id();;
+		}
 		
 		#
-		# Report the non-existing ACs in the OBO file (cco_I_$organism.obo)
+		# Report the non-existing ACs in the OBO file (e.g. cco_I_$organism.obo)
 		#
 		if (!defined $protein) {
 			warn "None of the UniProt AC's (", join(", ", @all_acs),") were found in file '$old_OBO_file': ", $!;
 			next;
 		}
-		
-		# Question: do we keep the $accession as the primary AC in our entries? (it is used many times below...)
-		# NB: all the AC's should go to the xref field (see below)
 		#>>EASR
           
 		my $protein_name = $entry->ID;
-        
-
-		# add protein definition
-		$protein->def_as_string( $definition, "UniProtKB:$accession" );
-
-		# add secondary accessions
+		$protein->def_as_string( $definition, "UniProtKB:$accession" ); # add protein definition
 		foreach (@all_acs) {
-			$protein->xref_set_as_string("[UniProtKB:$_]");
+			$protein->xref_set_as_string("[UniProtKB:$_]"); # add secondary accessions
 		}
 
 		# add DB cross references to the protein
-		my $dbxrefs = $entry->DRs;    # an object containing all DB cross-references
-		my @pids = $dbxrefs->pids;  #an array containing EMBL protein accessions
+		my $dbxrefs = $entry->DRs;     # an object containing all DB cross-references
+		my @pids    = $dbxrefs->pids;  # an array containing EMBL protein accessions
 		foreach (@pids) {
 			$protein->xref_set_as_string("[EMBL:$_]");
 		}
@@ -175,7 +185,7 @@ sub work {
 		}
 		
 		# <<EASR: add the is_a missing link for the proteins but core cycle ones
-		my @heads = @{$ontology->get_head_by_relationship_type($protein, $ontology->get_relationship_type_by_name('is_a'))};
+		my @heads = @{$ontology->get_head_by_relationship_type($protein, $ontology->get_relationship_type_by_id('is_a'))};
 		my $link_found = 0;
 		foreach my $head (@heads) {
 			if ($head->name() eq 'core cell cycle protein') {
@@ -183,24 +193,28 @@ sub work {
 				last;
 			}
 		}
-		if (!$link_found) { # assuming the term 'cell cycle protein' exists in the ontology
+		if ($link_found == 0) { # assuming the term 'cell cycle protein' exists in the ontology
 			my $cell_cycle_protein_term = $ontology->get_term_by_name("cell cycle protein"); # CCO:U0000007
 			$ontology->create_rel( $protein, 'is_a', $cell_cycle_protein_term);
 		}
 		# >>EASR
 		
-		$ontology->create_rel( $protein, 'belongs_to', $taxon );
-		#$ontology->create_rel( $taxon,   'owns',       $protein);
+		$ontology->create_rel( $protein, 'originates_from', $taxon );
+		#$ontology->create_rel( $taxon,   'source_of',       $protein);
 
+		# get the object 'cell cycle modified protein'
+		my $modified_protein_term = $ontology->get_term_by_name('cell cycle modified protein') || die "No term for 'cell cycle modified protein' is defined in file '$old_OBO_file'";
+		
 		# add post-translationally modified derivatives of the protein
-		if(my @fts = @{$entry->FTs->{list}}){#an array of references to arrays corresponding to individual FT lines 
+		if(my @fts = @{$entry->FTs->{list}}){ # an array of references to arrays corresponding to individual FT lines 
 			foreach my $ft (@fts){
 				# select only lines for modified residues
 				$ft->[0] eq 'MOD_RES' ? 
 				my ($feature_key, $from_position, $to_position, $description, $qualifier, $FTId, $evidence_tag) = @{$ft}:next; # go to the next FT line
-				next unless $from_position eq $to_position; #this feature concerns only a single residue
+				next unless $from_position eq $to_position; # this feature concerns only a single residue
+				
 				my ($mod_prot_name, $mod_prot_comment, $mod_prot_def);
-				if ($description =~ /(\S+);\s*?(\S+.*)/) {#description contains the name of the modified residue separated by a colon from the rest
+				if ($description =~ /(\S+);\s*?(\S+.*)/) {# description contains the name of the modified residue separated by a colon from the rest
 					my ($mod_residue, $comment) = ($1, $2);
 					$mod_prot_name = $protein_name.'-'.$mod_residue.$from_position;
 					$mod_prot_def = "Protein $protein_name with the residue $from_position substituted with $mod_residue";
@@ -217,7 +231,7 @@ sub work {
 					$mod_prot_id = $short_map->get_cco_id_by_term($mod_prot_name);
 				} else {
 					$mod_prot_id = $long_map->get_new_cco_id( "CCO", "B", $mod_prot_name );
-					$short_map->put( $mod_prot_id, $mod_prot_name ); #updates the species specific maps
+					$short_map->put( $mod_prot_id, $mod_prot_name ); # updates the species specific maps
 				}       		
 
 				# create protein terms for modified proteins and add to ontology
@@ -229,21 +243,23 @@ sub work {
 				$mod_prot_obj->comment($mod_prot_comment);                
 				$ontology->add_term($mod_prot_obj);
 
-				$ontology->create_rel( $mod_prot_obj,    'belongs_to',         $taxon );
-				#$ontology->create_rel( $taxon,           'owns',               $mod_prot_obj );
+				$ontology->create_rel( $mod_prot_obj,  'is_a',              $modified_protein_term );	
+
+				$ontology->create_rel( $mod_prot_obj,  'originates_from',        $taxon );
+				#$ontology->create_rel( $taxon,        'source_of',              $mod_prot_obj );
 				
-				$ontology->create_rel( $mod_prot_obj,    'transformation_of',  $protein );
-				$ontology->create_rel( $protein,         'transforms_into',    $mod_prot_obj);				
-				
-				$ontology->create_rel( $mod_prot_obj,    'is_a',               $ontology->get_term_by_name('modified protein') );	
+				$ontology->create_rel( $mod_prot_obj,  'transformation_of', $protein );
+				$ontology->create_rel( $protein,       'transforms_into',   $mod_prot_obj);
 			}
 		}
         
-		#create or retrieve gene terms
+		# create or retrieve gene terms
 		my @gene_groups = @{ $entry->GNs->{list} };
 		if ( scalar @gene_groups == 1 ) {      # there is only one gene associated with the protein
 			my $gene_group = $gene_groups[0];
 			my $gene_name;
+			# only one gene name is added
+			# TODO add gene synonyms
 			( $gene_name = ${ $gene_group->{Names}->{list} }[0]->{text} )
 				|| ( $gene_name = ${ $gene_group->{OLN}->{list} }[0]->{text} )
 				|| ( $gene_name = ${ $gene_group->{ORFNames}->{list} }[0]->{text} );
@@ -267,10 +283,10 @@ sub work {
 			$ontology->create_rel( $protein, 'encoded_by',  $gene );
 			$ontology->create_rel( $gene,    'codes_for',   $protein ); # inverse of 'encoded_by'
 			
-			$ontology->create_rel( $gene,    'belongs_to',  $taxon );
-			#$ontology->create_rel( $taxon,   'owns',        $gene);
+			$ontology->create_rel( $gene,    'originates_from',  $taxon );
+			#$ontology->create_rel( $taxon,   'source_of',        $gene);
 			
-		} elsif ( scalar @gene_groups > 1 ) {    # multiple genes associated with the protein
+		} elsif ( scalar @gene_groups > 1 ) {    # multiple genes associated with the protein; xrefs are not added!!
 			foreach my $gene_group (@gene_groups) {
 				my $gene_name;
 				( $gene_name = ${ $gene_group->{Names}->{list} }[0]->{text} )
@@ -292,8 +308,8 @@ sub work {
 				$ontology->create_rel( $protein, 'encoded_by',   $gene );
 				$ontology->create_rel( $gene,    'codes_for',    $protein ); # inverse of 'encoded_by'
 				
-				$ontology->create_rel( $gene,    'belongs_to',   $taxon );
-				#$ontology->create_rel( $taxon,   'owns',         $gene );
+				$ontology->create_rel( $gene,    'originates_from',   $taxon );
+				#$ontology->create_rel( $taxon,   'source_of',         $gene );
 			}
 		}
 	}

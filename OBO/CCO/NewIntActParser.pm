@@ -1,4 +1,4 @@
-# $Id: NewIntActParser.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: NewIntActParser.pm 2039 2008-04-22 13:56:16Z vlmir $
 #
 # Module  : NewIntActParser.pm
 # Purpose : Parse IntAct files
@@ -80,7 +80,9 @@ sub work {
 	# Initialize the OBO parser, load the OBO file, check the assumptions
 	my $obo_parser = OBO::Parser::OBOParser->new();
 	my $ontology   = $obo_parser->work($old_OBO_file);
-	my @rel_types = ( 'is_a', 'participates_in', 'has_participant', 'located_in', 'belongs_to', 'owns' );
+	#my @rel_types = ( 'is_a', 'participates_in', 'has_participant', 'located_in', 'originates_from', 'source_of' );
+	my @rel_types = ( 'is_a', 'participates_in', 'has_participant', 'located_in');
+	
 	foreach (@rel_types) {
 		confess "Not a valid relationship type" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
 	}
@@ -274,7 +276,7 @@ sub add_participant {
 
 	if ( !defined $protein ) {
 		$protein = OBO::Core::Term->new();
-		$protein->xref_set_as_string("[UniProt:$prot_acc]");
+		$protein->xref_set_as_string("[UniProtKB:$prot_acc]");
 		my $prot_id = set_cco_id( $short_b_map, $long_b_map, $prot_name, 'B' );
 
 		$protein->id($prot_id);

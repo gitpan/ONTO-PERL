@@ -20,7 +20,7 @@ ok(1);
 my $mini_onto = $my_parser->work("./t/data/header.obo");
 ok(($mini_onto->imports()->get_set())[0] eq 'ulo.obo');
 ok(scalar $mini_onto->subsets()->get_set() == 7);
-ok(scalar $mini_onto->synonym_type_def_set()->get_set() == 5);
+ok(scalar $mini_onto->synonym_type_def_set()->get_set() == 6);
 # export to OBO
 #$ontology->export(\*STDERR);
 open (FH, ">./t/data/test0.obo") || die "Run as root the tests: ", $!;

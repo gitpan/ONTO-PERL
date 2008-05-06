@@ -3550,6 +3550,19 @@ id: CCO:Y0000025
 name: physical interaction
 is_a: CCO:U0000009 ! interaction
 
+[Term]
+id: CCO:U0000030
+name: modified protein
+def: "A protein which underwent any sort of modification (e.g. phosphorylation)" [CCO:ea]
+is_a: CCO:U0000005 ! protein
+
+[Term]
+id: CCO:U0000012
+name: cell cycle modified protein
+def: "A cell cycle protein which underwent any sort of modification (e.g. phosphorylation)" [CCO:ea]
+is_a: CCO:U0000011 ! modified protein
+is_a: CCO:U0000007 ! cell cycle protein 
+
 [Typedef]
 id: adjacent_to
 name: adjacent_to
@@ -3812,15 +3825,21 @@ is_transitive: true
 xref: CCO_REL:transforms_into
 
 [Typedef]
-id: belongs_to
-name: belongs_to
-def: "o belongs to O where o is a gene or gene product and O an organism." [CCO:ea]
+id: originates_from
+name: originates_from
+def: "o originates from O where o is a gene or gene product and O an organism." [CCO:ea]
 is_a: relationship ! relationship
-xref: CCO_REL:belongs_to
+xref: CCO_REL:originates_from
 
 [Typedef]
-id: owns
-name: owns
-def: "O owns o where O is an organism and o a gene or gene product." [CCO:ea]
+id: source_of
+name: source_of
+def: "O source of o where O is an organism and o a gene or gene product." [CCO:ea]
 is_a: relationship ! relationship
-xref: CCO_REL:owns
+xref: CCO_REL:source_of
+
+[Typedef]
+id: has_function
+name: has_function
+is_a: relationship ! relationship
+xref: OBO_REL:has_function

@@ -1,4 +1,4 @@
-# $Id: Term.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: Term.pm 2054 2008-04-27 14:17:31Z Erick Antezana $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -286,7 +286,7 @@ sub id {
 =cut
 sub idspace {
 	my $self = shift;
-	$self->{ID} =~ /([A-Z]+):/ if ($self->{ID});
+	$self->{ID} =~ /([A-Za-z_]+):/ if ($self->{ID});
 	return $1 || 'NN';
 }
 

@@ -19,8 +19,8 @@ xref: EMBL:AAS49095.1
 xref: EMBL:BAD94450.1
 xref: UniProtKB:Q6NMC8
 is_a: CCO:B0000000 ! core cell cycle protein
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 
 [Term]
@@ -34,8 +34,8 @@ xref: UniProtKB:P56794
 xref: UniProtKB:P56795
 xref: UniProtKB:P56796
 is_a: CCO:B0000000 ! core cell cycle protein
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: encoded_by CCO:G0000001 ! rpl20_arath
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000027 ! establishment of mitotic spindle orientation
 
 [Term]
@@ -45,8 +45,8 @@ def: "26S proteasome subunit RPN1b" [UniProtKB:Q6XJG8]
 xref: EMBL:AAP86656.1
 xref: UniProtKB:Q6XJG8
 is_a: CCO:B0000000 ! core cell cycle protein
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 relationship: transforms_into CCO:B0000039 ! Q6XJG8_ARATH-Phosphoserine351
 relationship: transforms_into CCO:B0000040 ! Q6XJG8_ARATH-Phosphoserine418
@@ -60,8 +60,8 @@ xref: EMBL:AAO42019.1
 xref: EMBL:AAO50726.1
 xref: UniProtKB:Q84JF0
 is_a: CCO:B0000000 ! core cell cycle protein
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: encoded_by CCO:G0000002 ! At5g67520_arath
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000103 ! meiosis
 
 [Term]
@@ -70,8 +70,8 @@ name: Q6XJG8_ARATH-Phosphoserine351
 def: "Protein Q6XJG8_ARATH with the residue 351 substituted with Phosphoserine" [UniProtKB:Q6XJG8]
 comment: by MAPK12; and MAPK9; By similarity
 xref: UniProtKB:Q6XJG8
-is_a: CCO:U0000011 ! modified protein
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+is_a: CCO:U0000012 ! cell cycle modified protein
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
@@ -80,8 +80,8 @@ name: Q6XJG8_ARATH-Phosphoserine418
 def: "Protein Q6XJG8_ARATH with the residue 418 substituted with Phosphoserine" [UniProtKB:Q6XJG8]
 comment: By similarity
 xref: UniProtKB:Q6XJG8
-is_a: CCO:U0000011 ! modified protein
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+is_a: CCO:U0000012 ! cell cycle modified protein
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
@@ -90,8 +90,8 @@ name: Q6XJG8_ARATH-Phosphoserine421
 def: "Protein Q6XJG8_ARATH with the residue 421 substituted with Phosphoserine" [UniProtKB:Q6XJG8]
 comment: by MAPK12; By similarity
 xref: UniProtKB:Q6XJG8
-is_a: CCO:U0000011 ! modified protein
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
+is_a: CCO:U0000012 ! cell cycle modified protein
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
@@ -102,8 +102,8 @@ synonym: "AtCg00660" EXACT [UniProtKB:P56795]
 xref: EMBL:AP000423
 xref: TAIR:AtCg00660
 is_a: CCO:U0000008 ! cell cycle gene
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: codes_for CCO:B0000002 ! RK20_ARATH
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:G0000002
@@ -114,8 +114,8 @@ xref: EMBL:BT005193
 xref: TAIR:At5g67520
 xref: UniGene:At.28808
 is_a: CCO:U0000008 ! cell cycle gene
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: codes_for CCO:B0000004 ! Q84JF0_ARATH
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:G0000003
@@ -127,9 +127,9 @@ xref: EMBL:BT011732
 xref: TAIR:At4g37630
 xref: UniGene:At.43466
 is_a: CCO:U0000008 ! cell cycle gene
-relationship: belongs_to CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: codes_for CCO:B0000001 ! CCD51_ARATH
 relationship: codes_for CCO:B0000003 ! Q6XJG8_ARATH
+relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:P0000001
@@ -3671,6 +3671,19 @@ def: "A modified protein" [CCO:ea]
 is_a: CCO:U0000005 ! protein
 
 [Term]
+id: CCO:U0000012
+name: cell cycle modified protein
+def: "A cell cycle protein which underwent any sort of modification (e.g. phosphorylation)" [CCO:ea]
+is_a: CCO:U0000007 ! cell cycle protein
+is_a: CCO:U0000011 ! modified protein
+
+[Term]
+id: CCO:U0000030
+name: modified protein
+def: "A protein which underwent any sort of modification (e.g. phosphorylation)" [CCO:ea]
+is_a: CCO:U0000005 ! protein
+
+[Term]
 id: CCO:Y0000025
 name: physical interaction
 is_a: CCO:U0000009 ! interaction
@@ -3695,13 +3708,6 @@ name: association
 def: "C in association with C' produces C'' if and only if for all c belonging to C and c' belongin to C', exists a c'' (belonging to C'') which is the result of the reversible union between c and c'." [CCO:ea]
 comment: Ternary relationship. See http://www.w3.org/TR/swbp-n-aryRelations/ for the OWL equivalent. The dissociation is a reversible splitting into simpler entities.
 xref: CCO_REL:association
-is_a: relationship ! relationship
-
-[Typedef]
-id: belongs_to
-name: belongs_to
-def: "o belongs to O where o is a gene or gene product and O an organism." [CCO:ea]
-xref: CCO_REL:belongs_to
 is_a: relationship ! relationship
 
 [Typedef]
@@ -3776,6 +3782,12 @@ id: has_agent
 name: has_agent
 def: "As for has_participant, but with the additional condition that the component instance is causally active in the relevant process" [PMID:15892874]
 xref: OBO_REL:has_agent
+is_a: relationship ! relationship
+
+[Typedef]
+id: has_function
+name: has_function
+xref: OBO_REL:has_function
 is_a: relationship ! relationship
 
 [Typedef]
@@ -3879,10 +3891,10 @@ is_transitive: true
 is_a: relationship ! relationship
 
 [Typedef]
-id: owns
-name: owns
-def: "O owns o where O is an organism and o a gene or gene product." [CCO:ea]
-xref: CCO_REL:owns
+id: originates_from
+name: originates_from
+def: "o originates from O where o is a gene or gene product and O an organism." [CCO:ea]
+xref: CCO_REL:originates_from
 is_a: relationship ! relationship
 
 [Typedef]
@@ -3933,6 +3945,13 @@ id: relationship
 name: relationship
 def: "A relationship between two classes (terms). Relationships between classes are expressed in terms of relations on underlying instances." []
 xref: OBO_REL:relationship
+
+[Typedef]
+id: source_of
+name: source_of
+def: "O source of o where O is an organism and o a gene or gene product." [CCO:ea]
+xref: CCO_REL:source_of
+is_a: relationship ! relationship
 
 [Typedef]
 id: transformation_of

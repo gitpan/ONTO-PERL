@@ -5,6 +5,7 @@ synonymtypedef: IUPAC_NAME "IUPAC NAME"
 synonymtypedef: FORMULA "FORMULA" RELATED
 synonymtypedef: SMILES "SMILES"
 synonymtypedef: InChI "InChI"
+synonymtypedef: systematic_synonym "Systematic synonym" EXACT
 default-namespace: test_namespace
 
 [Term]

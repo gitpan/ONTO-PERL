@@ -8,6 +8,7 @@ ONTO-PERL.pod
 OBO/CCO/CCO_ID_Set.pm
 OBO/CCO/CCO_ID_Term_Map.pm
 OBO/CCO/CCO_ID.pm
+OBO/CCO/GoaAssociation.pm
 OBO/CCO/GoaAssociationSet.pm
 OBO/CCO/GoaParser.pm
 OBO/CCO/IntActParser.pm
@@ -21,7 +22,6 @@ OBO/CCO/UniProtParser.pm
 OBO/CCO/XMLIntactParser.pm
 OBO/Core/Dbxref.pm
 OBO/Core/Def.pm
-OBO/Core/GoaAssociation.pm
 OBO/Core/IDspace.pm
 OBO/Core/Ontology.pm
 OBO/Core/Relationship.pm

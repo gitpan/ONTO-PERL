@@ -1,252 +1,252 @@
 format-version: 1.2
-date: 14:02:2008 15:50
+date: 06:05:2008 18:53
 auto-generated-by: ONTO-PERL
 
 [Term]
 id: CCO:B0000001
 name: CCD51_ARATH
 is_a: CCO:O0000001 ! Orthology cluster8 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000002
 name: RK20_ARATH
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000003
 name: Q6XJG8_ARATH
 is_a: CCO:O0000011 ! Orthology cluster7 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000004
 name: Q84JF0_ARATH
 is_a: CCO:O0000006 ! Orthology cluster2 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000042
 name: At1g21280
 is_a: CCO:O0000001 ! Orthology cluster8 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000043
 name: Hs11024712
 is_a: CCO:O0000002 ! Orthology cluster4 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000044
 name: YHR023w
 is_a: CCO:O0000002 ! Orthology cluster4 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000045
 name: Hs4505301
 is_a: CCO:O0000002 ! Orthology cluster4 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000046
 name: YMR109w
 is_a: CCO:O0000003 ! Orthology cluster5 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000047
 name: Hs4885503
 is_a: CCO:O0000003 ! Orthology cluster5 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000048
 name: YKL129c
 is_a: CCO:O0000003 ! Orthology cluster5 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000049
 name: Hs4827008
 is_a: CCO:O0000004 ! Orthology cluster10 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000050
 name: Hs10835271
 is_a: CCO:O0000004 ! Orthology cluster10 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000051
 name: At3g19960
 is_a: CCO:O0000005 ! Orthology cluster9 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000052
 name: At5g54280
 is_a: CCO:O0000005 ! Orthology cluster9 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000053
 name: YJL113w
 is_a: CCO:O0000006 ! Orthology cluster2 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000054
 name: YAR009c
 is_a: CCO:O0000006 ! Orthology cluster2 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000055
 name: At1g11265
 is_a: CCO:O0000006 ! Orthology cluster2 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000056
 name: YAL029c
 is_a: CCO:O0000007 ! Orthology cluster1 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000057
 name: YOR326w
 is_a: CCO:O0000007 ! Orthology cluster1 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000058
 name: At1g04160
 is_a: CCO:O0000007 ! Orthology cluster1 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000059
 name: Hs10835119
 is_a: CCO:O0000007 ! Orthology cluster1 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000060
 name: At5g20490
 is_a: CCO:O0000007 ! Orthology cluster1 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000061
 name: Hs7706117
 is_a: CCO:O0000008 ! Orthology cluster3 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000062
 name: At3g45690
 is_a: CCO:O0000008 ! Orthology cluster3 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000063
 name: YKR093w
 is_a: CCO:O0000008 ! Orthology cluster3 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000064
 name: At5g46040
 is_a: CCO:O0000008 ! Orthology cluster3 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000065
 name: YJR028w
 is_a: CCO:O0000009 ! Orthology cluster6 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000066
 name: YMR051c
 is_a: CCO:O0000009 ! Orthology cluster6 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000067
 name: YAR010c
 is_a: CCO:O0000009 ! Orthology cluster6 protein
-relationship: belongs_to CCO:T0000007 ! Saccharomyces cerevisiae organism
+relationship: originates_from CCO:T0000007 ! Saccharomyces cerevisiae organism
 
 [Term]
 id: CCO:B0000068
 name: At1g01280
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000069
 name: Hs13699816
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000070
 name: Hs4507383
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000071
 name: Hs4503231
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000072
 name: Hs13449277
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000073
 name: Hs10834998
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000074
 name: Hs7949031
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000075
 name: Hs13699840
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000076
 name: At1g11600
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:B0000077
 name: Hs13699809
 is_a: CCO:O0000010 ! Orthology cluster0 protein
-relationship: belongs_to CCO:T0000004 ! Homo sapiens organism
+relationship: originates_from CCO:T0000004 ! Homo sapiens organism
 
 [Term]
 id: CCO:B0000078
 name: At5g39560
 is_a: CCO:O0000011 ! Orthology cluster7 protein
-relationship: belongs_to CCO:T0000008 ! Arabidopsis thaliana organism
+relationship: originates_from CCO:T0000008 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:O0000001
@@ -331,9 +331,9 @@ id: CCO:U0000001
 name: protein
 
 [Typedef]
-id: belongs_to
-name: belongs_to
-
-[Typedef]
 id: is_a
 name: is_a
+
+[Typedef]
+id: originates_from
+name: originates_from

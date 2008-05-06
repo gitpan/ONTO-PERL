@@ -1,4 +1,4 @@
-# $Id: OrthoMCLParser.pm 1882 2008-01-17 12:43:45Z erant $
+# $Id: OrthoMCLParser.pm 2037 2008-04-22 12:21:03Z Erick Antezana $
 #
 # Module  : OrthoMCLParser.pm
 # Purpose : Parse OrthoMCL files and add data to an ontology
@@ -118,8 +118,8 @@ sub work {
 	
 	# populate ontology
 	$ontology->add_relationship_type_as_string ('is_a',       'is_a');
-	$ontology->add_relationship_type_as_string ('belongs_to', 'belongs_to');
-	#$ontology->add_relationship_type_as_string ('owns',       'owns');
+	$ontology->add_relationship_type_as_string ('originates_from', 'originates_from');
+	#$ontology->add_relationship_type_as_string ('source_of',       'source_of');
 	
 	my $protein = OBO::Core::Term->new();# upper level ontology term
 	$protein->name('protein');
@@ -165,8 +165,8 @@ sub work {
 			$ontology->add_term($clust_protein);
 			$ontology->create_rel($clust_protein, 'is_a', $cluster);
 			
-			$ontology->create_rel($clust_protein,         'belongs_to',   $taxa{$taxon_lab}->[3]);
-			#$ontology->create_rel($taxa{$taxon_lab}->[3], 'owns',         $clust_protein);
+			$ontology->create_rel($clust_protein,         'originates_from',   $taxa{$taxon_lab}->[3]);
+			#$ontology->create_rel($taxa{$taxon_lab}->[3], 'source_of',         $clust_protein);
 		}
 	}
 	

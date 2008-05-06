@@ -52,3 +52,5 @@ Revision history for ONTO-PERL
 1.10 Added missing file (obo2rdf.pl)
 
 1.11 Documentation and cosmetic improvements. Minor bug fixes.
+
+1.12 CCO related modules were improved.

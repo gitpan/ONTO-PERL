@@ -1,4 +1,4 @@
-# $Id: GoaAssociation.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: GoaAssociation.pm 2050 2008-04-23 08:32:39Z Erick Antezana $
 #
 # Module  : GoaAssociation.pm
 # Purpose : GOA associaton entry structure.
@@ -7,21 +7,21 @@
 #           modify it under the same terms as Perl itself.
 # Contact : Vladimir Mironov <vlmir@psb.ugent.be>
 #
-package OBO::Core::GoaAssociation;
+package OBO::CCO::GoaAssociation;
 
 =head1 NAME
 
-OBO::Core::GoaAssociation - A GOA association record.
+OBO::CCO::GoaAssociation - A GOA association record.
 
 =head1 SYNOPSIS
 
-use OBO::Core::GoaAssociation;
+use OBO::CCO::GoaAssociation;
 use strict;
 
 # three new assoc's
-my $goa_association1 = OBO::Core::GoaAssociation->new();
-my $goa_association2 = OBO::Core::GoaAssociation->new();
-my $goa_association3 = OBO::Core::GoaAssociation->new();
+my $goa_association1 = OBO::CCO::GoaAssociation->new();
+my $goa_association2 = OBO::CCO::GoaAssociation->new();
+my $goa_association3 = OBO::CCO::GoaAssociation->new();
 
 $goa_association1->assc_id("CCO:vm");
 $goa_association1->description("this is a description");
@@ -31,7 +31,7 @@ $goa_association3->assc_id("CCO:ea");
 
 my $goa_association4 = $goa_association3;
 
-my $goa_association5 = OBO::Core::GoaAssociation->new();
+my $goa_association5 = OBO::CCO::GoaAssociation->new();
 $goa_association5->assc_id("CCO:vm");
 $goa_association5->description("this is a description");
 
@@ -371,7 +371,7 @@ sub annot_src {
 
   Usage    - print $goa_association->equals($another_association)
   Returns  - either 1(true) or 0 (false)
-  Args     - the association (OBO::Core::GoaAssociation) to compare with
+  Args     - the association (OBO::CCO::GoaAssociation) to compare with
   Function - tells whether the two associations are identical
   
 =cut

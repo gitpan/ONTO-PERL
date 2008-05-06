@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 1846 2008-01-08 12:35:31Z erant $
+# $Id: OBOParser.pm 2054 2008-04-27 14:17:31Z Erick Antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
@@ -197,7 +197,7 @@ sub work {
 						$term->subset($1);
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) { # OBO spec 1.1
 						$term->synonym_as_string($2, $3, uc($1));
-					} elsif ($line =~ /^synonym:\s*\"(.*)\"(\s+(EXACT|BROAD|NARROW|RELATED))?(\s+(\w+))?\s+(\[.*\])\s*/) {
+					} elsif ($line =~ /^synonym:\s*\"(.*)\"(\s+(EXACT|BROAD|NARROW|RELATED))?(\s+([-\w]+))?\s+(\[.*\])\s*/) {
 						my $scope = (defined $3)?$3:"RELATED";
 						# OBO flat file spec: v1.2
 						# synonym: "endomitosis" EXACT []
@@ -255,10 +255,12 @@ sub work {
 						$term->consider($1);
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$term->builtin(($1 eq "true")?1:0);
+					} elsif ($line =~ /^property_value:\s*(.*)/) {
+						# do nothing for the moment...TODO: implement this once the OBO spec is more mature...
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {					
-						confess "A format problem has been detected in: '", $line, "' in the line: ", $file_line_number, " in the file: ", $self->{OBO_FILE};
+						warn "A format problem has been detected (and ignored) in: '", $line, "' in the line: ", $file_line_number, " in the file: ", $self->{OBO_FILE};
 					}
 				}
 				# Check for required fields: id and name
@@ -361,7 +363,7 @@ sub work {
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {
-						warn "A format problem has been detected in: ", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'";
+						warn "A format problem has been detected (and ignored) in: ", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 					}	
 				}
 				# Check for required fields: id and name

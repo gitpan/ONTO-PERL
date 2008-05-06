@@ -1,4 +1,4 @@
-# $Id: GoaParser.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: GoaParser.pm 2050 2008-04-23 08:32:39Z Erick Antezana $
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files
@@ -47,12 +47,12 @@ use OBO::Parser::OBOParser;
 use OBO::Core::Relationship;
 use OBO::Core::Dbxref;
 use OBO::Core::Term;
-use OBO::Core::GoaAssociation;
+use OBO::CCO::GoaAssociation;
 use OBO::CCO::CCO_ID_Term_Map;
 use OBO::Util::DbxrefSet;
 use OBO::CCO::GoaAssociationSet;
 use OBO::Util::Set;
-use Data::Dumper;
+#use Data::Dumper;
 use strict;
 use warnings;
 use Carp;
@@ -88,7 +88,7 @@ sub parse {
 	# Populate the OBO::CCO::GoaAssociationSet class with objects
 	while(<FH>){
 		chomp;
-		$_ =~ /^\w/ ? my $goaAssoc = OBO::Core::GoaAssociation->new() : next;	
+		$_ =~ /^\w/ ? my $goaAssoc = OBO::CCO::GoaAssociation->new() : next;	
 		@_ = split(/\t/);
 		foreach(@_){
 			$_ =~ s/^\s+//; 
@@ -144,9 +144,10 @@ sub work {
 	
 	my $located_in      = 'located_in';
 	my $location_of     = 'location_of';
+	my $has_function	= 'has_function';
 	
 	# rel existency check
-	foreach (($is_a, $participates_in, $has_participant, $located_in, $location_of)){
+	foreach (($is_a, $participates_in, $has_participant, $located_in, $location_of, $has_function)){
 		die "Not a valid relationship type" unless($ontology->{RELATIONSHIP_TYPES}->{$_});
 	}
 	
@@ -226,7 +227,7 @@ sub work {
 		my $cco_go_term = $ontology->get_term_by_id($id);
 		
 		if (!defined $cco_go_term){
-			warn "The following term is missing: '", $id, "'";
+			warn "The following term is missing: '", $id, "' in the ontology.";
 			next;
 		}
 		
@@ -237,8 +238,8 @@ sub work {
 			$ontology->create_rel($protein,     $located_in,  $cco_go_term);
 			$ontology->create_rel($cco_go_term, $location_of, $protein); # inverse of 'located_in'
 		} elsif ($aspect eq 'F') {
-			# TODO add the 'F' data
-			#$ontology->create_rel($protein, $acts_in, $cco_go_term);
+			
+			$ontology->create_rel($protein, $has_function, $cco_go_term);
 		}
 	}
 	

@@ -1,4 +1,4 @@
-# $Id: GoaAssociationSet.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: GoaAssociationSet.pm 2050 2008-04-23 08:32:39Z Erick Antezana $
 #
 # Module  : GoaAssociationSet.pm
 # Purpose : GOA association set.
@@ -17,15 +17,15 @@ OBO::CCO::GoaAssociationSet - A GoaAssociationSet implementation
 =head1 SYNOPSIS
 
 use OBO::CCO::GoaAssociationSet;
-use OBO::Core::GoaAssociation;
+use OBO::CCO::GoaAssociation;
 use strict;
 
 my $my_set = OBO::CCO::GoaAssociationSet->new();
 
 # three new goa_association's
-my $goa_association1 = OBO::Core::GoaAssociation->new();
-my $goa_association2 = OBO::Core::GoaAssociation->new();
-my $goa_association3 = OBO::Core::GoaAssociation->new();
+my $goa_association1 = OBO::CCO::GoaAssociation->new();
+my $goa_association2 = OBO::CCO::GoaAssociation->new();
+my $goa_association3 = OBO::CCO::GoaAssociation->new();
 
 $goa_association1->assc_id("CCO:vm");
 $goa_association2->assc_id("CCO:ls");
@@ -41,9 +41,9 @@ $my_set->add($goa_association1);
 $my_set->add($goa_association2);
 $my_set->add($goa_association3);
 
-my $goa_association4 = OBO::Core::GoaAssociation->new();
-my $goa_association5 = OBO::Core::GoaAssociation->new();
-my $goa_association6 = OBO::Core::GoaAssociation->new();
+my $goa_association4 = OBO::CCO::GoaAssociation->new();
+my $goa_association5 = OBO::CCO::GoaAssociation->new();
+my $goa_association6 = OBO::CCO::GoaAssociation->new();
 
 $goa_association4->assc_id("CCO:ef");
 $goa_association5->assc_id("CCO:sz");
@@ -94,7 +94,7 @@ use Carp;
 
  Usage    - $set->add($goa_association)
  Returns  - true if the element was successfully added
- Args     - the element (OBO::Core::GoaAssociation) to be added
+ Args     - the element (OBO::CCO::GoaAssociation) to be added
  Function - adds an element to this set
 
 =cut
@@ -113,8 +113,8 @@ sub add {
 =head2 remove
 
  Usage    - $set->remove($element)
- Returns  - the removed element (OBO::Core::GoaAssociation)
- Args     - the element to be removed (OBO::Core::GoaAssociation)
+ Returns  - the removed element (OBO::CCO::GoaAssociation)
+ Args     - the element to be removed (OBO::CCO::GoaAssociation)
  Function - removes an element from this set
 
 =cut
@@ -174,7 +174,7 @@ sub remove_duplicates {
 
  Usage    - $set->contains($goa_association)
  Returns  - either 1(true) or 0 (false)
- Args     - the element (OBO::Core::GoaAssociation) to be checked
+ Args     - the element (OBO::CCO::GoaAssociation) to be checked
  Function - checks if this set constains the given element
 
 =cut

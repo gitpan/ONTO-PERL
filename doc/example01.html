@@ -27,12 +27,12 @@
 			use OBO::Parser::OBOParser;
 			
 			my $my_parser = OBO::Parser::OBOParser->new();
-			my $ontology = $my_parser->work("my_obo_ontology.obo");
-			
-			my @my_terms = $ontology->@{$onto->get_terms()}; # get all the terms
+			my $ontology = $my_parser->work("gene_ontology_edit.obo");
+	
+			my @my_terms = @{$ontology->get_terms()}; # get all the terms
 			
 			foreach my $t (@my_terms) {
-				print "The name of the term is: ", $t->name();
+				print "The name of the term is: ", $t->name(), ", and its ID is:", $t->id(), "\n";
 			}
 			
 		</pre>

@@ -1,4 +1,4 @@
-# $Id: obo2owl.pl 1893 2008-02-14 14:23:26Z erant $
+# $Id: obo2owl.pl 2028 2008-04-17 08:18:16Z Erick Antezana $
 #
 # Module  : obo2owl.pl
 # Purpose : Converts a file from OBO to OWL.
@@ -37,7 +37,7 @@ use strict;
 use warnings;
 
 BEGIN {
-push @INC, '..'; # Running without installing 'ONTO-PERL'
+	push @INC, '/group/biocomp/cbd/users/erant/workspace/ONTO-PERL'; # for testing
 }
 
 use OBO::Parser::OBOParser;

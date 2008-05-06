@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 1889 2008-02-12 11:48:07Z erant $
+# $Id: Ontology.pm 2055 2008-05-06 16:43:07Z Erick Antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -434,6 +434,7 @@ use OBO::Util::TermSet;
 use strict;
 use warnings;
 use Carp;
+use Carp qw(cluck);
 
 sub new {
 	my $class                      = shift;
@@ -1504,8 +1505,9 @@ sub export {
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
-					if (defined $head->name()) {
-						print $file_handle "\nis_a: ", $head->id(), " ! ", $head->name();
+					my $head_name = $head->name();
+					if (defined $head_name) {
+						print $file_handle "\nis_a: ", $head->id(), " ! ", $head_name;
 					} else {
 						confess "The term with id: ", $head->id(), " has no name!" ;
 					}
@@ -1536,11 +1538,16 @@ sub export {
 			#
 			# relationship:
 			#
-			foreach $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
-				if ($rt->id() ne "is_a") { # is_a is printed above
+			my %saw1;
+			#foreach $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
+			foreach $rt (grep (!$saw1{$_}++, sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()})) { # use this foreach-line if there are duplicated rel's
+				my $rt_id = $rt->id();
+				if ($rt_id ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
-						print $file_handle "\nrelationship: ", $rt->id(), " ", $head->id(), " ! ", $head->name();
+					my %saw2;
+					#foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+					foreach my $head (grep (!$saw2{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) { # use this foreach-line if there are duplicated rel's
+						print $file_handle "\nrelationship: ", $rt_id, " ", $head->id(), " ! ", $head->name();
 					}
 				}
 			}
@@ -1614,8 +1621,9 @@ sub export {
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
 				foreach my $head (@heads) {
-					if (defined $head->name()) {
-						print $file_handle "\nis_a: ", $head->id(), " ! ", $head->name();
+					my $head_name = $head->name();
+					if (defined $head_name) {
+						print $file_handle "\nis_a: ", $head->id(), " ! ", $head_name;
 					} else {
 						confess "The relationship type with id: '", $head->id(), "' has no name!" ;
 					}
@@ -1679,7 +1687,7 @@ sub export {
 		print $file_handle "<rdf:RDF\n";
 		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
 		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-		print $file_handle "\txmlns:",$ns,"=\"http://www.cellcycleontology.org/ontology/rdf/",$NS,"#\">\n";
+		print $file_handle "\txmlns:",$ns,"=\"http://www.cellcycleontology.org/ontology/rdf/",$NS,"#\">\n"; # Change this URL according to your needs
 
 		#
 		# Terms
@@ -1702,24 +1710,24 @@ sub export {
 			#	O	Orthology cluster
 			#	Z	Unknown
 
-			my $subnamespace = $term->subnamespace();
+			my $subnamespace = $term->subnamespace(); # CCO has this feature
 			my $rdf_subnamespace = undef;
-			if($subnamespace eq "C"){$rdf_subnamespace = "cellular_component";}
-			elsif($subnamespace eq "F"){$rdf_subnamespace = "molecular_unction";}
-			elsif($subnamespace eq "P"){$rdf_subnamespace = "biological_process";}
-			elsif($subnamespace eq "B"){$rdf_subnamespace = "protein";}
-			elsif($subnamespace eq "G"){$rdf_subnamespace = "gene";}
-			elsif($subnamespace eq "I"){$rdf_subnamespace = "interaction";}
-			elsif($subnamespace eq "R"){$rdf_subnamespace = "reference";}
-			elsif($subnamespace eq "T"){$rdf_subnamespace = "taxon";}
-			elsif($subnamespace eq "I"){$rdf_subnamespace = "instance";}
-			elsif($subnamespace eq "U"){$rdf_subnamespace = "upper_level_ontology";}
-			elsif($subnamespace eq "L"){$rdf_subnamespace = "relationship_type";}
-			elsif($subnamespace eq "Y"){$rdf_subnamespace = "interaction_type";}
-			elsif($subnamespace eq "O"){$rdf_subnamespace = "orthology_cluster";}
-			elsif($subnamespace eq "Z"){$rdf_subnamespace = "unknown";}
-			elsif($subnamespace eq "X"){$rdf_subnamespace = "term";}
-			else{$rdf_subnamespace = "term";}
+			if    ( $subnamespace eq "C" ) { $rdf_subnamespace = "cellular_component";}
+			elsif ( $subnamespace eq "F" ) { $rdf_subnamespace = "molecular_function";}
+			elsif ( $subnamespace eq "P" ) { $rdf_subnamespace = "biological_process";}
+			elsif ( $subnamespace eq "B" ) { $rdf_subnamespace = "protein";}
+			elsif ( $subnamespace eq "G" ) { $rdf_subnamespace = "gene";}
+			elsif ( $subnamespace eq "I" ) { $rdf_subnamespace = "interaction";}
+			elsif ( $subnamespace eq "R" ) { $rdf_subnamespace = "reference";}
+			elsif ( $subnamespace eq "T" ) { $rdf_subnamespace = "taxon";}
+			elsif ( $subnamespace eq "I" ) { $rdf_subnamespace = "instance";}
+			elsif ( $subnamespace eq "U" ) { $rdf_subnamespace = "upper_level_ontology";}
+			elsif ( $subnamespace eq "L" ) { $rdf_subnamespace = "relationship_type";}
+			elsif ( $subnamespace eq "Y" ) { $rdf_subnamespace = "interaction_type";}
+			elsif ( $subnamespace eq "O" ) { $rdf_subnamespace = "orthology_cluster";}
+			elsif ( $subnamespace eq "Z" ) { $rdf_subnamespace = "unknown";}
+			elsif ( $subnamespace eq "X" ) { $rdf_subnamespace = "term";}
+			else  { $rdf_subnamespace = "term";}
 
 			my $term_id = $term->id();
 			$term_id =~ s/:/_/g;
@@ -1732,7 +1740,9 @@ sub export {
 			if (defined $term->name()) {
 				print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($term->name())."</rdfs:label>\n";
 			} else {
-				confess "The term with id: ", $term->id(), " has no name!" ;
+				warn "The term with id: ", $term->id(), " has no name!";
+				print $file_handle "\t</",$ns,":".$rdf_subnamespace.">\n"; # close the term tag! (skipping the rest of the data, contact those guys)
+				next;
 			}
 	    	
 			#
@@ -1788,12 +1798,14 @@ sub export {
 			# relationship:
 			#
 			foreach $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
-				if ($rt->name() ne "is_a") { # is_a is printed above
+				if ($rt->name() && $rt->name() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 						my $head_id = $head->id();
 						$head_id =~ s/:/_/g;
-						print $file_handle "\t\t<",$ns,":",$rt->name()," rdf:resource=\"#", $head_id, "\"/>\n";
+						my $rt_name = $rt->name();
+						$rt_name =~ s/\s+/_/g; # FIX: part of
+						print $file_handle "\t\t<",$ns,":",$rt_name," rdf:resource=\"#", $head_id, "\"/>\n";
 					}
 				}
 			}
@@ -1934,8 +1946,9 @@ sub export {
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
-					if (defined $head->name()) {
-						print $file_handle "\t\t<is_a id=\"", $head->id(), "\">", $head->name(), "</is_a>\n";
+					my $head_name = $head->name();
+					if (defined $head_name) {
+						print $file_handle "\t\t<is_a id=\"", $head->id(), "\">", $head_name, "</is_a>\n";
 					} else {
 						confess "The term with id: ", $head->id(), " has no name!" ;
 					}
@@ -2128,7 +2141,7 @@ sub export {
 			#
 			# label name = class name
 			#
-			print $file_handle "\t<rdfs:label xml:lang=\"en\">", $term->name(), "</rdfs:label>\n" if ($term->name());
+			print $file_handle "\t<rdfs:label xml:lang=\"en\">", &char_hex_http($term->name()), "</rdfs:label>\n" if ($term->name());
 			
 			#
 			# comment
@@ -2696,13 +2709,13 @@ sub export {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 					my $rt_id = $rt->id();
-                                        print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
+     				print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
 					print $file_handle "<desc>\n";
 					print $file_handle $rt_id, "\n";
 					print $file_handle "</desc>\n";
 					print $file_handle "</link>\n";
-                                }
-                        }
+				}
+			}
 
 			print $file_handle "</data>\n";
 			print $file_handle "</VNodes>\n\n";
@@ -3250,11 +3263,20 @@ sub create_rel (){
 	my $self = shift;
 	my($tail, $type, $head) = @_;
 	confess "Not a valid relationship type" unless($self->{RELATIONSHIP_TYPES}->{$type});
-	my $rel = OBO::Core::Relationship->new(); 
-	$rel->type($type);
-	$rel->link($tail,$head);
-	$rel->id($tail->id()."_".$type."_".$head->id());
-	$self->add_relationship($rel);
+	my $id = $tail->id()."_".$type."_".$head->id();
+	if ($self->has_relationship_id($id)) {
+		#cluck "The following rel ID already exists in the ontology: ", $id; # Implement a RelationshipSet?
+		
+		my $relationship = $self->get_relationship_by_id($id);
+		$self->{TARGET_RELATIONSHIPS}->{$head}->{$tail} = $relationship;
+		$self->{SOURCE_RELATIONSHIPS}->{$tail}->{$head} = $relationship;
+	} else {
+		my $rel = OBO::Core::Relationship->new(); 
+		$rel->type($type);
+		$rel->link($tail, $head);
+		$rel->id($id);
+		$self->add_relationship($rel);
+	}
 	return $self;
 }
 

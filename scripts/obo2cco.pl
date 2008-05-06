@@ -1,4 +1,4 @@
-# $Id: obo2cco.pl 1847 2008-01-08 12:38:58Z erant $
+# $Id: obo2cco.pl 2028 2008-04-17 08:18:16Z Erick Antezana $
 #
 # Script  : obo2cco.pl
 #
@@ -23,7 +23,7 @@ use strict;
 use Carp;
 
 BEGIN {
-	push @INC, '/group/biocomp/users/erant/workspace/ONTO-PERL';
+	push @INC, '/group/biocomp/cbd/users/erant/workspace/ONTO-PERL'; # for testing
 }
 
 use OBO::Parser::OBOParser;

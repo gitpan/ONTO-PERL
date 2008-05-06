@@ -5682,7 +5682,7 @@ is_transitive: true
 xref: OBO_REL:integral_part_of
 
 [Typedef]
-id: belongs_to
-name: belongs_to
+id: originates_from
+name: originates_from
 is_a: relationship
-def: "o belongs to O where o is an specific species (e.g. homo sapiens) and O the organism." [CCO:ea]
+def: "o originates_from O where o is a gene or gene product and O an organism." [CCO:ea]
