@@ -42,7 +42,7 @@ ok($ontology->get_term_by_name("Q6XJG8_ARATH"));
 ok($ontology->get_term_by_name("Q84JF0_ARATH"));
 ok($ontology->get_term_by_name("protein"));
 ok(!$ontology->get_term_by_id("CCO:U0000002"));
-ok($ontology->get_term_by_name("Orthology cluster10 protein"));
+ok($ontology->get_term_by_name("Type 10 protein"));
 ok(!$ontology->get_term_by_id("CCO:O0000012"));
 ok($ontology->get_term_by_name("Arabidopsis thaliana organism"));
 ok($ontology->get_term_by_id("CCO:T0000004"));

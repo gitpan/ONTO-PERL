@@ -23,6 +23,9 @@ SKIP:
 	eval 'use XML::Simple';
 	skip ('because XML::Simple is required for testing the IntAct parser', 6) if $@;
 	
+	eval 'use XML::SAX';
+	skip ('because XML::SAX is required for testing the IntAct parser', 6) if $@;
+	
 	require OBO::CCO::XMLIntactParser;
 	require OBO::CCO::IntActParser;
 	

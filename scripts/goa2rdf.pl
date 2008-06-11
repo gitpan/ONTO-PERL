@@ -1,25 +1,27 @@
-# $Id: obo2rdf.pl 2157 2008-05-29 11:29:15Z Erick Antezana $
+# $Id: goa2rdf.pl 1 2008-04-17 08:18:16Z Erick Antezana $
 #
-# Module  : obo2rdf.pl
+# Script  : goa2rdf.pl
 #
-# Purpose : Converts a file from OBO to RDF.
+# Purpose : Generates a simple RDF graph from a given GOA file.
 #
-# Usage: /usr/bin/perl -w obo2rdf.pl my_ontology.obo > my_ontology.rdf
+# Usage:
+#           perl goa2rdf.pl input_file.goa  > output_file.rdf
 #
-# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+#
 # Contact : Erick Antezana <erant@psb.ugent.be>
 #
 ##############################################################################
 
 =head1 NAME
 
-obo2rdf.pl - OBO to RDF translator.
+goa2rdf.pl - Generates a simple RDF graph from a given GOA file.
 
 =head1 DESCRIPTION
 
-This script transforms an OBO file into RDF.
+Generates a simple RDF graph from a given GOA file.
 
 =head1 AUTHOR
 
@@ -27,9 +29,9 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008 by Erick Antezana
+Copyright (C) 2008 by Erick Antezana
 
-This library is free software; you can redistribute it and/or modify
+This script is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
@@ -43,8 +45,15 @@ BEGIN {
 	push @INC, '/group/biocomp/cbd/users/erant/workspace/ONTO-PERL'; # for testing
 }
 
-use OBO::Parser::OBOParser;
+use OBO::CCO::GoaToRDF;
 
-my $my_parser = OBO::Parser::OBOParser->new();
-my $ontology = $my_parser->work(shift(@ARGV));
-$ontology->export(\*STDOUT, "rdf");
+my $input_file = shift(@ARGV);
+my $goa2rdf = OBO::CCO::GoaToRDF->new();
+
+$goa2rdf->work(\*STDOUT, $input_file);
+
+
+
+
+
+

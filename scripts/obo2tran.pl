@@ -1,25 +1,20 @@
-# $Id: obo2rdf.pl 2157 2008-05-29 11:29:15Z Erick Antezana $
+# $Id: obo2tran.pl 2028 2008-04-17 08:18:16Z Erick Antezana $
 #
-# Module  : obo2rdf.pl
-#
+# Module  : obo2tran.pl
 # Purpose : Converts a file from OBO to RDF.
-#
-# Usage: /usr/bin/perl -w obo2rdf.pl my_ontology.obo > my_ontology.rdf
-#
-# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
+# Usage: /usr/bin/perl -w obo2tran.pl my_ontology.obo > my_ontology.rdf
+# License : Copyright (c) 2008 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erant@psb.ugent.be>
-#
-##############################################################################
 
 =head1 NAME
 
-obo2rdf.pl - OBO to RDF translator.
+obo2tran.pl - OBOF into RDF translator. The resulting file has (full) transitive closure. 
 
 =head1 DESCRIPTION
 
-This script transforms an OBO file into RDF.
+OBOF into RDF translator. The resulting file has (full) transitive closure.
 
 =head1 AUTHOR
 
@@ -27,7 +22,7 @@ Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008 by Erick Antezana
+Copyright (C) 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -44,7 +39,11 @@ BEGIN {
 }
 
 use OBO::Parser::OBOParser;
+use OBO::Util::Ontolome;
 
 my $my_parser = OBO::Parser::OBOParser->new();
-my $ontology = $my_parser->work(shift(@ARGV));
-$ontology->export(\*STDOUT, "rdf");
+my $ontology  = $my_parser->work(shift(@ARGV));
+my $ome       = OBO::Util::Ontolome->new();
+my $go_transitive_closure = $ome->transitive_closure($ontology);
+
+$go_transitive_closure->export(\*STDOUT, "rdf", 1, 2);

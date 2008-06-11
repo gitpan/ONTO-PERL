@@ -1,4 +1,4 @@
-# $Id: GoaAssociationSet.pm 2050 2008-04-23 08:32:39Z Erick Antezana $
+# $Id: GoaAssociationSet.pm 2158 2008-05-29 11:29:36Z Erick Antezana $
 #
 # Module  : GoaAssociationSet.pm
 # Purpose : GOA association set.
@@ -99,15 +99,36 @@ use Carp;
 
 =cut
 sub add {
-   my $self = shift;
-   my $result = 0; # nothing added
-   if (@_) {          my $ele = shift;
-       if ( !$self -> contains($ele) ) {
-           push @{$self->{SET}}, $ele;
-           $result = 1; # successfully added
-       }
-   }
-   return $result;
+	my $self = shift;
+	my $result = 0; # nothing added
+	if (@_) {
+		my $ele = shift;
+		if ( !$self -> contains($ele) ) {
+			push @{$self->{SET}}, $ele;
+			$result = 1; # successfully added
+		}
+	}
+	return $result;
+}
+
+=head2 add_unique
+
+ Usage    - $set->add_unique($goa_association)
+ Returns  - 1 (the element is always added)
+ Args     - the element (OBO::CCO::GoaAssociation) to be added which is known to be unique!
+ Function - adds an element to this set
+ Remark   - this function should be used when the element to be added is known to be unique,
+ 			this function has a tremendous impact on the performance (compared to simply add())  
+
+=cut
+sub add_unique {
+	my $self = shift;
+	my $result = 0; # nothing added
+	if (@_) {
+		my $ele = shift;
+		push @{$self->{SET}}, $ele;
+	}
+	return 1;
 }
 
 =head2 remove

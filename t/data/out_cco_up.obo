@@ -20,7 +20,7 @@ xref: EMBL:BAD94450.1
 xref: UniProtKB:Q6NMC8
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 
 [Term]
@@ -35,8 +35,9 @@ xref: UniProtKB:P56795
 xref: UniProtKB:P56796
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: encoded_by CCO:G0000001 ! rpl20_arath
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000027 ! establishment of mitotic spindle orientation
+relationship: participates_in CCO:P0000103 ! meiosis
 
 [Term]
 id: CCO:B0000003
@@ -46,7 +47,7 @@ xref: EMBL:AAP86656.1
 xref: UniProtKB:Q6XJG8
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: encoded_by CCO:G0000003 ! RPN1b_arath
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 relationship: transforms_into CCO:B0000039 ! Q6XJG8_ARATH-Phosphoserine351
 relationship: transforms_into CCO:B0000040 ! Q6XJG8_ARATH-Phosphoserine418
@@ -61,7 +62,7 @@ xref: EMBL:AAO50726.1
 xref: UniProtKB:Q84JF0
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: encoded_by CCO:G0000002 ! At5g67520_arath
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000103 ! meiosis
 
 [Term]
@@ -71,7 +72,7 @@ def: "Protein Q6XJG8_ARATH with the residue 351 substituted with Phosphoserine" 
 comment: by MAPK12; and MAPK9; By similarity
 xref: UniProtKB:Q6XJG8
 is_a: CCO:U0000012 ! cell cycle modified protein
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
@@ -81,7 +82,7 @@ def: "Protein Q6XJG8_ARATH with the residue 418 substituted with Phosphoserine" 
 comment: By similarity
 xref: UniProtKB:Q6XJG8
 is_a: CCO:U0000012 ! cell cycle modified protein
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
@@ -91,7 +92,7 @@ def: "Protein Q6XJG8_ARATH with the residue 421 substituted with Phosphoserine" 
 comment: by MAPK12; By similarity
 xref: UniProtKB:Q6XJG8
 is_a: CCO:U0000012 ! cell cycle modified protein
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: transformation_of CCO:B0000003 ! Q6XJG8_ARATH
 
 [Term]
@@ -103,7 +104,7 @@ xref: EMBL:AP000423
 xref: TAIR:AtCg00660
 is_a: CCO:U0000008 ! cell cycle gene
 relationship: codes_for CCO:B0000002 ! RK20_ARATH
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:G0000002
@@ -115,7 +116,7 @@ xref: TAIR:At5g67520
 xref: UniGene:At.28808
 is_a: CCO:U0000008 ! cell cycle gene
 relationship: codes_for CCO:B0000004 ! Q84JF0_ARATH
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:G0000003
@@ -129,7 +130,7 @@ xref: UniGene:At.43466
 is_a: CCO:U0000008 ! cell cycle gene
 relationship: codes_for CCO:B0000001 ! CCD51_ARATH
 relationship: codes_for CCO:B0000003 ! Q6XJG8_ARATH
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 
 [Term]
 id: CCO:P0000001
@@ -1072,6 +1073,7 @@ name: meiosis
 def: "Progression through meiosis, the specialized nuclear and cell division in which a single diploid cell undergoes two nuclear divisions following a single round of DNA replication in order to produce four daughter cells that contain half the number of chromosomes as the diploid cell. Meiosis occurs during the formation of gametes from diploid organisms and at the beginning of haplophase in those organisms that alternate between diploid and haploid generations." [PMID:9334324]
 xref: GO:0007126
 is_a: CCO:P0000309 ! cell cycle phase
+relationship: has_participant CCO:B0000002 ! RK20_ARATH
 relationship: has_participant CCO:B0000004 ! Q84JF0_ARATH
 relationship: part_of CCO:P0000271 ! M phase of meiotic cell cycle
 
@@ -3685,7 +3687,7 @@ is_a: CCO:U0000005 ! protein
 
 [Term]
 id: CCO:Y0000025
-name: physical interaction
+name: physical association
 is_a: CCO:U0000009 ! interaction
 
 [Typedef]
@@ -3832,6 +3834,13 @@ is_transitive: true
 is_a: part_of ! part_of
 
 [Typedef]
+id: has_source
+name: has_source
+def: "o originates from O where o is a gene or gene product and O an organism." [CCO:ea]
+xref: CCO_REL:has_source
+is_a: relationship ! relationship
+
+[Typedef]
 id: improper_part_of
 name: improper_part_of
 def: "As for part_of, with the additional constraint that subject and object may be identical" [PMID:15892874]
@@ -3888,13 +3897,6 @@ name: location_of
 xref: OBO_REL:location_of
 is_reflexive: true
 is_transitive: true
-is_a: relationship ! relationship
-
-[Typedef]
-id: originates_from
-name: originates_from
-def: "o originates from O where o is a gene or gene product and O an organism." [CCO:ea]
-xref: CCO_REL:originates_from
 is_a: relationship ! relationship
 
 [Typedef]

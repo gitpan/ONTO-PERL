@@ -1,4 +1,4 @@
-# $Id: Interaction.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: Interaction.pm 2094 2008-05-16 16:14:53Z Erick Antezana $
 #
 # Module  : Interaction.pm
 # Purpose : An interaction.
@@ -72,9 +72,9 @@ sub primaryRef {
 =head2 interactionType
 
   Usage    - print $interaction->interactionType() or $interaction->interactionType($interactionType)
-  Returns  - the type of the interaction (e.g. "physical interaction")
-  Args     - the type of the interaction (e.g. "physical interaction")
-  Function - gets/sets the type of the interaction (e.g. "physical interaction")
+  Returns  - the type of the interaction (e.g. "physical association")
+  Args     - the type of the interaction (e.g. "physical association")
+  Function - gets/sets the type of the interaction (e.g. "physical association")
   
 =cut
 

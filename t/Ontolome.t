@@ -10,7 +10,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 58;
+    plan tests => 67;
 }
 
 #########################
@@ -89,6 +89,9 @@ $r31->type("part_of");
 $r51->link($n5, $n1); 
 $r31->link($n3, $n1);
 
+$onto1->add_relationship_type_as_string("is_a", "is_a");
+$onto1->add_relationship_type_as_string("part_of", "part_of");
+
 $onto1->add_relationship($r51);
 $onto1->add_relationship($r31);
 
@@ -115,6 +118,9 @@ $r42->type("is_a");
 $r64->type("part_of");
 $r42->link($n4, $n2); 
 $r64->link($n6, $n4);
+
+$onto2->add_relationship_type_as_string("is_a", "is_a");
+$onto2->add_relationship_type_as_string("part_of", "part_of");
 
 $onto2->add_relationship($r42);
 $onto2->add_relationship($r64);
@@ -537,6 +543,7 @@ ok($ontito->has_relationship_id("5_is_a_23"));
 #
 
 my $go  = OBO::Core::Ontology->new();
+$go->idspace_as_string("GO", "http://www.cellcycle.org/ontology/GO", "go ontology terms");
 
 my $g60  = OBO::Core::Term->new();
 my $g59  = OBO::Core::Term->new();
@@ -602,5 +609,58 @@ $go->create_rel($g38,$s,$g56);
 my $go_go = $ome1->intersection($go, $go);
 ok($go_go->get_number_of_terms() == 13);
 ok($go_go->get_number_of_relationships() >= 16);
+
+#
+# transitive closure test
+#
+open (FH, ">./t/data/go.obo") || die "Run as root the tests: ", $!;
+$go->export(\*FH);
+close FH;
+
+#
+# get_paths_term_terms
+#
+my $stop_set = OBO::Util::Set->new();
+$stop_set->add($g29->id());
+$stop_set->add($g271->id());
+$stop_set->add($g117->id());
+
+my @p1 = ("60_is_a_59", "59_is_a_242", "242_is_a_29");
+
+my @ref_paths1 = $go->get_paths_term_terms_same_rel($g60->id(), $stop_set, $r); # along is_a
+foreach my $ref_path (@ref_paths1) {
+	foreach my $tt (@$ref_path) {
+		ok ($tt->id() eq shift @p1);
+	}
+}
+
+ok($#ref_paths1 ==  0);
+
+$cc = 0;
+map {map {$cc++} @$_} @ref_paths1;
+ok ($cc ==  3);
+
+my @p2 = ("60_part_of_118", "118_part_of_117");
+
+my @ref_paths2 = $go->get_paths_term_terms_same_rel($g60->id(), $stop_set, $s); # along part_of
+foreach my $ref_path (@ref_paths2) {
+	foreach my $tt (@$ref_path) {
+		ok ($tt->id() eq shift @p2);
+	}
+}
+
+ok($#ref_paths2 ==  0);
+
+$cc = 0;
+map {map {$cc++} @$_} @ref_paths2;
+ok ($cc ==  2);
+
+#
+# get the transitive closure
+#
+my $go_transitive_closure = $ome1->transitive_closure($go);
+open (FH, ">./t/data/go_transitive_closure.obo") || die "Run as root the tests: ", $!;
+$go_transitive_closure->export(\*FH);
+close FH;
 
 ok(1);

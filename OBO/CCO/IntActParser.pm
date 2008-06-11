@@ -1,4 +1,4 @@
-# $Id: IntActParser.pm 2037 2008-04-22 12:21:03Z Erick Antezana $
+# $Id: IntActParser.pm 2079 2008-05-12 13:40:49Z Erick Antezana $
 #
 # Module  : IntActParser.pm
 # Purpose : An IntAct Parser.
@@ -124,7 +124,7 @@ sub work {
 	my $participates_in = ($ontology->get_relationship_type_by_name("participates_in"))->id;
 	my $has_participant = ($ontology->get_relationship_type_by_name("has_participant"))->id;
 	my $is_a = ($ontology->get_relationship_type_by_name("is_a"))->id;
-	my $originates_from = ($ontology->get_relationship_type_by_name("originates_from"))->id;
+	my $has_source = ($ontology->get_relationship_type_by_name("has_source"))->id;
 
 	# Interactor roles
 	my $neutral_component = "neutral component";
@@ -200,7 +200,7 @@ sub work {
 									if($ebi_interactor->ncbiTaxId eq $taxon){
 										my $OBOed_EBI_interactor = $ontology->get_term_by_xref("UniProt", $ebi_interactor->uniprot);
 										if (!defined $OBOed_EBI_interactor){
-											$OBOed_EBI_interactor = &add_interactor($ebi_interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$originates_from,$taxon);
+											$OBOed_EBI_interactor = &add_interactor($ebi_interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$has_source,$taxon);
 										}
 										$ontology->create_rel($OBOed_EBI_interactor, $participates_in, $obo_interaction_term);
 										$ontology->create_rel($obo_interaction_term, $has_participant, $OBOed_EBI_interactor);
@@ -224,7 +224,7 @@ sub work {
 									if($ebi_interactor->ncbiTaxId eq $taxon){
 										my $OBOed_EBI_interactor = $ontology->get_term_by_xref("UniProt", $ebi_interactor->uniprot);
 										if (!defined $OBOed_EBI_interactor){
-											$OBOed_EBI_interactor = &add_interactor($ebi_interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$originates_from,$taxon);
+											$OBOed_EBI_interactor = &add_interactor($ebi_interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$has_source,$taxon);
 										}
 										$ontology->create_rel($OBOed_EBI_interactor, $participates_in, $obo_interaction_term);
 										$ontology->create_rel($obo_interaction_term, $has_participant, $OBOed_EBI_interactor);
@@ -248,7 +248,7 @@ sub work {
 									if($ebi_interactor->ncbiTaxId eq $taxon){
 										my $OBOed_EBI_interactor = $ontology->get_term_by_xref("UniProt", $ebi_interactor->uniprot);
 										if (!defined $OBOed_EBI_interactor){
-											$OBOed_EBI_interactor = &add_interactor($ebi_interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$originates_from,$taxon);
+											$OBOed_EBI_interactor = &add_interactor($ebi_interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$has_source,$taxon);
 										}
 										$ontology->create_rel($OBOed_EBI_interactor, $participates_in, $obo_interaction_term);
 										$ontology->create_rel($obo_interaction_term, $has_participant, $OBOed_EBI_interactor);
@@ -503,15 +503,15 @@ sub add_interaction(){
 
 =head2 add_interactor
 
-  Usage    - add_interactor ($interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$originates_from,$taxon)
+  Usage    - add_interactor ($interactor,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$has_source,$taxon)
   Returns  - added interactor OBO term 
-  Args     - interactor object, ontology, protein id map (taxon), protein id map (general), is_a relationship type id, originates_from relationship type id, taxon id (e.g. 3702)
+  Args     - interactor object, ontology, protein id map (taxon), protein id map (general), is_a relationship type id, has_source relationship type id, taxon id (e.g. 3702)
   Function - add an interactor to CCO
   
 =cut
 
 sub add_interactor(){
-	my ($ebi_interactor_object,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$originates_from,$taxon) = @_;
+	my ($ebi_interactor_object,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map,$is_a,$has_source,$taxon) = @_;
 	my $interactor_name = uc $ebi_interactor_object->shortLabel;
 	my $interactor_cco_id = $cco_b_taxon_ids_map->get_cco_id_by_term($interactor_name);
 	if (!defined $interactor_cco_id){
@@ -523,9 +523,9 @@ sub add_interactor(){
 	# Add is_a protein
 	my $cco_protein = $ontology->get_term_by_name("protein"); 	
 	$ontology->create_rel($OBOed_EBI_interactor, $is_a, $cco_protein);
-	# Add originates_from taxon
+	# Add has_source taxon
 	my $CCO_taxon = $ontology->get_term_by_xref('NCBI', $taxon);
-	$ontology->create_rel($OBOed_EBI_interactor, $originates_from, $CCO_taxon);
+	$ontology->create_rel($OBOed_EBI_interactor, $has_source, $CCO_taxon);
 	# Add xref
 	&add_xref($OBOed_EBI_interactor, "UniProt", $ebi_interactor_object->uniprot);
 	# Add def

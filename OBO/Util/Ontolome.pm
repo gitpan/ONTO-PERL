@@ -1,4 +1,4 @@
-# $Id: Ontolome.pm 1892 2008-02-14 11:00:42Z erant $
+# $Id: Ontolome.pm 2132 2008-05-26 11:13:15Z Erick Antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
@@ -79,19 +79,20 @@ use Carp;
 sub union () {
 	my ($self, @ontos) = @_;
 	my $result = OBO::Core::Ontology->new();
-	$result->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO");
-	$result->default_namespace("cellcycle_ontology");
+	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo/"); # adapt it to your needs
+	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
 	$result->remark("Merged ontology");
 	
 	foreach my $ontology (@ontos) {
 		$result->idspace($ontology->idspace()); # assuming the same idspace
 		$result->subsets($ontology->subsets()->get_set()); # add all subsets by default
 		$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
-	
+
 		my @terms = @{$ontology->get_terms()};
 		foreach my $term (@terms){
-			my $current_term =  $result->get_term_by_id($term->id()); # could also be $result->get_term_by_name_or_synonym()
-			if (defined $current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
+			my $term_id = $term->id();
+			my $current_term = $result->get_term_by_id($term_id); # could also be $result->get_term_by_name_or_synonym()
+			if ($current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
 				$current_term->is_anonymous("true") if (!defined $current_term->is_anonymous() && $term->is_anonymous());
 				foreach ($term->alt_id()->get_set()) {
 					$current_term->alt_id($_);
@@ -138,34 +139,78 @@ sub union () {
 					
 					my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
 					if (!defined $tail) {
-						$result->add_term($cola);            # add $cola if it is not present!
+						my $new_term = OBO::Core::Term->new();
+						$new_term->id($tail_id);
+						$new_term->name($cola->name());
+						$result->add_term($new_term);			# add $cola if it is not present yet!
 						$tail = $result->get_term_by_id($tail_id);
-						
-						my @more_rels = @{$ontology->get_relationships_by_target_term($cola)};
-						@rels = (@rels, @more_rels); # trick to "recursively" visit the just added rel
 					}
-					my $r_type = $r->type();
-					$r->id($tail_id."_".$r_type."_".$current_term->id());
-					$r->link($tail, $current_term);
-					
-					$result->add_relationship($r);
-					
-					#
-					# relationship type
-					#
+					my $r_type = $r->type(); # e.g. is_a
 					my $rel_type = $ontology->get_relationship_type_by_id($r_type);
-					$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+					$result->has_relationship_type($rel_type) || $result->add_relationship_type_as_string($rel_type->id(), $r_type);
+					
+					$result->create_rel($tail, $r_type, $current_term);
 				}
 			} else {
-				$result->add_term($term);
-				push @terms, $term; # trick to "recursively" visit the just added term
+				my $new_term = OBO::Core::Term->new();
+				$new_term->id($term_id);
+				$new_term->name($term->name());
+				$result->add_term($new_term);
+				push @terms, $term; # trick to visit again the just added term which wasn't treated yet
 			}
 		}
-		foreach my $rel (@{$ontology->get_relationships()}){
-			if (! $result->has_relationship_id($rel->id())) {
-				$result->add_relationship($rel);
-				my $rel_type = $ontology->get_relationship_type_by_id($rel->type());
-				$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+		
+		#
+		# Add relationships
+		#
+		foreach my $rela (@{$ontology->get_relationships()}){
+			my $rel_type_name = $rela->type();
+			my $onto_rela_type = $ontology->get_relationship_type_by_id($rel_type_name);
+			my $rel_type = $result->get_relationship_type_by_id($rel_type_name);
+			if (!$result->has_relationship_type($rel_type)) {
+				$result->add_relationship_type($rel_type); # add rel types between rel's (typical is_a, part_of)
+				$rel_type = $result->get_relationship_type_by_id($rel_type_name);
+			}
+			
+			foreach ($onto_rela_type->alt_id()->get_set()) {
+					$rel_type->alt_id($_);
+			}
+			$rel_type->def($onto_rela_type->def()) if (!defined $rel_type->def()->text() && $onto_rela_type->def()->text()); # TODO implement the case where the def xref's are not balanced!
+			foreach ($onto_rela_type->namespace()) {
+				$rel_type->namespace($_);
+			}
+			$rel_type->comment($onto_rela_type->comment()) if (!defined $rel_type->comment() && $onto_rela_type->comment());
+			foreach ($onto_rela_type->subset()) { 
+				$rel_type->subset($_);
+			}
+			foreach ($onto_rela_type->synonym_set()) {
+				$rel_type->synonym_set($_);
+			}
+			foreach ($onto_rela_type->xref_set()->get_set()) {
+				$rel_type->xref_set()->add($_);
+			}
+			$rel_type->is_cyclic("true") if (!defined $rel_type->is_cyclic() && $onto_rela_type->is_cyclic());
+			$rel_type->is_reflexive("true") if (!defined $rel_type->is_reflexive() && $onto_rela_type->is_reflexive());
+			$rel_type->is_symmetric("true") if (!defined $rel_type->is_symmetric() && $onto_rela_type->is_symmetric());
+			$rel_type->is_anti_symmetric("true") if (!defined $rel_type->is_anti_symmetric() && $onto_rela_type->is_anti_symmetric());
+			$rel_type->is_transitive("true") if (!defined $rel_type->is_transitive() && $onto_rela_type->is_transitive());
+			$rel_type->is_metadata_tag("true") if (!defined $rel_type->is_metadata_tag() && $onto_rela_type->is_metadata_tag());
+			
+			$rel_type->is_obsolete("true") if (!defined $rel_type->is_obsolete() && $onto_rela_type->is_obsolete());
+			foreach ($onto_rela_type->replaced_by()->get_set()) {
+				$rel_type->replaced_by($_);
+			}
+			foreach ($onto_rela_type->consider()->get_set()) {
+				$rel_type->consider($_);
+			}
+			$rel_type->builtin("true") if (!defined $rel_type->builtin() && $onto_rela_type->builtin());
+			
+			#
+			# link the rels:
+			#
+			my $rel_id = $rela->id();
+			if (! $result->has_relationship_id($rel_id)) {
+				$result->add_relationship($rela); # add rel's between rel's
 			}
 		}
 	}
@@ -189,8 +234,8 @@ sub union () {
 sub intersection () {
 	my ($self, $onto1, $onto2) = @_;
 	my $result = OBO::Core::Ontology->new();
-	$result->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO"); # adapt it for other ontologies
-	$result->default_namespace("cellcycle_ontology"); # adapt it for other ontologies
+	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo"); # adapt it to your needs
+	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
 	$result->remark("Intersected ontology");
 	
 	$result->idspace($onto1->idspace()); # assuming the same idspace
@@ -206,19 +251,22 @@ sub intersection () {
 	my $onto2_number_relationships  = $onto2->get_number_of_relationships();
 	my $min_number_rels_onto1_onto2 = ($onto1_number_relationships < $onto2_number_relationships)?$onto1_number_relationships:$onto2_number_relationships;
 	
+	my @terms = @{$result->get_terms()};
+	
+	my $stop  = OBO::Util::Set->new();
+	map {$stop->add($_->id())} @terms;
 	
 	# path of references
 	my @pr1;
 	my @pr2;
 	
 	# link the common terms
-	foreach my $term (@{$result->get_terms()}) {
-		my $term_id         = $term->id();
-
-		my $stop  = OBO::Util::Set->new();
-		map {$stop->add($_->id())} @{$result->get_terms()};
-
-		# path of references:
+	foreach my $term (@terms) {
+		my $term_id = $term->id();
+		
+		#
+		# path of references: onto1 and onto2
+		#
 		
 		# onto1
 		my @pref1 = $onto1->get_paths_term_terms($term_id, $stop);
@@ -326,6 +374,137 @@ sub intersection () {
 			$result->add_relationship_type_as_string($r_type, $r_type); # ID = NAME
 		}		
 		$result->create_rel($source, $r_type, $target);
+	}
+	return $result;
+}
+
+=head2 transitive_closure
+
+  Usage    - $ome->transitive_closure($o)
+  Return   - an ontology (OBO::Core::Ontology) with the transitive closure
+  Args     - an ontology (OBO::Core::Ontology) to be expanded
+  Function - expands all the transitive relationships (e.g. is_a, part_of) along the
+  			 hierarchy and generates a new ontology holding all possible paths.
+  Remark   - Performance issues with huge ontologies.
+  
+=cut
+
+sub transitive_closure () {
+my ($self, $ontology) = @_;
+	my $result = OBO::Core::Ontology->new();
+	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo/"); # adapt it to your needs
+	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
+	$result->remark("Ontology with transitive closure");
+	
+	$result->idspace($ontology->idspace()); # assuming the same idspace
+	$result->subsets($ontology->subsets()->get_set()); # add all subsets by default
+	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
+	
+	my @terms = @{$ontology->get_terms()};
+	foreach my $term (@terms){
+		my $current_term =  $result->get_term_by_id($term->id());
+		if (defined $current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
+			$current_term->is_anonymous("true") if (!defined $current_term->is_anonymous() && $term->is_anonymous());
+			foreach ($term->alt_id()->get_set()) {
+				$current_term->alt_id($_);
+			}
+			$current_term->def($term->def()) if (!defined $current_term->def()->text() && $term->def()->text()); # TODO implement the case where the def xref's are not balanced!
+			foreach ($term->namespace()) {
+				$current_term->namespace($_);
+			}
+			$current_term->comment($term->comment()) if (!defined $current_term->comment() && $term->comment());
+			foreach ($term->subset()) { 
+				$current_term->subset($_);
+			}
+			foreach ($term->synonym_set()) {
+				$current_term->synonym_set($_);
+			}
+			foreach ($term->xref_set()->get_set()) {
+				$current_term->xref_set()->add($_);
+			}
+			foreach ($term->intersection_of()) {
+				$current_term->intersection_of($_);
+			}
+			foreach ($term->union_of()) {
+				$current_term->union_of($_);
+			}
+			foreach ($term->disjoint_from()) {
+				$current_term->disjoint_from($_);
+			}
+			$current_term->is_obsolete("true") if (!defined $current_term->is_obsolete() && $term->is_obsolete());
+			foreach ($term->replaced_by()->get_set()) {
+				$current_term->replaced_by($_);
+			}
+			foreach ($term->consider()->get_set()) {
+				$current_term->consider($_);
+			}
+			$current_term->builtin("true") if (!defined $current_term->builtin() && $term->builtin());
+			
+			# fix the rel's
+			my @rels = @{$ontology->get_relationships_by_target_term($term)}; 
+			foreach my $r (@rels) {
+				my $cola    = $r->tail();
+				my $tail_id = $cola->id();
+				
+				#confess "There is no ID for the tail term linked to: ", $term->id() if (!$tail_id);
+				
+				my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
+				if (!defined $tail) {
+					$result->add_term($cola);            # add $cola if it is not present!
+					$tail = $result->get_term_by_id($tail_id);
+					
+					my @more_rels = @{$ontology->get_relationships_by_target_term($cola)};
+					@rels = (@rels, @more_rels); # trick to "recursively" visit the just added rel
+				}
+				my $r_type = $r->type();
+				$r->id($tail_id."_".$r_type."_".$current_term->id());
+				$r->link($tail, $current_term);
+				
+				$result->add_relationship($r);
+				
+				#
+				# relationship type
+				#
+				my $rel_type = $ontology->get_relationship_type_by_id($r_type);
+				$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+			}
+		} else {
+			$result->add_term($term);
+			push @terms, $term; # trick to "recursively" visit the just added term
+		}
+	}
+	foreach my $rel (@{$ontology->get_relationships()}){
+		if (! $result->has_relationship_id($rel->id())) {
+			$result->add_relationship($rel);
+			my $rel_type = $ontology->get_relationship_type_by_id($rel->type());
+			$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+		}
+	}
+	@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
+	
+	my $stop  = OBO::Util::Set->new();
+	map {$stop->add($_->id())} @terms;
+
+	# link the common terms
+	foreach my $term (@terms) {
+		my $term_id = $term->id();
+		# path of references:
+		foreach my $type_of_rel ("is_a", "part_of") {
+			#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one relflexive relationship)
+	
+			# take the paths from the original ontology
+			my @ref_paths = $ontology->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
+
+			foreach my $ref_path (@ref_paths) {
+				#foreach my $tt (@$ref_path) {
+				#	warn $tt->id();
+				#}
+				#warn "\n";
+				my $f = @$ref_path[0]->tail();
+				my $l = @$ref_path[$#$ref_path]->head();
+				$result->create_rel($f, $type_of_rel, $l);
+			}
+		}	
 	}
 	return $result;
 }

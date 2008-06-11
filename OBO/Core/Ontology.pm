@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2055 2008-05-06 16:43:07Z Erick Antezana $
+# $Id: Ontology.pm 2165 2008-06-11 08:50:06Z Erick Antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -1140,7 +1140,7 @@ sub get_terms_by_name {
 =cut
 
 sub get_relationship_type_by_name {
-    my ($self, $name) = ($_[0], lc($_[1]));;
+    my ($self, $name) = ($_[0], lc($_[1]));
     my $result;
     if ($name) {
 		foreach my $rel_type (@{$self->get_relationship_types()}) { # return the exact occurrence
@@ -1260,10 +1260,10 @@ sub get_head_by_relationship_type {
 	if ($element && $relationship_type) {
 		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
 		my $relationship_type_id = $relationship_type->id();
-                foreach my $rel (@rels) {
+		foreach my $rel (@rels) {
 			push @heads, $rel->head() if ($rel->type() eq $relationship_type_id);
-                }
-        }
+		}
+	}
 	return \@heads;
 	# </EASR>
 #	my $result = OBO::Util::Set->new();
@@ -1503,8 +1503,9 @@ sub export {
 			#
 			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
+				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+				foreach my $head (grep (!$saw_is_a{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 					my $head_name = $head->name();
 					if (defined $head_name) {
 						print $file_handle "\nis_a: ", $head->id(), " ! ", $head_name;
@@ -1539,7 +1540,7 @@ sub export {
 			# relationship:
 			#
 			my %saw1;
-			#foreach $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
+			# foreach $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
 			foreach $rt (grep (!$saw1{$_}++, sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()})) { # use this foreach-line if there are duplicated rel's
 				my $rt_id = $rt->id();
 				if ($rt_id ne "is_a") { # is_a is printed above
@@ -1665,6 +1666,20 @@ sub export {
 		}
 	} elsif ($format eq "rdf") {
 		
+		my $rdf_tc  = shift || 0; # Set this according to your needs: 1=reflexive relations for each term
+		my $sbb_url = shift || 0; # Set this according to your needs: 1=SBB, 2=SBB reflex
+		my $skip    = shift || 0; # Set this according to your needs: 1=skip exporting the rel types, 0=do not skip (default)
+		
+		my $default_URL;
+
+		if ($sbb_url == 1) {
+			$default_URL = "http://www.semantic-systems-biology.org/ontology/rdf/"; # Change this URL according to your needs
+		} elsif ($sbb_url == 2) { # $rdf_tc == 1
+			$default_URL = "http://www.semantic-systems-biology.org/ontology/rdf_tc/";
+		} else {
+			$default_URL = "http://www.cellcycleontology.org/ontology/rdf/";
+		}
+		
 		# TODO A method for getting the namespace directly from the ontology
 		# TODO A method for getting the root term of the ontology
 
@@ -1676,9 +1691,15 @@ sub export {
 			$NS = $term->idspace();
 			last if(defined $NS);
 		}
-		$NS = "XX" if(!$NS);
+		$NS = "NN" if(!$NS);
 		
-		my $ns = lc $NS;
+		#
+		# Semantic Systems Biology server
+		#
+		my $ssb_ns = $NS; # my $ssb_ns = lc ($NS); using the exact case from the ontology 
+		$NS = "OBO" if ($sbb_url);
+
+		my $ns = lc ($NS);
 
 		#
 		# Preamble: namespaces
@@ -1687,7 +1708,7 @@ sub export {
 		print $file_handle "<rdf:RDF\n";
 		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
 		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-		print $file_handle "\txmlns:",$ns,"=\"http://www.cellcycleontology.org/ontology/rdf/",$NS,"#\">\n"; # Change this URL according to your needs
+		print $file_handle "\txmlns:".$ns."=\"".$default_URL.$NS."#\">\n";
 
 		#
 		# Terms
@@ -1707,7 +1728,7 @@ sub export {
 			#	U	Upper Level Ontology (CCO)
 			#	L	Relationship type (e.g. is_a)
 			#	Y	Interaction type
-			#	O	Orthology cluster
+			#	O	Type of protein (orthology)
 			#	Z	Unknown
 
 			my $subnamespace = $term->subnamespace(); # CCO has this feature
@@ -1724,10 +1745,10 @@ sub export {
 			elsif ( $subnamespace eq "U" ) { $rdf_subnamespace = "upper_level_ontology";}
 			elsif ( $subnamespace eq "L" ) { $rdf_subnamespace = "relationship_type";}
 			elsif ( $subnamespace eq "Y" ) { $rdf_subnamespace = "interaction_type";}
-			elsif ( $subnamespace eq "O" ) { $rdf_subnamespace = "orthology_cluster";}
+			elsif ( $subnamespace eq "O" ) { $rdf_subnamespace = "type_protein";}
 			elsif ( $subnamespace eq "Z" ) { $rdf_subnamespace = "unknown";}
-			elsif ( $subnamespace eq "X" ) { $rdf_subnamespace = "term";}
-			else  { $rdf_subnamespace = "term";}
+			elsif ( $subnamespace eq "X" ) { $rdf_subnamespace = $ssb_ns;} # "term"
+			else  { $rdf_subnamespace = $ssb_ns;}
 
 			my $term_id = $term->id();
 			$term_id =~ s/:/_/g;
@@ -1782,15 +1803,13 @@ sub export {
 			#
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
+				print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc); # workaround for the rdf_tc!!!
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
-					if (defined $head->name()) {
-						my $head_id = $head->id();
-						$head_id =~ s/:/_/g;
-						print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
-					} else {
-						confess "The term with id: ", $head->id(), " has no name!" ;
-					}
+				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
+				foreach my $head (grep (!$saw_is_a{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
+					my $head_id = $head->id();
+					$head_id =~ s/:/_/g;
+					print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
 				}
 			}
 			
@@ -1798,14 +1817,16 @@ sub export {
 			# relationship:
 			#
 			foreach $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
-				if ($rt->name() && $rt->name() ne "is_a") { # is_a is printed above
+				my $rt_name = $rt->name();
+				if ($rt_name && $rt_name ne "is_a") { # is_a is printed above
+					my $rt_name_clean = _get_name_without_whitespaces($rt_name);
+					print $file_handle "\t\t<",$ns,":", $rt_name_clean, " rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc && $rt_name_clean eq "part_of");  # workaround for the rdf_tc!!!
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+					foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 						my $head_id = $head->id();
 						$head_id =~ s/:/_/g;
-						my $rt_name = $rt->name();
-						$rt_name =~ s/\s+/_/g; # FIX: part of
-						print $file_handle "\t\t<",$ns,":",$rt_name," rdf:resource=\"#", $head_id, "\"/>\n";
+						print $file_handle "\t\t<",$ns,":", $rt_name_clean," rdf:resource=\"#", $head_id, "\"/>\n";
 					}
 				}
 			}
@@ -1863,6 +1884,163 @@ sub export {
 			print $file_handle "\t</",$ns,":".$rdf_subnamespace.">\n";
 
 		}
+		
+		
+		#
+		# relationship types
+		#
+		unless ($skip) { # for integration processes and using biometarel for example.
+			my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
+			foreach my $relationship_type (@all_relationship_types) {
+				my $relationship_type_id = $relationship_type->id();
+				$relationship_type_id =~ s/:/_/g;
+				print $file_handle "\t<",$ns,":rel_type rdf:about=\"#".$relationship_type_id."\">\n";
+				#
+				# name:
+				#
+				if (defined $relationship_type->name()) {
+					print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($relationship_type->name())."</rdfs:label>\n";
+				} else {
+					warn "The relationship type with id: '", $relationship_type->id(), "' has no name!";
+					print $file_handle "\t</",$ns,":rel_type>\n"; # close the relationship type tag! (skipping the rest of the data, contact those guys)
+					next;
+				}
+				
+				#
+				# def:
+				#
+				if (defined $relationship_type->def()->text()) {
+					print $file_handle "\t\t<",$ns,":Definition>\n";
+					print $file_handle "\t\t\t<rdf:Description>\n";
+						print $file_handle "\t\t\t\t<",$ns,":def>", &char_hex_http($relationship_type->def()->text()), "</",$ns,":def>\n";
+						for my $ref ($relationship_type->def()->dbxref_set()->get_set()) {
+							print $file_handle "\t\t\t\t<",$ns,":DbXref>\n";
+							print $file_handle "\t\t\t\t\t<rdf:Description>\n";
+				        		print $file_handle "\t\t\t\t\t\t<",$ns,":acc>", $ref->acc(),"</",$ns,":acc>\n";
+				        		print $file_handle "\t\t\t\t\t\t<",$ns,":dbname>", $ref->db(),"</",$ns,":dbname>\n";
+							print $file_handle "\t\t\t\t\t</rdf:Description>\n";
+							print $file_handle "\t\t\t\t</",$ns,":DbXref>\n";
+						}
+	
+					print $file_handle "\t\t\t</rdf:Description>\n";
+					print $file_handle "\t\t</",$ns,":Definition>\n";
+				}
+				
+				#
+				# builtin:
+				#
+				print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>" if ($relationship_type->builtin() == 1);
+							
+				#
+				# synonym:
+				#
+				foreach my $synonym ($relationship_type->synonym_set()) {
+					print $file_handle "\t\t<",$ns,":synonym>\n";
+					print $file_handle "\t\t\t<rdf:Description>\n";
+	
+					print $file_handle "\t\t\t\t<",$ns,":syn>", &char_hex_http($synonym->def()->text()), "</",$ns,":syn>\n";			
+				        print $file_handle "\t\t\t\t<",$ns,":scope>", $synonym->type(),"</",$ns,":scope>\n";
+	
+						for my $ref ($synonym->def()->dbxref_set()->get_set()) {
+							print $file_handle "\t\t\t\t<",$ns,":DbXref>\n";
+							print $file_handle "\t\t\t\t\t<rdf:Description>\n";
+				        		print $file_handle "\t\t\t\t\t\t<",$ns,":acc>", $ref->acc(),"</",$ns,":acc>\n";
+				        		print $file_handle "\t\t\t\t\t\t<",$ns,":dbname>", $ref->db(),"</",$ns,":dbname>\n";
+							print $file_handle "\t\t\t\t\t</rdf:Description>\n";
+							print $file_handle "\t\t\t\t</",$ns,":DbXref>\n";
+						}
+	
+					print $file_handle "\t\t\t</rdf:Description>\n";
+					print $file_handle "\t\t</",$ns,":synonym>\n";
+				}
+				
+				#
+				# comment
+				#
+				if(defined $relationship_type->comment()){
+					print $file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($relationship_type->comment())."</rdfs:comment>\n";
+				}
+				
+				#
+				# xref:
+				#
+				foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $relationship_type->xref_set_as_string()) {
+					print $file_handle "\t\t<",$ns,":xref>\n";
+					print $file_handle "\t\t\t<rdf:Description>\n";
+				        print $file_handle "\t\t\t\t<",$ns,":acc>", $xref->acc(),"</",$ns,":acc>\n";
+				        print $file_handle "\t\t\t\t<",$ns,":dbname>", $xref->db(),"</",$ns,":dbname>\n";
+					print $file_handle "\t\t\t</rdf:Description>\n";
+					print $file_handle "\t\t</",$ns,":xref>\n";
+				}
+	
+				#
+				# domain
+				#
+				#foreach my $domain ($relationship_type->domain()->get_set()) {
+				#	print $file_handle "\ndomain: ", $domain;
+				#}
+				
+				#
+				# range
+				#
+				#foreach my $range ($relationship_type->range()->get_set()) {
+				#	print $file_handle "\nrange: ", $range;
+				#}
+				
+				print $file_handle "\t\t<",$ns,":is_anti_symmetric>true</",$ns,":is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric() == 1);
+				print $file_handle "\t\t<",$ns,":is_cyclic>true</",$ns,":is_cyclic>\n" if ($relationship_type->is_cyclic() == 1);
+				print $file_handle "\t\t<",$ns,":is_reflexive>true</",$ns,":is_reflexive>\n" if ($relationship_type->is_reflexive() == 1);
+				print $file_handle "\t\t<",$ns,":is_symmetric>true</",$ns,":is_symmetric>\n" if ($relationship_type->is_symmetric() == 1);
+				print $file_handle "\t\t<",$ns,":is_transitive>true</",$ns,":is_transitive>\n" if ($relationship_type->is_transitive() == 1);
+	
+				#
+				# is_a:
+				#
+				my $rt = $self->get_relationship_type_by_name("is_a");
+				if (defined $rt)  {
+					my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
+					foreach my $head (@heads) {
+						my $head_id = $head->id();
+						$head_id =~ s/:/_/g;
+						print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
+					}
+				}
+		    	
+		    	print $file_handle "\t\t<",$ns,":is_metadata_tag>true</",$ns,":is_metadata_tag>" if ($relationship_type->is_metadata_tag() == 1);
+		    	
+				#
+				# transitive_over
+				#
+				#foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
+				#	print $file_handle "\ntransitive_over: ", $transitive_over;
+				#}
+				
+				#
+				# is_obsolete
+				#
+				print $file_handle "\t\t<",$ns,":is_obsolete>true</",$ns,":is_obsolete>" if ($relationship_type->is_obsolete() == 1);
+				
+				#
+				# replaced_by
+				#
+				#foreach my $replaced_by ($relationship_type->replaced_by()->get_set()) {
+				#	print $file_handle "\nreplaced_by: ", $replaced_by;
+				#}
+				
+				#
+				# consider
+				#
+				#foreach my $consider ($relationship_type->consider()->get_set()) {
+				#	print $file_handle "\nconsider: ", $consider;
+				#}
+				
+				# 
+				# end of relationship type
+				#
+				print $file_handle "\t</",$ns,":rel_type>\n";
+			}
+		}	
+		
 		#
 		# EOF:
 		#
@@ -1945,7 +2123,8 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
+				foreach my $head (grep (!$saw_is_a{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 					my $head_name = $head->name();
 					if (defined $head_name) {
 						print $file_handle "\t\t<is_a id=\"", $head->id(), "\">", $head_name, "</is_a>\n";
@@ -1961,7 +2140,8 @@ sub export {
 			foreach $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
 				if ($rt->name() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+					foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 						print $file_handle "\t\t<relationship>\n";
 						print $file_handle "\t\t\t<type>", $rt->name(), "</type>\n";
 						print $file_handle "\t\t\t<target id=\"", $head->id(), "\">", $head->name(),"</target>\n";
@@ -2152,7 +2332,7 @@ sub export {
 			# subset
 			#
 			foreach my $sset ($term->subset()) {
-				print $file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, $sset, "\"/>\n";
+				print $file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, &_get_name_without_whitespaces($sset), "\"/>\n";
 			}
 			
 			#
@@ -2223,7 +2403,8 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
 		    		my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-		    		foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+		    		my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
+		    		foreach my $head (grep (!$saw_is_a{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 						print $file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
 		    		
 #					#
@@ -2253,7 +2434,8 @@ sub export {
 			foreach $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
 				if ($rt->name() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+					foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 						print $file_handle "\t<rdfs:subClassOf>\n";
 						print $file_handle "\t\t<owl:Restriction>\n";
 						print $file_handle "\t\t\t<owl:onProperty>\n"; 
@@ -2533,7 +2715,8 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
+				foreach my $head (grep (!$saw_is_a{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 					if (!defined $term->name()) {
 						confess "The term with id: ", $term_id, " has no name!" ;
 					} elsif (!defined $head->name()) {
@@ -2551,7 +2734,8 @@ sub export {
 				if ($rt->name() ne "is_a") { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 					print $file_handle "\n\tedge [label=\"", $rt->name(), "\"];" if (@heads);
-					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+					foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 						if (!defined $term->name()) {
 				    		confess "The term with id: ", $term_id, " has no name!" ;
 				    	} elsif (!defined $head->name()) {
@@ -2618,7 +2802,8 @@ sub export {
 	    	#
 	    	foreach my $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+				my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+				foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 					if (!defined $term->name()) {
 				   		confess "The term with id: ", $term_id, " has no name!" ;
 				   	} elsif (!defined $head->name()) {
@@ -2707,7 +2892,8 @@ sub export {
 			# relationships
 			foreach my $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+				my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+				foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 					my $rt_id = $rt->id();
      				print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
 					print $file_handle "<desc>\n";
@@ -2756,18 +2942,18 @@ sub export {
 	} elsif ($format eq "vis2") { # interaction centric model
 		print $file_handle "<?xml version=\"1.0\" ?>\n";
 		my @interactions = @{$self->get_terms("CCO:I.*")}; # get all the interactions
-		my @proteins     = @{$self->get_terms("CCO:B.*")}; # get all the proteins and genes (and modified protein term)
-                my $nodecount    = $#interactions + $#proteins + 2;
-                print $file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" fineArt=\"false\" layout=\"scramble\">\n";
+		my @proteins     = @{$self->get_terms("CCO:B.*")}; # get all the proteins (and modified protein term)
+		my $nodecount    = $#interactions + $#proteins + 2;
+		print $file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" fineArt=\"false\" layout=\"scramble\">\n";
                 
-                print $file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";
-                # Terms
-                print $file_handle "\n<Nodes>\n";
-                my $i = 1;
-                my %sn;
-                for my $letter ('A'..'Z') {
-                        $sn{$letter} = $i++;
-                }
+		print $file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";
+		# Terms
+		print $file_handle "\n<Nodes>\n";
+		my $i = 1;
+		my %sn;
+		for my $letter ('A'..'Z') {
+			$sn{$letter} = $i++;
+		}
 		my %interaction_group;
 		# Interactions
 		my @sorted_terms = sort {lc($a->id()) cmp lc($b->id())} @interactions;
@@ -2781,7 +2967,8 @@ sub export {
 			my $rt = $self->get_relationship_type_by_name("has_participant");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {ls($a->id()) cmp lc($b->id())} @heads) {
+				my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+				foreach my $head (grep (!$saw_rel{$_}++, sort {ls($a->id()) cmp lc($b->id())} @heads)) {
 					my $head_id = $head->id();
 					my $int_head_id = $sn{$2}.$3 if ($head_id =~ /(.*):([A-Z])?(\d+)/);
 					print $file_handle $head->name(), ",";
@@ -2831,7 +3018,8 @@ sub export {
 			# relationships
 			foreach my $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-				foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+				my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+				foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 					print $file_handle "<link to=\"", $head->name(), "\" method=\"M7000\" toType=\"2\">\n";
 					print $file_handle "<desc>\n";
 					print $file_handle $rt->id(), "\n";
@@ -2902,7 +3090,8 @@ sub export {
                         # relationships
                         foreach my $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
                                 my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-                                foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+                                my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+                                foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
                                         print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
                                         print $file_handle "<desc>\n";
                                         print $file_handle $rt->id(), "\n";
@@ -2922,8 +3111,9 @@ sub export {
 				print $file_handle "<data name=\"", _get_name_without_whitespaces($term_name), "\" index=\"$int_id\" type=\"0\">\n";
 				# relationships
 				foreach my $rt (sort {lc($a->id()) cmp lc($b->id())} @{$self->get_relationship_types()}) {
-				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
+					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
+					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+					foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 						print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
 						print $file_handle "<desc>\n";
 						print $file_handle $rt->id(), "\n";
@@ -2992,7 +3182,10 @@ sub get_subontology_from {
 	if ($root_term) {
 		$self->has_term($root_term) || confess "The term '", $root_term,"' does not belong to this ontology";
 		
+		$result->idspace($self->idspace());
 		$result->subsets($self->subsets()->get_set()); # add by default of the subsets
+		$result->synonym_type_def_set($self->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
+		
 		my @queue = ($root_term);
 		while (scalar(@queue) > 0) {
 			my $unqueued = shift @queue;
@@ -3262,7 +3455,7 @@ sub get_ancestor_terms_by_relationship_type {
 sub create_rel (){
 	my $self = shift;
 	my($tail, $type, $head) = @_;
-	confess "Not a valid relationship type" unless($self->{RELATIONSHIP_TYPES}->{$type});
+	confess "Not a valid relationship type: '", $type, "'" unless($self->{RELATIONSHIP_TYPES}->{$type});
 	my $id = $tail->id()."_".$type."_".$head->id();
 	if ($self->has_relationship_id($id)) {
 		#cluck "The following rel ID already exists in the ontology: ", $id; # Implement a RelationshipSet?
@@ -3479,6 +3672,121 @@ sub get_paths_term_terms () {
 			
 			#push @back, $p_id; # hold the un-stacked ones
 			
+			
+			# banned relationship
+			my $source = $self->get_term_by_id($sou);
+			my $target = $self->get_term_by_id($p_id);
+			my $rr     = $self->{SOURCE_RELATIONSHIPS}->{$source}->{$target};
+			
+			$banned{$sou}++;
+			if (defined $banned{$sou} && $banned{$sou} > $hijos{$sou}){ # banned rel's from source
+				$banned{$sou} = $hijos{$sou};
+			}
+			
+			$drop{$bk[$#bk]}++; # if (defined $drop{$bk[$#bk]}  && $drop{$bk[$#bk]} < $hijos{$p_id});
+			
+			my $w = $#bk;
+			while ( $w > -1 
+					&& 
+					(     ($hijos{$bk[$w]} == 1 )
+					   || (defined $drop{$bk[$w]}   && $hijos{$bk[$w]} == $drop{$bk[$w]})
+					   || (defined $banned{$bk[$w]} && $banned{$bk[$w]} == $hijos{$bk[$w]})
+					)
+			      ) {
+				$p_id = pop @bk;
+				push @back, $p_id; # hold the un-stacked ones
+				
+				pop @ruta;
+				$banned{$p_id}++ if ($banned{$p_id} < $hijos{$p_id}); # more banned rel's
+				
+				$w--;
+				if ($w > -1 ) {
+					my $bk_w = $bk[$w];
+				
+					$banned{$bk_w}++;
+					if (defined $banned{$bk_w} && $banned{$bk_w} > $hijos{$bk_w}) {
+						$banned{$bk_w} = $hijos{$bk_w};
+					}				
+				}
+				
+			}				
+		} else {
+			$p_id = $n_id;
+		}
+		push @nei, @ps; # add next level
+		$p_id = $bk[$#bk];
+		$path .= "->".$n_id;
+		
+		
+		#
+		# clean banned using the back (unstacked)
+		#
+		foreach my $ele (@back) {
+			$banned{$ele} = 0;
+		}		
+		
+	} # while
+	
+	return @result;
+}
+
+=head2 get_paths_term_terms_same_rel
+
+  Usage    - $ontology->get_paths_term_terms_same_rel($term, $set_of_terms)
+  Returns  - an array of references to the paths between a given term ID and a given set of terms IDs 
+  Args     - the IDs of the terms for which a path (or paths) will be found and the ID of the relationship type 
+  Function - returns the path(s) linking term and the given set of terms along the same relationship (e.g. is_a)
+  
+=cut
+sub get_paths_term_terms_same_rel () {
+	my ($self, $v, $bstop, $rel) = @_;
+	
+	my @nei = @{$self->get_head_by_relationship_type($self->get_term_by_id($v), $self->get_relationship_type_by_id($rel))};
+	
+	my $path = $v;
+	my @bk   = ($v);
+	my $p_id = $v;
+	
+	my %hijos;	
+	my %drop;
+	my %banned;
+	
+	my @ruta;
+	my @result;
+	
+	while ($#nei > -1) {
+		
+		my @back;
+
+		my $n          = pop @nei; # neighbors
+		my $n_id       = $n->id();
+
+		my $p          = $self->get_term_by_id($p_id);
+
+		my @ps         = @{$self->get_head_by_relationship_type($n, $self->get_relationship_type_by_name($rel))};
+		my @hi         = @{$self->get_head_by_relationship_type($p, $self->get_relationship_type_by_name($rel))};
+
+		$hijos{$p_id}  = $#hi + 1;
+		$hijos{$n_id}  = $#ps + 1;
+		push @bk, $n_id;
+		
+		push @ruta, $self->{SOURCE_RELATIONSHIPS}->{$p}->{$n}; # add the (candidate) relationship
+
+		if ($bstop->contains($n_id)) {
+			#warn "\nSTOP FOUND : ", $n_id;			
+			$path .= "->".$n_id;
+			#warn "PATH       : ", $path;
+			#warn "BK         : ", map {$_."->"} @bk;
+			#warn "RUTA       : ", map {$_->id()} @ruta;
+			push @result, [@ruta];
+		}
+		
+		if ($#ps == -1) { # leaf
+			my $sou = $p_id;		
+			$p_id = pop @bk;
+			pop @ruta;
+			
+			#push @back, $p_id; # hold the un-stacked ones
 			
 			# banned relationship
 			my $source = $self->get_term_by_id($sou);

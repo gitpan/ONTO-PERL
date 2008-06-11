@@ -1,4 +1,4 @@
-# $Id: NCBIParser.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: NCBIParser.pm 2113 2008-05-22 13:19:59Z Erick Antezana $
 #
 # Module  : NCBIParser.pm
 # Purpose : Parse NCBI files: names and nodes
@@ -178,13 +178,13 @@ sub work {
 		$OBO_taxon->id($taxon_id);
 		$OBO_taxon->xref_set_as_string("NCBI:".$el);
 		
-		my $continuant = $ontology->get_term_by_name("continuant");
-		if (defined $continuant && $OBO_taxon->name() eq "organism") { # If the ontology has the ULO and the term is 'organism'
+		my $biological_continuant = $ontology->get_term_by_id("CCO:U0000001");
+		if (defined $biological_continuant && $OBO_taxon->name() eq "organism") { # If the ontology has the ULO and the term is 'organism'
 			my $rel = OBO::Core::Relationship->new(); 
 			$rel->type("is_a");
-			$rel->OBO::Core::Relationship::link($OBO_taxon, $continuant);
-			$rel->id($OBO_taxon->id()."_is_a_".$continuant->id());
-			$ontology->add_relationship($rel); # add "organism is_a continuant"
+			$rel->OBO::Core::Relationship::link($OBO_taxon, $biological_continuant);
+			$rel->id($OBO_taxon->id()."_is_a_".$biological_continuant->id());
+			$ontology->add_relationship($rel); # add "organism is_a biological_continuant"
 		}
 		$ontology->add_term($OBO_taxon);
 	}

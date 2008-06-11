@@ -78,5 +78,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package ONTO-PERL;
-$VERSION='1.12';
+$VERSION='1.13';
 1;

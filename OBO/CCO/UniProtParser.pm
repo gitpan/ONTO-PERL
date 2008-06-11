@@ -1,4 +1,4 @@
-# $Id: UniProtParser.pm 2030 2008-04-18 11:58:36Z vlmir $
+# $Id: UniProtParser.pm 2093 2008-05-16 15:53:07Z Erick Antezana $
 #
 # Module  : UniProtParser.pm
 # Purpose : Parse UniProt files and add data to an ontology
@@ -34,7 +34,7 @@ This method assumes:
 - the input ontology already contains the NCBI taxonomy. 
 
 - the input ontology already contains the relationship types 'is_a', 'encoded_by', 
-  'codes_for', 'originates_from', 'tranformation_of', 'source_of'
+  'codes_for', 'has_source', 'tranformation_of', 'source_of'
 
 - the input UniProt file contains entries for one species only and for protein 
   terms present in the input ontology only
@@ -115,9 +115,9 @@ sub work {
 	my $my_parser = OBO::Parser::OBOParser->new();
 	my $ontology  = $my_parser->work($old_OBO_file);
 	
-	my @rel_types = ( 'is_a', 'originates_from', 'source_of', 'encoded_by', 'codes_for', 'transformation_of', 'transforms_into' );
+	my @rel_types = ( 'is_a', 'has_source', 'source_of', 'encoded_by', 'codes_for', 'transformation_of', 'transforms_into' );
 	foreach (@rel_types) {
-		confess "Not a valid relationship type: '", $_,"' (valid values: ", join(", ", @rel_types), ")" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
+		confess "Not a valid relationship type WITHIN the ontology: '", $_,"' (valid values: ", join(", ", @rel_types), ")" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
 	}
 	
 	my $taxon = $ontology->get_term_by_name($taxon_name) || die "No term for $taxon_name is defined in file '$old_OBO_file'";
@@ -199,7 +199,7 @@ sub work {
 		}
 		# >>EASR
 		
-		$ontology->create_rel( $protein, 'originates_from', $taxon );
+		$ontology->create_rel( $protein, 'has_source', $taxon );
 		#$ontology->create_rel( $taxon,   'source_of',       $protein);
 
 		# get the object 'cell cycle modified protein'
@@ -245,7 +245,7 @@ sub work {
 
 				$ontology->create_rel( $mod_prot_obj,  'is_a',              $modified_protein_term );	
 
-				$ontology->create_rel( $mod_prot_obj,  'originates_from',        $taxon );
+				$ontology->create_rel( $mod_prot_obj,  'has_source',        $taxon );
 				#$ontology->create_rel( $taxon,        'source_of',              $mod_prot_obj );
 				
 				$ontology->create_rel( $mod_prot_obj,  'transformation_of', $protein );
@@ -283,7 +283,7 @@ sub work {
 			$ontology->create_rel( $protein, 'encoded_by',  $gene );
 			$ontology->create_rel( $gene,    'codes_for',   $protein ); # inverse of 'encoded_by'
 			
-			$ontology->create_rel( $gene,    'originates_from',  $taxon );
+			$ontology->create_rel( $gene,    'has_source',  $taxon );
 			#$ontology->create_rel( $taxon,   'source_of',        $gene);
 			
 		} elsif ( scalar @gene_groups > 1 ) {    # multiple genes associated with the protein; xrefs are not added!!
@@ -308,7 +308,7 @@ sub work {
 				$ontology->create_rel( $protein, 'encoded_by',   $gene );
 				$ontology->create_rel( $gene,    'codes_for',    $protein ); # inverse of 'encoded_by'
 				
-				$ontology->create_rel( $gene,    'originates_from',   $taxon );
+				$ontology->create_rel( $gene,    'has_source',   $taxon );
 				#$ontology->create_rel( $taxon,   'source_of',         $gene );
 			}
 		}
@@ -318,6 +318,7 @@ sub work {
 	open( FH, ">" . $new_OBO_file ) || die "Cannot write OBO file ($new_OBO_file): ", $!;
 	$ontology->export( \*FH );
 	close FH;
+	select((select(FH), $|=1)[0]);
     
 	$short_map->write_map();
 	$long_map->write_map();

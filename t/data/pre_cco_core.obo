@@ -3547,7 +3547,7 @@ is_a: CCO:U0000005 ! protein
 
 [Term]
 id: CCO:Y0000025
-name: physical interaction
+name: physical association
 is_a: CCO:U0000009 ! interaction
 
 [Term]
@@ -3825,11 +3825,11 @@ is_transitive: true
 xref: CCO_REL:transforms_into
 
 [Typedef]
-id: originates_from
-name: originates_from
+id: has_source
+name: has_source
 def: "o originates from O where o is a gene or gene product and O an organism." [CCO:ea]
 is_a: relationship ! relationship
-xref: CCO_REL:originates_from
+xref: CCO_REL:has_source
 
 [Typedef]
 id: source_of

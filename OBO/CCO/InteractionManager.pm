@@ -1,4 +1,4 @@
-# $Id: InteractionManager.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: InteractionManager.pm 2094 2008-05-16 16:14:53Z Erick Antezana $
 #
 # Module  : InteractionManager.pm
 # Purpose : An interaction manager.
@@ -169,7 +169,7 @@ sub work {
 	
 	# Generate the ids for interaction types
 	my %cco_y_ids = %{&generate_cco_y_ids()};
-# 	print "========>",$cco_y_ids{'physical interaction'},"\n";
+# 	print "========>",$cco_y_ids{'physical association'},"\n";
 
 	my @oboed_interactions = ();
 	my @original_obo_interactions = @{$ontology->get_terms("CCO:I.*")};

@@ -1,4 +1,4 @@
-# $Id: GoaAssociation.pm 2050 2008-04-23 08:32:39Z Erick Antezana $
+# $Id: GoaAssociation.pm 2156 2008-05-29 11:29:00Z Erick Antezana $
 #
 # Module  : GoaAssociation.pm
 # Purpose : GOA associaton entry structure.
@@ -390,14 +390,12 @@ sub equals {
 		if ($#this != $#that){
 			$result = 0;
 		} else {
-				foreach (@this){
-					$result = 0 unless ($self->{$_} eq $target->{$_});
-					last if $result == 0;
-					}
-				}
-		
-	return $result;
-		
+			foreach (@this){
+				$result = 0 unless ($self->{$_} eq $target->{$_});
+				last if $result == 0;
+			}
+		}
+		return $result;
 	}		
 }
 

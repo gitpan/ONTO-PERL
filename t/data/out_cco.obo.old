@@ -9,7 +9,7 @@ id: CCO:B0000001
 name: Q6NMC8_ARATH
 xref: UniProt:Q6NMC8
 is_a: CCO:U0000005 ! protein
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 
 [Term]
@@ -17,7 +17,7 @@ id: CCO:B0000002
 name: RK20_ARATH
 xref: UniProt:P56794
 is_a: CCO:U0000005 ! protein
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000027 ! establishment of mitotic spindle orientation
 
 [Term]
@@ -25,7 +25,7 @@ id: CCO:B0000003
 name: Q6XJG8_ARATH
 xref: UniProt:Q6XJG8
 is_a: CCO:U0000005 ! protein
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000074 ! activation of transcription on exit from mitosis
 
 [Term]
@@ -33,7 +33,7 @@ id: CCO:B0000004
 name: Q84JF0_ARATH
 xref: UniProt:Q84JF0
 is_a: CCO:U0000005 ! protein
-relationship: originates_from CCO:T0000033 ! Arabidopsis thaliana organism
+relationship: has_source CCO:T0000033 ! Arabidopsis thaliana organism
 relationship: participates_in CCO:P0000103 ! meiosis
 
 [Term]
@@ -3827,8 +3827,8 @@ is_transitive: true
 is_a: relationship ! relationship
 
 [Typedef]
-id: originates_from
-name: originates_from
+id: has_source
+name: has_source
 is_a: relationship
 def: "o originates from O where o is an specific species (e.g. homo sapiens) and O the organism." [CCO:ea]
 

@@ -1,4 +1,4 @@
-# $Id: GoaParser.pm 2050 2008-04-23 08:32:39Z Erick Antezana $
+# $Id: GoaParser.pm 2159 2008-05-29 11:29:50Z Erick Antezana $
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files
@@ -111,7 +111,7 @@ sub parse {
         $goaAssoc->date($_[13]);
         $goaAssoc->annot_src($_[14]);
 		
-		$goaAssocSet ->add($goaAssoc);
+		$goaAssocSet->add_unique($goaAssoc);
 	}
 	close FH;
 	return $goaAssocSet;

@@ -5682,7 +5682,7 @@ is_transitive: true
 xref: OBO_REL:integral_part_of
 
 [Typedef]
-id: originates_from
-name: originates_from
+id: has_source
+name: has_source
 is_a: relationship
-def: "o originates_from O where o is a gene or gene product and O an organism." [CCO:ea]
+def: "o has_source O where o is a gene or gene product and O an organism." [CCO:ea]

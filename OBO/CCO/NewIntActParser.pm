@@ -1,4 +1,4 @@
-# $Id: NewIntActParser.pm 2039 2008-04-22 13:56:16Z vlmir $
+# $Id: NewIntActParser.pm 2109 2008-05-19 15:29:11Z Erick Antezana $
 #
 # Module  : NewIntActParser.pm
 # Purpose : Parse IntAct files
@@ -80,23 +80,18 @@ sub work {
 	# Initialize the OBO parser, load the OBO file, check the assumptions
 	my $obo_parser = OBO::Parser::OBOParser->new();
 	my $ontology   = $obo_parser->work($old_OBO_file);
-	#my @rel_types = ( 'is_a', 'participates_in', 'has_participant', 'located_in', 'originates_from', 'source_of' );
-	my @rel_types = ( 'is_a', 'participates_in', 'has_participant', 'located_in');
 	
+	my @rel_types = ( 'is_a', 'participates_in', 'has_participant', 'located_in');
 	foreach (@rel_types) {
 		confess "Not a valid relationship type" unless ( $ontology->{RELATIONSHIP_TYPES}->{$_} );
 	}
 	my $onto_protein = $ontology->get_term_by_name("protein") || confess "the term 'protein' is not defined", $!;
 
 	# Initialize CCO_ID_Map objects
-	my $short_b_map =
-	  OBO::CCO::CCO_ID_Term_Map->new($short_b_file);    # Taxon specific
-	my $long_b_map =
-	  OBO::CCO::CCO_ID_Term_Map->new($long_b_file);     # Set of protein IDs
-	my $short_i_map =
-	  OBO::CCO::CCO_ID_Term_Map->new($short_i_file);    # Taxon specific
-	my $long_i_map =
-	  OBO::CCO::CCO_ID_Term_Map->new($long_i_file);     # Set of interaction IDs
+	my $short_b_map = OBO::CCO::CCO_ID_Term_Map->new($short_b_file);    # Taxon specific
+	my $long_b_map  = OBO::CCO::CCO_ID_Term_Map->new($long_b_file);     # Set of protein IDs
+	my $short_i_map = OBO::CCO::CCO_ID_Term_Map->new($short_i_file);    # Taxon specific
+	my $long_i_map  = OBO::CCO::CCO_ID_Term_Map->new($long_i_file);     # Set of interaction IDs
 
 	# Read UniProt maps (keys - accession numbers, values - protein IDs)
 	open my $fh, '<', $up_cc_map_file or croak "Can't open file $up_cc_map_file : $!";
@@ -187,12 +182,13 @@ sub work {
 			$int_term->id($int_cco_id);
 			$ontology->add_term($int_term);
 					
-			my $mi_type = $ontology->get_term_by_name_or_synonym($int_type);# TODO get_term_by_name_or_synonym
-			# the function string_value() returns the string-value of the first node in the list
-			# in this case there is only one node
+			#
+			# TEMPORAL FIX: set manually the physical association. IntAct needs to use the latest psi-mi.obo ontology!
+			#
+			$int_type = "physical association" if ($int_type eq "physical interaction");
 			
-			confess "int_term is not defined" if (!$int_term);
-			confess "mi_type is not defined" if (!$mi_type);
+			my $mi_type = $ontology->get_term_by_name_or_synonym($int_type);
+			warn "The ontology does not contain the term: '", $int_type, "'" if (!$mi_type);
 			$ontology->create_rel( $int_term, 'is_a', $mi_type );
 	
 			# creating participant terms

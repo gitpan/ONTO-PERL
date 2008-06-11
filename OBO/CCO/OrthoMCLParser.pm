@@ -1,4 +1,4 @@
-# $Id: OrthoMCLParser.pm 2037 2008-04-22 12:21:03Z Erick Antezana $
+# $Id: OrthoMCLParser.pm 2116 2008-05-23 12:12:21Z Erick Antezana $
 #
 # Module  : OrthoMCLParser.pm
 # Purpose : Parse OrthoMCL files and add data to an ontology
@@ -61,7 +61,7 @@ sub new {
   Usage    - $OrthoMCLParser->parse()
   Returns  - a reference to a data structure (hash of hashes) containing orthoMCL output data
   Args     - orthoMCL output data file
-  Function - parses an orthoMCL output data file  into a data structure
+  Function - parses an orthoMCL output data file into a data structure
   
 =cut
 
@@ -69,14 +69,14 @@ sub parse {
 	my $self = shift;
 	# get orthoMCL data file
 	my $omclDataFile = shift;	
-	open(my $FH, '<', $omclDataFile) || die("Cannot open file '$omclDataFile': $!");
+	open(my $FH, '<', $omclDataFile) || die "Cannot open file '$omclDataFile': $!";
 	
 	# parse orthoMCL output
 	my %clusters; # %clusters{protein_name}{taxon_label}
 	while(<$FH>){
 		my ($cluster, $proteins) = split /:\s+/xms;
 		my $cluster_num = $.-1;
-		$cluster = "cluster$cluster_num";
+		$cluster = $cluster_num;
 		my @proteins = split /\s/xms, $proteins;
 		foreach ( @proteins) {
 			$_ =~/\A(\w+?)\((\w+?)\)/xms; # $1 is protein name, $2 is taxon label (e.g Hsa)
@@ -91,7 +91,9 @@ sub parse {
 
   Usage    - $OrthoMCLParser->work($omcl_data_ref, $file_names_ref, $taxa_ref)
   Returns  - OBO::Core::Ontology object 
-  Args     - 1. reference to an orthoMCL data structure (output of parse()), 2. reference to a list of filenames (output OBO file, 4 map files (U,T,O,B, see the test file), 3. reference to a with taxons and taxon specific maps (see the test file)
+  Args     - 1. reference to an orthoMCL data structure (output of parse()), 
+           - 2. reference to a list of filenames (output OBO file, 4 map files (U,T,O,B, see the test file), 
+           - 3. reference to a with taxons and taxon specific maps (see the test file)
   Function - converts orthoMCL data into an ontology, writes OBO and map files 
   
 =cut
@@ -104,10 +106,10 @@ sub work {
 	my ($new_OBO_file, $u_map_file, $t_map_file, $o_map_file, $b_map_file) = @{$files}; 
 	
 	# Initialize  maps (OBO::CCO::CCO_ID_Term_Map objects)
-	my $u_map = OBO::CCO::CCO_ID_Term_Map->new($u_map_file); #map for Upper Level Ontology terms
+	my $u_map = OBO::CCO::CCO_ID_Term_Map->new($u_map_file);  # map for Upper Level Ontology terms
 	my $t_map  = OBO::CCO::CCO_ID_Term_Map->new($t_map_file); # map for taxonomy terms
-	my $o_map  = OBO::CCO::CCO_ID_Term_Map->new($o_map_file); #map for orthologous groups terms
-	my $b_map  = OBO::CCO::CCO_ID_Term_Map->new($b_map_file); #map for biomolecule terms
+	my $o_map  = OBO::CCO::CCO_ID_Term_Map->new($o_map_file); # map for orthologous groups terms
+	my $b_map  = OBO::CCO::CCO_ID_Term_Map->new($b_map_file); # map for biomolecule terms
 	# taxon specific maps for biolmolecule terms
 	foreach (keys %taxa) {
 		push @{$taxa{$_}}, OBO::CCO::CCO_ID_Term_Map->new($taxa{$_}->[1]);
@@ -118,8 +120,8 @@ sub work {
 	
 	# populate ontology
 	$ontology->add_relationship_type_as_string ('is_a',       'is_a');
-	$ontology->add_relationship_type_as_string ('originates_from', 'originates_from');
-	#$ontology->add_relationship_type_as_string ('source_of',       'source_of');
+	$ontology->add_relationship_type_as_string ('has_source', 'has_source');
+	#$ontology->add_relationship_type_as_string ('source_of', 'source_of');
 	
 	my $protein = OBO::Core::Term->new();# upper level ontology term
 	$protein->name('protein');
@@ -145,12 +147,12 @@ sub work {
 	foreach (keys %clusters) {
 		my $cluster = OBO::Core::Term->new();
 		my $clust_num = $_;
-		my $clust_name = "Orthology $_ protein";
+		my $clust_name = "Type $_ protein";
 		$cluster->name($clust_name);
 		$cluster->id(assign_term_id($o_map, 'O', $clust_name));
-		$cluster->def_as_string("A protein belonging to the orthology $_ produced by orthoMCL", "[CCO:vm]");
+		$cluster->def_as_string("A protein belonging to the orthological type $_ produced by orthoMCL", "[CCO:vm]");
 		$ontology->create_rel($cluster, 'is_a', $protein);
-		foreach (keys %{$clusters{$clust_num}}) {# for each protein in the cluster
+		foreach (keys %{$clusters{$clust_num}}) {   # for each protein in the cluster
 			my $prot_name = $_;
 			my $taxon_lab = $clusters{$clust_num}{$prot_name};
 			my $clust_protein = OBO::Core::Term->new();
@@ -165,7 +167,7 @@ sub work {
 			$ontology->add_term($clust_protein);
 			$ontology->create_rel($clust_protein, 'is_a', $cluster);
 			
-			$ontology->create_rel($clust_protein,         'originates_from',   $taxa{$taxon_lab}->[3]);
+			$ontology->create_rel($clust_protein,         'has_source',   $taxa{$taxon_lab}->[3]);
 			#$ontology->create_rel($taxa{$taxon_lab}->[3], 'source_of',         $clust_protein);
 		}
 	}
