@@ -1,8 +1,6 @@
 # $Id: ONTO-PERL.pod 291 2006-06-01 16:21:45Z erant $
 #
 # see also - http://search.cpan.org/~easr/ONTO-PERL/
-#          - http://www.cellcycleontology.org/api/doc/example00.html 
-#          - http://cellcycleonto.svn.sourceforge.net/viewvc/cellcycleonto/ONTO-PERL/
 #
 # This library is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -59,17 +57,16 @@ Contact:
 
 Any comments, suggestions can be addressed to: 
 
-	Erick Antezana <erant@psb.ugent.be>
-	Computational Biology Division
-	http://www.psb.ugent.be/cbd/
+	Erick Antezana
+	erick.antezana@gmail.com
 
 =head1 AUTHOR
 
-Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+Erick Antezana, E<lt>erick.antezana@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008 by Erick Antezana
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -78,5 +75,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package ONTO-PERL;
-$VERSION='1.13';
+$VERSION='1.14';
 1;

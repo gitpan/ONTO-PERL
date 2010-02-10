@@ -56,3 +56,5 @@ Revision history for ONTO-PERL
 1.12 CCO related modules were improved.
 
 1.13 IntAct parser tests fixed. New RDF related modules.
+
+1.14 Fixed issue related to the missing 'lib' directory
