@@ -21,8 +21,6 @@ See also:
 Visit the following URLs:
 
  - http://search.cpan.org/~easr/ONTO-PERL/
- - http://www.cellcycleontology.org/api/doc/example00.html 
- - http://cellcycleonto.svn.sourceforge.net/viewvc/cellcycleonto/ONTO-PERL/
 
 For installing this collection of modules:
 
@@ -41,21 +39,21 @@ DEPENDENCIES
 
 ONTO-PERL might require the following modules:
 
-1. SWISS Knife (v1.65) is used by the 'UniProtParser':
+1. SWISS Knife (> v1.65) is used by the 'UniProtParser':
 
 	ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife
 
-2. XML::Simple (v2.16) is used by the IntAct related modules:
+2. XML::Simple (> v2.16) is used by the IntAct related modules:
 
 	http://search.cpan.org/~grantm/XML-Simple-2.16/
 	
-3. XML::Parser (v2.34) is used in format conversions (obo2owl and owl2obo)
+3. XML::Parser (> v2.34) is used in format conversions (obo2owl and owl2obo)
 
 	http://search.cpan.org/~msergeant/XML-Parser-2.34/
 
 COPYRIGHT AND LICENCE
 
-Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
+Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 

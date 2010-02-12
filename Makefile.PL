@@ -63,6 +63,7 @@ WriteMakefile(
 								scripts/obo2cco.pl
 								scripts/obo2owl.pl
 								scripts/obo2rdf.pl
+								scripts/obo2tran.pl	
 								scripts/obo2xml.pl
 								scripts/obsolete_term_id_vs_def_in_go.pl
 								scripts/obsolete_term_id_vs_name_in_go.pl
@@ -73,7 +74,7 @@ WriteMakefile(
 						],
 			
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-    (AUTHOR           => 'Erick Antezana <erant@psb.ugent.be>') : ()),
+    (AUTHOR           => 'Erick Antezana <erick.antezana@gmail.com>') : ()),
      dist             => { 
 			'SUFFIX'       => ".gz",
 			'DIST_DEFAULT' => 'all tardist',

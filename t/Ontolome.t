@@ -1,6 +1,6 @@
 # $Id: Ontolome.t 1642 2007-11-23 14:10:35Z erant $
 #
-# Contact : Erick Antezana <erant@psb.ugent.be>
+# Contact : Erick Antezana <erick.antezana@gmail.com>
 #
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl Ontolome.t'

@@ -16,15 +16,11 @@
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #
-# Contact : Erick Antezana <erant@psb.ugent.be>
+# Contact : Erick Antezana <erick.antezana@gmail.com>
 #
 ##############################################################################
 use strict;
 use Carp;
-
-BEGIN {
-	push @INC, '/group/biocomp/cbd/users/erant/workspace/ONTO-PERL'; # for testing
-}
 
 use OBO::Parser::OBOParser;
 use OBO::CCO::CCO_ID_Term_Map;

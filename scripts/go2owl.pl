@@ -3,10 +3,10 @@
 # Module  : go2owl.pl
 # Purpose : Converts GO to OWL.
 # Usage: /usr/bin/perl -w go2owl.pl gene_ontology.obo > gene_ontology.owl
-# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-# Contact : Erick Antezana <erant@psb.ugent.be>
+# Contact : Erick Antezana <erick.antezana@gmail.com>
 
 =head1 NAME
 
@@ -18,7 +18,7 @@ This script transforms the OBO version of GO into OWL.
 
 =head1 AUTHOR
 
-Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+Erick Antezana, E<lt>erick.antezana@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

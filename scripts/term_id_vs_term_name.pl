@@ -7,7 +7,7 @@
 # License : Copyright (c) 2006 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-# Contact : Erick Antezana <erant@psb.ugent.be>
+# Contact : Erick Antezana <erick.antezana@gmail.com>
 #
 ################################################################################
 use Carp;

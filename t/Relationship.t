@@ -13,7 +13,7 @@ BEGIN {
 # $Id: Relationship.t 291 2006-06-01 16:21:45Z erant $
 #
 # Purpose : ONTO-PERL usage examples.
-# Contact : Erick Antezana <erant@psb.ugent.be>
+# Contact : Erick Antezana <erick.antezana@gmail.com>
 #
 use OBO::Core::Relationship;
 use OBO::Core::Term;

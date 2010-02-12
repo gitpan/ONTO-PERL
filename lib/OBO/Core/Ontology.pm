@@ -2,10 +2,10 @@
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
-# License : Copyright (c) 2006, 2007, 2008 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-# Contact : Erick Antezana <erant@psb.ugent.be>
+# Contact : Erick Antezana <erick.antezana@gmail.com>
 #
 package OBO::Core::Ontology;
 
@@ -415,11 +415,11 @@ have an associated relationship type (OBO::Core::RelationshipType).
 
 =head1 AUTHOR
 
-Erick Antezana, E<lt>erant@psb.ugent.beE<gt>
+Erick Antezana, E<lt>erick.antezana@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008 by Erick Antezana
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -1666,6 +1666,7 @@ sub export {
 		}
 	} elsif ($format eq "rdf") {
 		
+		my $url     = shift || "http://www.cellcycleontology.org/ontology/rdf/";
 		my $rdf_tc  = shift || 0; # Set this according to your needs: 1=reflexive relations for each term
 		my $sbb_url = shift || 0; # Set this according to your needs: 1=SBB, 2=SBB reflex
 		my $skip    = shift || 0; # Set this according to your needs: 1=skip exporting the rel types, 0=do not skip (default)
@@ -1673,11 +1674,12 @@ sub export {
 		my $default_URL;
 
 		if ($sbb_url == 1) {
-			$default_URL = "http://www.semantic-systems-biology.org/ontology/rdf/"; # Change this URL according to your needs
+			# Change this URL according to your needs
+			$default_URL = "http://www.semantic-systems-biology.org/ontology/rdf/";
 		} elsif ($sbb_url == 2) { # $rdf_tc == 1
 			$default_URL = "http://www.semantic-systems-biology.org/ontology/rdf_tc/";
 		} else {
-			$default_URL = "http://www.cellcycleontology.org/ontology/rdf/";
+			$default_URL = $url;
 		}
 		
 		# TODO A method for getting the namespace directly from the ontology
