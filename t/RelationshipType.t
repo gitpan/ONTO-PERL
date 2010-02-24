@@ -13,7 +13,7 @@ BEGIN {
 # $Id: RelationshipType.t 291 2006-06-01 16:21:45Z erant $
 #
 # Purpose : ONTO-PERL usage examples.
-# Contact : Erick Antezana <erick.antezana@gmail.com>
+# Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 use OBO::Core::RelationshipType;
 use OBO::Core::Synonym;

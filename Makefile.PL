@@ -74,7 +74,7 @@ WriteMakefile(
 						],
 			
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-    (AUTHOR           => 'Erick Antezana <erick.antezana@gmail.com>') : ()),
+    (AUTHOR           => 'Erick Antezana <erick.antezana -@- gmail.com>') : ()),
      dist             => { 
 			'SUFFIX'       => ".gz",
 			'DIST_DEFAULT' => 'all tardist',

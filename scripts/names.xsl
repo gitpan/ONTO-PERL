@@ -5,10 +5,10 @@
  Module  : names.xsl
  Purpose : Get the term names from CCO (in XML) into HTML
  Usage: xsltproc names.xsl cco.xml > cco-names.html
- License : Copyright (c) 2006 Erick Antezana. All rights reserved.
+ License : Copyright (c) 2006, 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
            This program is free software; you can redistribute it and/or
            modify it under the same terms as Perl itself.
- Contact : Erick Antezana <erick.antezana@gmail.com>
+ Contact : Erick Antezana <erick.antezana -@- gmail.com>
 
 -->
 

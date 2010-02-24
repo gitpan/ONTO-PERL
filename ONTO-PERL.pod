@@ -58,11 +58,11 @@ Contact:
 Any comments, suggestions can be addressed to: 
 
 	Erick Antezana
-	<erick.antezana@gmail.com>
+	<erick.antezana -@- gmail.com>
 
 =head1 AUTHOR
 
-Erick Antezana, E<lt>erick.antezana@gmail.comE<gt>
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -75,5 +75,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package ONTO-PERL;
-$VERSION='1.15';
+$VERSION='1.16';
 1;

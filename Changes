@@ -57,6 +57,8 @@ Revision history for ONTO-PERL
 
 1.13 IntAct parser tests fixed. New RDF related modules.
 
-1.14 Fixed issue related to the missing 'lib' directory
+1.14 Fixed issue related to the missing 'lib' directory.
 
-1.15 Fixed issue with URL's that were hard-coded
+1.15 Fixed issue with URL's that were hard-coded.
+
+1.16 obo2owl ready for Galaxy.

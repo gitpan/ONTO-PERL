@@ -13,7 +13,7 @@ BEGIN {
 # $Id: Ontology.t 1717 2007-12-12 00:05:33Z erant $
 #
 # Purpose : ONTO-PERL usage examples.
-# Contact : Erick Antezana <erick.antezana@gmail.com>
+# Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 use OBO::Core::Ontology;
 use OBO::Core::Term;
