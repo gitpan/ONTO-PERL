@@ -58,7 +58,11 @@ WriteMakefile(
 	EXE_FILES         => [
 							qw(
 								scripts/get_ancestor_terms.pl
+								scripts/get_child_terms.pl
 								scripts/get_descendent_terms.pl
+								scripts/get_parent_terms.pl
+								scripts/get_relationships.pl
+								scripts/get_terms.pl
 								scripts/go2owl.pl
 								scripts/obo2cco.pl
 								scripts/obo2owl.pl

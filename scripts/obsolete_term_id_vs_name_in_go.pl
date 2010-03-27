@@ -36,9 +36,6 @@ use Carp;
 use strict;
 use warnings;
 
-BEGIN {
-push @INC, '..';
-}
 use OBO::Parser::OBOParser;
 
 my $my_parser = OBO::Parser::OBOParser->new();

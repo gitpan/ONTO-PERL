@@ -28,7 +28,7 @@ use OBO::CCO::CCO_ID_Term_Map;
 my $my_parser = OBO::Parser::OBOParser->new();
 
 my $onto = $my_parser->work(shift @ARGV);                      # input file
-my $cco_id_map = OBO::CCO::CCO_ID_Term_Map->new(shift @ARGV); # IDs file
+my $cco_id_map = OBO::CCO::CCO_ID_Term_Map->new(shift @ARGV);  # IDs file
 my $sns = shift @ARGV || 'Z';                                  # subnamespace
 my $sub_ontology_root_id = shift @ARGV;                        # root term e.g. MI:0190
 

@@ -1,14 +1,14 @@
-ONTO-PERL modules
-=================
+ONTO-PERL suite
+===============
 
-'ONTO-PERL' a collection of perl modules for dealing with the Cell
+'ONTO-PERL' a collection of Perl modules for dealing with the Cell
 Cycle Ontology (CCO) and in general with OBO ontologies (like the
 Gene Ontology). This code distribution gathers object-oriented 
-modules (for dealing with the ontology elements such as Term, 
-Relationship, and so forth), scripts (for typical tasks such as 
-format conversions: obo2owl, owl2obo; besides, there are also
-many examples that can be easily adapted for specific applications), 
-and a set of test files for ensuring the implementation quality.
+modules (for dealing with ontology elements such as Term, Relationship 
+and so forth), scripts (for typical tasks such as format conversions: 
+obo2owl, owl2obo; besides, there are also many examples that can be 
+easily adapted for specific applications), and a set of test files to
+ensure the suite's implementation quality.
 
 See also:
 
@@ -18,6 +18,9 @@ See also:
      E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
      Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
+  3. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
+     http://bitbucket.org/easr/onto-toolkit
+
 Visit the following URLs:
 
  - http://search.cpan.org/~easr/ONTO-PERL/
@@ -26,7 +29,7 @@ For installing this collection of modules:
 
 	see the file INSTALL
 
-or follow the standard CPAN prodecure:
+or follow the standard CPAN procedure:
 
 type the following:
 
@@ -56,4 +59,3 @@ COPYRIGHT AND LICENCE
 Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
-

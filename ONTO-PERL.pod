@@ -1,4 +1,4 @@
-# $Id: ONTO-PERL.pod 291 2006-06-01 16:21:45Z erant $
+# $Id: ONTO-PERL.pod 291 2010-03-27 16:21:45Z erant $
 #
 # see also - http://search.cpan.org/~easr/ONTO-PERL/
 #
@@ -75,5 +75,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package ONTO-PERL;
-$VERSION='1.16';
+$VERSION='1.17';
 1;
