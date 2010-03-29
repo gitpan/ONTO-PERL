@@ -1,7 +1,7 @@
 # $Id: Set.pm 1846 2008-01-08 12:35:31Z erant $
 #
 # Module  : Set.pm
-# Purpose : A Set of scalars implementation.
+# Purpose : An implementation of a Set of scalars.
 # License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.

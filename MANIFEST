@@ -56,7 +56,11 @@ doc/example11.html
 doc/example12.html
 doc/example13.html
 scripts/get_ancestor_terms.pl
+scripts/get_child_terms.pl
 scripts/get_descendent_terms.pl
+scripts/get_parent_terms.pl
+scripts/get_relationship_types.pl
+scripts/get_terms.pl
 scripts/go2owl.pl
 scripts/goa2rdf.pl
 scripts/names.xsl

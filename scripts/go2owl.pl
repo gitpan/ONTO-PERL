@@ -8,6 +8,17 @@
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 
+use Carp;
+use strict;
+use warnings;
+use OBO::Parser::OBOParser;
+
+my $my_parser = OBO::Parser::OBOParser->new();
+my $ontology = $my_parser->work(shift(@ARGV));
+$ontology->export(\*STDOUT, "owl");
+
+exit 0;
+
 =head1 NAME
 
 go2owl.pl - Gene Ontology (in OBO) to OWL translator.
@@ -29,12 +40,3 @@ it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-use Carp;
-use strict;
-use warnings;
-use OBO::Parser::OBOParser;
-
-my $my_parser = OBO::Parser::OBOParser->new();
-my $ontology = $my_parser->work(shift(@ARGV));
-$ontology->export(\*STDOUT, "owl");

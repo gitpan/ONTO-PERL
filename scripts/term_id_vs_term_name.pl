@@ -10,6 +10,7 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ################################################################################
+
 use Carp;
 use strict;
 use warnings;
@@ -25,3 +26,5 @@ foreach my $term (@{$ontology->get_terms()}) {
 	# from the same namespace e.g. biological_process
 	##print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->def()->text() && ($term->namespace())[0] eq "biological_process");
 }
+
+exit 0;

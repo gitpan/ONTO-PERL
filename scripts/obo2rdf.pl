@@ -13,6 +13,19 @@
 #
 ##############################################################################
 
+use Carp;
+use strict;
+use warnings;
+
+use OBO::Parser::OBOParser;
+
+my $my_parser = OBO::Parser::OBOParser->new();
+my $ontology  = $my_parser->work(shift);
+my $url       = shift;
+$ontology->export(\*STDOUT, "rdf", $url);
+
+exit 0;
+
 =head1 NAME
 
 obo2rdf.pl - OBO to RDF translator.
@@ -34,14 +47,3 @@ it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-use Carp;
-use strict;
-use warnings;
-
-use OBO::Parser::OBOParser;
-
-my $my_parser = OBO::Parser::OBOParser->new();
-my $ontology  = $my_parser->work(shift);
-my $url       = shift;
-$ontology->export(\*STDOUT, "rdf", $url);

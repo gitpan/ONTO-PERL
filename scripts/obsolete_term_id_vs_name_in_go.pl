@@ -10,6 +10,21 @@
 #
 ################################################################################
 
+use Carp;
+use strict;
+use warnings;
+
+use OBO::Parser::OBOParser;
+
+my $my_parser = OBO::Parser::OBOParser->new();
+my $ontology = $my_parser->work(shift(@ARGV));
+
+foreach my $term (@{$ontology->get_terms()}) {
+	print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->def()->text() && $term->is_obsolete());
+}
+
+exit 0;
+
 =head1 NAME
 
 obsolete_term_id_vs_name_in_go.pl - Obsolete terms vs their names.
@@ -31,16 +46,3 @@ it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-use Carp;
-use strict;
-use warnings;
-
-use OBO::Parser::OBOParser;
-
-my $my_parser = OBO::Parser::OBOParser->new();
-my $ontology = $my_parser->work(shift(@ARGV));
-
-foreach my $term (@{$ontology->get_terms()}) {
-	print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->def()->text() && $term->is_obsolete());
-}

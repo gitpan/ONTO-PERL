@@ -8,6 +8,21 @@
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
+###############################################################################
+
+use Carp;
+use strict;
+use warnings;
+
+use OBO::Parser::OBOParser;
+
+my $my_parser   = OBO::Parser::OBOParser->new();
+my $ontology    = $my_parser->work(shift);
+my $url         = shift;
+my $oboinowlurl = shift;
+$ontology->export(\*STDOUT, "owl", $url, $oboinowlurl);
+
+exit 0;
 
 =head1 NAME
 
@@ -31,15 +46,3 @@ it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-use Carp;
-use strict;
-use warnings;
-
-use OBO::Parser::OBOParser;
-
-my $my_parser   = OBO::Parser::OBOParser->new();
-my $ontology    = $my_parser->work(shift);
-my $url         = shift;
-my $oboinowlurl = shift;
-$ontology->export(\*STDOUT, "owl", $url, $oboinowlurl);

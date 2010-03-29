@@ -10,6 +10,7 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ################################################################################
+
 use Carp;
 use strict;
 use warnings;
@@ -22,3 +23,5 @@ my $ontology = $my_parser->work(shift(@ARGV));
 foreach my $term (@{$ontology->get_terms()}) {
 	print $term->id(), "\t", $term->def()->text(), "\n" if (defined $term->id() && $term->def()->text()); 
 }
+
+exit 0;

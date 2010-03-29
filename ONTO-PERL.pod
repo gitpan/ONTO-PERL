@@ -12,7 +12,7 @@ ONTO-PERL           - perl modules for CCO and OBO ontologies
 
 =head1 DESCRIPTION
 
-'ONTO-PERL' a collection of perl modules for dealing with the Cell
+'ONTO-PERL' a collection of PERL modules for dealing with the Cell
 Cycle Ontology (CCO) and in general with OBO ontologies (like the
 Gene Ontology). This code distribution gathers object-oriented 
 modules (for dealing with the ontology elements such as Term, 
@@ -29,6 +29,8 @@ See also:
      E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
      Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
+  3. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
+     http://bitbucket.org/easr/onto-toolkit
 
 Some files in 'ONTO-PERL':
 
@@ -39,8 +41,6 @@ INSTALL						How to install ONTO-PERL (requirements)
 LICENSE						ONTO-PERL's license
 
 ONTO-PERL-x.y.tar.gz		ONTO-PERL API: version x.y
-
-ONTO-PERL-latest.tar.gz		ONTO-PERL API: latest version
 
 Changes						Description about the changes in 'ONTO-PERL'
 
@@ -75,5 +75,5 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 package ONTO-PERL;
-$VERSION='1.17';
+$VERSION='1.18';
 1;

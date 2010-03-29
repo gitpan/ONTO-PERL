@@ -15,6 +15,19 @@
 #
 ##############################################################################
 
+use Carp;
+use strict;
+use warnings;
+
+use OBO::CCO::GoaToRDF;
+
+my $input_file = shift(@ARGV);
+my $goa2rdf = OBO::CCO::GoaToRDF->new();
+
+$goa2rdf->work(\*STDOUT, $input_file);
+
+exit 0;
+
 =head1 NAME
 
 goa2rdf.pl - Generates a simple RDF graph from a given GOA file.
@@ -36,20 +49,3 @@ it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-use Carp;
-use strict;
-use warnings;
-
-use OBO::CCO::GoaToRDF;
-
-my $input_file = shift(@ARGV);
-my $goa2rdf = OBO::CCO::GoaToRDF->new();
-
-$goa2rdf->work(\*STDOUT, $input_file);
-
-
-
-
-
-
