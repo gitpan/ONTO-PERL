@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2165 2008-06-11 08:50:06Z Erick Antezana $
+# $Id: Ontology.pm 2165 2010-06-11 08:50:06Z Erick Antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -435,6 +435,7 @@ use strict;
 use warnings;
 use Carp;
 use Carp qw(cluck);
+use Data::Dumper qw(Dumper); 
 
 sub new {
 	my $class                      = shift;
@@ -456,10 +457,13 @@ sub new {
 	# TERMS_SET will be enabled once the Set is refactored
 	#$self->{TERMS_SET}            = OBO::Util::TermSet->new(); # Terms (0..n)
 	$self->{RELATIONSHIP_TYPES}   = {}; # map: relationship_type_id vs. relationship_type  (0..n)
-	$self->{RELATIONSHIPS}        = {}; # (0..N) 
+	$self->{RELATIONSHIPS}        = {}; # (0..N)
+	
 	# TODO Implement RELATIONSHIP_SET
-	$self->{TARGET_RELATIONSHIPS} = {}; # (0..N)
-	$self->{SOURCE_RELATIONSHIPS} = {}; # (0..N)
+	
+	$self->{TARGET_RELATIONSHIPS}        = {}; # (0..N)
+	$self->{SOURCE_RELATIONSHIPS}        = {}; # (0..N)
+	$self->{TARGET_SOURCE_RELATIONSHIPS} = {}; # (0..N)
         
 	bless ($self, $class);
 	return $self;
@@ -966,12 +970,22 @@ sub get_relationship_types {
 =cut
 
 sub get_relationships_by_source_term {
-	my ($self, $term) = @_;
+	my ($self, $term, $rel_type) = @_;
 	my $result = OBO::Util::Set->new();
 	if ($term) {
-		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
-		foreach my $rel (@rels) {
-			$result->add($rel);
+		if ($rel_type) {
+			my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}->{$rel_type}});
+			foreach my $rel (@rels) {
+				$result->add($rel);
+			}
+		} else {
+			my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
+			foreach my $hash (@hashes) {
+				my @rels = values %{$hash};
+				foreach my $rel (@rels) {
+					$result->add($rel);
+				}
+			}
 		}
 	}
 	my @arr = $result->get_set();
@@ -988,12 +1002,22 @@ sub get_relationships_by_source_term {
 =cut
 
 sub get_relationships_by_target_term {
-	my ($self, $term) = @_;
+	my ($self, $term, $rel_type) = @_;
 	my $result = OBO::Util::Set->new();
 	if ($term) {
-		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
-		foreach my $rel (@rels) {
-			$result->add($rel);
+		if ($rel_type) {
+			my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}->{$rel_type}});
+			foreach my $rel (@rels) {
+				$result->add($rel);
+			}
+		} else {
+			my @hashes = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
+			foreach my $hash (@hashes) {
+				my @rels = values %{$hash};
+				foreach my $rel (@rels) {
+					$result->add($rel);
+				}
+			}
 		}
 	}
 	my @arr = $result->get_set();
@@ -1182,8 +1206,9 @@ sub add_relationship {
 	}
     
 	# for getting children and parents
-	$self->{TARGET_RELATIONSHIPS}->{$relationship->head()}->{$relationship->tail()} = $relationship;
-	$self->{SOURCE_RELATIONSHIPS}->{$relationship->tail()}->{$relationship->head()} = $relationship;
+	$self->{TARGET_RELATIONSHIPS}->{$relationship->head()}->{$relationship->type()}->{$relationship->tail()} = $relationship;
+	$self->{SOURCE_RELATIONSHIPS}->{$relationship->tail()}->{$relationship->type()}->{$relationship->head()} = $relationship;
+	$self->{TARGET_SOURCE_RELATIONSHIPS}->{$relationship->tail()}->{$relationship->head()}->{$relationship->type()} = $relationship;
 }
 
 =head2 get_relationship_by_id
@@ -1213,9 +1238,12 @@ sub get_child_terms {
 	my ($self, $term) = @_;
 	my $result = OBO::Util::TermSet->new();
 	if ($term) {
-		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
-		foreach my $rel (@rels) {
-			$result->add($rel->tail());
+		my @hashes = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
+		foreach my $hash (@hashes) {
+			my @rels = values %{$hash};
+			foreach my $rel (@rels) {
+				$result->add($rel->tail());
+			}
 		}
 	 }
 	my @arr = $result->get_set();
@@ -1234,10 +1262,13 @@ sub get_child_terms {
 sub get_parent_terms {
 	my ($self, $term) = @_;
 	my $result = OBO::Util::TermSet->new();
-	if ($term) {
-		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
-		foreach my $rel (@rels) {
-			$result->add($rel->head());
+	if ($term) {		
+		my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
+		foreach my $hash (@hashes) {
+			my @rels = values %{$hash};
+			foreach my $rel (@rels) {
+				$result->add($rel->head());
+			}
 		}
 	}
 	my @arr = $result->get_set();
@@ -1258,10 +1289,14 @@ sub get_head_by_relationship_type {
 	# <EASR> Performance improvement
 	my @heads;
 	if ($element && $relationship_type) {
-		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
 		my $relationship_type_id = $relationship_type->id();
-		foreach my $rel (@rels) {
-			push @heads, $rel->head() if ($rel->type() eq $relationship_type_id);
+		
+		my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
+		foreach my $hash (@hashes) {
+			my @rels = values %{$hash};
+			foreach my $rel (@rels) {
+				push @heads, $rel->head() if ($rel->type() eq $relationship_type_id);
+			}
 		}
 	}
 	return \@heads;
@@ -1291,10 +1326,14 @@ sub get_tail_by_relationship_type {
 	my ($self, $element, $relationship_type) = @_;
 	my @tails;
 	if ($element && $relationship_type) {
-		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
 		my $relationship_type_id = $relationship_type->id();
-		foreach my $rel (@rels) {
-			push @tails, $rel->tail() if ($rel->type() eq $relationship_type_id);
+		
+		my @hashes = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
+		foreach my $hash (@hashes) {
+			my @rels = values %{$hash};
+			foreach my $rel (@rels) {
+				push @tails, $rel->tail() if ($rel->type() eq $relationship_type_id);
+			}
 		}
 	}
 	return \@tails;
@@ -3309,7 +3348,7 @@ sub get_descendent_terms {
 			my $unqueued = pop @queue;
 			$result->add($unqueued); 
 			my @children = @{$self->get_child_terms($unqueued)}; 
-			@queue = (@children, @queue );
+			@queue = (@children, @queue);
 		}
 	}
 	my @arr = $result->get_set();
@@ -3464,8 +3503,9 @@ sub create_rel (){
 		#cluck "The following rel ID already exists in the ontology: ", $id; # Implement a RelationshipSet?
 		
 		my $relationship = $self->get_relationship_by_id($id);
-		$self->{TARGET_RELATIONSHIPS}->{$head}->{$tail} = $relationship;
-		$self->{SOURCE_RELATIONSHIPS}->{$tail}->{$head} = $relationship;
+		$self->{TARGET_RELATIONSHIPS}->{$head}->{$type}->{$tail}        = $relationship;
+		$self->{SOURCE_RELATIONSHIPS}->{$tail}->{$type}->{$head}        = $relationship;
+		$self->{TARGET_SOURCE_RELATIONSHIPS}->{$tail}->{$head}->{$type} = $relationship;
 	} else {
 		my $rel = OBO::Core::Relationship->new(); 
 		$rel->type($type);
@@ -3524,10 +3564,7 @@ sub get_paths_term1_term2 () {
 	my @result;
 	
 	while ($#nei > -1) {
-		
-		my @back;	
-			
-		
+		my @back;
 		my $n          = pop @nei; # neighbors
 		my $n_id       = $n->id();
 
@@ -3540,7 +3577,8 @@ sub get_paths_term1_term2 () {
 		$hijos{$n_id}  = $#ps + 1;
 		push @bk, $n_id;
 		
-		push @ruta, $self->{SOURCE_RELATIONSHIPS}->{$p}->{$n}; # add the (candidate) relationship
+		# add the (candidate) relationship
+		push @ruta, values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$p}->{$n}});
 
 		if ($bstop eq $n_id) {
 			#warn "\nSTOP FOUND : ", $n_id;			
@@ -3557,12 +3595,12 @@ sub get_paths_term1_term2 () {
 			pop @ruta;
 			
 			#push @back, $p_id; # hold the un-stacked ones
-			
-			
+
+			# NOTE: The following 3 lines of code are misteriously not used...
 			# banned relationship
-			my $source = $self->get_term_by_id($sou);
-			my $target = $self->get_term_by_id($p_id);
-			my $rr     = $self->{SOURCE_RELATIONSHIPS}->{$source}->{$target};
+			#my $source = $self->get_term_by_id($sou);
+			#my $target = $self->get_term_by_id($p_id);
+			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
 			if (defined $banned{$sou} && $banned{$sou} > $hijos{$sou}){ # banned rel's from source
@@ -3602,8 +3640,7 @@ sub get_paths_term1_term2 () {
 		push @nei, @ps; # add next level
 		$p_id = $bk[$#bk];
 		$path .= "->".$n_id;
-		
-		
+
 		#
 		# clean banned using the back (unstacked)
 		#
@@ -3641,10 +3678,8 @@ sub get_paths_term_terms () {
 	my @result;
 	
 	while ($#nei > -1) {
-		
 		my @back;	
-			
-		
+
 		my $n          = pop @nei; # neighbors
 		my $n_id       = $n->id();
 
@@ -3657,8 +3692,9 @@ sub get_paths_term_terms () {
 		$hijos{$n_id}  = $#ps + 1;
 		push @bk, $n_id;
 		
-		push @ruta, $self->{SOURCE_RELATIONSHIPS}->{$p}->{$n}; # add the (candidate) relationship
-
+		# add the (candidate) relationship
+		push @ruta, values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$p}->{$n}});
+		
 		if ($bstop->contains($n_id)) {
 			#warn "\nSTOP FOUND : ", $n_id;			
 			$path .= "->".$n_id;
@@ -3675,11 +3711,11 @@ sub get_paths_term_terms () {
 			
 			#push @back, $p_id; # hold the un-stacked ones
 			
-			
+			# NOTE: The following 3 lines of code are misteriously not used...
 			# banned relationship
-			my $source = $self->get_term_by_id($sou);
-			my $target = $self->get_term_by_id($p_id);
-			my $rr     = $self->{SOURCE_RELATIONSHIPS}->{$source}->{$target};
+			#my $source = $self->get_term_by_id($sou);
+			#my $target = $self->get_term_by_id($p_id);
+			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
 			if (defined $banned{$sou} && $banned{$sou} > $hijos{$sou}){ # banned rel's from source
@@ -3719,7 +3755,6 @@ sub get_paths_term_terms () {
 		push @nei, @ps; # add next level
 		$p_id = $bk[$#bk];
 		$path .= "->".$n_id;
-		
 		
 		#
 		# clean banned using the back (unstacked)
@@ -3773,8 +3808,9 @@ sub get_paths_term_terms_same_rel () {
 		$hijos{$n_id}  = $#ps + 1;
 		push @bk, $n_id;
 		
-		push @ruta, $self->{SOURCE_RELATIONSHIPS}->{$p}->{$n}; # add the (candidate) relationship
-
+		# add the (candidate) relationship
+		push @ruta, values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$p}->{$n}});
+		
 		if ($bstop->contains($n_id)) {
 			#warn "\nSTOP FOUND : ", $n_id;			
 			$path .= "->".$n_id;
@@ -3791,10 +3827,11 @@ sub get_paths_term_terms_same_rel () {
 			
 			#push @back, $p_id; # hold the un-stacked ones
 			
+			# NOTE: The following 3 lines of code are misteriously not used...
 			# banned relationship
-			my $source = $self->get_term_by_id($sou);
-			my $target = $self->get_term_by_id($p_id);
-			my $rr     = $self->{SOURCE_RELATIONSHIPS}->{$source}->{$target};
+			#my $source = $self->get_term_by_id($sou);
+			#my $target = $self->get_term_by_id($p_id);
+			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
 			if (defined $banned{$sou} && $banned{$sou} > $hijos{$sou}){ # banned rel's from source
@@ -3832,9 +3869,8 @@ sub get_paths_term_terms_same_rel () {
 			$p_id = $n_id;
 		}
 		push @nei, @ps; # add next level
-		$p_id = $bk[$#bk];
+		$p_id  = $bk[$#bk];
 		$path .= "->".$n_id;
-		
 		
 		#
 		# clean banned using the back (unstacked)
@@ -3865,7 +3901,10 @@ sub _dfs () {
 	while ($#nei > -1) {
 		my $n    = pop @nei; # neighbors
 		my $n_id = $n->id();
-		if ($blist->contains($n_id) || $brels->contains($onto->{SOURCE_RELATIONSHIPS}->{$onto->get_term_by_id($p_id)}->{$onto->get_term_by_id($n_id)})) {
+		if ($blist->contains($n_id) || 
+			$brels->contains(values(%{$onto->{TARGET_SOURCE_RELATIONSHIPS}->
+				                     {$onto->get_term_by_id($p_id)}->
+				                     {$onto->get_term_by_id($n_id)}}))) {
 			next;
 		}
 		my @ps = @{$onto->get_parent_terms($n)};
@@ -3892,7 +3931,7 @@ sub _dfs () {
 			my $l      = pop @bk;
 			my $source = $onto->get_term_by_id($p_id);
 			my $target = $onto->get_term_by_id($n_id);
-			my $rr     = $onto->{SOURCE_RELATIONSHIPS}->{$source}->{$target};
+			my $rr     = values(%{$onto->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			$brels->add($rr->id());
 			
 			# banned terms
@@ -3909,17 +3948,17 @@ sub _dfs () {
 			}
 
 			# banned rels
-                        my @drels  = @{$onto->get_relationships_by_source_term($source)};
-                        my $all_rels_banned = 1;
-                        foreach my $drel (@drels) {
-                                if (!$brels->contains($drel->id())) {
-                                        $all_rels_banned = 0;
-                                        last;
-                                }
-                        }
-                        if ($all_rels_banned) {
-                                $blist->add($p_id);
-                        }
+			my @drels  = @{$onto->get_relationships_by_source_term($source)};
+			my $all_rels_banned = 1;
+			foreach my $drel (@drels) {
+				if (!$brels->contains($drel->id())) {
+					$all_rels_banned = 0;
+					last;
+				}
+			}
+			if ($all_rels_banned) {
+				$blist->add($p_id);
+			}
 			
 			@bk = ($v);
 			

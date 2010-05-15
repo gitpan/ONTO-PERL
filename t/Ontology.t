@@ -6,11 +6,10 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 182;
+    plan tests => 183;
 }
 
 #########################
-# $Id: Ontology.t 1717 2007-12-12 00:05:33Z erant $
 #
 # Purpose : ONTO-PERL usage examples.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -410,6 +409,11 @@ foreach my $rel (@rtbt) {
 }
 ok($rtbth{"participates_in"} eq "participates_in");
 ok($rtbth{"part_of"} eq "part_of");
+
+@rtbt = @{$onto->get_relationships_by_target_term($n3, "participates_in")};
+foreach my $rel (@rtbt) {
+	ok ($rel->id() eq "CCO:P0000001_participates_in_CCO:P0000003");
+}
 
 # get_head_by_relationship_type
 my @heads_n1 = @{$onto->get_head_by_relationship_type($n1, $onto->get_relationship_type_by_name("participates_in"))};

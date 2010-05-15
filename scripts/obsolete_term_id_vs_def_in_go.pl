@@ -2,13 +2,13 @@
 #
 # Script  : obsolete_term_id_vs_def_in_go.pl
 # Purpose : Collects the obsolete GO terms: id vs. def.
-# Usage: /usr/bin/perl -w obsolete_term_id_vs_def_in_go.pl gene_ontology.obo > obsolete_term_id_vs_def_in_go.out
+# Usage   : /usr/bin/perl -w obsolete_term_id_vs_def_in_go.pl gene_ontology.obo > obsolete_term_id_vs_def_in_go.out
 # License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
-################################################################################
+###############################################################################
 
 use Carp;
 use strict;

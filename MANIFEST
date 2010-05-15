@@ -60,10 +60,13 @@ scripts/get_child_terms.pl
 scripts/get_descendent_terms.pl
 scripts/get_parent_terms.pl
 scripts/get_relationship_types.pl
+scripts/get_subontology_from.pl
 scripts/get_terms.pl
+scripts/get_terms_by_name.pl
 scripts/go2owl.pl
 scripts/goa2rdf.pl
 scripts/names.xsl
+scripts/obo_trimming.pl
 scripts/obo2cco.pl
 scripts/obo2owl.pl
 scripts/obo2rdf.pl

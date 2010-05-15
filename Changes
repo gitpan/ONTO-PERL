@@ -66,3 +66,5 @@ Revision history for ONTO-PERL
 1.17 Added some more scripts.
 
 1.18 Added missing scripts.
+
+1.19 Fixed old bug (multiple relationships between 2 terms). Added 3 more scripts (trimming, get sub-ontology, and get terms by name).
