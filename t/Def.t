@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 14;
+    plan tests => 15;
 }
 
 #########################
@@ -68,5 +68,8 @@ ok($r_def2{"CCO:vm"} eq "CCO:vm");
 ok($r_def2{"CCO:ls"} eq "CCO:ls");
 ok($r_def2{"CCO:ea"} eq "CCO:ea");
 ok($def2->dbxref_set_as_string() eq '[CCO:ea "Erick Antezana" {opt=first}, CCO:ls, CCO:vm]');
+
+$def2->dbxref_set_as_string('[http://mydomain.com/key1=value1&key2=value2]');
+ok($def2->dbxref_set_as_string() eq '[CCO:ea "Erick Antezana" {opt=first}, CCO:ls, CCO:vm, http://mydomain.com/key1=value1&key2=value2]');
 
 ok(1);

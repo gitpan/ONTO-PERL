@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 18;
+    plan tests => 19;
 }
 
 #########################
@@ -58,5 +58,10 @@ ok($ref6->name() eq "IUPAC:1");
 my $ref7 = OBO::Core::Dbxref->new();
 $ref7->name("NIST_Chemistry_WebBook:1");
 ok($ref7->name() eq "NIST_Chemistry_WebBook:1");
+
+
+my $ref8 = OBO::Core::Dbxref->new();
+$ref8->name("http://mydomain.com/key1=value1&key2=value2");
+ok($ref8->name() eq "http://mydomain.com/key1=value1&key2=value2");
 
 ok(1);

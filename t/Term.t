@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 66;
+    plan tests => 67;
 }
 
 #########################
@@ -195,18 +195,19 @@ $n2->def($def);
 
 # def as string
 ok($n2->def_as_string() eq '"Hola mundo" [CCO:ea, CCO:ls, CCO:vm]');
-$n2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}]');
+$n2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}, http://mydomain.com/key1=value1&key2=value2]');
 ok($n2->def()->text() eq "This is a dummy definition");
 my @refs_n2 = $n2->def()->dbxref_set()->get_set();
 my %r_n2;
 foreach my $ref_n2 (@refs_n2) {
 	$r_n2{$ref_n2->name()} = $ref_n2->name();
 }
-ok($n2->def()->dbxref_set()->size == 3);
+ok($n2->def()->dbxref_set()->size == 4);
 ok($r_n2{"CCO:vm"} eq "CCO:vm");
 ok($r_n2{"CCO:ls"} eq "CCO:ls");
 ok($r_n2{"CCO:ea"} eq "CCO:ea");
-ok($n2->def_as_string() eq '"This is a dummy definition" [CCO:ea "Erick Antezana" {opt=first}, CCO:ls, CCO:vm]');
+ok($r_n2{"http://mydomain.com/key1=value1&key2=value2"} eq "http://mydomain.com/key1=value1&key2=value2");
+ok($n2->def_as_string() eq '"This is a dummy definition" [CCO:ea "Erick Antezana" {opt=first}, CCO:ls, CCO:vm, http://mydomain.com/key1=value1&key2=value2]');
 
 # disjoint_from:
 $n2->disjoint_from($n1->id(), $n3->id());

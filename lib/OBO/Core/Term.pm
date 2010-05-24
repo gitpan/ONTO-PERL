@@ -1,4 +1,4 @@
-# $Id: Term.pm 2054 2008-04-27 14:17:31Z Erick Antezana $
+# $Id: Term.pm 2054 2010-04-27 14:17:31Z Erick Antezana $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -237,7 +237,7 @@ use Carp;
 sub new {
 	my $class                   = shift;
 	my $self                    = {};
-        
+
 	$self->{ID}                 = undef; # required, scalar (1)
 	$self->{NAME}               = undef; # required, scalar (1)
 	$self->{IS_ANONYMOUS}       = undef; # [1|0], 0 by default
@@ -257,7 +257,7 @@ sub new {
 	$self->{REPLACED_BY}        = OBO::Util::Set->new(); # set of scalars (0..N)
 	$self->{CONSIDER}           = OBO::Util::Set->new(); # set of scalars (0..N)
 	$self->{BUILTIN}            = undef; # [1|0], 0 by default
-        
+
 	bless ($self, $class);
 	return $self;
 }
@@ -329,8 +329,8 @@ sub code {
 =cut
 sub name {
 	my ($self, $name) = @_;
-    if ($name) { $self->{NAME} = $name }
-    return $self->{NAME};
+	if ($name) { $self->{NAME} = $name }
+	return $self->{NAME};
 }
 
 =head2 is_anonymous
@@ -413,23 +413,23 @@ sub def_as_string {
 		foreach my $entry (@dbxrefs) {
 			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
 			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
+			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
 				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+\"([^\"]*)\")/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\")/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*))/) { # skip: , y "
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*))/) { # skip: , y "
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
@@ -481,8 +481,8 @@ sub namespace {
 =cut
 sub comment {
 	my ($self, $comment) = @_;
-    if ($comment) { $self->{COMMENT} = $comment }
-    return $self->{COMMENT};
+	if ($comment) { $self->{COMMENT} = $comment }
+	return $self->{COMMENT};
 }
 
 =head2 subset
@@ -558,9 +558,9 @@ sub synonym_as_string {
 sub xref_set {
 	my ($self, $xref_set) = @_;
 	if ($xref_set) {
-    	$self->{XREF_SET} = $xref_set;
-    }
-    return $self->{XREF_SET};
+		$self->{XREF_SET} = $xref_set;
+	}
+	return $self->{XREF_SET};
 }
 
 =head2 xref_set_as_string
@@ -592,23 +592,23 @@ sub xref_set_as_string {
 		foreach my $entry (@dbxrefs) {
 			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
 			my $xref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
+			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
 				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+\"([^\"]*)\")/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\")/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*))/) { # skip: , y "
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*))/) { # skip: , y "
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);

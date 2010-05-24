@@ -1,8 +1,9 @@
-# $Id: get_ancestor_terms.pl 1893 2008-02-14 14:23:26Z erant $
+#!/usr/local/bin/perl
+# $Id: get_ancestor_terms.pl 1893 2010-02-14 14:23:26Z erant $
 #
 # Script  : get_ancestor_terms.pl
 # Purpose : Collects the ancestor terms from a given term in the given OBO ontology
-# Usage   : /usr/bin/perl -w get_ancestor_terms.pl my_ontology.obo term_id > ancestors.txt
+# Usage   : get_ancestor_terms.pl my_ontology.obo term_id > ancestors.txt
 # License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.

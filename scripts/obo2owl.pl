@@ -1,11 +1,16 @@
-# $Id: obo2owl.pl 2028 2008-04-17 08:18:16Z Erick Antezana $
+#!/usr/local/bin/perl
+# $Id: obo2owl.pl 2028 2010-04-17 08:18:16Z Erick Antezana $
 #
-# Module  : obo2owl.pl
+# Script  : obo2owl.pl
+#
 # Purpose : Converts a file from OBO to OWL.
-# Usage: /usr/bin/perl -w obo2owl.pl my_ontology.obo > my_ontology.owl
+#
+# Usage   : obo2owl.pl my_ontology.obo > my_ontology.owl
+#
 # License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ###############################################################################

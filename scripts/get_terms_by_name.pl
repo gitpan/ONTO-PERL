@@ -1,11 +1,16 @@
+#!/usr/local/bin/perl
 # $Id: get_terms_by_name.pl 1 2010-03-27 14:23:26Z erant $
 #
-# Module  : get_terms_by_name.pl
+# Script  : get_terms_by_name.pl
+#
 # Purpose : Find all the terms in a given ontology having in their names a given string.
-# Usage   : /usr/bin/perl -w get_terms_by_name.pl name_string my_ontology.obo > ids_and_terms.txt
+#
+# Usage   : get_terms_by_name.pl name_string my_ontology.obo > ids_and_terms.txt
+#
 # License : Copyright (c) 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ###############################################################################

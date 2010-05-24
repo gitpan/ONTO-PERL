@@ -1,4 +1,5 @@
-# $Id: obo2cco.pl 2028 2008-04-17 08:18:16Z Erick Antezana $
+#!/usr/local/bin/perl
+# $Id: obo2cco.pl 2028 2010-04-17 08:18:16Z Erick Antezana $
 #
 # Script  : obo2cco.pl
 #
@@ -10,7 +11,7 @@
 #           interested in (from input_file.obo).
 #
 # Usage:
-#           perl obo2cco.pl input_file.obo cco_z.ids Z MI:0190 > output_file.obo
+#           obo2cco.pl input_file.obo cco_z.ids Z MI:0190 > output_file.obo
 #
 # License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -19,12 +20,15 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ##############################################################################
+
 use strict;
 use Carp;
 
 use OBO::Parser::OBOParser;
 use OBO::CCO::CCO_ID_Term_Map;
+
 ##############################################################################
+
 my $my_parser = OBO::Parser::OBOParser->new();
 
 my $onto = $my_parser->work(shift @ARGV);                      # input file

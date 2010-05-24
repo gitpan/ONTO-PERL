@@ -1,12 +1,19 @@
-# $Id: obo2tran.pl 2028 2008-04-17 08:18:16Z Erick Antezana $
+#!/usr/local/bin/perl
+# $Id: obo2tran.pl 2028 2010-04-17 08:18:16Z Erick Antezana $
 #
-# Module  : obo2tran.pl
+# Script  : obo2tran.pl
+#
 # Purpose : Converts a file from OBO to RDF.
-# Usage: /usr/bin/perl -w obo2tran.pl my_ontology.obo > my_ontology.rdf
+#
+# Usage   : obo2tran.pl my_ontology.obo > my_ontology.rdf
+#
 # License : Copyright (c) 2008, 2009, 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
+#
+################################################################################
 
 use Carp;
 use strict;

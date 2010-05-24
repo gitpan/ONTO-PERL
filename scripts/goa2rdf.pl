@@ -1,11 +1,11 @@
-# $Id: goa2rdf.pl 1 2008-04-17 08:18:16Z Erick Antezana $
+#!/usr/local/bin/perl
+# $Id: goa2rdf.pl 1 2010-04-17 08:18:16Z Erick Antezana $
 #
 # Script  : goa2rdf.pl
 #
 # Purpose : Generates a simple RDF graph from a given GOA file.
 #
-# Usage:
-#           perl goa2rdf.pl input_file.goa  > output_file.rdf
+# Usage   : goa2rdf.pl input_file.goa  > output_file.rdf
 #
 # License : Copyright (c) 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or

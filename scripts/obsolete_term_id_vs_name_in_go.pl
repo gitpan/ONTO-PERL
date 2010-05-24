@@ -1,11 +1,16 @@
-# $Id: obsolete_term_id_vs_name_in_go.pl 1893 2008-02-14 14:23:26Z erant $
+ #!/usr/local/bin/perl
+# $Id: obsolete_term_id_vs_name_in_go.pl 1893 2010-02-14 14:23:26Z erant $
 #
 # Script  : obsolete_term_id_vs_name_in_go.pl
+#
 # Purpose : Collects the obsolete terms from within an OBO ontology.
-# Usage: /usr/bin/perl -w obsolete_term_id_vs_name.pl gene_ontology.obo
+#
+# Usage   : obsolete_term_id_vs_name.pl gene_ontology.obo
+#
 # License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ################################################################################

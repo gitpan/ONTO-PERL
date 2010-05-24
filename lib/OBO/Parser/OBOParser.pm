@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 2054 2008-04-27 14:17:31Z Erick Antezana $
+# $Id: OBOParser.pm 2054 2010-04-27 14:17:31Z Erick Antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
@@ -131,7 +131,7 @@ sub work {
 			$chunks[0] =~ s/$line//;
 		}
 		my $idspace = $1 if ($chunks[0] =~ /idspace:\s*(.*)\n/);
-		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)\n/);
+		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)(\n)?/);
 		my $remark = $1 if ($chunks[0] =~ /remark:\s*(.*)/);
 	
 		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it." if (!defined $format_version);

@@ -80,7 +80,7 @@ sub new {
 	$self->{ACC}                = ""; # required, scalar (1)
 	$self->{DESCRIPTION}        = ""; # scalar (0..1)
 	$self->{MODIFIER}           = ""; # scalar (0..1)
-        
+    
 	bless ($self, $class);
 	return $self;
 }
@@ -97,7 +97,7 @@ sub new {
 sub name {
 	my ($self, $name) = @_;
     if ($name) {
-    	($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\w-]+):([~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.-]+)/ || $name =~ /(http):\/\/(.*)/);
+    	($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\w-]+):([~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.=&-]+)/ || $name =~ /(http):\/\/(.*)/);
 	} else { # get-mode
 		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
     }
@@ -195,10 +195,10 @@ sub modifier {
 sub as_string {
 	my ($self) = @_;
 	confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
-    my $result = $self->{DB}.":".$self->{ACC};
-    $result .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
-    $result .= " ".$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne "");
-    return $result;
+	my $result = $self->{DB}.":".$self->{ACC};
+	$result .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
+	$result .= " ".$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne "");
+	return $result;
 }
 
 =head2 equals

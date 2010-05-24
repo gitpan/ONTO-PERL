@@ -1,10 +1,11 @@
-# $Id: obo2rdf.pl 2157 2008-05-29 11:29:15Z Erick Antezana $
+#!/usr/local/bin/perl
+# $Id: obo2rdf.pl 2157 2010-05-29 11:29:15Z Erick Antezana $
 #
-# Module  : obo2rdf.pl
+# Script  : obo2rdf.pl
 #
 # Purpose : Converts a file from OBO to RDF.
 #
-# Usage: /usr/bin/perl -w obo2rdf.pl my_ontology.obo "http://www.mydomain.com/ontology/rdf/" > my_ontology.rdf
+# Usage   : obo2rdf.pl my_ontology.obo "http://www.mydomain.com/ontology/rdf/" > my_ontology.rdf
 #
 # License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or

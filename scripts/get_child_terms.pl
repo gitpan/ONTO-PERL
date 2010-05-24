@@ -1,12 +1,19 @@
+#!/usr/local/bin/perl
 # $Id: get_child_terms.pl 1 2010-03-27 14:23:26Z erant $
 #
 # Script  : get_child_terms.pl
+#
 # Purpose : Collects the child terms (not all the descendents) of a given term in the given OBO ontology
-# Usage   : /usr/bin/perl -w get_child_terms.pl my_ontology.obo term_id > child_terms.txt
+#
+# Usage   : get_child_terms.pl my_ontology.obo term_id > child_terms.txt
+#
 # License : Copyright (c) 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
+#
+################################################################################
 
 use Carp;
 use strict;

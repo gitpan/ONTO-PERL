@@ -77,6 +77,7 @@ scripts/obsolete_term_id_vs_name_in_go.pl
 scripts/owl2obo.pl
 scripts/term_id_vs_term_def.pl
 scripts/term_id_vs_term_name.pl
+scripts/term_id_vs_term_namespace.pl
 scripts/xml2html.xsl
 t/CCO_ID_Set.t
 t/CCO_ID_Term_Map.t

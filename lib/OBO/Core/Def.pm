@@ -1,4 +1,4 @@
-# $Id: Def.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: Def.pm 1845 2010-01-08 12:33:09Z erant $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.
@@ -118,14 +118,14 @@ use warnings;
 use Carp;
 
 sub new {
-        my $class                   = shift;
-        my $self                    = {};
-        
-        $self->{TEXT}               = undef; # required, scalar (1)
-        $self->{DBXREF_SET}         = OBO::Util::DbxrefSet->new(); # required, Dbxref (0..n)
-        
-        bless ($self, $class);
-        return $self;
+	my $class                   = shift;
+	my $self                    = {};
+
+	$self->{TEXT}               = undef; # required, scalar (1)
+	$self->{DBXREF_SET}         = OBO::Util::DbxrefSet->new(); # required, Dbxref (0..n)
+
+	bless ($self, $class);
+	return $self;
 }
 
 =head2 text
@@ -139,8 +139,8 @@ sub new {
 
 sub text {
 	my ($self, $text) = @_;
-    if ($text) { $self->{TEXT} = $text }
-    return $self->{TEXT};
+	if ($text) { $self->{TEXT} = $text }
+	return $self->{TEXT};
 }
 
 =head2 dbxref_set
@@ -155,9 +155,9 @@ sub text {
 sub dbxref_set {
 	my ($self, $dbxref_set) = @_;
 	if ($dbxref_set) {
-    	$self->{DBXREF_SET} = $dbxref_set;
-    }
-    return $self->{DBXREF_SET};
+		$self->{DBXREF_SET} = $dbxref_set;
+	}
+	return $self->{DBXREF_SET};
 }
 
 =head2 dbxref_set_as_string
@@ -171,13 +171,13 @@ sub dbxref_set {
 
 sub dbxref_set_as_string {
 	my ($self, $dbxref_as_string) = @_;
-	
+
 	if ($dbxref_as_string) {
 		$dbxref_as_string =~ s/^\[//;
 		$dbxref_as_string =~ s/\]$//;		
 		$dbxref_as_string =~ s/\\,/;;;;/g; # trick to keep the comma's
 		$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
-		
+
 		my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
 		foreach my $l (@lineas) {
 			my $cp = $l;
@@ -190,23 +190,23 @@ sub dbxref_set_as_string {
 		foreach my $entry (@dbxrefs) {
 			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
 			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
+			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
 				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+\"([^\"]*)\")/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\")/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*))/) { # skip: , y "
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*))/) { # skip: , y "
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
@@ -241,10 +241,9 @@ sub equals {
 	my ($self, $target) = @_;
 	my $result = 0;
 	if ($target) {
-
 		confess "The text of this definition is undefined" if (!defined($self->{TEXT}));
 		confess "The text of the target definition is undefined" if (!defined($target->{TEXT}));
-		
+
 		$result = (($self->{TEXT} eq $target->{TEXT}) && ($self->{DBXREF_SET}->equals($target->{DBXREF_SET})));
 	}
 	return $result;

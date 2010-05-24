@@ -1137,21 +1137,21 @@ sub get_term_by_name_or_synonym {
 =cut
 
 sub get_terms_by_name {
-    my ($self, $name) = ($_[0], lc($_[1]));
-    my $result;
-    if ($name) {
+	my ($self, $name) = ($_[0], lc($_[1]));
+	my $result;
+	if ($name) {
 		my @terms = @{$self->get_terms()};
 		$result = OBO::Util::TermSet->new();
 		
 		# NB. the following two lines are equivalent to the 'for' loop
 		#my @found_terms = grep {lc($_->name()) =~ /$name/} @terms;
 		#$result->add_all(@found_terms);
-		
+
 		foreach my $term (@terms) { # return the all the occurrences
 			$result->add($term) if (defined ($term->name()) && lc($term->name()) =~ /$name/); 
 		}
-    }
-    return $result;
+	}
+	return $result;
 }
 
 =head2 get_relationship_type_by_name
@@ -1164,14 +1164,14 @@ sub get_terms_by_name {
 =cut
 
 sub get_relationship_type_by_name {
-    my ($self, $name) = ($_[0], lc($_[1]));
-    my $result;
-    if ($name) {
+	my ($self, $name) = ($_[0], lc($_[1]));
+	my $result;
+	if ($name) {
 		foreach my $rel_type (@{$self->get_relationship_types()}) { # return the exact occurrence
 			$result = $rel_type, last if (defined ($rel_type->name()) && (lc($rel_type->name()) eq $name)); 
 		}
-    }
-    return $result;
+	}
+	return $result;
 }
 
 =head2 add_relationship
@@ -1185,7 +1185,7 @@ sub get_relationship_type_by_name {
 
 sub add_relationship {
 	my ($self, $relationship) = @_;
-    
+
 	my $id = $relationship->id();
 	$id || confess "The relationship to be added to this ontology does not have an ID";
 	$self->{RELATIONSHIPS}->{$id} = $relationship;
@@ -1365,8 +1365,8 @@ sub get_tail_by_relationship_type {
 =cut
 
 sub get_number_of_terms {
-    my $self = shift;
-    return scalar values(%{$self->{TERMS}});
+	my $self = shift;
+	return scalar values(%{$self->{TERMS}});
 }
 
 =head2 get_number_of_relationships
@@ -1379,8 +1379,8 @@ sub get_number_of_terms {
 =cut
 
 sub get_number_of_relationships {
-    my $self = shift;
-    return scalar values(%{$self->{RELATIONSHIPS}});
+	my $self = shift;
+	return scalar values(%{$self->{RELATIONSHIPS}});
 }
 
 =head2 get_number_of_relationship_types
@@ -1393,8 +1393,8 @@ sub get_number_of_relationships {
 =cut
 
 sub get_number_of_relationship_types {
-    my $self = shift;
-    return scalar values(%{$self->{RELATIONSHIP_TYPES}});
+	my $self = shift;
+	return scalar values(%{$self->{RELATIONSHIP_TYPES}});
 }
 
 =head2 export
@@ -3217,17 +3217,20 @@ sub subontology_by_terms {
   
 =cut
 
-
 sub get_subontology_from {
 	my ($self, $root_term) = @_;
 	my $result = OBO::Core::Ontology->new();
 	if ($root_term) {
 		$self->has_term($root_term) || confess "The term '", $root_term,"' does not belong to this ontology";
-		
+
+		$result->data_version($self->data_version());
+		$result->imports($self->imports()->get_set());
 		$result->idspace($self->idspace());
-		$result->subsets($self->subsets()->get_set()); # add by default of the subsets
+		$result->subsets($self->subsets()->get_set()); # add (by default) all the subsets
 		$result->synonym_type_def_set($self->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
-		
+		$result->default_namespace($self->default_namespace());
+		$result->remark($self->remark());
+
 		my @queue = ($root_term);
 		while (scalar(@queue) > 0) {
 			my $unqueued = shift @queue;
@@ -3252,7 +3255,6 @@ sub get_subontology_from {
   Function - Transform an OBO-type ID into an OWL-type one. E.g. CCO:I1234567 -> CCO_I1234567
   
 =cut
-
 
 sub obo_id2owl_id {
 	$_[0] =~ s/:/_/;
@@ -3282,7 +3284,6 @@ sub owl_id2obo_id {
   Function - Transforms a http character to its equivalent one in hexadecimal. E.g. : -> %3A
   
 =cut
-
 
 sub char_hex_http { 
 	$_[0] =~ s/:/%3A/g;

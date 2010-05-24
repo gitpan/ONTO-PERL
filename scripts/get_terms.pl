@@ -1,12 +1,19 @@
+#!/usr/local/bin/perl
 # $Id: get_terms.pl 1 2010-03-27 14:23:26Z erant $
 #
-# Module  : get_terms.pl
+# Script  : get_terms.pl
+#
 # Purpose : Find all the terms in a given ontology.
-# Usage   : /usr/bin/perl -w get_terms.pl my_ontology.obo > terms.txt
+#
+# Usage   : get_terms.pl my_ontology.obo > terms.txt
+#
 # License : Copyright (c) 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
+#
+################################################################################
 
 use OBO::Parser::OBOParser;
 			

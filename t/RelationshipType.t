@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 39;
+    plan tests => 40;
 }
 
 #########################
@@ -52,7 +52,7 @@ $r3_inv->inverse_of($r3);
 ok($r3->inverse_of()->equals($r3_inv));
 
 # def as string
-$r2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
+$r2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana", http://mydomain.com/key1=value1&key2=value2]');
 ok($r2->def()->text() eq "This is a dummy definition");
 my @refs_r2 = $r2->def()->dbxref_set()->get_set();
 my %r_r2;
@@ -62,6 +62,8 @@ foreach my $ref_r2 (@refs_r2) {
 ok($r_r2{"CCO:vm"} eq "CCO:vm");
 ok($r_r2{"CCO:ls"} eq "CCO:ls");
 ok($r_r2{"CCO:ea"} eq "CCO:ea");
+ok($r_r2{"http://mydomain.com/key1=value1&key2=value2"} eq "http://mydomain.com/key1=value1&key2=value2");
+
 
 # synonyms
 my $syn1 = OBO::Core::Synonym->new();

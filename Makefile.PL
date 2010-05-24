@@ -77,6 +77,7 @@ WriteMakefile(
 								scripts/owl2obo.pl
 								scripts/term_id_vs_term_def.pl
 								scripts/term_id_vs_term_name.pl
+								scripts/term_id_vs_term_namespace.pl
 							)
 						],
 			

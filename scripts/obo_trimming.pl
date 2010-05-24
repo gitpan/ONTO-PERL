@@ -1,11 +1,16 @@
+#!/usr/local/bin/perl
 # $Id: obo_trimming.pl 1 2010-03-27 14:23:26Z erant $
 #
-# Module  : obo_trimming.pl
+# Script  : obo_trimming.pl
+#
 # Purpose : This script trims a given branch of an OBO ontology.
-# Usage   : /usr/bin/perl -w obo_trimming.pl my_ontology.obo term_ids.txt> my_ontology_trimmed.obo
+#
+# Usage   : obo_trimming.pl my_ontology.obo term_ids.txt> my_ontology_trimmed.obo
+#
 # License : Copyright (c) 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ################################################################################

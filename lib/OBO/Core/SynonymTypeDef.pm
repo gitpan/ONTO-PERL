@@ -1,4 +1,4 @@
-# $Id: SynonymTypeDef.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: SynonymTypeDef.pm 1845 2010-01-08 12:33:09Z erant $
 #
 # Module  : SynonymTypeDef.pm
 # Purpose : A synonym type definition.
@@ -86,15 +86,15 @@ use warnings;
 use Carp;
 
 sub new {
-        my $class                   = shift;
-        my $self                    = {};
-        
-        $self->{SYNONYM_TYPE_NAME}  = undef; # required
-        $self->{DESCRIPTION}        = undef; # required
-        $self->{SCOPE}              = undef; # optional: The scope specifier indicates the default scope for any synonym that has this type.
-        
-        bless ($self, $class);
-        return $self;
+	my $class                   = shift;
+	my $self                    = {};
+
+	$self->{SYNONYM_TYPE_NAME}  = undef; # required
+	$self->{DESCRIPTION}        = undef; # required
+	$self->{SCOPE}              = undef; # optional: The scope specifier indicates the default scope for any synonym that has this type.
+
+	bless ($self, $class);
+	return $self;
 }
 =head2 synonym_type_name
 
@@ -108,7 +108,7 @@ sub new {
 sub synonym_type_name {
 	my ($self, $synonym_type_name) = @_;
 	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
-    return $self->{SYNONYM_TYPE_NAME};
+	return $self->{SYNONYM_TYPE_NAME};
 }
 
 =head2 description
@@ -122,8 +122,8 @@ sub synonym_type_name {
 
 sub description {
 	my ($self, $desc) = @_;
-    $self->{DESCRIPTION} = $desc if ($desc);
-    return $self->{DESCRIPTION};
+	$self->{DESCRIPTION} = $desc if ($desc);
+	return $self->{DESCRIPTION};
 }
 
 =head2 scope
@@ -138,7 +138,7 @@ sub description {
 sub scope {
 	my ($self, $scope) = @_;
 	$self->{SCOPE} = $scope if ($scope);
-    return $self->{SCOPE};
+	return $self->{SCOPE};
 }
 
 =head2 synonym_type_def_as_string

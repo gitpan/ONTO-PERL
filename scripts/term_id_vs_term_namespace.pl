@@ -1,12 +1,13 @@
 #!/usr/local/bin/perl
-# $Id: term_id_vs_term_name.pl 1893 2010-02-14 14:23:26Z erant $
+# $Id: term_id_vs_term_namespace.pl 1893 2010-02-14 14:23:26Z erant $
 #
-# Script  : term_id_vs_term_name.pl
+# Script  : term_id_vs_term_namespace.pl
 #
 # Purpose : Generates a flat file with two columns (TAB separated) with the 
-#           term_id and term_definition from the elements of the given OBO ontology.
+#           term_id and term_namespace (e.g. biological process) from the elements 
+#           of the given OBO ontology.
 #
-# Usage   : term_id_vs_term_name.pl my_ontology.obo > term_id_vs_term_name.txt
+# Usage   : term_id_vs_term_namespace.pl my_ontology.obo > term_id_vs_term_namespace.txt
 #
 # License : Copyright (c) 2006, 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -26,10 +27,7 @@ my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
 
 foreach my $term (@{$ontology->get_terms()}) {
-	print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->def()->text());
-	
-	# from the same namespace e.g. biological_process
-	##print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->def()->text() && ($term->namespace())[0] eq "biological_process");
+	print $term->id(), "\t", $term->namespace(), "\n" if (defined $term->namespace()); 
 }
 
 exit 0;

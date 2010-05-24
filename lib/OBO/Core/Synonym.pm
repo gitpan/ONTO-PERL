@@ -1,4 +1,4 @@
-# $Id: Synonym.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: Synonym.pm 1845 2010-01-08 12:33:09Z erant $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
@@ -165,15 +165,15 @@ use warnings;
 use Carp;
 
 sub new {
-        my $class                   = shift;
-        my $self                    = {};
-        
-        $self->{TYPE}               = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
-        $self->{DEF}                = OBO::Core::Def->new(); # required
-        $self->{SYNONYM_TYPE_NAME}  = undef;
-        
-        bless ($self, $class);
-        return $self;
+	my $class                   = shift;
+	my $self                    = {};
+
+	$self->{TYPE}               = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
+	$self->{DEF}                = OBO::Core::Def->new(); # required
+	$self->{SYNONYM_TYPE_NAME}  = undef;
+
+	bless ($self, $class);
+	return $self;
 }
 
 =head2 type
@@ -210,10 +210,10 @@ sub type {
 
 sub def {
 	my ($self, $def) = @_;
-    if ($def) {
-    	$self->{DEF} = $def; 
+	if ($def) {
+		$self->{DEF} = $def; 
 	}
-    return $self->{DEF};
+	return $self->{DEF};
 }
 
 =head2 synonym_type_name
@@ -228,7 +228,7 @@ sub def {
 sub synonym_type_name {
 	my ($self, $synonym_type_name) = @_;
 	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
-    return $self->{SYNONYM_TYPE_NAME};
+	return $self->{SYNONYM_TYPE_NAME};
 }
 
 =head2 def_as_string
@@ -245,7 +245,7 @@ sub def_as_string {
 	if ($text && $dbxref_as_string){
 		my $def = OBO::Core::Def->new();
 		$def->text($text);
-		
+
 		$dbxref_as_string =~ s/^\[//;
 		$dbxref_as_string =~ s/\]$//;		
 		$dbxref_as_string =~ s/\\,/;;;;/g; # trick to keep the comma's
@@ -263,23 +263,23 @@ sub def_as_string {
 		foreach my $entry (@dbxrefs) {
 			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
 			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
+			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
 				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*)\s+\"([^\"]*)\")/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\")/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.-]*))/) { # skip: , y "
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*))/) { # skip: , y "
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);

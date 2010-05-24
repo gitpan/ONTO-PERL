@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 34;
+    plan tests => 35;
 }
 
 #########################
@@ -96,17 +96,18 @@ ok(($syn3->def()->dbxref_set())->equals($syn4->def()->dbxref_set()));
 
 # def as string
 ok($syn3->def_as_string() eq "\"Hola mundo3\" [CCO:ea]");
-$syn3->def_as_string("This is a dummy synonym", "[CCO:ls, CCO:ea \"Erick Antezana\", CCO:vm]");
+$syn3->def_as_string("This is a dummy synonym", "[CCO:ls, CCO:ea \"Erick Antezana\", CCO:vm, http://mydomain.com/key1=value1&key2=value2]");
 ok($syn3->def()->text() eq "This is a dummy synonym");
 my @refs_syn3 = $syn3->def()->dbxref_set()->get_set();
 my %r_syn3;
 foreach my $ref_syn3 (@refs_syn3) {
 	$r_syn3{$ref_syn3->name()} = $ref_syn3->name();
 }
-ok($syn3->def()->dbxref_set()->size == 3);
+ok($syn3->def()->dbxref_set()->size == 4);
 ok($r_syn3{"CCO:vm"} eq "CCO:vm");
 ok($r_syn3{"CCO:ls"} eq "CCO:ls");
 ok($r_syn3{"CCO:ea"} eq "CCO:ea");
-ok($syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ea \"Erick Antezana\", CCO:ls, CCO:vm]");
+ok($r_syn3{"http://mydomain.com/key1=value1&key2=value2"} eq "http://mydomain.com/key1=value1&key2=value2");
+ok($syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ea \"Erick Antezana\", CCO:ls, CCO:vm, http://mydomain.com/key1=value1&key2=value2]");
 
 ok(1);
