@@ -28,13 +28,16 @@ foreach my $t (@my_terms) {
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 get_terms.pl - Find all the terms in a given ontology.
 
 =head1 DESCRIPTION
 
-This script retrieves all the names of the terms (and their IDs) in a given ontology.
+This script retrieves all the names of the terms (and their IDs) 
+in a given OBO-formatted ontology.
 
 =head1 AUTHOR
 

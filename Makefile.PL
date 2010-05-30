@@ -60,8 +60,10 @@ WriteMakefile(
 								scripts/get_ancestor_terms.pl
 								scripts/get_child_terms.pl
 								scripts/get_descendent_terms.pl
+								scripts/get_obsolete_terms.pl
 								scripts/get_parent_terms.pl
 								scripts/get_relationship_types.pl
+								scripts/get_root_terms.pl
 								scripts/get_subontology_from.pl
 								scripts/get_terms.pl
 								scripts/get_terms_by_name.pl

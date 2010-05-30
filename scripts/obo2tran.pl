@@ -32,6 +32,8 @@ $go_transitive_closure->export(\*STDOUT, "rdf", $url, 1, 2);
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 obo2tran.pl - OBOF into RDF translator. The resulting file has (full) transitive closure. 

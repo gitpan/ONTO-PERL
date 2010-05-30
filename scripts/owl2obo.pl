@@ -27,6 +27,8 @@ $ontology->export(\*STDOUT, "obo");
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 owl2obo.pl - OWL to OBO translator (oboinowl mapping).

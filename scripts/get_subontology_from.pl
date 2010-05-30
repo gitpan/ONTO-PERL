@@ -31,7 +31,9 @@ die "The term, you have asked as being the new root, does not exist!\n" if (!$ne
 my $sub_ontology  = $my_large_onto->get_subontology_from($new_root);
 $sub_ontology->export(\*STDOUT, "obo");
 
-###############################################################################
+exit 0;
+
+__END__
 
 =head1 NAME
 

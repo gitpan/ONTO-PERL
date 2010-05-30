@@ -30,6 +30,8 @@ foreach my $term (@{$ontology->get_terms()}) {
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 obsolete_term_id_vs_def_in_go.pl - Obsolete terms vs their definitions.

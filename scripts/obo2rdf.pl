@@ -27,6 +27,8 @@ $ontology->export(\*STDOUT, "rdf", $url);
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 obo2rdf.pl - OBO to RDF translator.

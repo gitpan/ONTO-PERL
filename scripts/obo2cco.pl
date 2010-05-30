@@ -70,3 +70,34 @@ foreach my $entry (sort {$a->id() cmp $b->id()} @{$onto->get_terms()}){
 $cco_id_map->write_map(); 
 $onto->export(\*STDOUT, 'obo');
 select((select(STDOUT), $|=1)[0]);
+
+exit 0;
+
+__END__
+
+=head1 NAME
+
+obo2cco.pl - Converts an ontology into another one which could be integrated into CCO.
+
+=head1 DESCRIPTION
+
+Generates an OBO ontology that can be integrated in the Cell
+Cycle Ontology (CCO). The terms from the input ontology will
+be given a CCO-like ID. The original IDs will be added as
+cross references. The subnamespace by default is 'Z'. It is 
+possible to specify the root term from the subontology we are
+interested in (from input_file.obo).
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

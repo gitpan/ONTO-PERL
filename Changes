@@ -17,7 +17,7 @@ Revision history for ONTO-PERL
 
 0.26 Enhanced: NCBIParser.pm, GoaParser.pm and Ontology.pm
 
-0.27 obo2owl tranformation updated, new modules for dealing with IDs
+0.27 obo2owl transformation updated, new modules for dealing with IDs
 
 0.28 Performance improvement (code tuning)
 
@@ -70,3 +70,5 @@ Revision history for ONTO-PERL
 1.19 Fixed old bug (multiple relationships between 2 terms). Added 3 more scripts (trimming, get sub-ontology, and get terms by name).
 
 1.20 Fixed DbXref bug (http-like URLs).
+
+1.21 New scripts (get_obsolete_terms.pl and get_root_terms.pl). POD improvements.

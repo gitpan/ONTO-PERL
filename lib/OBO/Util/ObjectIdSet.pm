@@ -98,9 +98,9 @@ use warnings;
 use Carp;
 
 sub new {
-	my $class		= shift;
-	my $self		= {};
-	$self->{MAP}		= {}; # id vs. obj
+	my $class       = shift;
+	my $self        = {};
+	$self->{MAP}    = {}; # id vs. obj
 	
 	bless ($self, $class);
 	return $self;

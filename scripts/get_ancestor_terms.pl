@@ -8,14 +8,13 @@
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
+#
+###############################################################################
 
 use Carp;
 use strict;
 use warnings;
 
-BEGIN {
-push @INC, '..';
-}
 use OBO::Parser::OBOParser;
 
 my $my_parser = OBO::Parser::OBOParser->new();
@@ -30,6 +29,8 @@ foreach my $term (@{$ontology->get_ancestor_terms($ontology->get_term_by_id($ter
 }
 
 exit 0;
+
+__END__
 
 =head1 NAME
 

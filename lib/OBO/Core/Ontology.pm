@@ -441,23 +441,23 @@ sub new {
 	my $class                      = shift;
 	my $self                       = {};
         
-	$self->{ID}                    = undef; # required, (1)
-	$self->{NAME}                  = undef; # required, (1)
+	$self->{ID}                    = undef;                 # required, (1)
+	$self->{NAME}                  = undef;                 # required, (1)
 	$self->{IMPORTS}               = OBO::Util::Set->new(); # set (0..N)
-	$self->{IDSPACE}               = undef; # required, (1)
-	$self->{DEFAULT_NAMESPACE}     = undef; # string (0..1)
-	$self->{DATA_VERSION}          = undef; # string (0..1)
-	$self->{DATE}                  = undef; # (1) The current date in dd:MM:yyyy HH:mm format
-	$self->{SAVED_BY}              = undef; # string (0..1)
-	$self->{REMARK}                = undef; # string (0..1)
+	$self->{IDSPACE}               = undef;                 # required, (1)
+	$self->{DEFAULT_NAMESPACE}     = undef;                 # string (0..1)
+	$self->{DATA_VERSION}          = undef;                 # string (0..1)
+	$self->{DATE}                  = undef;                 # (1) The current date in dd:MM:yyyy HH:mm format
+	$self->{SAVED_BY}              = undef;                 # string (0..1)
+	$self->{REMARK}                = undef;                 # string (0..1)
 	$self->{SUBSETS_SET}           = OBO::Util::Set->new(); # set (0..N); A subset is a view over an ontology
 	$self->{SYNONYM_TYPE_DEF_SET}  = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
         
-	$self->{TERMS}                = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..n)
+	$self->{TERMS}                 = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..n)
 	# TERMS_SET will be enabled once the Set is refactored
 	#$self->{TERMS_SET}            = OBO::Util::TermSet->new(); # Terms (0..n)
-	$self->{RELATIONSHIP_TYPES}   = {}; # map: relationship_type_id vs. relationship_type  (0..n)
-	$self->{RELATIONSHIPS}        = {}; # (0..N)
+	$self->{RELATIONSHIP_TYPES}    = {}; # map: relationship_type_id vs. relationship_type  (0..n)
+	$self->{RELATIONSHIPS}         = {}; # (0..N)
 	
 	# TODO Implement RELATIONSHIP_SET
 	
@@ -707,7 +707,7 @@ sub add_term_as_string {
 		if (!$self->has_term_id($term_id)){
 			my $term_name = shift;
 	    
-			$term_id || confess "A term to be added to this ontology must have an ID";
+			$term_id   || confess "A term to be added to this ontology must have an ID";
 			$term_name || confess "A term to be added to this ontology must have a name";
 	
 			my $new_term = OBO::Core::Term->new();
@@ -1352,8 +1352,42 @@ sub get_tail_by_relationship_type {
 #    return \@arr;
 }
 
+=head2 get_root_terms
 
+  Usage    - $ontology->get_root_terms()
+  Returns  - the root term(s) held by this ontology (as a reference to an array of OBO::Core::Term's)
+  Args     - none
+  Function - returns the root term(s) held by this ontology
+  
+=cut
 
+sub get_root_terms {
+	my $self  = shift;
+
+	my @roots = ();
+	my $term_set = OBO::Util::TermSet->new();
+	$term_set->add_all(values(%{$self->{TERMS}}));
+	
+	my @arr = $term_set->get_set();
+	while ($term_set->size() > 0){
+		my $term = pop @arr;
+		my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
+		if ($#hashes  == -1) { # if there are no parents
+			push @roots, $term; # it is a root term
+			$term_set->remove($term);
+		} else { # it is NOT a root term
+			my @queue = ($term);
+			while (scalar(@queue) > 0) {
+				my $unqueued = shift @queue;
+				my $rcode    = $term_set->remove($unqueued); # remove the nodes that need not be visited
+				my @children = @{$self->get_child_terms($unqueued)};
+				@queue       = (@queue, @children);
+			}
+			@arr = $term_set->get_set();
+		}
+	}
+	return \@roots;
+}
 
 =head2 get_number_of_terms
 
@@ -1407,14 +1441,14 @@ sub get_number_of_relationship_types {
 =cut
 
 sub export {
-	my $self = shift;
+	my $self        = shift;
 	my $file_handle = shift || \*STDOUT;
-	my $format = shift || "obo";
+	my $format      = shift || "obo";
     
 	my $possible_formats = OBO::Util::Set->new();
 	$possible_formats->add_all('obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3');
 	if (!$possible_formats->contains($format)) {
-		confess "The format must be one of the following: 'obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3'";
+		confess "The export format must be one of the following: 'obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3'";
 	}
     
 	if ($format eq "obo") { 
@@ -1709,7 +1743,7 @@ sub export {
 		my $rdf_tc  = shift || 0; # Set this according to your needs: 1=reflexive relations for each term
 		my $sbb_url = shift || 0; # Set this according to your needs: 1=SBB, 2=SBB reflex
 		my $skip    = shift || 0; # Set this according to your needs: 1=skip exporting the rel types, 0=do not skip (default)
-		
+
 		my $default_URL;
 
 		if ($sbb_url == 1) {
@@ -1720,12 +1754,12 @@ sub export {
 		} else {
 			$default_URL = $url;
 		}
-		
-		# TODO A method for getting the namespace directly from the ontology
+
+		# TODO Implement a method for getting the ontology namespace directly from the ontology
 		# TODO A method for getting the root term of the ontology
 
 		my @all_terms = values(%{$self->{TERMS}});
-		
+
 		# get the adecuate namespace
 		my $NS = undef;
 		foreach my $term (@all_terms) {

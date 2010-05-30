@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
-# $Id: get_terms_by_name.pl 1 2010-03-27 14:23:26Z erant $
+# $Id: get_obsolete_terms.pl 1 2010-03-27 14:23:26Z erant $
 #
-# Script  : get_terms_by_name.pl
+# Script  : get_obsolete_terms.pl
 #
-# Purpose : Find all the terms in a given ontology having in their names a given string.
+# Purpose : Find all the obsolete terms in a given ontology.
 #
-# Usage   : get_terms_by_name.pl name_string my_ontology.obo > ids_and_terms.txt
+# Usage   : get_obsolete_terms.pl my_ontology.obo > obsolete_terms.txt
 #
 # License : Copyright (c) 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -21,10 +21,10 @@ my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology  = $my_parser->work(shift @ARGV);
 my $name      = shift @ARGV;
 
-my $my_terms  = $ontology->get_terms_by_name($name);
-my @terms_arr = $my_terms->get_set();
-foreach my $t (@terms_arr) {
-	print $t->id(), "\t", $t->name(), "\n";
+foreach my $term (@{$ontology->get_terms()}) {
+	if ($term->is_obsolete()) {
+		print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->name());
+	}
 }
 
 exit 0;
@@ -33,16 +33,15 @@ __END__
 
 =head1 NAME
 
-get_terms_by_name.pl - Find all the terms in a given ontology having in their names a given string.
+get_obsolete_terms.pl - Find all the obsolete terms in a given ontology.
 
 =head1 USAGE
 
-get_terms_by_name.pl name_string my_ontology.obo > ids_and_terms.txt
+get_obsolete_terms.pl my_ontology.obo > obsolete_terms.txt
 
 =head1 DESCRIPTION
 
-This script retrieves all the terms (and their IDs) in an OBO-formatted ontology that 
-match the given string (name search). 
+This script retrieves all the obsolete terms (and their IDs) in a given ontology.
 
 =head1 AUTHOR
 

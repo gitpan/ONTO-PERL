@@ -26,6 +26,8 @@ $ontology->export(\*STDOUT, "owl");
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 go2owl.pl - Gene Ontology (in OBO) to OWL translator.

@@ -34,6 +34,8 @@ foreach my $term (@{$ontology->get_descendent_terms($ontology->get_term_by_id($t
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 get_descendent_terms.pl - Collects the descendent terms (list of IDs) from a given term (existing ID) in the given OBO ontology.

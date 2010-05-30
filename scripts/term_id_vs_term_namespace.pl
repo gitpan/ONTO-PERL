@@ -31,3 +31,29 @@ foreach my $term (@{$ontology->get_terms()}) {
 }
 
 exit 0;
+
+__END__
+
+=head1 NAME
+
+term_id_vs_term_namespace.pl - Gets the term IDs and its namespaces in a given ontology.
+
+=head1 DESCRIPTION
+
+Generates a flat file with two columns (TAB separated) with the 
+term_id and term_namespace (e.g. biological process) from the elements 
+of the given OBO ontology.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

@@ -34,9 +34,11 @@ foreach my $term (@{$ontology->get_child_terms($ontology->get_term_by_id($term_i
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
-get_parent_terms.pl - Collects the child terms (list of term IDs and their names) from a given term (existing ID) in the given OBO ontology.
+get_child_terms.pl - Collects the child terms (list of term IDs and their names) from a given term (existing ID) in the given OBO ontology.
 
 =head1 DESCRIPTION
 

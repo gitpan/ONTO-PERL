@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 33;
+    plan tests => 36;
 }
 
 #########################
@@ -36,12 +36,14 @@ $n2->name("Two");
 $n3->name("Three");
 
 # remove from my_set
-$my_set->remove($n1);
+my $rcode = $my_set->remove($n1);
+ok($rcode == 0);
 ok($my_set->size() == 0);
 ok(!$my_set->contains($n1));
 $my_set->add($n1);
 ok($my_set->contains($n1));
-$my_set->remove($n1);
+$rcode = $my_set->remove($n1);
+ok($rcode == 1);
 ok($my_set->size() == 0);
 ok(!$my_set->contains($n1));
 
@@ -96,7 +98,8 @@ ok($my_set->size() == 6);
 
 
 # remove from my_set
-$my_set->remove($n4);
+$rcode = $my_set->remove($n4);
+ok($rcode == 1);
 ok($my_set->size() == 5);
 ok(!$my_set->contains($n4));
 

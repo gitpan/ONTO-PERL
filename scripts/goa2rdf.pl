@@ -28,6 +28,8 @@ $goa2rdf->work(\*STDOUT, $input_file);
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 goa2rdf.pl - Generates a simple RDF graph from a given GOA file.

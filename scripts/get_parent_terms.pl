@@ -34,6 +34,8 @@ foreach my $term (@{$ontology->get_parent_terms($ontology->get_term_by_id($term_
 
 exit 0;
 
+__END__
+
 =head1 NAME
 
 get_parent_terms.pl - Collects the parent terms (list of term IDs and their names) from a given term (existing ID) in the given OBO ontology.

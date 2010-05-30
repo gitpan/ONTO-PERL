@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 183;
+    plan tests => 190;
 }
 
 #########################
@@ -495,21 +495,37 @@ $onto->create_rel($n4, 'part_of', $n5);
 ok($onto->get_number_of_relationships() == 7);
 ok(1);
 
-# subontology tests
+# subontology tests and get_root tests
 my $my_parser = OBO::Parser::OBOParser->new();
 my $alpha_onto = $my_parser->work("./t/data/alpha.obo");
 
-my $root = $alpha_onto->get_term_by_id("MYO:0000000");
+my $root  = $alpha_onto->get_term_by_id("MYO:0000000");
+my @roots = @{$alpha_onto->get_root_terms()};
+my %raices;
+foreach my $r (@roots) {
+	$raices{$r->id()} = $r;
+}
+my @raicillas = ("MYO:33820", "MYO:0000000", "MYO:0000050", "MYO:0000557");
+foreach my $rc (@raicillas) {
+	ok ($alpha_onto->get_term_by_id($rc)->equals($raices{$rc}));
+}
+
 my $sub_o = $alpha_onto->get_subontology_from($root);
 ok ($sub_o->get_number_of_terms() == 16);
+@roots = @{$sub_o->get_root_terms()};
+ok ($root->equals($roots[0])); # MYO:0000000
 
 $root = $alpha_onto->get_term_by_id("MYO:0000002");
 $sub_o = $alpha_onto->get_subontology_from($root);
 ok ($sub_o->get_number_of_terms() == 9);
+@roots = @{$sub_o->get_root_terms()};
+ok ($root->equals($roots[0])); # MYO:0000002
 
 $root = $alpha_onto->get_term_by_id("MYO:0000014");
 $sub_o = $alpha_onto->get_subontology_from($root);
 ok ($sub_o->get_number_of_terms() == 2);
+@roots = @{$sub_o->get_root_terms()};
+ok ($root->equals($roots[0])); # MYO:0000014
 
 # get paths from term1 to term2
 

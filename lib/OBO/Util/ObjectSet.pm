@@ -81,12 +81,12 @@ sub add () {
 =cut
 
 sub add_all {
-        my $self = shift;
-        my $result;
-        foreach (@_) {
-                $result = $self->add($_);
-        }
-        return $result;
+	my $self = shift;
+	my $result;
+	foreach (@_) {
+		$result = $self->add($_);
+	}
+	return $result;
 }
 
 =head2 remove
@@ -102,7 +102,7 @@ sub remove {
 	my ($self, $element_to_be_removed) = @_;
 	my $result = $self->contains($element_to_be_removed);
 	delete $self->{MAP}->{$element_to_be_removed->id()} if ($result);
-	return $self->contains($element_to_be_removed);
+	return $result;
 }
 
 =head2 contains

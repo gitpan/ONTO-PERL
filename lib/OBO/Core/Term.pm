@@ -238,25 +238,23 @@ sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{ID}                 = undef; # required, scalar (1)
-	$self->{NAME}               = undef; # required, scalar (1)
-	$self->{IS_ANONYMOUS}       = undef; # [1|0], 0 by default
+	$self->{ID}                 = undef;                 # required, scalar (1)
+	$self->{NAME}               = undef;                 # required, scalar (1)
+	$self->{IS_ANONYMOUS}       = undef;                 # [1|0], 0 by default
 	$self->{ALT_ID}             = OBO::Util::Set->new(); # set (0..N)
 	$self->{DEF}                = OBO::Core::Def->new(); # (0..1)
 	$self->{NAMESPACE_SET}      = OBO::Util::Set->new(); # set (0..N)
-	$self->{COMMENT}            = undef; # scalar (0..1)
+	$self->{COMMENT}            = undef;                 # scalar (0..1)
 	$self->{SUBSET_SET}         = OBO::Util::Set->new(); # set of scalars (0..N)
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
-	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new(); # set of dbxref's (0..N)
-	#@{$self->{IS_A}}            = (); # (0..N) #delete: the Ontology provides it
-	$self->{INTERSECTION_OF}    = OBO::Util::Set->new(); # (0..N)
-	$self->{UNION_OF}           = OBO::Util::Set->new(); # (0..N)
-	$self->{DISJOINT_FROM}      = OBO::Util::Set->new(); # (0..N)
-	#@{$self->{RELATIONSHIP}}    = (); # (0..N) # delete: the Ontology provides it
-	$self->{IS_OBSOLETE}        = undef; # [1|0], 0 by default
-	$self->{REPLACED_BY}        = OBO::Util::Set->new(); # set of scalars (0..N)
-	$self->{CONSIDER}           = OBO::Util::Set->new(); # set of scalars (0..N)
-	$self->{BUILTIN}            = undef; # [1|0], 0 by default
+	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
+	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N)
+	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N)
+	$self->{DISJOINT_FROM}      = OBO::Util::Set->new();        # (0..N)
+	$self->{IS_OBSOLETE}        = undef;                        # [1|0], 0 by default
+	$self->{REPLACED_BY}        = OBO::Util::Set->new();        # set of scalars (0..N)
+	$self->{CONSIDER}           = OBO::Util::Set->new();        # set of scalars (0..N)
+	$self->{BUILTIN}            = undef;                        # [1|0], 0 by default
 
 	bless ($self, $class);
 	return $self;
@@ -764,4 +762,5 @@ sub _unescape {
 	$match =~ s/;;;;/\\,/g;
 	return $match;
 }
+
 1;

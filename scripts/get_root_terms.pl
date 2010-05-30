@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
-# $Id: get_relationship_types.pl 1 2010-03-27 14:23:26Z erant $
+# $Id: get_root_terms.pl 1 2010-03-27 14:23:26Z erant $
 #
-# Script  : get_relationship_types.pl
+# Script  : get_root_terms.pl
 #
-# Purpose : Find all the relationships in a given ontology.
+# Purpose : Find all the root terms in a given ontology.
 #
-# Usage   : get_relationships_type.pl my_ontology.obo > terms.txt
+# Usage   : get_root_terms.pl my_ontology.obo > root_terms.txt
 #
 # License : Copyright (c) 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -16,14 +16,14 @@
 ################################################################################
 
 use OBO::Parser::OBOParser;
-
+			
 my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift @ARGV);
 
-my @my_rels= @{$ontology->get_relationship_types()}; # get all the relationships types
+my @my_terms = @{$ontology->get_root_terms()}; # get all the root terms
 
-foreach my $r (@my_rels) {
-	print $r->name(), "\n";
+foreach my $t (@my_terms) {
+	print $t->id(), "\t", $t->name(), "\n";
 }
 
 exit 0;
@@ -32,11 +32,12 @@ __END__
 
 =head1 NAME
 
-get_relationship_types.pl - Find all the relationship types in a given ontology.
+get_root_terms.pl - Find all the root terms in a given ontology.
 
 =head1 DESCRIPTION
 
-This script retrieves all the relationship types in a given ontology.
+This script retrieves all the names of the root terms (and their IDs) 
+in a given OBO-formatted ontology.
 
 =head1 AUTHOR
 
