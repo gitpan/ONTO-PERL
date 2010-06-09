@@ -190,23 +190,23 @@ sub dbxref_set_as_string {
 		foreach my $entry (@dbxrefs) {
 			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
 			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
+			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
 				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*)\s+\"([^\"]*)\")/) {
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&-]*))/) { # skip: , y "
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);

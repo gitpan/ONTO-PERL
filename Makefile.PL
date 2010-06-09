@@ -47,12 +47,12 @@ MSG
 }
 
 WriteMakefile(
-    NAME              => 'ONTO-PERL',
-    DISTNAME          => 'ONTO-PERL',
-    ABSTRACT          => 'PERL Modules for biomedical ontologies such as the Cell Cycle Ontology (CCO) and OBO ontologies in general like Gene Ontology (GO)',
-    VERSION_FROM      => 'ONTO-PERL.pod', # finds $VERSION
-    #LICENCE           => 'perl',
-    #PREREQ_PM         => {
+	NAME              => 'ONTO-PERL',
+	DISTNAME          => 'ONTO-PERL',
+	ABSTRACT          => 'PERL Modules for biomedical ontologies such as the Cell Cycle Ontology (CCO) and OBO ontologies in general like Gene Ontology (GO)',
+	VERSION_FROM      => 'lib/OBO/Core/Ontology.pm', # finds $VERSION
+	#LICENCE           => 'perl',
+	#PREREQ_PM         => {
 	#		'SWISS::Entry' => 1.65,
 	#		'XML::Simple'  => 2.16}, # e.g., Module::Name => 1.1
 	EXE_FILES         => [
@@ -65,8 +65,9 @@ WriteMakefile(
 								scripts/get_relationship_types.pl
 								scripts/get_root_terms.pl
 								scripts/get_subontology_from.pl
-								scripts/get_terms.pl
+								scripts/get_term_synonyms.pl
 								scripts/get_terms_by_name.pl
+								scripts/get_terms.pl
 								scripts/go2owl.pl
 								scripts/obo_trimming.pl
 								scripts/obo2cco.pl
@@ -83,9 +84,9 @@ WriteMakefile(
 							)
 						],
 			
-    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-    (AUTHOR           => 'Erick Antezana <erick.antezana -@- gmail.com>') : ()),
-     dist             => { 
+	($] >= 5.005 ?     ## Add these new keywords supported since 5.005
+	(AUTHOR           => 'Erick Antezana <erick.antezana -@- gmail.com>') : ()),
+	 dist             => { 
 			'SUFFIX'       => ".gz",
 			'DIST_DEFAULT' => 'all tardist',
 			'COMPRESS'     => "gzip -9f" 

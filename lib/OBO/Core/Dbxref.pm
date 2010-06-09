@@ -1,4 +1,4 @@
-# $Id: Dbxref.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: Dbxref.pm 1845 2010-01-08 12:33:09Z erant $
 #
 # Module  : Dbxref.pm
 # Purpose : Reference structure.
@@ -96,12 +96,12 @@ sub new {
 
 sub name {
 	my ($self, $name) = @_;
-    if ($name) {
-    	($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\w-]+):([~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.=&-]+)/ || $name =~ /(http):\/\/(.*)/);
+	if ($name) {
+		($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\w-]+):([~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.=&!%_-]+)/ || $name =~ /(http):\/\/(.*)/);
 	} else { # get-mode
 		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
-    }
-    return $self->{DB}.":".$self->{ACC};
+	}
+	return $self->{DB}.":".$self->{ACC};
 }
 
 # Alias
@@ -118,12 +118,12 @@ sub name {
 
 sub db {
 	my ($self, $db) = @_;
-    if ($db) {
+	if ($db) {
 		$self->{DB} = $db;
 	} else { # get-mode
 		confess "The database (db) of this 'dbxref' is not defined." if (!defined($self->{DB}));
-    }
-    return $self->{DB};
+	}
+	return $self->{DB};
 }
 
 =head2 acc
@@ -137,12 +137,12 @@ sub db {
 
 sub acc {
 	my ($self, $acc) = @_;
-    if ($acc) {
+	if ($acc) {
 		$self->{ACC} = $acc;
 	} else { # get-mode
 		confess "The accession number (acc) of this 'dbxref' is not defined." if (!defined($self->{ACC}));
-    }
-    return $self->{ACC};
+	}
+	return $self->{ACC};
 }
 
 =head2 description
@@ -156,12 +156,12 @@ sub acc {
 
 sub description {
 	my ($self, $description) = @_;
-    if ($description) { 
+	if ($description) { 
 		$self->{DESCRIPTION} = $description;
-    } else { # get-mode
+	} else { # get-mode
 		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
-    }
-    return $self->{DESCRIPTION};
+	}
+	return $self->{DESCRIPTION};
 }
 
 =head2 modifier
@@ -175,12 +175,12 @@ sub description {
 
 sub modifier {
 	my ($self, $modifier) = @_;
-    if ($modifier) { 
+	if ($modifier) { 
 		$self->{MODIFIER} = $modifier;
-    } else { # get-mode
+	} else { # get-mode
 		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
-    }
-    return $self->{MODIFIER};
+	}
+	return $self->{MODIFIER};
 }
 
 =head2 as_string

@@ -437,6 +437,8 @@ use Carp;
 use Carp qw(cluck);
 use Data::Dumper qw(Dumper); 
 
+our $VERSION = '1.22';
+
 sub new {
 	my $class                      = shift;
 	my $self                       = {};
@@ -1787,8 +1789,7 @@ sub export {
 
 		#
 		# Terms
-		# 
-		
+		#
 		foreach my $term (sort {lc($a->id()) cmp lc($b->id())} @all_terms) {
 
 			#	C	Cellular component
@@ -1832,7 +1833,6 @@ sub export {
 			#
 			# name:
 			#
-
 			if (defined $term->name()) {
 				print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($term->name())."</rdfs:label>\n";
 			} else {
@@ -2120,7 +2120,7 @@ sub export {
 		# EOF:
 		#
 		print $file_handle "</rdf:RDF>\n\n";
-		print $file_handle "<!--\nGenerated with ONTO-PERL: ".$0.", ".__date()."\n-->";	
+		print $file_handle "<!--\nGenerated with ONTO-PERL ($VERSION): ".$0.", ".__date()."\n-->";	
 	} elsif ($format eq "xml") {
 		# terms
 		my @all_terms = values(%{$self->{TERMS}});
@@ -2768,7 +2768,7 @@ sub export {
 		# EOF:
 		#
 		print $file_handle "</rdf:RDF>\n\n";
-		print $file_handle "<!--\nGenerated with ONTO-PERL: ".$0.", ".__date()."\n-->";
+		print $file_handle "<!--\nGenerated with ONTO-PERL ($VERSION): ".$0.", ".__date()."\n-->";
 		
 	} elsif ($format eq "dot") {
 		#

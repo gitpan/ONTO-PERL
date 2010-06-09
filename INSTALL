@@ -13,7 +13,7 @@ From the root prompt on your server, invoke the CPAN shell:
 
 # perl -MCPAN -e shell
 
-Once the Perl interpreter has loaded (and been configured), you can 
+Once the PERL interpreter has loaded (and been configured), you can 
 install modules by issuing the command install MODULENAME.
 
 The first thing you should do is upgrade your CPAN:
@@ -36,7 +36,7 @@ By typing the following:
 	perl Makefile.PL
 	make
 	make test
-	make install
+	sudo make install
 	
 Documentation
 =============
@@ -44,14 +44,17 @@ Documentation
 For more information about these modules, check:
 
  - http://search.cpan.org/~easr/ONTO-PERL/
- - http://www.cellcycleontology.org/api/doc/example00.html 
- - http://cellcycleonto.svn.sourceforge.net/viewvc/cellcycleonto/ONTO-PERL/
+ - http://www.cellcycleontology.org
+ - http://www.semantic-systems-biology.org
  
- See also:
+See also:
  
-   ONTO-PERL: An API supporting the development and analysis of bio-ontologies
-   E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
-   Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
+  1. ONTO-PERL: An API supporting the development and analysis of bio-ontologies
+     E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
+     Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
+
+  2. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
+     http://bitbucket.org/easr/onto-toolkit
 
 Third part modules
 ==================
@@ -71,4 +74,5 @@ Third part modules
 Bugs/comments/questions/etc
 ===========================
 
-We are regularly improving this API, please report any bugs or send your comments to erick.antezana -@- gmail.com
+We are regularly improving this API, please report any bugs 
+or send your comments to erick.antezana -@- gmail.com

@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
-# $Id: get_obsolete_terms.pl 1 2010-03-27 14:23:26Z erant $
+# $Id: get_term_synonyms.pl 1 2010-05-27 14:23:26Z erant $
 #
-# Script  : get_obsolete_terms.pl
+# Script  : get_term_synonyms.pl
 #
-# Purpose : Find all the obsolete terms in a given ontology.
+# Purpose : Find all the synonyms of a given term name in an ontology.
 #
-# Usage   : get_obsolete_terms.pl my_ontology.obo > obsolete_terms.txt
+# Usage   : get_term_synonyms.pl my_ontology.obo term_name > term_synonyms.txt
 #
 # License : Copyright (c) 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -16,32 +16,33 @@
 ###############################################################################
 
 use OBO::Parser::OBOParser;
-			
+
 my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology  = $my_parser->work(shift @ARGV);
 my $name      = shift @ARGV;
 
-foreach my $term (@{$ontology->get_terms()}) {
-	if ($term->is_obsolete()) {
-		print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->name());
+my $my_term  = $ontology->get_term_by_name($name);
+if ($my_term) {
+	my @synonyms = $my_term->synonym_set();
+	foreach my $s (@synonyms) {
+		print $s->def()->text(), "\n";
 	}
 }
-
 exit 0;
 
 __END__
 
 =head1 NAME
 
-get_obsolete_terms.pl - Find all the obsolete terms in a given ontology.
+get_term_synonyms.pl - Find all the synonyms of a given term name in an ontology.
 
 =head1 USAGE
 
-get_obsolete_terms.pl my_ontology.obo > obsolete_terms.txt
+get_term_synonyms.pl my_ontology.obo term_name > term_synonyms.txt
 
 =head1 DESCRIPTION
 
-This script retrieves all the obsolete terms (and their IDs) in a given ontology.
+This script retrieves all the synonyms of a term name (exact name match) in an OBO-formatted ontology. 
 
 =head1 AUTHOR
 
