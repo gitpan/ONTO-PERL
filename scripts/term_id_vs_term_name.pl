@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: term_id_vs_term_name.pl 1893 2010-02-14 14:23:26Z erant $
+# $Id: term_id_vs_term_name.pl 1893 2010-02-14 14:23:26Z easr $
 #
 # Script  : term_id_vs_term_name.pl
 #

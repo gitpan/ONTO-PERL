@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_relationship_types.pl 1 2010-03-27 14:23:26Z erant $
+# $Id: get_relationship_types.pl 1 2010-03-27 14:23:26Z easr $
 #
 # Script  : get_relationship_types.pl
 #

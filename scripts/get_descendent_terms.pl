@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_descendent_terms.pl 1893 2010-02-14 14:23:26Z erant $
+# $Id: get_descendent_terms.pl 1893 2010-02-14 14:23:26Z easr $
 #
 # Script  : get_descendent_terms.pl
 #

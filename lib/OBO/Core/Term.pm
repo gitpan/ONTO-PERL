@@ -1,4 +1,4 @@
-# $Id: Term.pm 2054 2010-04-27 14:17:31Z Erick Antezana $
+# $Id: Term.pm 2054 2010-08-21 14:17:31Z Erick Antezana $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -149,6 +149,13 @@ $n3->synonym($syn3);
 $n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
 
 
+# creator + date
+
+$n1->created_by("erick_antezana");
+
+$n1->creation_date("2009-04-13T01:32:36Z ");
+
+
 # xref
 
 $n1->xref("Uno");
@@ -238,19 +245,21 @@ sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{ID}                 = undef;                 # required, scalar (1)
-	$self->{NAME}               = undef;                 # required, scalar (1)
-	$self->{IS_ANONYMOUS}       = undef;                 # [1|0], 0 by default
-	$self->{ALT_ID}             = OBO::Util::Set->new(); # set (0..N)
-	$self->{DEF}                = OBO::Core::Def->new(); # (0..1)
-	$self->{NAMESPACE_SET}      = OBO::Util::Set->new(); # set (0..N)
-	$self->{COMMENT}            = undef;                 # scalar (0..1)
-	$self->{SUBSET_SET}         = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{ID}                 = undef;                        # required, scalar (1)
+	$self->{NAME}               = undef;                        # not required since OBO spec 1.4, scalar (0..1)
+	$self->{IS_ANONYMOUS}       = undef;                        # [1|0], 0 by default
+	$self->{ALT_ID}             = OBO::Util::Set->new();        # set (0..N)
+	$self->{DEF}                = OBO::Core::Def->new();        # (0..1)
+	$self->{NAMESPACE_SET}      = OBO::Util::Set->new();        # set (0..N)
+	$self->{COMMENT}            = undef;                        # scalar (0..1)
+	$self->{SUBSET_SET}         = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
 	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
 	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N)
 	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N)
 	$self->{DISJOINT_FROM}      = OBO::Util::Set->new();        # (0..N)
+	$self->{CREATED_BY}         = undef;                        # scalar (0..1)
+	$self->{CREATION_DATE}      = undef;                        # scalar (0..1)
 	$self->{IS_OBSOLETE}        = undef;                        # [1|0], 0 by default
 	$self->{REPLACED_BY}        = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{CONSIDER}           = OBO::Util::Set->new();        # set of scalars (0..N)
@@ -677,6 +686,34 @@ sub disjoint_from {
 		$self->{DISJOINT_FROM}->add(shift);
 	}
 	return $self->{DISJOINT_FROM}->get_set();
+}
+
+=head2 created_by
+
+  Usage    - print $term->created_by() or $term->created_by("erick_antezana")
+  Returns  - name (string) of the creator of the term, may be a short username, initials or ID
+  Args     - name (string) of the creator of the term, may be a short username, initials or ID
+  Function - gets/sets the name of the creator of the term
+  
+=cut
+sub created_by {
+	my ($self, $created_by) = @_;
+	if ($created_by) { $self->{CREATED_BY} = $created_by }
+	return $self->{CREATED_BY};
+}
+
+=head2 creation_date
+
+  Usage    - print $term->creation_date() or $term->creation_date("2010-04-13T01:32:36Z")
+  Returns  - date (string) of creation of the term specified in ISO 8601 format
+  Args     - date (string) of creation of the term specified in ISO 8601 format
+  Function - gets/sets the date of creation of the term
+  
+=cut
+sub creation_date {
+	my ($self, $creation_date) = @_;
+	if ($creation_date) { $self->{CREATION_DATE} = $creation_date }
+	return $self->{CREATION_DATE};
 }
 
 =head2 is_obsolete

@@ -1,4 +1,4 @@
-# $Id: IDspace.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: IDspace.pm 1845 2008-01-08 12:33:09Z easr $
 #
 # Module  : IDspace.pm
 # Purpose : A mapping between a "local" ID space and a "global" ID space.

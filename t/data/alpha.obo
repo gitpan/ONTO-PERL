@@ -1,6 +1,6 @@
 format-version: 1.0
 date: 11:05:2007 12:52
-saved-by: erant
+saved-by: easr
 synonymtypedef: IUPAC_NAME "IUPAC NAME"
 synonymtypedef: FORMULA "FORMULA" RELATED
 synonymtypedef: SMILES "SMILES"
@@ -119,8 +119,12 @@ id: MYO:33820
 name: iduronate
 synonym: "C6H9O7" RELATED FORMULA [ChEBI:]
 synonym: "C6H9O7" RELATED IUPAC_NAME [ChEBI:]
+created_by: erick_antezana
+creation_date: 2010-04-13T01:32:36Z 
 
 [Typedef]
 id: part_of
 name: part_of
+created_by: erick_antezana
+creation_date: 2008-04-13T01:32:36Z
 !TODO This is a TODO

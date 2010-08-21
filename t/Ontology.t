@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 190;
+    plan tests => 193;
 }
 
 #########################
@@ -430,7 +430,7 @@ ok(@{$onto->get_tail_by_relationship_type($n3, $onto->get_relationship_type_by_n
 ok(@{$onto->get_tail_by_relationship_type($n2, $onto->get_relationship_type_by_name("is a"))}[0]->equals($n1));
 
 #export
-$onto->remark("This is a test ontology");
+$onto->remarks("This is a test ontology");
 #$onto->export(\*STDERR);
 
 # subontology_by_terms
@@ -469,7 +469,11 @@ $so->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/CCO", "
 ok($so->idspace->local_idspace() eq "CCO");
 ok($so->idspace->uri() eq "http://www.cellcycleontology.org/ontology/CCO");
 ok($so->idspace->description() eq "cell cycle terms");
-$so->remark("This is a test ontology");
+$so->remarks("1. This is a test ontology", "2. This is a second remark", "3. This is the last remark");
+my @remarks = sort ($so->remarks()->get_set());
+ok($remarks[0] eq "1. This is a test ontology");
+ok($remarks[1] eq "2. This is a second remark");
+ok($remarks[2] eq "3. This is the last remark");
 $so->subsets("Jukumari Term used for jukumari", "Jukucha Term used for jukucha");
 my $std1 = OBO::Core::SynonymTypeDef->new();
 my $std2 = OBO::Core::SynonymTypeDef->new();

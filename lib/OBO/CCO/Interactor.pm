@@ -1,4 +1,4 @@
-# $Id: Interactor.pm 1844 2008-01-08 12:30:37Z erant $
+# $Id: Interactor.pm 1844 2008-01-08 12:30:37Z easr $
 #
 # Module  : Interactor.pm
 # Purpose : An interactor.

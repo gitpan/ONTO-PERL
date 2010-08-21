@@ -1,4 +1,4 @@
-# $Id: Synonym.pm 1845 2010-01-08 12:33:09Z erant $
+# $Id: Synonym.pm 1845 2010-01-08 12:33:09Z easr $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.

@@ -1,4 +1,4 @@
-# $Id: Def.pm 1845 2010-01-08 12:33:09Z erant $
+# $Id: Def.pm 1845 2010-01-08 12:33:09Z easr $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.

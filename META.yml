@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               ONTO-PERL
-version:            1.22
+version:            1.23
 abstract:           PERL Modules for biomedical ontologies such as the Cell Cycle Ontology (CCO) and OBO ontologies in general like Gene Ontology (GO)
 author:
     - Erick Antezana <erick.antezana -@- gmail.com>

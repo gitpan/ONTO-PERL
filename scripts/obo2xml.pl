@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo2xml.pl 1893 2010-02-14 14:23:26Z erant $
+# $Id: obo2xml.pl 1893 2010-02-14 14:23:26Z easr $
 #
 # Script  : obo2xml.pl
 #

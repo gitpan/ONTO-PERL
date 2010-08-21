@@ -43,7 +43,7 @@ if ($sub_ontology_root_id) {
 
 my $ns = $onto->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO");
 $onto->default_namespace("cellcycle_ontology");
-$onto->remark("A Cell-Cycle Sub-Ontology");
+$onto->remarks("A Cell-Cycle Sub-Ontology");
 
 foreach my $entry (sort {$a->id() cmp $b->id()} @{$onto->get_terms()}){
 	my $current_id = $entry->id();

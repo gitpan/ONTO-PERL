@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 67;
+    plan tests => 69;
 }
 
 #########################
@@ -40,6 +40,12 @@ ok($n3->id() eq "CCO:P0000003");
 ok($n1->idspace() eq "CCO");
 ok($n1->subnamespace() eq "P");
 ok($n1->code() eq "0000001");
+
+# term creator + date
+$n1->created_by("erick_antezana");
+ok($n1->created_by() eq "erick_antezana");
+$n1->creation_date("2009-04-13T01:32:36Z ");
+ok($n1->creation_date() eq "2009-04-13T01:32:36Z ");
 
 # alt_id
 $n1->alt_id("CCO:P0000001_alt_id");

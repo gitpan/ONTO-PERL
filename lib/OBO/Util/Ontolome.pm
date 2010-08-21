@@ -1,4 +1,4 @@
-# $Id: Ontolome.pm 2132 2008-05-26 11:13:15Z Erick Antezana $
+# $Id: Ontolome.pm 2132 2010-08-21 11:13:15Z Erick Antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
@@ -81,7 +81,7 @@ sub union () {
 	my $result = OBO::Core::Ontology->new();
 	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo/"); # adapt it to your needs
 	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
-	$result->remark("Merged ontology");
+	$result->remarks("Union of ontologies");
 	
 	foreach my $ontology (@ontos) {
 		$result->idspace($ontology->idspace()); # assuming the same idspace
@@ -236,7 +236,7 @@ sub intersection () {
 	my $result = OBO::Core::Ontology->new();
 	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo"); # adapt it to your needs
 	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
-	$result->remark("Intersected ontology");
+	$result->remarks("Intersection of ontologies");
 	
 	$result->idspace($onto1->idspace()); # assuming the same idspace
 	$result->subsets($onto1->subsets()->get_set()); # add all subsets by default
@@ -394,7 +394,7 @@ my ($self, $ontology) = @_;
 	my $result = OBO::Core::Ontology->new();
 	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo/"); # adapt it to your needs
 	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
-	$result->remark("Ontology with transitive closure");
+	$result->remarks("Ontology with transitive closures");
 	
 	$result->idspace($ontology->idspace()); # assuming the same idspace
 	$result->subsets($ontology->subsets()->get_set()); # add all subsets by default

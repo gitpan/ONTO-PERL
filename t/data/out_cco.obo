@@ -2,7 +2,6 @@ format-version: 1.2
 date: 16:02:2007 16:06
 auto-generated-by: ONTO-PERL
 default-namespace: CCO
-remark: The Cell-Cycle Ontology
 
 [Term]
 id: CCO:B0000000

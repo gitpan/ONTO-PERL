@@ -1,4 +1,4 @@
-# $Id: Set.pm 1846 2008-01-08 12:35:31Z erant $
+# $Id: Set.pm 1846 2008-01-08 12:35:31Z easr $
 #
 # Module  : Set.pm
 # Purpose : An implementation of a Set of scalars.

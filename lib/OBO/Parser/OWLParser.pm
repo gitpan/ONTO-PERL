@@ -1,4 +1,4 @@
-# $Id: OWLParser.pm 1890 2008-02-14 10:59:57Z erant $
+# $Id: OWLParser.pm 1890 2008-02-14 10:59:57Z easr $
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
@@ -662,7 +662,7 @@ sub endElement {
 				} elsif ($owl_object_property_tag) {
 					$current_relationship_type->comment($comment);
 				} elsif ($owl_ontology_tag) {
-					$result->remark($comment);
+					$result->remarks($comment);
 				}
 			} elsif (defined $subsets_and_comment) {
 				$result->subsets($subsets_and_comment);

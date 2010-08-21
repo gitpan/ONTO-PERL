@@ -10,7 +10,7 @@ BEGIN {
 }
 
 #########################
-# $Id: Relationship.t 291 2006-06-01 16:21:45Z erant $
+# $Id: Relationship.t 291 2006-06-01 16:21:45Z easr $
 #
 # Purpose : ONTO-PERL usage examples.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>

@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 2054 2010-04-27 14:17:31Z Erick Antezana $
+# $Id: OBOParser.pm 2054 2010-08-21 14:17:31Z Erick Antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
@@ -132,7 +132,11 @@ sub work {
 		}
 		my $idspace = $1 if ($chunks[0] =~ /idspace:\s*(.*)\n/);
 		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)(\n)?/);
-		my $remark = $1 if ($chunks[0] =~ /remark:\s*(.*)/);
+		my $remarks = OBO::Util::Set->new();
+		while ($chunks[0] =~ /(remark:\s*(.*)\n)/) {
+			$remarks->add($2);
+			$chunks[0] =~ s/$1//;
+		}
 	
 		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it." if (!defined $format_version);
 		
@@ -146,7 +150,7 @@ sub work {
 		$result->saved_by($saved_by) if ($saved_by);
 		#$result->auto_generated_by($auto_generated_by) if ($auto_generated_by);
 		$result->default_namespace($default_namespace) if ($default_namespace);
-		$result->remark($remark) if ($remark);
+		$result->remarks($remarks->get_set());
 		
 		foreach my $chunk (@chunks) {
 			my @entry = split (/\n/, $chunk);
@@ -174,7 +178,7 @@ sub work {
 					} elsif ($line =~ /^name:\s*(.*)/) {
 						croak "The term with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
 						if (!defined $1) {
-							croak "The term with id '", $term->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
+							warn "The term with id '", $term->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 						} else {
 							$term->name($1);
 							$only_one_name_tag_per_entry = 1;
@@ -199,13 +203,18 @@ sub work {
 						$term->synonym_as_string($2, $3, uc($1));
 					} elsif ($line =~ /^synonym:\s*\"(.*)\"(\s+(EXACT|BROAD|NARROW|RELATED))?(\s+([-\w]+))?\s+(\[.*\])\s*/) {
 						my $scope = (defined $3)?$3:"RELATED";
-						# OBO flat file spec: v1.2
+						# From OBO flat file spec v1.2, we use:
 						# synonym: "endomitosis" EXACT []
 						if (defined $5) {
 							my $found = 0; # check that the 'synonym type name' was defined in the header!
 							foreach my $st ($result->synonym_type_def_set()->get_set()) {
 								# Adapt the scope if necessary to the one defined in the header!
-								$found = 1, $scope = $st->scope(), last if ($st->synonym_type_name() eq $5);
+								if ($st->synonym_type_name() eq $5) {
+									$found = 1;
+									my $default_scope = $st->scope();
+									$scope = $default_scope if (defined $default_scope);
+									last;
+								}
 							}
 							croak "The synonym type name (", $5,") used in line ",  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
 						}
@@ -247,6 +256,10 @@ sub work {
 						}
 						$rel->link($term, $target);
 						$result->add_relationship($rel);
+					} elsif ($line =~ /^created_by:\s*(.*)/) {
+						$term->created_by($1);
+					} elsif ($line =~ /^creation_date:\s*(.*)/) {
+						$term->creation_date($1); # TODO Check that the date follows the ISO 8601 format
 					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
 						$term->is_obsolete(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
@@ -256,7 +269,7 @@ sub work {
 					} elsif ($line =~ /^builtin:\s*(.*)/) {
 						$term->builtin(($1 eq "true")?1:0);
 					} elsif ($line =~ /^property_value:\s*(.*)/) {
-						# do nothing for the moment...TODO: implement this once the OBO spec is more mature...
+						#  TODO implement this once the OBO spec is more mature...
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {					
@@ -322,13 +335,18 @@ sub work {
 						$type->synonym_as_string($2, $3, uc($1));
 					} elsif ($line =~ /^synonym:\s*\"(.*)\"(\s+(EXACT|BROAD|NARROW|RELATED))?(\s+(\w+))?\s+(\[.*\])\s*/) {
 						my $scope = (defined $3)?$3:"RELATED";
-						# OBO flat file spec: v1.2
+						# From OBO flat file spec v1.2, we use:
 						# synonym: "endomitosis" EXACT []
 						if (defined $5) {
 							my $found = 0; # check that the 'synonym type name' was defined in the header!
 							foreach my $st ($result->synonym_type_def_set()->get_set()) {
 								# Adapt the scope if necessary to the one defined in the header!
-								$found = 1, $scope = $st->scope(), last if ($st->synonym_type_name() eq $5);
+								if ($st->synonym_type_name() eq $5) {
+									$found = 1;
+									my $default_scope = $st->scope();
+									$scope = $default_scope if (defined $default_scope);
+									last;
+								}
 							}
 							croak "The synonym type name (", $5,") used in line ",  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
 						}
@@ -348,10 +366,14 @@ sub work {
 						$rel->link($type, $target); # add a relationship between two relationship types
 						$result->add_relationship($rel);
 					} elsif ($line =~ /^inverse_of:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.3 is there, then implement it in RelationshipType
+						# TODO wait until the OBO spec 1.4 is there, then implement it in RelationshipType
 						#$type->inverse_of($1);
 					} elsif ($line =~ /^transitive_over:\s*(.*)/) {
 						$type->transitive_over($1);
+					} elsif ($line =~ /^created_by:\s*(.*)/) {
+						$type->created_by($1);
+					} elsif ($line =~ /^creation_date:\s*(.*)/) {
+						$type->creation_date($1); # TODO Check that the date follows the ISO 8601 format
 					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
 						$type->is_obsolete(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {

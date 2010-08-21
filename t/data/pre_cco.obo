@@ -10,6 +10,8 @@ name: ECK
 def: "The EcoGene Database of Escherichia coli Sequence and Function" []
 is_a: CCO:R0000000 ! reference
 comment: http://www.ecogene.org/
+created_by: erick_antezana
+creation_date: 2010-04-13T01:32:36Z 
 
 [Term]
 id: CCO:R0000007
@@ -5686,3 +5688,5 @@ id: has_source
 name: has_source
 is_a: relationship
 def: "o has_source O where o is a gene or gene product and O an organism." [CCO:ea]
+created_by: erick_antezana
+creation_date: 2008-04-13T01:32:36Z

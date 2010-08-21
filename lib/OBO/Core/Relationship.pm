@@ -1,4 +1,4 @@
-# $Id: Relationship.pm 1845 2008-01-08 12:33:09Z erant $
+# $Id: Relationship.pm 1845 2010-08-21 12:33:09Z easr $
 #
 # Module  : Relationship.pm
 # Purpose : Relationship in the Ontology.

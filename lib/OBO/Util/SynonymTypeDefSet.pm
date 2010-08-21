@@ -1,4 +1,4 @@
-# $Id: SynonymTypeDefSet.pm 1846 2008-01-08 12:35:31Z erant $
+# $Id: SynonymTypeDefSet.pm 1846 2008-01-08 12:35:31Z easr $
 #
 # Module  : SynonymTypeDefSet.pm
 # Purpose : Synonym Type Definition Set.

@@ -1,7 +1,7 @@
 format-version: 1.0
 date: 28:03:2007 13:57
-saved-by: erant
-auto-generated-by: erant
+saved-by: easr
+auto-generated-by: easr
 import: ulo.obo
 subsetdef: Rice "Term used for rice"
 subsetdef: Maize "Term used for maize"

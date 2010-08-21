@@ -74,3 +74,5 @@ Revision history for ONTO-PERL
 1.21 New scripts (get_obsolete_terms.pl and get_root_terms.pl). POD improvements.
 
 1.22 Added get_term_synonyms.pl; Added $VERSION to Ontology.pm; RegExp improvements.
+
+1.23 Added support for 'created_by' and 'creation_date' tags; fixed bug in synonyms parsing. 

@@ -1,4 +1,4 @@
-# $Id: ONTO-PERL.pod 291 2010-03-27 16:21:45Z erant $
+# $Id: ONTO-PERL.pod 291 2010-08-21 16:21:45Z easr $
 #
 # see also - http://search.cpan.org/~easr/ONTO-PERL/
 #
@@ -32,33 +32,33 @@ See also:
   3. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
      http://bitbucket.org/easr/onto-toolkit
 
-Some files in 'ONTO-PERL':
+Files in 'ONTO-PERL':
 
-README						Readme file
+  README						Readme file
 
-INSTALL						How to install ONTO-PERL (requirements)
+  INSTALL						How to install ONTO-PERL (requirements)
 
-LICENSE						ONTO-PERL's license
+  LICENSE						ONTO-PERL's license
 
-ONTO-PERL-x.y.tar.gz		ONTO-PERL API: version x.y
+  ONTO-PERL-x.y.tar.gz		ONTO-PERL API: version x.y
 
-Changes						Description about the changes in 'ONTO-PERL'
+  Changes						Description about the changes in 'ONTO-PERL'
 
 
 Remark:
 
-'ONTO-PERL' is provided "as-is". The current version is stable; 
-nonetheless, improvements are expected as well as feedback is 
-very welcome. Please visit constantly this repository for checking 
-up-to-date versions of this distribution.
+  'ONTO-PERL' is provided "as-is". The current version is stable; 
+  nonetheless, improvements are expected as well as feedback is 
+  very welcome. Please visit constantly this repository for checking 
+  up-to-date versions of this distribution.
 
 
 Contact:
 
-Any comments, suggestions can be addressed to: 
+  Any comments, suggestions can be addressed to: 
 
-	Erick Antezana
-	<erick.antezana -@- gmail.com>
+    Erick Antezana
+    <erick.antezana -@- gmail.com>
 
 =head1 AUTHOR
 

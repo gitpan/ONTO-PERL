@@ -450,7 +450,7 @@
 			# now: @{$onto->get_tail_by_relationship_type($n2, $onto->get_relationship_type_by_name("is a"))}[0]->equals($n1) should be TRUE
 			
 			# export
-			$onto->remark("This is a test ontology");
+			$onto->remarks("This is a test ontology");
 			$onto->export(\*STDOUT); # by default in OBO format (spec 1.2)
 			
 			# subontology_by_terms
@@ -490,7 +490,7 @@
 			# now: $so->idspace->uri() should be "http://www.cellcycleontology.org/ontology/CCO"
 			# now: $so->idspace->description() should be "cell cycle terms"
 			
-			$so->remark("This is a test ontology");
+			$so->remarks("This is a test ontology");
 			$so->subsets("Jukumari Term used for jukumari", "Jukucha Term used for jukucha");
 			my $std1 = OBO::Core::SynonymTypeDef->new();
 			my $std2 = OBO::Core::SynonymTypeDef->new();

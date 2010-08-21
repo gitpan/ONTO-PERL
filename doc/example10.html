@@ -22,7 +22,7 @@
 			
 			$result->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO");
 			$result->default_namespace("cellcycle_ontology");
-			$result->remark("Simple Merged Ontology");
+			$result->remarks("Simple Merged Ontology");
 			
 			foreach my $onto_file (@ARGV) {
 				my $ontology = $my_parser->work($onto_file);

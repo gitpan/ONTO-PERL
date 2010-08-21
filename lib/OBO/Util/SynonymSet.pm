@@ -1,4 +1,4 @@
-# $Id: SynonymSet.pm 1846 2008-01-08 12:35:31Z erant $
+# $Id: SynonymSet.pm 1846 2008-01-08 12:35:31Z easr $
 #
 # Module  : SynonymSet.pm
 # Purpose : Synonym set.

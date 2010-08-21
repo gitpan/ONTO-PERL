@@ -6,11 +6,11 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 40;
+    plan tests => 42;
 }
 
 #########################
-# $Id: RelationshipType.t 291 2006-06-01 16:21:45Z erant $
+# $Id: RelationshipType.t 291 2006-06-01 16:21:45Z easr $
 #
 # Purpose : ONTO-PERL usage examples.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -35,6 +35,12 @@ $r3->name("participates in");
 ok(!$r1->equals($r2));
 ok(!$r2->equals($r3));
 ok(!$r3->equals($r1));
+
+# rel. type creator + date
+$r1->created_by("erick_antezana");
+ok($r1->created_by() eq "erick_antezana");
+$r1->creation_date("2008-04-13T01:32:36Z ");
+ok($r1->creation_date() eq "2008-04-13T01:32:36Z ");
 
 # default values
 ok(!$r1->is_anti_symmetric());

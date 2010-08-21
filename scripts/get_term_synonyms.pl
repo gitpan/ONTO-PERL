@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_term_synonyms.pl 1 2010-05-27 14:23:26Z erant $
+# $Id: get_term_synonyms.pl 1 2010-05-27 14:23:26Z easr $
 #
 # Script  : get_term_synonyms.pl
 #
