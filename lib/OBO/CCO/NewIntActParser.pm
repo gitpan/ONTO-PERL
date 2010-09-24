@@ -254,9 +254,9 @@ sub set_cco_id {
 
 	my $int_cco_id;
 	if ( $short_map->contains_value($term_name) ) {
-		$int_cco_id = $short_map->get_cco_id_by_term($term_name);
+		$int_cco_id = $short_map->get_id_by_term($term_name);
 	} else {
-		$int_cco_id = $long_map->get_new_cco_id( "CCO", $type, $term_name );
+		$int_cco_id = $long_map->get_new_id( "CCO", $type, $term_name );
 		$short_map->put( $int_cco_id, $term_name );    #updates the taxon specific maps
 	}
 

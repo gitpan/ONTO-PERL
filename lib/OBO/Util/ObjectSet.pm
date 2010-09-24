@@ -1,7 +1,7 @@
-# $Id: ObjectSet.pm 1846 2008-01-08 12:35:31Z easr $
+# $Id: ObjectSet.pm 1846 2010-09-23 12:30:37Z easr $
 #
 # Module  : ObjectSet.pm
-# Purpose : A generic set of ontology objects (terms, relationships, dbwrefs, etc).
+# Purpose : A generic set of ontology objects (terms, relationships, dbxrefs, etc.).
 # License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
@@ -12,7 +12,7 @@ package OBO::Util::ObjectSet;
 
 =head1 NAME
 
-OBO::Util::ObjectSet - An implementation of a set of ontology objects.
+OBO::Util::ObjectSet - An implementation of a set of OBO ontology objects.
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,7 @@ use OBO::Util::ObjectSet;
 
 $cco_id_set = OBO::Util::ObjectSet->new();
 
-$id = OBO::CCO::CCO_ID->new();
+$id = OBO::XO::OBO_ID->new();
 
 $size = $cco_id_set->size();
 
@@ -74,7 +74,7 @@ sub add () {
 =head2 add_all
 
   Usage    - $set->add_all($ele1, $ele2, $ele3, ...)
-  Returns  - the last added id (OBO::CCO::CCO_ID)
+  Returns  - the last added id (e.g. an object of type OBO::CCO::CCO_ID)
   Args     - the elements to be added
   Function - adds the given elements to this set
   
@@ -131,7 +131,7 @@ sub contains {
 
 sub equals {
 	my $self = shift;
-	my $result = 0; # I guess they'are NOT identical
+	my $result = 0; # I initially guess they're NOT identical
 	my $other_set = shift;
 	my %count = ();
 

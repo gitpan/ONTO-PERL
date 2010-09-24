@@ -228,9 +228,9 @@ sub work {
 				# assign modified protein ID
 				my $mod_prot_id;
 				if ( $short_map->contains_value($mod_prot_name) ) {
-					$mod_prot_id = $short_map->get_cco_id_by_term($mod_prot_name);
+					$mod_prot_id = $short_map->get_id_by_term($mod_prot_name);
 				} else {
-					$mod_prot_id = $long_map->get_new_cco_id( "CCO", "B", $mod_prot_name );
+					$mod_prot_id = $long_map->get_new_id( "CCO", "B", $mod_prot_name );
 					$short_map->put( $mod_prot_id, $mod_prot_name ); # updates the species specific maps
 				}       		
 
@@ -348,9 +348,9 @@ sub new_gene {
 
 				# get CCO id for the gene
 				if ( $short_map->contains_value($gene_name) ) {
-					$gene->id( $short_map->get_cco_id_by_term($gene_name) );
+					$gene->id( $short_map->get_id_by_term($gene_name) );
 				} else {
-					my $gene_id = $long_map->get_new_cco_id( "CCO", "G", $gene_name );
+					my $gene_id = $long_map->get_new_id( "CCO", "G", $gene_name );
 					$gene->id($gene_id);
 					$short_map->put( $gene_id, $gene_name );
 				}

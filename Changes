@@ -75,4 +75,6 @@ Revision history for ONTO-PERL
 
 1.22 Added get_term_synonyms.pl; Added $VERSION to Ontology.pm; RegExp improvements.
 
-1.23 Added support for 'created_by' and 'creation_date' tags; fixed bug in synonyms parsing. 
+1.23 Added support for 'created_by' and 'creation_date' tags; fixed bug in synonyms parsing.
+
+1.24 Added new classes to deal with OBO ID in a more generic way; added many more tests; fixed bug when a term def was empty.   

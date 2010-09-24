@@ -1,4 +1,4 @@
-# $Id: CCO_ID.pm 1844 2008-01-08 12:30:37Z easr $
+# $Id: CCO_ID.pm 1844 2010-09-23 12:30:37Z easr $
 #
 # Module  : CCO_ID.pm
 # Purpose : A CCO_ID.
@@ -13,7 +13,7 @@ package OBO::CCO::CCO_ID;
 
 =head1 NAME
 
-OBO::CCO::CCO_ID - A module for describing Cell Cycle Ontology (CCO) identifiers. Its namespace, subnamespace and number are stored.
+OBO::CCO::CCO_ID - A module for describing Cell Cycle Ontology (CCO) identifiers. Its idspace, subnamespace and number are stored.
 
 =head1 SYNOPSIS
 
@@ -39,7 +39,29 @@ $id->id_as_string("CCO:P1234567");
 
 =head1 DESCRIPTION
 
-The OBO::CCO::CCO_ID class implements a Cell-Cycle Ontology identifier.
+The OBO::CCO::CCO_ID class implements a Cell Cycle Ontology identifier.
+
+A CCO ID holds: IDSPACE, SUBNAMESPACE and a NUMBER in the following form:
+
+	CCO:[A-Z]nnnnnnn
+
+For instance: CCO:P1234567
+
+The SUBNAMESPACE may be one of the following:
+ 
+	C	Cellular component
+	F	Molecular Function
+	P	Biological Process
+	B	Protein
+	G	Gene
+	I	Interaction
+	R	Reference
+	T	Taxon
+	N	Instance
+	U	Upper Level Ontology (CCO)
+	L	Relationship type (e.g. is_a)
+	Y	Interaction type
+	Z	Unknown
 
 =head1 AUTHOR
 
@@ -55,34 +77,21 @@ at your option, any later version of Perl 5 you may have available.
 
 =cut
 
+our @ISA = qw(OBO::XO::OBO_ID);
+use OBO::XO::OBO_ID;
 use strict;
 use Carp;
     
 sub new {
-        my $class = shift;
-        my $self  = {};
+	my $class = shift;
+	my $self  = {};
 
-        $self->{IDSPACE}    = undef; # idspace
-        $self->{SUBNAMESPACE} = undef; # subnamespace
-        $self->{NUMBER}       = undef; # 7 digits
+	$self->{IDSPACE}      = undef; # string
+	$self->{SUBNAMESPACE} = undef; # subnamespace
+	$self->{NUMBER}       = undef; # 7 digits
 
-        bless ($self, $class);
-        return $self;
-}
-
-=head2 idspace
-
-  Usage    - print $id->idspace() or $id->idspace($idspace)
-  Returns  - the idspace (string)
-  Args     - the idspace (string)
-  Function - gets/sets the idspace
-  
-=cut
-
-sub idspace {
-	my ($self, $ns) = @_;
-	if ($ns) { $self->{IDSPACE} = $ns }
-	return $self->{IDSPACE};
+	bless ($self, $class);
+	return $self;
 }
 
 =head2 subnamespace
@@ -100,21 +109,6 @@ sub subnamespace {
 	return $self->{SUBNAMESPACE};
 }
 
-=head2 number
-
-  Usage    - print $id->number() or $id->number($name)
-  Returns  - the number (scalar)
-  Args     - the number (scalar)
-  Function - gets/sets the number
-  
-=cut
-
-sub number {
-	my ($self, $n) = @_;
-	if ($n) { $self->{NUMBER} = $n }
-	return $self->{NUMBER};
-}
-
 =head2 id_as_string
 
   Usage    - print $id->id_as_string() or $id->id_as_string("CCO:X0000001")
@@ -126,31 +120,12 @@ sub number {
 
 sub id_as_string () {
 	my ($self, $id_as_string) = @_;
-		
-	# The SUBNAMESPACE may be one of the following: (see file subnamespaces.txt)
-	#
-	# CCO ID form: CCO: [A-Z]nnnnnnn
-	#
-	#	C	Cellular component
-	#	F	Molecular Function
-	#	P	Biological Process
-	#	B	Protein
-	#	G	Gene
-	#	I	Interaction
-	#	R	Reference
-	#	T	Taxon
-	#	N	Instance
-	#	U	Upper Level Ontology (CCO)
-	#	L	Relationship type (e.g. is_a)
-	#	Y	Interaction type
-	#	Z	Unknown
-		
 	if ( defined $id_as_string && $id_as_string =~ /([A-Z][A-Z][A-Z]):([CFPXIRTBGNYZ])([0-9]{7})/ ) {
-		$self->{'IDSPACE'} = $1;
-		$self->{'SUBNAMESPACE'} = $2;
-		$self->{'NUMBER'} = substr($3 + 10000000, 1, 7); # trick: forehead zeros
-	} elsif ($self->{'IDSPACE'} && $self->{'SUBNAMESPACE'} && $self->{'NUMBER'}) {
-		return $self->{'IDSPACE'}.":".$self->{'SUBNAMESPACE'}.$self->{'NUMBER'};
+		$self->{IDSPACE} = $1;
+		$self->{SUBNAMESPACE} = $2;
+		$self->{NUMBER} = substr($3 + 10000000, 1, 7); # trick: forehead zeros
+	} elsif ($self->{IDSPACE} && $self->{SUBNAMESPACE} && $self->{NUMBER}) {
+		return $self->{IDSPACE}.":".$self->{SUBNAMESPACE}.$self->{NUMBER};
 	}
 }
 *id = \&id_as_string;
@@ -160,15 +135,15 @@ sub id_as_string () {
   Usage    - print $id->equals($id)
   Returns  - 1 (true) or 0 (false)
   Args     - the other ID (OBO::CCO::CCO_ID)
-  Function - tells if the IDs are equal
+  Function - tells if two IDs are equal
   
 =cut
 
 sub equals () {
 	my ($self, $target) = @_;
-	return (($self->{'IDSPACE'} eq $target->{'IDSPACE'}) && 
-			($self->{'SUBNAMESPACE'} eq $target->{'SUBNAMESPACE'}) &&
-			($self->{'NUMBER'} == $target->{'NUMBER'}));
+	return (($self->{IDSPACE} eq $target->{IDSPACE}) && 
+			($self->{SUBNAMESPACE} eq $target->{SUBNAMESPACE}) &&
+			($self->{NUMBER} == $target->{NUMBER}));
 }
 
 =head2 next_id
@@ -176,16 +151,16 @@ sub equals () {
   Usage    - $id->next_id()
   Returns  - the next ID (OBO::CCO::CCO_ID)
   Args     - none
-  Function - returns the next ID
+  Function - returns the next ID, which is new
   
 =cut
 
 sub next_id () {
 	my $self = shift;
 	my $next_id = OBO::CCO::CCO_ID->new();
-	$next_id->{'IDSPACE'} = $self->{'IDSPACE'};
-	$next_id->{'SUBNAMESPACE'} = $self->{'SUBNAMESPACE'};
-	$next_id->{'NUMBER'} = substr(10000001 + $self->{'NUMBER'}, 1, 7); # trick: forehead zeros
+	$next_id->{IDSPACE} = $self->{IDSPACE};
+	$next_id->{SUBNAMESPACE} = $self->{SUBNAMESPACE};
+	$next_id->{NUMBER} = substr(10000001 + $self->{NUMBER}, 1, 7); # trick: forehead zeros
 	return $next_id;
 }
 
@@ -194,16 +169,16 @@ sub next_id () {
   Usage    - $id->previous_id()
   Returns  - the previous ID (OBO::CCO::CCO_ID)
   Args     - none
-  Function - returns the previous ID
+  Function - returns the previous ID, which is new
   
 =cut
 
 sub previous_id () {
 	my $self = shift;
 	my $previous_id = OBO::CCO::CCO_ID->new ();
-	$previous_id->{'IDSPACE'} = $self->{'IDSPACE'};
-	$previous_id->{'SUBNAMESPACE'} = $self->{'SUBNAMESPACE'};
-	$previous_id->{'NUMBER'} = substr((10000000 + $self->{'NUMBER'}) - 1, 1, 7); # trick: forehead zeros
+	$previous_id->{IDSPACE} = $self->{IDSPACE};
+	$previous_id->{SUBNAMESPACE} = $self->{SUBNAMESPACE};
+	$previous_id->{NUMBER} = substr((10000000 + $self->{NUMBER}) - 1, 1, 7); # trick: forehead zeros
 	return $previous_id;
 }
 

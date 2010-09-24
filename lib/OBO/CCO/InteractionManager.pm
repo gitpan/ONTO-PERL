@@ -294,9 +294,9 @@ sub lookup (){
 sub add_interactor(){
 	my ($ebi_interactor_object,$ontology,$cco_b_taxon_ids_map,$cco_b_ids_map) = @_;
 	my $interactor_name = uc $ebi_interactor_object->shortLabel;
-	my $interactor_cco_id = $cco_b_taxon_ids_map->get_cco_id_by_term($interactor_name);
+	my $interactor_cco_id = $cco_b_taxon_ids_map->get_id_by_term($interactor_name);
 	if (!defined $interactor_cco_id){
-		$interactor_cco_id = $cco_b_ids_map->get_new_cco_id("CCO", "B", $interactor_name);
+		$interactor_cco_id = $cco_b_ids_map->get_new_id("CCO", "B", $interactor_name);
 		$cco_b_taxon_ids_map->put($interactor_cco_id, $interactor_name); # TRICK to add the IDs in the other file
 	}
 	
@@ -324,9 +324,9 @@ sub add_interaction(){
 	my ($good_interaction, $ontology, $cco_i_taxon_ids_map, $cco_i_ids_map) = @_;
 	
 	my $interaction = $good_interaction->shortLabel." ".$good_interaction->interactionType;
-	my $interaction_id = $cco_i_taxon_ids_map->get_cco_id_by_term($interaction);
+	my $interaction_id = $cco_i_taxon_ids_map->get_id_by_term($interaction);
 	if (!defined $interaction_id){
-		$interaction_id = $cco_i_ids_map->get_new_cco_id("CCO", "I", $interaction);
+		$interaction_id = $cco_i_ids_map->get_new_id("CCO", "I", $interaction);
 		$cco_i_taxon_ids_map->put($interaction_id, $interaction); # TRICK to add the IDs in the other file
 	}
 	

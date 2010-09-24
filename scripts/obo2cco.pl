@@ -49,9 +49,9 @@ foreach my $entry (sort {$a->id() cmp $b->id()} @{$onto->get_terms()}){
 	my $current_id = $entry->id();
 	my $entry_name = $entry->name();
 
-	my $cco_id = $cco_id_map->get_cco_id_by_term($entry_name);
+	my $cco_id = $cco_id_map->get_id_by_term($entry_name);
 	# Has an ID been already associated to this term (repeated entry)?
-	$cco_id = $cco_id_map->get_new_cco_id($ns->local_idspace(), $sns, $entry_name) if (!defined $cco_id);
+	$cco_id = $cco_id_map->get_new_id($ns->local_idspace(), $sns, $entry_name) if (!defined $cco_id);
 
 	$onto->set_term_id($entry, $cco_id);
 	# xref's

@@ -437,7 +437,7 @@ use Carp;
 use Carp qw(cluck);
 use Data::Dumper qw(Dumper); 
 
-our $VERSION = '1.23';
+our $VERSION = '1.24';
 
 sub new {
 	my $class                      = shift;

@@ -127,7 +127,7 @@ sub work {
 	$protein->name('protein');
 	$protein->id(assign_term_id($u_map, 'U', 'protein'));
 	if ($u_map->contains_value('protein')) {
-		$protein->id($u_map->get_cco_id_by_term('protein'));
+		$protein->id($u_map->get_id_by_term('protein'));
 	}else{
 		$protein->id(assign_term_id($u_map, 'U', 'protein'));
 	}
@@ -160,7 +160,7 @@ sub work {
 			$clust_protein->id(assign_biomol_id($taxa{$taxon_lab}[2], $b_map, $prot_name));
 			my $short_map = $taxa{$taxon_lab}[2];
 			if ($short_map->contains_value($prot_name)) {
-				$clust_protein->id($short_map->get_cco_id_by_term($prot_name));
+				$clust_protein->id($short_map->get_id_by_term($prot_name));
 			} else {
 				$clust_protein->id(assign_biomol_id($short_map, $b_map, $prot_name));
 			}
@@ -196,10 +196,10 @@ sub assign_biomol_id {
 	my ($short_map, $long_map, $term_name) = @_;
 	my $term_id;
 	if ($short_map->contains_value($term_name)) {#look up first in the species specific map
-		$term_id = $short_map->get_cco_id_by_term($term_name);
+		$term_id = $short_map->get_id_by_term($term_name);
 		return $term_id;
 	} else {
-		$term_id = $long_map->get_new_cco_id( "CCO", "B", $term_name );
+		$term_id = $long_map->get_new_id( "CCO", "B", $term_name );
 		$short_map->put( $term_id, $term_name ); # updates the species specific maps
 		return  $term_id;
 	}
@@ -215,11 +215,11 @@ sub assign_term_id {
 	my ($map, $subdomain, $term_name) = @_;
 	my $term_id;
 	if ($map->contains_value($term_name)) {
-		$term_id = $map->get_cco_id_by_term($term_name);
+		$term_id = $map->get_id_by_term($term_name);
 		return $term_id;
 	}
 	else {
-		$term_id = $map->get_new_cco_id( "CCO", $subdomain, $term_name );
+		$term_id = $map->get_new_id( "CCO", $subdomain, $term_name );
 	}
 }
 1;

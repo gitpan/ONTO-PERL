@@ -169,9 +169,9 @@ sub work {
 			$selected_name .= " organism";
 		}
 		$OBO_taxon->name($selected_name);
-		my $taxon_id = $cco_t_id_map->get_cco_id_by_term($selected_name);
+		my $taxon_id = $cco_t_id_map->get_id_by_term($selected_name);
 		if (!defined $taxon_id) { # Does this term have an associated ID?
-			$taxon_id = $cco_t_id_map->get_new_cco_id("CCO", "T", $selected_name);
+			$taxon_id = $cco_t_id_map->get_new_id("CCO", "T", $selected_name);
 		}
 		
 		$ncbi_cco{$el} = $taxon_id;

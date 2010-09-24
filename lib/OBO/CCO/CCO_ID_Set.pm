@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Set.pm 1844 2008-01-08 12:30:37Z easr $
+# $Id: CCO_ID_Set.pm 1844 2010-09-23 12:30:37Z easr $
 #
 # Module  : CCO_ID_Set.pm
 # Purpose : A set of CCO id's.
@@ -42,7 +42,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by Erick Antezana
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -50,14 +50,14 @@ at your option, any later version of Perl 5 you may have available.
 
 =cut
 
-our @ISA = qw(OBO::Util::ObjectSet);
-use OBO::Util::ObjectSet;
+our @ISA = qw(OBO::XO::OBO_ID_Set);
+use OBO::XO::OBO_ID_Set;
 use OBO::CCO::CCO_ID;
 
 use strict;
 use warnings;
 use Carp;
-    
+
 =head2 add_as_string
 
   Usage    - $set->add_as_string($id)
@@ -71,27 +71,9 @@ sub add_as_string () {
 	my ($self, $id_as_string) = @_;
 	my $result;
 	if ($id_as_string) {
-		my $new_cco_id_obj = OBO::CCO::CCO_ID->new();
-		$new_cco_id_obj->id_as_string($id_as_string);
-		$result = $self->add($new_cco_id_obj);
-	}
-	return $result;
-}
-
-=head2 add_all_as_string
-
-  Usage    - $set->add_all_as_string($id1, $id2, ...)
-  Returns  - the last added id (OBO::CCO::CCO_ID)
-  Args     - the id(s) (strings) to be added
-  Function - adds a series of CCO_IDs to this set
-  
-=cut
-
-sub add_all_as_string () {
-	my $self = shift;
-	my $result;
-	foreach (@_) {
-		$result = $self->add_as_string ($_);
+		my $new_obo_id_obj = OBO::CCO::CCO_ID->new();
+		$new_obo_id_obj->id_as_string($id_as_string);
+		$result = $self->add($new_obo_id_obj);
 	}
 	return $result;
 }
@@ -107,13 +89,11 @@ sub add_all_as_string () {
 
 sub get_new_id {
 	my ($self, $idspace, $subnamespace) = @_;
-	
 	my $new_cco_id = OBO::CCO::CCO_ID->new();
 	confess "The idspace is invalid: ", $idspace if ($idspace !~ /[A-Z][A-Z][A-Z]/);
 	$new_cco_id->idspace($idspace);
 	confess "The subnamespace is invalid: ", $subnamespace if ($subnamespace !~ /[CFPXIORTBGNYZU]/);
 	$new_cco_id->subnamespace($subnamespace);
-	
 	# get the last 'number'
 	if ($self->is_empty()){
 		$new_cco_id -> number("0000001");

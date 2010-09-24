@@ -1,4 +1,4 @@
-# $Id: Set.pm 1846 2008-01-08 12:35:31Z easr $
+# $Id: Set.pm 1846 2010-09-23 12:30:37Z easr $
 #
 # Module  : Set.pm
 # Purpose : An implementation of a Set of scalars.
@@ -66,7 +66,10 @@ print "not contains" if (!$my_set2->contains("CCO:P0000001") || !$my_set->contai
 
 $my_set2->size() == 0;
 
-$my_set2->is_empty();
+if ($my_set2->is_empty()) {
+	print "my_set2 is empty";
+}
+
 
 =head1 DESCRIPTION
 
@@ -236,7 +239,7 @@ sub remove {
   
 =cut
 
-sub is_empty{
+sub is_empty {
 	my $self = shift;
 	return ($#{$self->{SET}} == -1);
 }
@@ -252,7 +255,7 @@ sub is_empty{
 
 sub equals {
 	my $self = shift;
-	my $result = 0; # I guess they'are NOT identical
+	my $result = 0; # I initially guess they're NOT identical
 	if (@_) {
 		my $other_set = shift;
 		my %count = ();

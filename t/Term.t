@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 69;
+    plan tests => 71;
 }
 
 #########################
@@ -22,6 +22,7 @@ use strict;
 my $n1 = OBO::Core::Term->new();
 my $n2 = OBO::Core::Term->new();
 my $n3 = OBO::Core::Term->new();
+my $n4 = OBO::Core::Term->new();
 
 # name, namespace, code
 ok($n1->idspace() eq "NN");
@@ -221,5 +222,13 @@ my @dis = sort {$a cmp $b} $n2->disjoint_from();
 ok($#dis == 1);
 ok($dis[0] eq $n1->id());
 ok($dis[1] eq $n3->id());
+
+# empty def, empty dbxref
+$n4->def_as_string("", "");
+ok($n4->def_as_string() eq '"" []');
+
+# empty def, empty dbxref
+$n4->def_as_string("", '[CCO:ea, CCO:ls, CCO:vm]');
+ok($n4->def_as_string() eq '"" [CCO:ea, CCO:ls, CCO:vm]');
 
 ok(1);

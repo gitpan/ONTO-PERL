@@ -187,7 +187,7 @@ sub work {
 		if (( $up_prot_name) && ($protein_name ne $up_prot_name)) {
 			$depric_prot_name = $protein_name;
 			$protein_name = $up_prot_name ;
-			my $cco_id = $short_map->get_cco_id_by_term($depric_prot_name);
+			my $cco_id = $short_map->get_id_by_term($depric_prot_name);
 #			my $cco_id = $protein->id();
 			$short_map->put( $cco_id, $up_prot_name );
 			$long_map->put( $cco_id, $up_prot_name  );
@@ -204,9 +204,9 @@ sub work {
 			$protein->xref_set_as_string("[$db:$acc]"); # cross-reference to UniProt
 			# assign a CCO protein id
 			if ($short_map->contains_value($protein_name)){
-				$protein->id($short_map->get_cco_id_by_term($protein_name));
+				$protein->id($short_map->get_id_by_term($protein_name));
 			} else {
-				my $new_protein_id = $long_map->get_new_cco_id("CCO", "B", $protein_name);
+				my $new_protein_id = $long_map->get_new_id("CCO", "B", $protein_name);
 				$protein->id($new_protein_id);
 				$short_map->put($new_protein_id, $protein_name); # TRICK to add the IDs in the other file
 			}

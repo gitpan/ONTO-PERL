@@ -40,7 +40,7 @@ Files in 'ONTO-PERL':
 
   LICENSE						ONTO-PERL's license
 
-  ONTO-PERL-x.y.tar.gz		ONTO-PERL API: version x.y
+  ONTO-PERL-x.y.tar.gz			ONTO-PERL API: version x.y
 
   Changes						Description about the changes in 'ONTO-PERL'
 

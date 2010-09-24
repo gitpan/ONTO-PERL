@@ -1,4 +1,4 @@
-# $Id: ObjectIdSet.pm 1846 2008-01-08 12:35:31Z easr $
+# $Id: ObjectIdSet.pm 1846 2010-09-23 12:30:37Z easr $
 #
 # Module  : ObjectIdSet.pm
 # Purpose : A generic set of ontology objects.
@@ -228,7 +228,7 @@ sub remove {
   
 =cut
 
-sub is_empty{
+sub is_empty {
 	my $self = shift;
 	return ((keys(%{$self->{MAP}}) + 0) == 0);
 }
@@ -244,7 +244,7 @@ sub is_empty{
 
 sub equals {
 	my $self = shift;
-	my $result = 0; # I guess they'are NOT identical
+	my $result = 0; # I initially guess they're NOT identical
 	if (@_) {
 		my $other_set = shift;
 		

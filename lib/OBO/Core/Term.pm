@@ -1,4 +1,4 @@
-# $Id: Term.pm 2054 2010-08-21 14:17:31Z Erick Antezana $
+# $Id: Term.pm 2054 2010-24-09 14:17:31Z Erick Antezana $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -457,7 +457,12 @@ sub def_as_string {
 	foreach my $dbxref (sort {lc($a->as_string()) cmp lc($b->as_string())} $self->{DEF}->dbxref_set()->get_set()) {
 		push @result, $dbxref->as_string();
 	}
-	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+	my $d = $self->{DEF}->text();
+	if (defined $d) {
+		return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+	} else {
+		return "\"\" [".join(', ', @result)."]";
+	}
 }
 
 =head2 namespace
