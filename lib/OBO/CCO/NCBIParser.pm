@@ -1,4 +1,4 @@
-# $Id: NCBIParser.pm 2113 2008-05-22 13:19:59Z Erick Antezana $
+# $Id: NCBIParser.pm 2113 2010-09-29 Erick Antezana $
 #
 # Module  : NCBIParser.pm
 # Purpose : Parse NCBI files: names and nodes

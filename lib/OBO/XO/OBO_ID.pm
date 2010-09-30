@@ -1,4 +1,4 @@
-# $Id: OBO_ID.pm 1844 2010-09-23 12:30:37Z easr $
+# $Id: OBO_ID.pm 2010-09-29 Erick Antezana $
 #
 # Module  : OBO_ID.pm
 # Purpose : A OBO_ID.
@@ -10,10 +10,9 @@
 
 package OBO::XO::OBO_ID;
 
-
 =head1 NAME
 
-OBO::XO::OBO_ID - A module for describing identifiers of any OBO ontology (e.g. XO). Its idspace and number are stored.
+OBO::XO::OBO_ID - A module for describing identifiers of any OBO ontology (e.g. XO). Its IDSpace and LocalID are stored.
 
 =head1 SYNOPSIS
 
@@ -23,11 +22,11 @@ $id = OBO_ID->new();
 
 $id->idspace("XO");
 
-$id->number("0000001");
+$id->localID("0000001");
 
 $idspace = $id->idspace();
 
-$number = $id->number();
+$localID = $id->localID();
 
 print $id->id_as_string();
 
@@ -37,9 +36,9 @@ $id->id_as_string("XO:1234567");
 
 The OBO::XO::OBO_ID class implements an identifier for any OBO ontology.
 
-A XO ID holds: IDSPACE, and a NUMBER (a.k.a. LocalID) in the following form:
+A XO ID holds: IDSPACE, and a LOCALID in the following form:
 
-	IDSPACE:NUMBER
+	IDSPACE:LOCALID
 
 For instance: XO:1234567
 
@@ -69,8 +68,8 @@ sub new {
 	my $class = shift;
 	my $self  = {};
 
-	$self->{IDSPACE}      = undef; # string
-	$self->{NUMBER}       = undef; # numbers (string)
+	$self->{IDSPACE} = undef; # string
+	$self->{LOCALID} = undef; # localID (string)
 
 	bless ($self, $class);
 	return $self;
@@ -81,7 +80,7 @@ sub new {
   Usage    - print $id->idspace() or $id->idspace($idspace)
   Returns  - the idspace (string)
   Args     - the idspace (string)
-  Function - gets/sets the idspace
+  Function - gets/sets the idspace # TODO this is actually the LocalIDSpace
   
 =cut
 
@@ -91,19 +90,19 @@ sub idspace {
 	return $self->{IDSPACE};
 }
 
-=head2 number
+=head2 localID
 
-  Usage    - print $id->number() or $id->number($name)
-  Returns  - the number (string), a.k.a. LocalID
-  Args     - the number (string), a.k.a. LocalID
-  Function - gets/sets the number (a.k.a. LocalID)
+  Usage    - print $id->localID() or $id->localID($name)
+  Returns  - the localID (string)
+  Args     - the localID (string)
+  Function - gets/sets the localID
   
 =cut
 
-sub number {
+sub localID {
 	my ($self, $n) = @_;
-	if ($n) { $self->{NUMBER} = $n }
-	return $self->{NUMBER};
+	if ($n) { $self->{LOCALID} = $n }
+	return $self->{LOCALID};
 }
 
 =head2 id_as_string
@@ -120,9 +119,9 @@ sub id_as_string () {
 	if ( defined $id_as_string && $id_as_string =~ /(\w+):(\d+)/ ) {
 		$self->{IDSPACE} = $1;
 		my $factor = '1'.0 x length($2);
-		$self->{NUMBER} = substr($2 + $factor, 1, 7); # trick: forehead zeros # TODO
-	} elsif ($self->{IDSPACE} && $self->{NUMBER}) {
-		return $self->{IDSPACE}.":".$self->{NUMBER};
+		$self->{LOCALID} = substr($2 + $factor, 1, 7); # trick: forehead zeros # TODO
+	} elsif ($self->{IDSPACE} && $self->{LOCALID}) {
+		return $self->{IDSPACE}.":".$self->{LOCALID};
 	}
 }
 *id = \&id_as_string;
@@ -139,7 +138,7 @@ sub id_as_string () {
 sub equals () {
 	my ($self, $target) = @_;
 	return (($self->{IDSPACE} eq $target->{IDSPACE}) && 
-			($self->{NUMBER} == $target->{NUMBER}));
+			($self->{LOCALID} == $target->{LOCALID}));
 }
 
 =head2 next_id
@@ -155,8 +154,8 @@ sub next_id () {
 	my $self = shift;
 	my $next_id = OBO::XO::OBO_ID->new();
 	$next_id->{IDSPACE} = $self->{IDSPACE};
-	my $factor = '1'.0 x length($self->{NUMBER});
-	$next_id->{NUMBER} = substr($factor + 1 + $self->{NUMBER}, 1, 7); # trick: forehead zeros
+	my $factor = '1'.0 x length($self->{LOCALID});
+	$next_id->{LOCALID} = substr($factor + 1 + $self->{LOCALID}, 1, 7); # trick: forehead zeros
 	return $next_id;
 }
 
@@ -173,8 +172,8 @@ sub previous_id () {
 	my $self = shift;
 	my $previous_id = OBO::XO::OBO_ID->new();
 	$previous_id->{IDSPACE} = $self->{IDSPACE};
-	my $factor = '1'.0 x length($self->{NUMBER});
-	$previous_id->{NUMBER} = substr(($factor + $self->{NUMBER}) - 1, 1, 7); # trick: forehead zeros
+	my $factor = '1'.0 x length($self->{LOCALID});
+	$previous_id->{LOCALID} = substr(($factor + $self->{LOCALID}) - 1, 1, 7); # trick: forehead zeros
 	return $previous_id;
 }
 

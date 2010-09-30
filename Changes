@@ -77,4 +77,6 @@ Revision history for ONTO-PERL
 
 1.23 Added support for 'created_by' and 'creation_date' tags; fixed bug in synonyms parsing.
 
-1.24 Added new classes to deal with OBO ID in a more generic way; added many more tests; fixed bug when a term def was empty.   
+1.24 Added new classes to deal with OBO ID in a more generic way; added many more tests; fixed bug when a term def was empty.
+
+1.25 IDspaces are now better supported; more tests added; removed unnecessary code.

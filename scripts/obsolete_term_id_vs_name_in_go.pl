@@ -1,5 +1,5 @@
  #!/usr/local/bin/perl
-# $Id: obsolete_term_id_vs_name_in_go.pl 1893 2010-02-14 14:23:26Z easr $
+# $Id: obsolete_term_id_vs_name_in_go.pl 2010-09-29 Erick Antezana $
 #
 # Script  : obsolete_term_id_vs_name_in_go.pl
 #

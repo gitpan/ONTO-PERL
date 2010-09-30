@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 20;
+    plan tests => 24;
 }
 
 #########################
@@ -31,6 +31,12 @@ my $id4 = OBO::CCO::CCO_ID->new();
 ok(!$my_set->contains($id4));
 
 $id4->id_as_string("CCO:P0000004");
+
+ok ($id1->id() eq "CCO:P0000001");
+ok ($id2->id() eq "CCO:P0000002");
+ok ($id3->id() eq "CCO:P0000003");
+ok ($id4->id() eq "CCO:P0000004");
+
 $my_set->add_all($id1, $id2, $id3, $id4);
 ok($my_set->contains($id2) && $my_set->contains($id3) && $my_set->contains($id4));
 

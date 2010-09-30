@@ -1,4 +1,4 @@
-# $Id: GoaAssociation.pm 2156 2008-05-29 11:29:00Z Erick Antezana $
+# $Id: GoaAssociation.pm 2010-09-29 Erick Antezana $
 #
 # Module  : GoaAssociation.pm
 # Purpose : GOA associaton entry structure.

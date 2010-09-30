@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_term_synonyms.pl 1 2010-05-27 14:23:26Z easr $
+# $Id: get_term_synonyms.pl 2010-09-29 Erick Antezana $
 #
 # Script  : get_term_synonyms.pl
 #

@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 2054 2010-08-21 14:17:31Z Erick Antezana $
+# $Id: OBOParser.pm 2010-09-29 Erick Antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
@@ -130,7 +130,12 @@ sub work {
 			$synonym_type_def_set->add($std);
 			$chunks[0] =~ s/$line//;
 		}
-		my $idspace = $1 if ($chunks[0] =~ /idspace:\s*(.*)\n/);
+		my $idspaces = OBO::Util::Set->new();
+		while ($chunks[0] =~ /(idspace:\s*(.*)\n)/) {
+			$idspaces->add($2);
+			$chunks[0] =~ s/$1//;
+		}
+				
 		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)(\n)?/);
 		my $remarks = OBO::Util::Set->new();
 		while ($chunks[0] =~ /(remark:\s*(.*)\n)/) {
@@ -140,15 +145,14 @@ sub work {
 	
 		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it." if (!defined $format_version);
 		
-		$result->imports($imports->get_set());
-		$result->subsets($subsetdef->get_set());
-		$result->synonym_type_def_set($synonym_type_def_set->get_set());
-		my $local_idspace = $1, my $uri = $2, my $desc = $4 if ($idspace && $idspace =~ /(\S+)\s+(\S+)\s+(\"(.*)\")?/);
-		$result->idspace_as_string($local_idspace, $uri, $desc) if (defined $local_idspace && defined $uri);
 		$result->data_version($data_version) if ($data_version);
 		$result->date($date) if ($date);
 		$result->saved_by($saved_by) if ($saved_by);
 		#$result->auto_generated_by($auto_generated_by) if ($auto_generated_by);
+		$result->subsets($subsetdef->get_set());
+		$result->imports($imports->get_set());
+		$result->synonym_type_def_set($synonym_type_def_set->get_set());
+		$result->idspaces($idspaces->get_set());
 		$result->default_namespace($default_namespace) if ($default_namespace);
 		$result->remarks($remarks->get_set());
 		

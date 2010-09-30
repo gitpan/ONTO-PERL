@@ -1,4 +1,4 @@
-# $Id: Set.pm 1846 2010-09-23 12:30:37Z easr $
+# $Id: Set.pm 2010-09-29 Erick Antezana $
 #
 # Module  : Set.pm
 # Purpose : An implementation of a Set of scalars.
@@ -12,7 +12,7 @@ package OBO::Util::Set;
 
 =head1 NAME
 
-OBO::Util::Set - A Set implementation.
+OBO::Util::Set - An implementation of a set of scalars (sensu PERL).
     
 =head1 SYNOPSIS
 

@@ -1,4 +1,4 @@
-# $Id: SynonymTypeDefSet.pm 1846 2008-01-08 12:35:31Z easr $
+# $Id: SynonymTypeDefSet.pm 2010-09-29 Erick Antezana $
 #
 # Module  : SynonymTypeDefSet.pm
 # Purpose : Synonym Type Definition Set.
@@ -107,22 +107,60 @@ use strict;
 use warnings;
 use Carp;
 
-=head2 add
+=head2 contains
 
-  Usage    - $set->add()
-  Returns  - true if the element was successfully added
-  Args     - the element (OBO::Core::SynonymTypeDef) to be added
-  Function - adds an element to this set
+  Usage    - $set->contains()
+  Returns  - true if this set contains the given element
+  Args     - the element (OBO::Core::SynonymTypeDef) to be checked
+  Function - checks if this set constains the given element
   
 =cut
-sub add {
+sub contains {
 	my $self = shift;
-	my $result = 0; # nothing added
-	if (@_) {	
-		my $ele = shift;
-		if ( !$self -> contains($ele) ) {
-			push @{$self->{SET}}, $ele;
-			$result = 1; # successfully added
+	my $result = 0;
+	if (@_){
+		my $target = shift;
+		
+		foreach my $ele (@{$self->{SET}}){
+			if ($target->equals($ele)) {
+				$result = 1;
+				last;
+			}
+		}
+	}
+	return $result;
+}
+
+=head2 equals
+
+  Usage    - $set->equals()
+  Returns  - true or false
+  Args     - the set (OBO::Util::SynonymTypeDefSet) to compare with
+  Function - tells whether this set is equal to the given one
+  
+=cut
+sub equals {
+	my $self = shift;
+	my $result = 0; # I guess they'are NOT identical
+	if (@_) {
+		my $other_set = shift;
+		
+		my %count = ();
+		my @this = map ({scalar $_;} @{$self->{SET}});
+		my @that = map ({scalar $_;} $other_set->get_set());
+		
+		if ($#this == $#that) {
+			foreach (@this, @that) {
+				$count{$_}++;
+			}
+			foreach my $count (values %count) {
+				if ($count != 2) {
+					$result = 0;
+					last;
+				} else {
+					$result = 1;
+				}
+			}
 		}
 	}
 	return $result;
@@ -153,68 +191,6 @@ sub remove {
 					}
 					$result = $ele;
 					last;
-				}
-			}
-		}
-	}
-	return $result;
-}
-
-
-=head2 contains
-
-  Usage    - $set->contains()
-  Returns  - true if this set contains the given element
-  Args     - the element (OBO::Core::SynonymTypeDef) to be checked
-  Function - checks if this set constains the given element
-  
-=cut
-sub contains {
-	my $self = shift;
-	my $result = 0;
-	if (@_){
-		my $target = shift;
-		
-		foreach my $ele (@{$self->{SET}}){
-			if ($target->equals($ele)) {
-				$result = 1;
-				last;
-			}
-		}
-	}
-	return $result;
-}
-
-
-
-=head2 equals
-
-  Usage    - $set->equals()
-  Returns  - true or false
-  Args     - the set (OBO::Util::SynonymTypeDefSet) to compare with
-  Function - tells whether this set is equal to the given one
-  
-=cut
-sub equals {
-	my $self = shift;
-	my $result = 0; # I guess they'are NOT identical
-	if (@_) {
-		my $other_set = shift;
-		
-		my %count = ();
-		my @this = map ({scalar $_;} @{$self->{SET}});
-		my @that = map ({scalar $_;} $other_set->get_set());
-		
-		if ($#this == $#that) {
-			foreach (@this, @that) {
-				$count{$_}++;
-			}
-			foreach my $count (values %count) {
-				if ($count != 2) {
-					$result = 0;
-					last;
-				} else {
-					$result = 1;
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-# $Id: GoaToRDF.pm 2165 2008-06-11 08:50:06Z Erick Antezana $
+# $Id: GoaToRDF.pm 2165 2010-09-29 Erick Antezana $
 #
 # Module  : GoaToRDF.pm
 # Purpose : A GOA associations to RDF converter

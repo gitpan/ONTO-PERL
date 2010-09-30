@@ -1,4 +1,4 @@
-# $Id: IntActParser.pm 2079 2008-05-12 13:40:49Z Erick Antezana $
+# $Id: IntActParser.pm 2079 2010-09-29 Erick Antezana $
 #
 # Module  : IntActParser.pm
 # Purpose : An IntAct Parser.

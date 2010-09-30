@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Term_Map.pm 2010-09-23 12:30:37Z easr $
+# $Id: CCO_ID_Term_Map.pm 2010-09-29 Erick Antezana $
 #
 # Module  : CCO_ID_Term_Map.pm
 # Purpose : A (birectional) map CCO_ID vs Term name.
@@ -111,18 +111,17 @@ sub _is_valid_id () {
 =cut
 
 sub get_new_id () {
-    my ( $self, $idspace, $subnamespace, $term ) = @_;
-    my $result;
-    if ( $idspace && $subnamespace && $term ) {
-        if ( $self->is_empty() ) {
-            $result = $idspace.":".$subnamespace."0000001";
-        }
-        else {
-            $result = $self->{KEYS}->get_new_id($idspace, $subnamespace);
-        }
-        $self->put( $result, $term );    # put
-    }
-    return $result;
+	my ( $self, $idspace, $subnamespace, $term ) = @_;
+	my $result;
+	if ( $idspace && $subnamespace && $term ) {
+		if ( $self->is_empty() ) {
+			$result = $idspace.":".$subnamespace."0000001";
+		} else {
+			$result = $self->{KEYS}->get_new_id($idspace, $subnamespace);
+		}
+		$self->put( $result, $term );    # put
+	}
+	return $result;
 }
 
 1;

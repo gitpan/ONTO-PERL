@@ -1,4 +1,4 @@
-# $Id: OBO_ID_Term_Map.pm 2010-24-09 12:30:37Z easr $
+# $Id: OBO_ID_Term_Map.pm 2010-09-29 Erick Antezana $
 #
 # Module  : OBO_ID_Term_Map.pm
 # Purpose : A (birectional) map OBO_ID vs Term name.
@@ -73,20 +73,17 @@ sub new {
         while (<OBO_ID_MAP_IN_FH>) {
             chomp;
             if ( $_ =~ /(\w+:\d+)\s+(.*)/ ) {
-				my ( $key, $value ) = ( $1, $2 ) ;        # e.g.: GO:0007049	cell cycle
-            	
-				$self->{MAP_BY_ID}->{$key}     = $value;  # put
-				$self->{MAP_BY_TERM}->{$value} = $key;    # put
+				my ( $key, $value )            = ( $1, $2 );  # e.g.: GO:0007049	cell cycle
+				$self->{MAP_BY_ID}->{$key}     = $value;      # put
+				$self->{MAP_BY_TERM}->{$value} = $key;        # put
             } else {
             	warn "\nThe following entry: '", $_, "' found in '", $self->{FILE}, "' is not recognized as a valid OBO key-value pair!";
             }
         }
         close OBO_ID_MAP_IN_FH;
-    }
-    else {
+    } else {
         open( OBO_ID_MAP_IN_FH, "$self->{FILE}" );
-
-        # TODO include date?
+        # TODO Should I include a file creation date?
         close OBO_ID_MAP_IN_FH;
     }
 
@@ -102,7 +99,7 @@ sub _is_valid_id () {
 =head2 put
 
   Usage    - $map->put("GO:0007049", "cell cycle")
-  Returns  - none
+  Returns  - the size of map
   Args     - OBO id (string), term name (string)
   Function - either puts a new entry in the map or modifies an existing entry by changing the term name
   Remark   - prior to adding new entries to the map, use method get_new_id()
@@ -110,27 +107,37 @@ sub _is_valid_id () {
 =cut
 
 sub put () {
-    my ( $self, $new_id, $new_name ) = @_;
+	my ( $self, $new_id, $new_name ) = @_;
 
-    if ( $new_id && $new_name ) {
-        confess "The ID is not valid: '$new_id'\n" if ($self->_is_valid_id($new_id));
-        
-        my $has_key   = $self->contains_key($new_id);
-        my $has_value = $self->contains_value($new_name);
-		
-        if (!$has_key && !$has_value) {                       # new pair : new key and new value
-        	$self->{MAP_BY_ID}->{$new_id}     = $new_name;    # put
-            $self->{MAP_BY_TERM}->{$new_name} = $new_id;      # put
-            $self->{KEYS}->add_as_string($new_id);
-        } elsif ($has_key && !$has_value) {                   # updating the value (=term name)
-        	my $old_value = $self->{MAP_BY_ID}->{$new_id};
-        	$self->{MAP_BY_ID}->{$new_id}     = $new_name;    # updating the value
- 			delete $self->{MAP_BY_TERM}->{$old_value};	      # erase the old entry
-            $self->{MAP_BY_TERM}->{$new_name} = $new_id;      # put
-        } else {
-        	warn "This case should have never happened: -> ($new_id, $new_name)";
-        }
-    }
+	if ( $new_id && $new_name ) {
+		confess "The ID is not valid: '$new_id'\n" if ($self->_is_valid_id($new_id));
+
+		my $has_key   = $self->contains_key($new_id);
+		my $has_value = $self->contains_value($new_name);
+
+		if (!$has_key && !$has_value) {                       # new pair : 'new key' and 'new value'
+			$self->{MAP_BY_ID}->{$new_id}     = $new_name;    # put: id->name
+			$self->{MAP_BY_TERM}->{$new_name} = $new_id;      # put: name->id
+			$self->{KEYS}->add_as_string($new_id);
+		} elsif ($has_key && !$has_value) {                   # updating the value (=term name)
+			my $old_value = $self->{MAP_BY_ID}->{$new_id};
+			$self->{MAP_BY_ID}->{$new_id}     = $new_name;    # updating the value
+			delete $self->{MAP_BY_TERM}->{$old_value};	      # erase the old entry
+			$self->{MAP_BY_TERM}->{$new_name} = $new_id;      # put: name->id
+		} elsif ($has_key && $has_value) {                    # the pair: key-value is already there
+			if ($self->{MAP_BY_ID}->{$new_id} eq $new_name &&
+				$self->{MAP_BY_TERM}->{$new_name} eq $new_id){ # they should be identical
+				# Do nothing...
+			} else {
+				warn "The pair: $new_id, $new_name is part of the map BUT they correspond to other entries!";
+			}
+		} else {
+			warn "This case should have never happened: -> ($new_id, $new_name)";
+		}
+		return $self->size();
+	} else {
+		confess "You should provide both a term ID and a term name -> ($new_id, $new_name)\n";
+	}    
 }
 
 =head2 get_new_id
@@ -143,32 +150,17 @@ sub put () {
 =cut
 
 sub get_new_id () {
-    my ( $self, $idspace, $term ) = @_;
-    my $result;
-    if ( $idspace && $term ) {
+    my ( $self, $idspace, $term_name ) = @_;
+    my $new_id;
+    if ( $idspace && $term_name ) {
         if ( $self->is_empty() ) {
-            $result = $idspace.":"."0000001";
+            $new_id = $idspace.":0000001";
+        } else {
+            $new_id = $self->{KEYS}->get_new_id($idspace);
         }
-        else {
-            $result = $self->{KEYS}->get_new_id($idspace);
-        }
-        $self->put( $result, $term );    # put
+        $self->put( $new_id, $term_name );    # put: id->name
     }
-    return $result;
-}
-
-=head2 get_id_by_term
-
-  Usage    - $map->get_id_by_term($term_name)
-  Returns  - the OBO id associated to the given term name
-  Args     - a term name (string)
-  Function - the term associated to the given term
-  
-=cut
-
-sub get_id_by_term () {
-    my ( $self, $term_name ) = @_;
-    return $self->{MAP_BY_TERM}->{$term_name};
+    return $new_id;
 }
 
 =head2 get_term_by_id
@@ -181,8 +173,22 @@ sub get_id_by_term () {
 =cut
 
 sub get_term_by_id () {
-    my ( $self, $obo_id ) = @_;
-    return $self->{MAP_BY_ID}->{$obo_id};
+	my ( $self, $obo_id ) = @_;
+	return $self->{MAP_BY_ID}->{$obo_id};
+}
+
+=head2 get_id_by_term
+
+  Usage    - $map->get_id_by_term($term_name)
+  Returns  - the OBO id associated to the given term name
+  Args     - a term name (string)
+  Function - the term associated to the given term
+  
+=cut
+
+sub get_id_by_term () {
+	my ( $self, $term_name ) = @_;
+	return $self->{MAP_BY_TERM}->{$term_name};
 }
 
 =head2 keys_set
@@ -195,8 +201,8 @@ sub get_term_by_id () {
 =cut
 
 sub keys_set () {
-    my $self = shift;
-    return keys( %{ $self->{MAP_BY_ID} } );
+	my $self = shift;
+	return keys( %{ $self->{MAP_BY_ID} } );
 }
 
 =head2 values_set
@@ -209,8 +215,8 @@ sub keys_set () {
 =cut
 
 sub values_set () {
-    my $self = shift;
-    return values( %{ $self->{MAP_BY_ID} } );
+	my $self = shift;
+	return values( %{ $self->{MAP_BY_ID} } );
 }
 
 =head2 contains_key
@@ -241,13 +247,51 @@ sub contains_value () {
     return ( defined $self->{MAP_BY_TERM}->{$searched_value} ) ? 1 : 0;
 }
 
+=head2 equals
+
+  Usage    - $map->equals($other_map)
+  Returns  - 1 (true) or 0 (false)
+  Args     - another map
+  Function - compares two maps and tells whether they are identical or not
+  
+=cut
+
 sub equals () {
     my $self      = shift;
     my $result    = 0;
     my $other_map = shift;
 
-    # TODO compare keys and values
-    confess "not implemented method!";
+	#
+	# size
+	#
+	return 0 if ($self->size () != $other_map->size());
+	
+	#
+	# get keys and values
+	#
+	my @keys_set   = keys( %{ $self->{MAP_BY_ID} } );
+	my @values_set = values( %{ $self->{MAP_BY_ID} } );
+
+	foreach my $id (@keys_set) {
+		my $tmp_name = $self->{MAP_BY_ID}->{$id};
+		my $tmp_id   = $self->{MAP_BY_TERM}->{$tmp_name};
+		
+		my $other_map_has_key   = $other_map->contains_key($tmp_id);
+		my $other_map_has_value = $other_map->contains_value($tmp_name);
+		
+		if ($other_map_has_key && $other_map_has_value) {
+			if ($tmp_id   eq $other_map->get_id_by_term($tmp_name) &&
+				$tmp_name eq $other_map->get_term_by_id($tmp_id)) {
+				$result = 1;
+			} else {
+				$result = 0;
+				last;
+			}
+		} else {
+			$result = 0;
+			last;
+		}
+	}
     return $result;
 }
 
@@ -320,17 +364,16 @@ sub is_empty () {
 =cut
 
 sub write_map () {
-    my $self = shift;
-    open( FH, ">" . $self->{FILE} )
-      || die "Cannot write map to file: '$self->{FILE}', $!";
-    foreach ( sort keys %{ $self->{MAP_BY_ID} } ) {
-    	if ($self->{MAP_BY_ID}->{$_}) {
-        	print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";
-    	} else {
-    		warn "There is no value in the IDs map for this key: ", $_;
-    	}
-    }
-    close FH;
+	my $self = shift;
+	open( FH, ">" . $self->{FILE} ) || die "Cannot write map into the file: '$self->{FILE}', $!";
+	foreach ( sort keys %{ $self->{MAP_BY_ID} } ) {
+		if ($self->{MAP_BY_ID}->{$_}) {
+			print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";
+		} else {
+			warn "There is no value in the IDs map for this key: ", $_;
+		}
+	}
+	close FH;
 }
 
 =head2 remove_by_key

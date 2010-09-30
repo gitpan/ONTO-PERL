@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo_trimming.pl 1 2010-03-27 14:23:26Z easr $
+# $Id: obo_trimming.pl 2010-09-29 Erick Antezana $
 #
 # Script  : obo_trimming.pl
 #

@@ -1,4 +1,4 @@
-# $Id: RelationshipType.pm 1845 2010-08-21 12:33:09Z easr $
+# $Id: RelationshipType.pm 2010-09-29 Erick Antezana $
 #
 # Module  : RelationshipType.pm
 # Purpose : Type of Relationship in the Ontology: is_a, part_of, etc.

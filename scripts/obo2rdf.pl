@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo2rdf.pl 2157 2010-05-29 11:29:15Z Erick Antezana $
+# $Id: obo2rdf.pl 2010-09-29 Erick Antezana $
 #
 # Script  : obo2rdf.pl
 #

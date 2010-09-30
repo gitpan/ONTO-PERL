@@ -1,4 +1,4 @@
-# $Id: SynonymSet.pm 1846 2008-01-08 12:35:31Z easr $
+# $Id: SynonymSet.pm 2010-09-29 Erick Antezana $
 #
 # Module  : SynonymSet.pm
 # Purpose : Synonym set.
@@ -11,7 +11,7 @@ package OBO::Util::SynonymSet;
 
 =head1 NAME
 
-OBO::Util::SynonymSet - A Set implementation of Synonyms.
+OBO::Util::SynonymSet - An implementation of a set of synonyms.
     
 =head1 SYNOPSIS
 
@@ -138,27 +138,6 @@ use strict;
 use warnings;
 use Carp;
 
-=head2 add
-
-  Usage    - $set->add()
-  Returns  - true if the element was successfully added
-  Args     - the element (OBO::Core::Synonym) to be added
-  Function - adds an element to this set
-  
-=cut
-sub add {
-	my $self = shift;
-	my $result = 0; # nothing added
-	if (@_) {	
-		my $ele = shift;
-		if ( !$self -> contains($ele) ) {
-			push @{$self->{SET}}, $ele;
-			$result = 1; # successfully added
-		}
-	}
-	return $result;
-}
-
 =head2 remove
 
   Usage    - $set->remove($element)
@@ -215,8 +194,6 @@ sub contains {
 	}
 	return $result;
 }
-
-
 
 =head2 equals
 

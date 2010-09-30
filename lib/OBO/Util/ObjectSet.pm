@@ -1,4 +1,4 @@
-# $Id: ObjectSet.pm 1846 2010-09-23 12:30:37Z easr $
+# $Id: ObjectSet.pm 2010-09-29 Erick Antezana $
 #
 # Module  : ObjectSet.pm
 # Purpose : A generic set of ontology objects (terms, relationships, dbxrefs, etc.).
@@ -18,13 +18,23 @@ OBO::Util::ObjectSet - An implementation of a set of OBO ontology objects.
 
 use OBO::Util::ObjectSet;
 
-$cco_id_set = OBO::Util::ObjectSet->new();
+$set = OBO::Util::ObjectSet->new();
 
 $id = OBO::XO::OBO_ID->new();
 
-$size = $cco_id_set->size();
+$size = $set->size();
 
-if ($cco_id_set->add($id)) { ... }
+if ($ok) {
+	
+	$set->add($term);
+	
+} else {
+	
+	$set->add($term);
+	
+	$set->add($relationship);
+	
+}
 
 =head1 DESCRIPTION
 
@@ -60,13 +70,15 @@ use Carp;
   
 =cut
 
-sub add () {
+sub add {
 	my ($self, $new_id) = @_;
-	my $result; # nothing added
+	my $result = undef; # nothing added
 	my $element_id = $new_id->id();
 	if ($element_id && !$self->contains($new_id)) {
 		$self->{MAP}->{$element_id} = $new_id;
 		$result = $new_id; # successfully added
+	} else {
+		# don't add repeated elements
 	}
 	return $result;
 }
@@ -74,7 +86,7 @@ sub add () {
 =head2 add_all
 
   Usage    - $set->add_all($ele1, $ele2, $ele3, ...)
-  Returns  - the last added id (e.g. an object of type OBO::CCO::CCO_ID)
+  Returns  - the last added id (e.g. an object of type OBO::XO::OBO_ID)
   Args     - the elements to be added
   Function - adds the given elements to this set
   
@@ -83,8 +95,8 @@ sub add () {
 sub add_all {
 	my $self = shift;
 	my $result;
-	foreach (@_) {
-		$result = $self->add($_);
+	foreach my $ele (@_) {
+		$result = $self->add($ele);
 	}
 	return $result;
 }

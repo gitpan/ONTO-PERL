@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2165 2010-08-21 08:50:06Z Erick Antezana $
+# $Id: Ontology.pm 2010-09-29 Erick Antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -407,11 +407,11 @@ foreach my $head (@heads_n1) {
 
 =head1 DESCRIPTION
 
-This module has several methods to work with Ontologies in OBO and OWL formats, 
-such as the Cell Cycle Ontology (http://www.cellcycleontology.org). Basically, 
-it is a directed acyclic graph (DAG) holding the terms (OBO::Core::Term) which 
-in turn are linked by relationships (OBO::Core::Relationship). These relationships 
-have an associated relationship type (OBO::Core::RelationshipType).
+This module supports the manipulatation of OBO-formatted ontologies, such as the 
+Gene Ontology (http://www.geneontology.org/) or the Cell Cycle Ontology (http://www.cellcycleontology.org). 
+Basically, it represents a directed acyclic graph (DAG) holding the terms (OBO::Core::Term) which 
+in turn are linked by relationships (OBO::Core::Relationship). Those relationships have an associated 
+relationship type (OBO::Core::RelationshipType).
 
 =head1 AUTHOR
 
@@ -437,7 +437,7 @@ use Carp;
 use Carp qw(cluck);
 use Data::Dumper qw(Dumper); 
 
-our $VERSION = '1.24';
+our $VERSION = '1.25';
 
 sub new {
 	my $class                      = shift;
@@ -446,7 +446,7 @@ sub new {
 	$self->{ID}                    = undef;                 # required, (1)
 	$self->{NAME}                  = undef;                 # required, (1)
 	$self->{IMPORTS}               = OBO::Util::Set->new(); # set (0..N)
-	$self->{IDSPACE}               = undef;                 # required, (1)
+	$self->{IDSPACES}              = OBO::Util::Set->new(); # required, (0..N)
 	$self->{DEFAULT_NAMESPACE}     = undef;                 # string (0..1)
 	$self->{DATA_VERSION}          = undef;                 # string (0..1)
 	$self->{DATE}                  = undef;                 # (1) The current date in dd:MM:yyyy HH:mm format
@@ -455,11 +455,12 @@ sub new {
 	$self->{SUBSETS_SET}           = OBO::Util::Set->new(); # set (0..N); A subset is a view over an ontology
 	$self->{SYNONYM_TYPE_DEF_SET}  = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
         
-	$self->{TERMS}                 = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..n)
-	# TERMS_SET will be enabled once the Set is refactored
-	#$self->{TERMS_SET}            = OBO::Util::TermSet->new(); # Terms (0..n)
-	$self->{RELATIONSHIP_TYPES}    = {}; # map: relationship_type_id vs. relationship_type  (0..n)
+	$self->{TERMS}                 = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..N)
+	$self->{RELATIONSHIP_TYPES}    = {}; # map: relationship_type_id vs. relationship_type  (0..N)
 	$self->{RELATIONSHIPS}         = {}; # (0..N)
+	
+	# TERMS_SET will be enabled once the Set is refactored
+	#$self->{TERMS_SET}            = OBO::Util::TermSet->new(); # Terms (0..n) # TODO enable the terms_set
 	
 	# TODO Implement RELATIONSHIP_SET
 	
@@ -550,27 +551,31 @@ sub default_namespace {
 	return $self->{DEFAULT_NAMESPACE};
 }
 
-=head2 idspace
+=head2 idspaces
 
-  Usage    - print $ontology->idspace() or $ontology->idspace("CCO http://www.cellcycleontology.org/ontology/owl#")
-  Returns  - the id space (OBO::Core::IDspace) of this ontology
-  Args     - the id space (OBO::Core::IDspace) of this ontology
-  Function - gets/sets the idspace of this ontology
+  Usage    - $ontology->idspaces() or $ontology->idspaces($IDspace)
+  Returns  - the id spaces, a set (OBO::Util::Set) of OBO::Core::IDspace's, of this ontology
+  Args     - the id spaces, a set (OBO::Util::Set) of OBO::Core::IDspace's, of this ontology
+  Function - gets/sets the idspaces of this ontology
   
 =cut
 
-sub idspace {
-	my ($self, $is) = @_;
-	if (defined $is) { $self->{IDSPACE} = $is }
-	return $self->{IDSPACE};
+sub idspaces {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{IDSPACES}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{IDSPACES}->add($_[0]);
+	}
+	return $self->{IDSPACES};
 } 
 
 =head2 idspace_as_string
 
-  Usage    - $ontology->idspace_as_string($local_id, $uri, $description)
+  Usage    - $ontology->idspace_as_string() or $ontology->idspace_as_string($local_id, $uri, $description)
   Returns  - the idspace as string (string). Empty string is returned if the IDspace was not defined
   Args     - the local idspace (string), the uri (string) and the description (string)
-  Function - gets/sets the idspace of this ontology
+  Function - gets the idspaces of this ontology or sets ONE idspace for this ontology
   
 =cut
 
@@ -581,14 +586,18 @@ sub idspace_as_string {
 		$new_idspace->local_idspace($local_id);
 		$new_idspace->uri($uri);
 		$new_idspace->description($description) if (defined $description);
-		$self->idspace($new_idspace);
+		$self->idspaces($new_idspace);
 		return $new_idspace;
 	}
-	my $idspace = $self->{IDSPACE};
-	if (!defined $idspace) {
+	my @idspaces = $self->{IDSPACES}->get_set();
+	if (!@idspaces) {
 		return ""; # empty string
 	} else {
-		return $idspace->as_string();
+		my $idspaces_as_string = "";
+		foreach my $idspace (@idspaces) {
+			#$idspaces_as_string = $idspace->as_string(), "\n";
+		}
+		return $idspaces_as_string
 	}
 }
 
@@ -691,10 +700,17 @@ sub synonym_type_def_set {
 sub add_term {
 	my ($self, $term) = @_;
 	if ($term) {
-		$self->{TERMS}->{$term->id()} = $term;
-		#$self->{TERMS_SET}->add($term);
-		return $term;
-	}
+		my $term_id = $term->id();
+		if ($term_id) {
+			$self->{TERMS}->{$term_id} = $term;
+			#$self->{TERMS_SET}->add($term);
+			return $term;
+		} else {
+			confess "A term to be added to this ontology must have an ID";
+		}
+	} else {
+    	confess "Missing term";
+    }
 }
 
 =head2 add_term_as_string
@@ -712,16 +728,17 @@ sub add_term_as_string {
 		my $term_id = shift;
 		if (!$self->has_term_id($term_id)){
 			my $term_name = shift;
-	    
-			$term_id   || confess "A term to be added to this ontology must have an ID";
-			$term_name || confess "A term to be added to this ontology must have a name";
-	
+			$term_id || confess "A term to be added to this ontology must have an ID";
 			my $new_term = OBO::Core::Term->new();
 			$new_term->id($term_id);
 			$new_term->name($term_name);
 			$self->add_term($new_term);
 			return $new_term;
+		} else {
+			warn "The term you tried to add ($term_id) is already in the ontology\n";
 		}
+    } else {
+    	confess "To add a term, you need to provide both a term ID and a term name";
     }
 }
 
@@ -742,6 +759,8 @@ sub add_relationship_type {
 		
 		# TODO Is necessary to implement a set of rel types? for get_relationship_types()?
 		#$self->{RELATIONSHIP_TYPES_SET}->add($relationship_type);
+    } else {
+    	confess "Missing relationship type";
     }
 }
 
@@ -761,15 +780,18 @@ sub add_relationship_type_as_string {
 		if (!$self->has_relationship_type_id($relationship_type_id)){
 			my $relationship_type_name = shift;
 	    
-			$relationship_type_id || confess "A relationship type to be added to this ontology must have an ID";
-			$relationship_type_name || confess "A relationship type to be added to this ontology must have a name";
+			$relationship_type_id   || confess "A relationship type to be added to this ontology must have an ID";
 	
 			my $new_relationship_type = OBO::Core::RelationshipType->new();
 			$new_relationship_type->id($relationship_type_id);
 			$new_relationship_type->name($relationship_type_name);
 			$self->add_relationship_type($new_relationship_type);
 			return $new_relationship_type;
+		} else {
+			warn "The relationship type you tried to add ($relationship_type_id) is already in the ontology\n";
 		}
+    } else {
+    	confess "To add a relationship type, you need to provide both a relationship type ID and a relationship type name";
     }
 }
 
@@ -792,7 +814,6 @@ sub delete_term {
 			delete $self->{TERMS}->{$id};
 			#$self->{TERMS_SET}->remove($term);
 		}
-		
 		# TODO Delete the relationships: to its parents and children!
     }
 }
@@ -926,9 +947,9 @@ sub get_terms_by_subnamespace {
 	my $self = shift;
 	my $terms;
 	if (@_) {
-		my $is = $self->idspace()->local_idspace();
+		my $is = (values(%{$self->{TERMS}}))[0]->idspace(); # TODO Find a better way to get the local_idspace, maybe using the self->{ID} field?
 		if (!defined $is) {
-			confess "The idspace is not defined for this ontology";
+			confess "The local ID space is not defined for this ontology";
 		} else {
 			$terms = $self->get_terms($is.":".$_[0]);
 		}
@@ -1479,13 +1500,15 @@ sub export {
 			print $file_handle "synonymtypedef: ", $st->synonym_type_def_as_string(), "\n";
 		}
 
-		my $isas = $self->idspace_as_string();
-		print $file_handle "idspace: ", $isas, "\n" if ($isas);
+		# idspace's
+		foreach my $idspace ($self->idspaces()->get_set()) {
+			print $file_handle "idspace: ", $idspace, "\n";
+		}
 		
 		my $dns = $self->default_namespace();
 		print $file_handle "default-namespace: ", $dns, "\n" if (defined $dns);
 		
-		# remarks
+		# remark's
 		foreach my $remark ($self->remarks()->get_set()) {
 			print $file_handle "remark: ", $remark, "\n";
 		}
@@ -1511,10 +1534,8 @@ sub export {
 			#
 			# name:
 			#
-			if (defined $term->name()) {
+			if (defined $term->name()) { # from OBO 1.4, the name is not mandatory anymore
 				print $file_handle "\nname: ", $term->name();
-			} else {
-				confess "The term with id: ", $term->id(), " has no name!" ;
 			}
 
 			#
@@ -2387,7 +2408,7 @@ sub export {
 		}
 		
 		# idspace
-		my $ids = $self->idspace();
+		my $ids = $self->idspaces()->get_set();
 		my $local_idspace = undef;
 		if (defined $ids) {
 			$local_idspace = $ids->local_idspace(); 
@@ -3289,7 +3310,7 @@ sub get_subontology_from {
 
 		$result->data_version($self->data_version());
 		$result->imports($self->imports()->get_set());
-		$result->idspace($self->idspace());
+		$result->idspaces($self->idspaces());
 		$result->subsets($self->subsets()->get_set()); # add (by default) all the subsets
 		$result->synonym_type_def_set($self->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 		$result->default_namespace($self->default_namespace());
@@ -3553,9 +3574,9 @@ sub get_ancestor_terms_by_relationship_type {
 =head2 create_rel
 
   Usage    - $ontology->create_rel->($tail, $type, $head)
-  Returns  - OBO::Core::Ontology object
-  Args     - OBO::Core::(Term|Relationship) object, relationship type string, and the OBO::Core::(Term|Relationship) object, 
-  Function - creates and adds to the ontology a new relationship
+  Returns  - the OBO::Core::Ontology object
+  Args     - an OBO::Core::(Term|Relationship) object, a relationship type string, and an OBO::Core::(Term|Relationship) object, 
+  Function - creates and adds a new relationship to the ontology
   
 =cut
 
@@ -3563,20 +3584,24 @@ sub create_rel (){
 	my $self = shift;
 	my($tail, $type, $head) = @_;
 	confess "Not a valid relationship type: '", $type, "'" unless($self->{RELATIONSHIP_TYPES}->{$type});
-	my $id = $tail->id()."_".$type."_".$head->id();
-	if ($self->has_relationship_id($id)) {
-		#cluck "The following rel ID already exists in the ontology: ", $id; # Implement a RelationshipSet?
-		
-		my $relationship = $self->get_relationship_by_id($id);
-		$self->{TARGET_RELATIONSHIPS}->{$head}->{$type}->{$tail}        = $relationship;
-		$self->{SOURCE_RELATIONSHIPS}->{$tail}->{$type}->{$head}        = $relationship;
-		$self->{TARGET_SOURCE_RELATIONSHIPS}->{$tail}->{$head}->{$type} = $relationship;
+	if ($tail && $head) {
+		my $id = $tail->id()."_".$type."_".$head->id();
+		if ($self->has_relationship_id($id)) {
+			#cluck "The following rel ID already exists in the ontology: ", $id; # Implement a RelationshipSet?
+			
+			my $relationship = $self->get_relationship_by_id($id);
+			$self->{TARGET_RELATIONSHIPS}->{$head}->{$type}->{$tail}        = $relationship;
+			$self->{SOURCE_RELATIONSHIPS}->{$tail}->{$type}->{$head}        = $relationship;
+			$self->{TARGET_SOURCE_RELATIONSHIPS}->{$tail}->{$head}->{$type} = $relationship;
+		} else {
+			my $rel = OBO::Core::Relationship->new(); 
+			$rel->type($type);
+			$rel->link($tail, $head);
+			$rel->id($id);
+			$self->add_relationship($rel);
+		}
 	} else {
-		my $rel = OBO::Core::Relationship->new(); 
-		$rel->type($type);
-		$rel->link($tail, $head);
-		$rel->id($id);
-		$self->add_relationship($rel);
+		confess "To create a relationship, you must provide both a tail and a head object!";
 	}
 	return $self;
 }

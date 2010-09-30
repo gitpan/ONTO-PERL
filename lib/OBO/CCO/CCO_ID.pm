@@ -1,4 +1,4 @@
-# $Id: CCO_ID.pm 1844 2010-09-23 12:30:37Z easr $
+# $Id: CCO_ID.pm 2010-09-29 Erick Antezana $
 #
 # Module  : CCO_ID.pm
 # Purpose : A CCO_ID.
@@ -10,10 +10,9 @@
 
 package OBO::CCO::CCO_ID;
 
-
 =head1 NAME
 
-OBO::CCO::CCO_ID - A module for describing Cell Cycle Ontology (CCO) identifiers. Its idspace, subnamespace and number are stored.
+OBO::CCO::CCO_ID - A module for describing Cell Cycle Ontology (CCO) identifiers. Its idspace, subnamespace and localID are stored.
 
 =head1 SYNOPSIS
 
@@ -25,13 +24,13 @@ $id->idspace("CCO");
 
 $id->subnamespace("X");
 
-$id->number("0000001");
+$id->localID("0000001");
 
 $idspace = $id->idspace();
 
 $subnamespace = $id->subnamespace();
 
-$number = $id->number();
+$localID = $id->localID();
 
 print $id->id_as_string();
 
@@ -88,7 +87,7 @@ sub new {
 
 	$self->{IDSPACE}      = undef; # string
 	$self->{SUBNAMESPACE} = undef; # subnamespace
-	$self->{NUMBER}       = undef; # 7 digits
+	$self->{LOCALID}      = undef; # 7 digits
 
 	bless ($self, $class);
 	return $self;
@@ -123,9 +122,9 @@ sub id_as_string () {
 	if ( defined $id_as_string && $id_as_string =~ /([A-Z][A-Z][A-Z]):([CFPXIRTBGNYZ])([0-9]{7})/ ) {
 		$self->{IDSPACE} = $1;
 		$self->{SUBNAMESPACE} = $2;
-		$self->{NUMBER} = substr($3 + 10000000, 1, 7); # trick: forehead zeros
-	} elsif ($self->{IDSPACE} && $self->{SUBNAMESPACE} && $self->{NUMBER}) {
-		return $self->{IDSPACE}.":".$self->{SUBNAMESPACE}.$self->{NUMBER};
+		$self->{LOCALID} = substr($3 + 10000000, 1, 7); # trick: forehead zeros
+	} elsif ($self->{IDSPACE} && $self->{SUBNAMESPACE} && $self->{LOCALID}) {
+		return $self->{IDSPACE}.":".$self->{SUBNAMESPACE}.$self->{LOCALID};
 	}
 }
 *id = \&id_as_string;
@@ -143,7 +142,7 @@ sub equals () {
 	my ($self, $target) = @_;
 	return (($self->{IDSPACE} eq $target->{IDSPACE}) && 
 			($self->{SUBNAMESPACE} eq $target->{SUBNAMESPACE}) &&
-			($self->{NUMBER} == $target->{NUMBER}));
+			($self->{LOCALID} == $target->{LOCALID}));
 }
 
 =head2 next_id
@@ -160,7 +159,7 @@ sub next_id () {
 	my $next_id = OBO::CCO::CCO_ID->new();
 	$next_id->{IDSPACE} = $self->{IDSPACE};
 	$next_id->{SUBNAMESPACE} = $self->{SUBNAMESPACE};
-	$next_id->{NUMBER} = substr(10000001 + $self->{NUMBER}, 1, 7); # trick: forehead zeros
+	$next_id->{LOCALID} = substr(10000001 + $self->{LOCALID}, 1, 7); # trick: forehead zeros
 	return $next_id;
 }
 
@@ -178,7 +177,7 @@ sub previous_id () {
 	my $previous_id = OBO::CCO::CCO_ID->new ();
 	$previous_id->{IDSPACE} = $self->{IDSPACE};
 	$previous_id->{SUBNAMESPACE} = $self->{SUBNAMESPACE};
-	$previous_id->{NUMBER} = substr((10000000 + $self->{NUMBER}) - 1, 1, 7); # trick: forehead zeros
+	$previous_id->{LOCALID} = substr((10000000 + $self->{LOCALID}) - 1, 1, 7); # trick: forehead zeros
 	return $previous_id;
 }
 

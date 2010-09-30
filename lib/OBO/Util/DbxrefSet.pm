@@ -1,4 +1,4 @@
-# $Id: DbxrefSet.pm 1846 2008-01-08 12:35:31Z easr $
+# $Id: DbxrefSet.pm 2010-09-29 Erick Antezana $
 #
 # Module  : DbxrefSet.pm
 # Purpose : Reference structure set.
@@ -8,7 +8,6 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 package OBO::Util::DbxrefSet;
-our @ISA = qw(OBO::Util::ObjectSet);
 
 =head1 NAME
 
@@ -69,7 +68,7 @@ $my_set2->clear();
 
 =head1 DESCRIPTION
 
-A set (OBO::Util::Set) of dbxref (OBO::Core::Dbxref) elements.
+A set (OBO::Util::ObjectSet) of dbxref (OBO::Core::Dbxref) elements.
 
 =head1 AUTHOR
 
@@ -85,6 +84,7 @@ at your option, any later version of Perl 5 you may have available.
 
 =cut
 
+our @ISA = qw(OBO::Util::ObjectSet);
 use OBO::Util::ObjectSet;
 
 use strict;

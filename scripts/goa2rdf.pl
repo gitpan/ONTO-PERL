@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: goa2rdf.pl 1 2010-04-17 08:18:16Z Erick Antezana $
+# $Id: goa2rdf.pl 2010-09-29 Erick Antezana $
 #
 # Script  : goa2rdf.pl
 #

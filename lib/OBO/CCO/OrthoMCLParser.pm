@@ -1,4 +1,4 @@
-# $Id: OrthoMCLParser.pm 2116 2008-05-23 12:12:21Z Erick Antezana $
+# $Id: OrthoMCLParser.pm 2116 2010-09-29 Erick Antezana $
 #
 # Module  : OrthoMCLParser.pm
 # Purpose : Parse OrthoMCL files and add data to an ontology

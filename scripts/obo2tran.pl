@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo2tran.pl 2028 2010-04-17 08:18:16Z Erick Antezana $
+# $Id: obo2tran.pl 2010-09-29 Erick Antezana $
 #
 # Script  : obo2tran.pl
 #

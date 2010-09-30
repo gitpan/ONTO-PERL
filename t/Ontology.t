@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 193;
+    plan tests => 196;
 }
 
 #########################
@@ -172,7 +172,7 @@ ok($odd_processes[0]->id() eq "CCO:P0000003");
 ok($odd_processes[1]->id() eq "CCO:P0000005");
 ok($onto->idspace_as_string() eq "");
 $onto->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO", "cell cycle ontology terms");
-ok($onto->idspace()->local_idspace() eq "CCO");
+ok(($onto->idspaces()->get_set())[0]->local_idspace() eq "CCO");
 my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
 ok(@same_processes == @processes);
 my @no_processes = @{$onto->get_terms_by_subnamespace("p")};
@@ -462,13 +462,21 @@ ok(($onto->get_terms_by_name("cell cycle process")->get_set())[0]->id() eq $n2->
 ok(($onto->get_terms_by_name("re-entry into mitotic cell cycle after pheromone arrest")->get_set())[0]->id() eq $n3->id());
 
 ok($onto->get_terms_by_name("cell cycle")->size() == 3);
+
 $so->imports("o1", "02");
 $so->date("11:03:2007 21:46");
 $so->data_version("09:03:2007 19:30");
+
 $so->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/CCO", "cell cycle terms");
-ok($so->idspace->local_idspace() eq "CCO");
-ok($so->idspace->uri() eq "http://www.cellcycleontology.org/ontology/CCO");
-ok($so->idspace->description() eq "cell cycle terms");
+$so->idspace_as_string("GO", "urn:lsid:bioontology.org:GO:", "gene ontology terms");
+my @idspaces = sort ($so->idspaces()->get_set());
+ok(($so->idspaces()->get_set())[0]->local_idspace() eq "CCO");
+ok(($so->idspaces()->get_set())[0]->uri() eq "http://www.cellcycleontology.org/ontology/CCO");
+ok(($so->idspaces()->get_set())[0]->description() eq "cell cycle terms");
+ok(($so->idspaces()->get_set())[1]->local_idspace() eq "GO");
+ok(($so->idspaces()->get_set())[1]->uri() eq "urn:lsid:bioontology.org:GO:");
+ok(($so->idspaces()->get_set())[1]->description() eq "gene ontology terms");
+
 $so->remarks("1. This is a test ontology", "2. This is a second remark", "3. This is the last remark");
 my @remarks = sort ($so->remarks()->get_set());
 ok($remarks[0] eq "1. This is a test ontology");

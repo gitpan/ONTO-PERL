@@ -1,4 +1,4 @@
-# $Id: GoaAssociationSet.pm 2158 2008-05-29 11:29:36Z Erick Antezana $
+# $Id: GoaAssociationSet.pm 2010-09-29 Erick Antezana $
 #
 # Module  : GoaAssociationSet.pm
 # Purpose : GOA association set.

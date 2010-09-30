@@ -1,4 +1,4 @@
-# $Id: Term.pm 2054 2010-24-09 14:17:31Z Erick Antezana $
+# $Id: Term.pm 2054 2010-09-29 Erick Antezana $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -288,7 +288,7 @@ sub id {
   Usage    - print $term->idspace() 
   Returns  - the idspace of this term; otherwise, 'NN'
   Args     - none
-  Function - gets the idspace of this term
+  Function - gets the idspace of this term # TODO Does this method still makes sense?
   
 =cut
 sub idspace {
@@ -588,7 +588,7 @@ sub xref_set_as_string {
 	if ($xref_as_string) {
 		$xref_as_string =~ s/^\[//;
 		$xref_as_string =~ s/\]$//;		
-		$xref_as_string =~ s/\\,/;;;;/g; # trick to keep the comma's
+		$xref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
 		$xref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
 		my $xref_set = $self->{XREF_SET};
 		

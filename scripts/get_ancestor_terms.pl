@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_ancestor_terms.pl 1893 2010-02-14 14:23:26Z easr $
+# $Id: get_ancestor_terms.pl 2010-09-29 Erick Antezana $
 #
 # Script  : get_ancestor_terms.pl
 # Purpose : Collects the ancestor terms from a given term in the given OBO ontology

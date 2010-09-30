@@ -1,4 +1,4 @@
-# $Id: Ontolome.pm 2132 2010-08-21 11:13:15Z Erick Antezana $
+# $Id: Ontolome.pm 2010-09-29 Erick Antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
@@ -84,7 +84,7 @@ sub union () {
 	$result->remarks("Union of ontologies");
 	
 	foreach my $ontology (@ontos) {
-		$result->idspace($ontology->idspace()); # assuming the same idspace
+		$result->idspaces($ontology->idspaces()->get_set()); # assuming the same idspace
 		$result->subsets($ontology->subsets()->get_set()); # add all subsets by default
 		$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 
@@ -238,7 +238,7 @@ sub intersection () {
 	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
 	$result->remarks("Intersection of ontologies");
 	
-	$result->idspace($onto1->idspace()); # assuming the same idspace
+	$result->idspaces($onto1->idspaces()); # assuming the same idspaces
 	$result->subsets($onto1->subsets()->get_set()); # add all subsets by default
 
 	foreach my $term (@{$onto1->get_terms()}){
@@ -396,7 +396,7 @@ my ($self, $ontology) = @_;
 	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
 	$result->remarks("Ontology with transitive closures");
 	
-	$result->idspace($ontology->idspace()); # assuming the same idspace
+	$result->idspaces($ontology->idspaces()); # assuming the same idspaces
 	$result->subsets($ontology->subsets()->get_set()); # add all subsets by default
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 	

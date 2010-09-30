@@ -1,4 +1,4 @@
-# $Id: Def.pm 1845 2010-01-08 12:33:09Z easr $
+# $Id: Def.pm 2010-09-29 Erick Antezana $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.

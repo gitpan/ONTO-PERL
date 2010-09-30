@@ -17,13 +17,13 @@ use strict;
 my $my_id = OBO::CCO::CCO_ID->new();
 $my_id->idspace("CCO");
 $my_id->subnamespace("P");
-$my_id->number("3000001");
+$my_id->localID("3000001");
 ok($my_id->id_as_string() eq "CCO:P3000001");
 
 my $my_id2 = OBO::CCO::CCO_ID->new();
 $my_id2->idspace("CCO");
 $my_id2->subnamespace("P");
-$my_id2->number("3000001");
+$my_id2->localID("3000001");
 
 ok($my_id->equals($my_id2));
 ok($my_id->next_id()->id_as_string() eq "CCO:P3000002");

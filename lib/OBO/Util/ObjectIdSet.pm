@@ -1,4 +1,4 @@
-# $Id: ObjectIdSet.pm 1846 2010-09-23 12:30:37Z easr $
+# $Id: ObjectIdSet.pm 2010-09-29 Erick Antezana $
 #
 # Module  : ObjectIdSet.pm
 # Purpose : A generic set of ontology objects.
@@ -12,7 +12,7 @@ package OBO::Util::ObjectIdSet;
 =head1 NAME
 
 OBO::Util::ObjectIdSet  - A Set implementation of object IDs.
-    
+
 =head1 SYNOPSIS
 
 use OBO::Util::ObjectIdSet;
@@ -41,7 +41,7 @@ foreach ($my_set->get_set()) {
 
 print "\nContained!\n" if ($my_set->contains("CCO:P0000001"));
 
-my $my_set2 = OBO::Util::Set->new();
+my $my_set2 = OBO::Util::ObjectIdSet->new();
 
 $my_set2->add_all("CCO:P0000001", "CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
 
@@ -123,6 +123,8 @@ sub add {
 			$self->{MAP}->{$ele} = $ele; 
 			$result = 1; # successfully added
 		}
+	} else {
+		# don't add repeated elements
 	}
 	return $result;
 }

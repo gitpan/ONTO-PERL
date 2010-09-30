@@ -1,4 +1,4 @@
-# $Id: GoaParser.pm 2159 2010-05-29 11:29:50Z Erick Antezana $
+# $Id: GoaParser.pm 2159 2010-09-29 Erick Antezana $
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files
@@ -51,15 +51,14 @@ use OBO::CCO::GoaAssociation;
 use OBO::CCO::CCO_ID_Term_Map;
 use OBO::Util::DbxrefSet;
 use OBO::CCO::GoaAssociationSet;
-use OBO::Util::Set;
 
 use strict;
 use warnings;
 use Carp;
 
 sub new {
-	my $class                   = shift;
-	my $self                    = {}; 
+	my $class   = shift;
+	my $self    = {}; 
 	
 	bless ($self, $class);
 	return $self;
@@ -151,12 +150,12 @@ sub work {
 		die "Not a valid relationship type" unless($ontology->{RELATIONSHIP_TYPES}->{$_});
 	}
 	
-#	my $taxon = $ontology->get_term_by_name($taxon_name) || die "the term $taxon_name is not defined", $!;
+	#my $taxon = $ontology->get_term_by_name($taxon_name) || die "the term $taxon_name is not defined", $!;
 	my $name_of_parent_of_the_new_proteins = 'core cell cycle protein';
 	my $onto_protein = $ontology->get_term_by_name($name_of_parent_of_the_new_proteins) || confess "The term '", $name_of_parent_of_the_new_proteins, "' is not defined", $!;
 	
 	# Initialize CCO_ID_Map objects
-	my $short_map = OBO::CCO::CCO_ID_Term_Map->new($short_map_file); 
+	my $short_map = OBO::CCO::CCO_ID_Term_Map->new($short_map_file);
 	my $long_map  = OBO::CCO::CCO_ID_Term_Map->new($long_map_file); # Set of Protein IDs	
 	
 	# Read UniProt map file (keys - accession numbers, values - protein IDs)
@@ -170,38 +169,42 @@ sub work {
 		$up_map{$acc} = $name;
 	}
 	close $fh;
-	
-	
+
 	# parse the GOA associations file
 	my $goa_parser = OBO::CCO::GoaParser->new();
 	my $goa_assoc_set = $goa_parser->parse($goa_assoc_file); 
 	foreach my $goaAssoc (@{$goa_assoc_set->{SET}}){
-		my $db = $goaAssoc->obj_src();
-		my $acc = $goaAssoc->obj_id();
+		my $db           = $goaAssoc->obj_src();
+		my $acc          = $goaAssoc->obj_id();
 		my $protein_name = $goaAssoc->obj_symb();
 		my $up_prot_name = $up_map{$acc}; 
-		my $protein = $ontology->get_term_by_xref($db, $acc);
+		my $protein      = $ontology->get_term_by_xref($db, $acc);
 		
-		# updata protein name if necessary
+		# update protein name if necessary
 		my $depric_prot_name;
-		if (( $up_prot_name) && ($protein_name ne $up_prot_name)) {
+		if ((defined $up_prot_name) && ($protein_name ne $up_prot_name)) {
 			$depric_prot_name = $protein_name;
 			$protein_name = $up_prot_name ;
-			my $cco_id = $short_map->get_id_by_term($depric_prot_name);
-#			my $cco_id = $protein->id();
-			$short_map->put( $cco_id, $up_prot_name );
-			$long_map->put( $cco_id, $up_prot_name  );
-			
+			if (defined $depric_prot_name) {
+				my $cco_id = $short_map->get_id_by_term($depric_prot_name);
+				if (defined $cco_id) {
+					$short_map->put( $cco_id, $up_prot_name );
+					$long_map->put( $cco_id, $up_prot_name  );
+				} else {
+					#TODO warn "Term id not defined for '$depric_prot_name'";
+				}
+			} else {
+				warn "Term name not defined...";
+			}			
 		}
 #		defined $up_prot_name ? $protein_name = $up_prot_name : warn "the accession $acc not found in the UniProt map file $up_map_file\n";
 		
-		# create  a  new protein object
+		# create a new protein object
 		if (!defined $protein) {
-			# create new protein term 
 			$protein = OBO::Core::Term->new(); 
 			$protein->name($protein_name); 
-			# create xref's
 			$protein->xref_set_as_string("[$db:$acc]"); # cross-reference to UniProt
+
 			# assign a CCO protein id
 			if ($short_map->contains_value($protein_name)){
 				$protein->id($short_map->get_id_by_term($protein_name));
@@ -213,10 +216,9 @@ sub work {
 			
 			$ontology->add_term($protein);
 			
-			# add "new protein is_a protein"
+			# add: 'new protein' is_a 'protein'
 			confess "The following protein is missing: '", $name_of_parent_of_the_new_proteins, "'" if (!defined $onto_protein);
 			$ontology->create_rel($protein, $is_a, $onto_protein);
-			
 		}
 		
 		# add relatioships with GO terms 
@@ -233,13 +235,12 @@ sub work {
 		
 		if ($aspect eq 'P') {
 			$ontology->create_rel($protein,     $participates_in, $cco_go_term);
-			$ontology->create_rel($cco_go_term, $has_participant, $protein); # inverse of 'participates_in'			
+			$ontology->create_rel($cco_go_term, $has_participant, $protein);  # inverse of 'participates_in'			
 		} elsif ($aspect eq 'C') {
 			$ontology->create_rel($protein,     $located_in,  $cco_go_term);
-			$ontology->create_rel($cco_go_term, $location_of, $protein); # inverse of 'located_in'
+			$ontology->create_rel($cco_go_term, $location_of, $protein);      # inverse of 'located_in'
 		} elsif ($aspect eq 'F') {
-			
-			$ontology->create_rel($protein, $has_function, $cco_go_term);
+			$ontology->create_rel($protein,     $has_function, $cco_go_term);
 		}
 	}
 	
@@ -315,7 +316,9 @@ sub add_go_assocs {
 
            $ontology->create_rel($protein, $has_function, $cco_go_term);
        }
-       else {warn "An illegal aspect in the GOA file $goa_assoc_file\n"}
+       else {
+       	warn "An illegal aspect in the GOA file $goa_assoc_file\n"
+       }
    }
 
    # Write the new ontology and map to disk

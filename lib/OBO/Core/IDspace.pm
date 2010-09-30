@@ -1,4 +1,4 @@
-# $Id: IDspace.pm 1845 2008-01-08 12:33:09Z easr $
+# $Id: IDspace.pm 1845 2010-09-29 Erick Antezana $
 #
 # Module  : IDspace.pm
 # Purpose : A mapping between a "local" ID space and a "global" ID space.
@@ -30,7 +30,17 @@ $idspace->description("cell cycle ontology terms);
 
 =head1 DESCRIPTION
 
-A mapping between a "local" ID space and a "global" ID space.
+An IDSpace is a mapping between a "local" ID space and a "global" ID space.
+
+This object captures: 
+
+	a local idspace, 
+	a URI,
+	quote-enclosed description (optional).
+	
+Example:
+
+	GO urn:lsid:bioontology.org:GO: "gene ontology terms"
 
 =head1 AUTHOR
 
@@ -54,9 +64,9 @@ sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{LOCAL_IDSPACE}      = ""; # required, scalar (1)
-	$self->{URI}                = ""; # required, scalar (1)
-	$self->{DESCRIPTION}        = undef; # scalar (0..1)
+	$self->{LOCAL_IDSPACE}      = "";    # required, scalar (1)
+	$self->{URI}                = "";    # required, scalar (1)
+	$self->{DESCRIPTION}        = undef; # optional scalar (0..1)
         
 	bless ($self, $class);
 	return $self;
@@ -76,7 +86,7 @@ sub local_idspace {
 	if ($local_idspace) {
 		$self->{LOCAL_IDSPACE} = $local_idspace;
 	} else { # get-mode
-                confess "The local ID space of this ID space is not defined." if (!defined($self->{LOCAL_IDSPACE}));
+		confess "The local ID space of this ID space is not defined." if (!defined($self->{LOCAL_IDSPACE}));
 	}
 	return $self->{LOCAL_IDSPACE};
 }

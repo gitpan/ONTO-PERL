@@ -1,4 +1,4 @@
-# $Id: OBO_ID_Set.pm 1844 2010-09-23 12:30:37Z easr $
+# $Id: OBO_ID_Set.pm 2010-09-29 Erick Antezana $
 #
 # Module  : OBO_ID_Set.pm
 # Purpose : A set of OBO id's.
@@ -106,16 +106,16 @@ sub add_all_as_string () {
 =cut
 
 sub get_new_id {
-	my ($self, $idspace) = @_;
+	my ($self, $local_idspace) = @_;
 	my $new_obo_id = OBO::XO::OBO_ID->new();
-	confess "The idspace is invalid: ", $idspace if ($idspace !~ /\w+/);
-	$new_obo_id->idspace($idspace);
-	# get the last 'number'
+	confess "The local idspace is invalid: ", $local_idspace if ($local_idspace !~ /\w+/);
+	$new_obo_id->idspace($local_idspace);
+	# get the last 'localID'
 	if ($self->is_empty()){
-		$new_obo_id->number("0000001"); # use 7 'numeric placeholders'
+		$new_obo_id->localID("0000001"); # use 7 'numeric placeholders'
 	} else {
 		my @arr = sort {$a cmp $b} keys %{$self->{MAP}};
-		$new_obo_id->number( $self->{MAP}->{$arr[$#arr]}->number() );
+		$new_obo_id->localID( $self->{MAP}->{$arr[$#arr]}->localID() );
 	}
 	while (!defined ($self -> add( $new_obo_id = $new_obo_id->next_id() ))) {}
 	return $new_obo_id->id_as_string ();

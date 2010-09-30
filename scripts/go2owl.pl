@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: go2owl.pl 1893 2010-02-14 14:23:26Z easr $
+# $Id: go2owl.pl 2010-09-29 Erick Antezana $
 #
 # Script  : go2owl.pl
 #

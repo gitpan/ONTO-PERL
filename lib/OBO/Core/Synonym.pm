@@ -1,4 +1,4 @@
-# $Id: Synonym.pm 1845 2010-01-08 12:33:09Z easr $
+# $Id: Synonym.pm 2010-09-29 Erick Antezana $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
@@ -189,11 +189,12 @@ sub type {
 	my ($self, $synonym_type) = @_;
 	if ($synonym_type) {
 		my $possible_types = OBO::Util::Set->new();
-		$possible_types->add_all('EXACT', 'BROAD', 'NARROW', 'RELATED');
+		my @synonym_types = ('EXACT', 'BROAD', 'NARROW', 'RELATED');
+		$possible_types->add_all(@synonym_types);
 		if ($possible_types->contains($synonym_type)) {
 			$self->{TYPE} = $synonym_type;
 		} else {
-			confess "The synonym type must be one of the following: 'EXACT', 'BROAD', 'NARROW', 'RELATED'";
+			confess "The synonym type must be one of the following: ", join (', ', @synonym_types);
 		}
 	}
     return $self->{TYPE};

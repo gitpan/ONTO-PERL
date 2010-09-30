@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Set.pm 1844 2010-09-23 12:30:37Z easr $
+# $Id: CCO_ID_Set.pm 2010-09-29 Erick Antezana $
 #
 # Module  : CCO_ID_Set.pm
 # Purpose : A set of CCO id's.
@@ -94,12 +94,12 @@ sub get_new_id {
 	$new_cco_id->idspace($idspace);
 	confess "The subnamespace is invalid: ", $subnamespace if ($subnamespace !~ /[CFPXIORTBGNYZU]/);
 	$new_cco_id->subnamespace($subnamespace);
-	# get the last 'number'
+	# get the last 'localID'
 	if ($self->is_empty()){
-		$new_cco_id -> number("0000001");
+		$new_cco_id->localID("0000001");
 	} else {
 		my @arr = sort {$a cmp $b} keys %{$self->{MAP}};
-		$new_cco_id->number( $self->{MAP}->{$arr[$#arr]}->number() );
+		$new_cco_id->localID( $self->{MAP}->{$arr[$#arr]}->localID() );
 	}
 	while (!defined ($self -> add( $new_cco_id = $new_cco_id->next_id() ))) {}
 	return $new_cco_id->id_as_string ();

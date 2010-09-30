@@ -1,4 +1,4 @@
-# $Id: TermSet.pm 1846 2008-01-08 12:35:31Z easr $
+# $Id: TermSet.pm 1846 2010-09-29 Erick Antezana $
 #
 # Module  : TermSet.pm
 # Purpose : Term set.
@@ -116,7 +116,7 @@ $my_set2->clear();
 
 =head1 DESCRIPTION
 
-A set (OBO::Util::Set) of terms (OBO::Core::Term).
+A set (OBO::Util::ObjectSet) of terms (OBO::Core::Term).
 
 =head1 AUTHOR
 
