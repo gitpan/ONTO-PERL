@@ -537,13 +537,13 @@ ok(!($ontito->has_relationship_id("11_is_a_29")));
 ok($ontito->has_relationship_id("5_is_a_24"));
 ok($ontito->has_relationship_id("5_is_a_23"));
 
-
 #
 # from GO
 #
-
-my $go  = OBO::Core::Ontology->new();
-$go->idspace_as_string("GO", "http://www.cellcycle.org/ontology/GO", "go ontology terms");
+my $go = OBO::Core::Ontology->new();
+my $id = OBO::Core::IDspace->new();
+$id->as_string("GO", "urn:lsid:bioontology.org:GO:", "gene ontology terms");
+$go->idspaces($id);
 
 my $g60  = OBO::Core::Term->new();
 my $g59  = OBO::Core::Term->new();

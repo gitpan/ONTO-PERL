@@ -66,6 +66,7 @@ use OBO::Core::Dbxref;
 use OBO::Core::Relationship;
 use OBO::Core::RelationshipType;
 use OBO::Core::SynonymTypeDef;
+use OBO::Util::IDspaceSet;
 use OBO::Util::Set;
 use strict;
 use warnings;
@@ -97,9 +98,7 @@ sub work {
 	chomp(my @chunks = <OBO_FILE>);
 	chomp(@chunks);
 	close OBO_FILE;
-	
 	my $file_line_number = 0;
-	
 	# treat OBO file header tags
 	if (defined $chunks[0] && $chunks[0] =~ /^format-version:\s*(.*)/) {
 		my @header = split (/\n/,$chunks[0]);
@@ -115,14 +114,14 @@ sub work {
 			$chunks[0] =~ s/$1//;
 		}
 		my $subsetdef = OBO::Util::Set->new();
-		while ($chunks[0] =~ /(subsetdef:\s*(.*)\n)/) {
+		while ($chunks[0] =~ /(subsetdef:\s*(.*)\n)/) { # TODO implement Subset.pm to capture the subset elements
 			$subsetdef->add($2);
 			$chunks[0] =~ s/$1//;
 		}
 		my $synonym_type_def_set = OBO::Util::SynonymTypeDefSet->new();
 		while ($chunks[0] =~ /(synonymtypedef:\s*(.*)\s+\"(.*)\"(.*)?)/) {
 			my $line = $1;
-			my $std = OBO::Core::SynonymTypeDef->new();
+			my $std  = OBO::Core::SynonymTypeDef->new();
 			$std->synonym_type_name($2);
 			$std->description($3);
 			my $sc = $4;
@@ -130,12 +129,17 @@ sub work {
 			$synonym_type_def_set->add($std);
 			$chunks[0] =~ s/$line//;
 		}
-		my $idspaces = OBO::Util::Set->new();
-		while ($chunks[0] =~ /(idspace:\s*(.*)\n)/) {
-			$idspaces->add($2);
-			$chunks[0] =~ s/$1//;
+		my $idspaces = OBO::Util::IDspaceSet->new();
+		while ($chunks[0] =~ /(idspace:\s*(.*)\s*(.*)\s+(\".*\")?)/) {
+			my $line        = $1;
+			my $new_idspace = OBO::Core::IDspace->new();
+			$new_idspace->local_idspace($2);
+			$new_idspace->uri($3);
+			my $dc = $4;
+			$new_idspace->description($dc) if (defined $dc);
+			$idspaces->add($new_idspace);
+			$chunks[0] =~ s/$line//;
 		}
-				
 		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)(\n)?/);
 		my $remarks = OBO::Util::Set->new();
 		while ($chunks[0] =~ /(remark:\s*(.*)\n)/) {
@@ -155,12 +159,12 @@ sub work {
 		$result->idspaces($idspaces->get_set());
 		$result->default_namespace($default_namespace) if ($default_namespace);
 		$result->remarks($remarks->get_set());
-		
+
 		foreach my $chunk (@chunks) {
 			my @entry = split (/\n/, $chunk);
 			my $stanza = shift @entry;
 					
-			if ($stanza && $stanza =~ /\[Term\]/) { # treat [Term]
+			if ($stanza && $stanza =~ /\[Term\]/) { # treat [Term]'s
 				my $term;
 				$file_line_number++;
 				my $only_one_id_tag_per_entry   = 0;
@@ -201,8 +205,8 @@ sub work {
 					} elsif ($line =~ /^comment:\s*(.*)/) {
 						$term->comment($1);
 					} elsif ($line =~ /^subset:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.3 is there, then check that the used subsets belong to the defined in the header
-						$term->subset($1);
+						# TODO Wait until the OBO spec 1.4 be there, then check that the used subsets belong to the ones defined in the header
+						$term->subset($1); # it is a Set
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) { # OBO spec 1.1
 						$term->synonym_as_string($2, $3, uc($1));
 					} elsif ($line =~ /^synonym:\s*\"(.*)\"(\s+(EXACT|BROAD|NARROW|RELATED))?(\s+([-\w]+))?\s+(\[.*\])\s*/) {
@@ -238,9 +242,9 @@ sub work {
 						$rel->link($term, $target);
 						$result->add_relationship($rel);
 					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.3 is there
+						# TODO wait until the OBO spec 1.4 be released
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.3 is there
+						# TODO wait until the OBO spec 1.4 be released
 						# Distinguish between terms and relations?
 						# Check there are at least 2 elements in the 'union_of' set
 						$term->union_of($1);
@@ -264,6 +268,10 @@ sub work {
 						$term->created_by($1);
 					} elsif ($line =~ /^creation_date:\s*(.*)/) {
 						$term->creation_date($1); # TODO Check that the date follows the ISO 8601 format
+					} elsif ($line =~ /^modified_by:\s*(.*)/) {
+						$term->modified_by($1);
+					} elsif ($line =~ /^modification_date:\s*(.*)/) {
+						$term->modification_date($1); # TODO Check that the date follows the ISO 8601 format
 					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
 						$term->is_obsolete(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
@@ -300,6 +308,8 @@ sub work {
 						} elsif (defined $type->def()->text() && $type->def()->text() ne "") {
 							# the type is already in the ontology since it has a definition! (maybe empty?)
 							croak "The relationship type with id '", $1, "' is duplicated in the OBO file.";
+						} else {
+							# TODO Check this 'else' scenario warn "This relationship is: $line ...";
 						}
 					} elsif ($line =~ /^name:\s*(.*)/) {
 						croak "The typedef with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
@@ -370,14 +380,28 @@ sub work {
 						$rel->link($type, $target); # add a relationship between two relationship types
 						$result->add_relationship($rel);
 					} elsif ($line =~ /^inverse_of:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.4 is there, then implement it in RelationshipType
+						# TODO wait until the OBO spec 1.4 be released, then implement it in RelationshipType
 						#$type->inverse_of($1);
+					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
+						# TODO wait until the OBO spec 1.4 be released
+						$type->intersection_of($1);
+					} elsif ($line =~ /^union_of:\s*(.*)/) {
+						# TODO wait until the OBO spec 1.4 be released
+						# Distinguish between terms and relations?
+						# Check there are at least 2 elements in the 'union_of' set
+						$type->union_of($1);
+					} elsif ($line =~ /^disjoint_from:\s*(\w+:\w+)\s*(\!\s*(.*))?/) {
+						$type->disjoint_from($1); # We are assuming that the other relation type exists or will exist; otherwise , we have to create it like in the is_a section.
 					} elsif ($line =~ /^transitive_over:\s*(.*)/) {
 						$type->transitive_over($1);
 					} elsif ($line =~ /^created_by:\s*(.*)/) {
 						$type->created_by($1);
 					} elsif ($line =~ /^creation_date:\s*(.*)/) {
 						$type->creation_date($1); # TODO Check that the date follows the ISO 8601 format
+					} elsif ($line =~ /^modified_by:\s*(.*)/) {
+						$type->modified_by($1);
+					} elsif ($line =~ /^modification_date:\s*(.*)/) {
+						$type->modification_date($1); # TODO Check that the date follows the ISO 8601 format
 					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
 						$type->is_obsolete(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {

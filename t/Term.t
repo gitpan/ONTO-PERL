@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 71;
+    plan tests => 73;
 }
 
 #########################
@@ -24,7 +24,7 @@ my $n2 = OBO::Core::Term->new();
 my $n3 = OBO::Core::Term->new();
 my $n4 = OBO::Core::Term->new();
 
-# name, namespace, code
+# name, subnamespace, code
 ok($n1->idspace() eq "NN");
 ok($n1->subnamespace() eq "X");
 ok($n1->code() eq "0000000");
@@ -37,7 +37,7 @@ ok($n2->id() eq "CCO:P0000002");
 $n3->id("CCO:P0000003");
 ok($n3->id() eq "CCO:P0000003");
 
-# name, namespace, code
+# name, subnamespace, code
 ok($n1->idspace() eq "CCO");
 ok($n1->subnamespace() eq "P");
 ok($n1->code() eq "0000001");
@@ -47,6 +47,12 @@ $n1->created_by("erick_antezana");
 ok($n1->created_by() eq "erick_antezana");
 $n1->creation_date("2009-04-13T01:32:36Z ");
 ok($n1->creation_date() eq "2009-04-13T01:32:36Z ");
+
+# term modificator + date
+$n1->modified_by("erick_antezana");
+ok($n1->modified_by() eq "erick_antezana");
+$n1->modification_date("2010-04-13T01:32:36Z ");
+ok($n1->modification_date() eq "2010-04-13T01:32:36Z ");
 
 # alt_id
 $n1->alt_id("CCO:P0000001_alt_id");

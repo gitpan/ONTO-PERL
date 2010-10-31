@@ -19,7 +19,7 @@ my $syn2 = OBO::Core::Synonym->new();
 my $syn3 = OBO::Core::Synonym->new();
 my $syn4 = OBO::Core::Synonym->new();
 
-# type
+# scope
 ok(!defined $syn1->type());
 $syn1->type('EXACT');
 $syn2->type('BROAD');
@@ -109,5 +109,8 @@ ok($r_syn3{"CCO:ls"} eq "CCO:ls");
 ok($r_syn3{"CCO:ea"} eq "CCO:ea");
 ok($r_syn3{"http://mydomain.com/key1=value1&key2=value2"} eq "http://mydomain.com/key1=value1&key2=value2");
 ok($syn3->def_as_string() eq "\"This is a dummy synonym\" [CCO:ea \"Erick Antezana\", CCO:ls, CCO:vm, http://mydomain.com/key1=value1&key2=value2]");
+
+# synonym_type_name
+$syn1->synonym_type_name("UK_SPELLING");
 
 ok(1);

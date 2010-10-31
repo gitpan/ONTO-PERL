@@ -71,29 +71,32 @@ use Carp;
   Returns  - an ontology (OBO::Core::Ontology) being the union of the parameters (ontologies)
   Args     - the ontologies (OBO::Core::Ontology) to be united
   Function - creates an ontology having the union of terms and relationships from the given ontologies
-  Remark1  - we are assuming: same IDSPACE among the ontologies and for merging terms, they must have the same name and ID
+  Remark1  - the IDspace's are collected and added to the result ontology
   Remark2  - the union is made on the basis of the IDs
+  Remark3  - the default namespace is taken from the last ontology argument
   
 =cut
 
 sub union () {
 	my ($self, @ontos) = @_;
-	my $result = OBO::Core::Ontology->new();
-	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo/"); # adapt it to your needs
-	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
+	my $result         = OBO::Core::Ontology->new();
+	
 	$result->remarks("Union of ontologies");
 	
+	my $default_namespace;
 	foreach my $ontology (@ontos) {
+		$result->remarks($ontology->remarks()->get_set());   # add all the remark's of the ontologies
 		$result->idspaces($ontology->idspaces()->get_set()); # assuming the same idspace
-		$result->subsets($ontology->subsets()->get_set()); # add all subsets by default
+		$result->subsets($ontology->subsets()->get_set());   # add all subsets by default
 		$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
+		$default_namespace = $ontology->default_namespace(); # keep the namespace of the last ontology argument
 
 		my @terms = @{$ontology->get_terms()};
 		foreach my $term (@terms){
 			my $term_id = $term->id();
 			my $current_term = $result->get_term_by_id($term_id); # could also be $result->get_term_by_name_or_synonym()
 			if ($current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
-				$current_term->is_anonymous("true") if (!defined $current_term->is_anonymous() && $term->is_anonymous());
+				$current_term->is_anonymous($term->is_anonymous());
 				foreach ($term->alt_id()->get_set()) {
 					$current_term->alt_id($_);
 				}
@@ -120,14 +123,16 @@ sub union () {
 				foreach ($term->disjoint_from()) {
 					$current_term->disjoint_from($_);
 				}
-				$current_term->is_obsolete("true") if (!defined $current_term->is_obsolete() && $term->is_obsolete());
+				$current_term->created_by($term->created_by());
+				$current_term->creation_date($term->creation_date());
+				$current_term->is_obsolete($term->is_obsolete());
 				foreach ($term->replaced_by()->get_set()) {
 					$current_term->replaced_by($_);
 				}
 				foreach ($term->consider()->get_set()) {
 					$current_term->consider($_);
 				}
-				$current_term->builtin("true") if (!defined $current_term->builtin() && $term->builtin());
+				$current_term->builtin($term->builtin());
 				
 				# fix the rel's
 				my @rels = @{$ontology->get_relationships_by_target_term($term)}; 
@@ -167,44 +172,54 @@ sub union () {
 			my $rel_type_name = $rela->type();
 			my $onto_rela_type = $ontology->get_relationship_type_by_id($rel_type_name);
 			my $rel_type = $result->get_relationship_type_by_id($rel_type_name);
-			if (!$result->has_relationship_type($rel_type)) {
+			if (!defined $rel_type) {
+				$rel_type = $rel_type_name;
+				$result->add_relationship_type_as_string($rel_type_name, $rel_type_name);
+				$rel_type = $result->get_relationship_type_by_id($rel_type_name);
+				warn "REL:", $rel_type_name;
+			} elsif (!$result->has_relationship_type($rel_type)) {
 				$result->add_relationship_type($rel_type); # add rel types between rel's (typical is_a, part_of)
 				$rel_type = $result->get_relationship_type_by_id($rel_type_name);
 			}
-			
-			foreach ($onto_rela_type->alt_id()->get_set()) {
+			if ($onto_rela_type) {
+				foreach ($onto_rela_type->alt_id()->get_set()) {
 					$rel_type->alt_id($_);
+				}
+				$rel_type->def($onto_rela_type->def()) if (!defined $rel_type->def()->text() && $onto_rela_type->def()->text()); # TODO implement the case where the def xref's are not balanced!
+				foreach ($onto_rela_type->namespace()) {
+					$rel_type->namespace($_);
+				}
+				$rel_type->comment($onto_rela_type->comment()) if (!defined $rel_type->comment() && $onto_rela_type->comment());
+				foreach ($onto_rela_type->subset()) { 
+					$rel_type->subset($_);
+				}
+				foreach ($onto_rela_type->synonym_set()) {
+					$rel_type->synonym_set($_);
+				}
+				foreach ($onto_rela_type->xref_set()->get_set()) {
+					$rel_type->xref_set()->add($_);
+				}
+				$rel_type->is_cyclic($onto_rela_type->is_cyclic());
+				$rel_type->is_reflexive($onto_rela_type->is_reflexive());
+				$rel_type->is_symmetric($onto_rela_type->is_symmetric());
+				$rel_type->is_anti_symmetric($onto_rela_type->is_anti_symmetric());
+				$rel_type->is_transitive($onto_rela_type->is_transitive());
+				$rel_type->is_metadata_tag($onto_rela_type->is_metadata_tag());
+				
+				$rel_type->created_by($onto_rela_type->created_by());
+				$rel_type->creation_date($onto_rela_type->creation_date());
+				
+				$rel_type->is_obsolete($onto_rela_type->is_obsolete());
+				foreach ($onto_rela_type->replaced_by()->get_set()) {
+					$rel_type->replaced_by($_);
+				}
+				foreach ($onto_rela_type->consider()->get_set()) {
+					$rel_type->consider($_);
+				}
+				$rel_type->builtin($onto_rela_type->builtin());
+			} else {
+				# TODO Why do we have this case?
 			}
-			$rel_type->def($onto_rela_type->def()) if (!defined $rel_type->def()->text() && $onto_rela_type->def()->text()); # TODO implement the case where the def xref's are not balanced!
-			foreach ($onto_rela_type->namespace()) {
-				$rel_type->namespace($_);
-			}
-			$rel_type->comment($onto_rela_type->comment()) if (!defined $rel_type->comment() && $onto_rela_type->comment());
-			foreach ($onto_rela_type->subset()) { 
-				$rel_type->subset($_);
-			}
-			foreach ($onto_rela_type->synonym_set()) {
-				$rel_type->synonym_set($_);
-			}
-			foreach ($onto_rela_type->xref_set()->get_set()) {
-				$rel_type->xref_set()->add($_);
-			}
-			$rel_type->is_cyclic("true") if (!defined $rel_type->is_cyclic() && $onto_rela_type->is_cyclic());
-			$rel_type->is_reflexive("true") if (!defined $rel_type->is_reflexive() && $onto_rela_type->is_reflexive());
-			$rel_type->is_symmetric("true") if (!defined $rel_type->is_symmetric() && $onto_rela_type->is_symmetric());
-			$rel_type->is_anti_symmetric("true") if (!defined $rel_type->is_anti_symmetric() && $onto_rela_type->is_anti_symmetric());
-			$rel_type->is_transitive("true") if (!defined $rel_type->is_transitive() && $onto_rela_type->is_transitive());
-			$rel_type->is_metadata_tag("true") if (!defined $rel_type->is_metadata_tag() && $onto_rela_type->is_metadata_tag());
-			
-			$rel_type->is_obsolete("true") if (!defined $rel_type->is_obsolete() && $onto_rela_type->is_obsolete());
-			foreach ($onto_rela_type->replaced_by()->get_set()) {
-				$rel_type->replaced_by($_);
-			}
-			foreach ($onto_rela_type->consider()->get_set()) {
-				$rel_type->consider($_);
-			}
-			$rel_type->builtin("true") if (!defined $rel_type->builtin() && $onto_rela_type->builtin());
-			
 			#
 			# link the rels:
 			#
@@ -214,6 +229,7 @@ sub union () {
 			}
 		}
 	}
+	$result->default_namespace($default_namespace) if (defined $default_namespace);
 	return $result;
 }
 
@@ -234,16 +250,18 @@ sub union () {
 sub intersection () {
 	my ($self, $onto1, $onto2) = @_;
 	my $result = OBO::Core::Ontology->new();
-	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo"); # adapt it to your needs
-	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
+	$result->default_namespace($onto1->default_namespace()); # use the default_namespace of the first argument
 	$result->remarks("Intersection of ontologies");
 	
-	$result->idspaces($onto1->idspaces()); # assuming the same idspaces
+	# the IDspace's of both ontologies are added to the intersection ontology
+	$result->idspaces($onto1->idspaces()->get_set());
+	$result->idspaces($onto2->idspaces()->get_set());
+	
 	$result->subsets($onto1->subsets()->get_set()); # add all subsets by default
 
 	foreach my $term (@{$onto1->get_terms()}){
 		my $current_term = $onto2->get_term_by_id($term->id()); ### could also be $result->get_term_by_name_or_synonym()
-		if (defined $current_term) { # term intersection
+		if (defined $current_term) {  # term intersection
 			$result->add_term($term); # added the term from onto2
 		}
 	}
@@ -392,11 +410,9 @@ sub intersection () {
 sub transitive_closure () {
 my ($self, $ontology) = @_;
 	my $result = OBO::Core::Ontology->new();
-	$result->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/obo/"); # adapt it to your needs
-	$result->default_namespace("cellcycle_ontology"); # adapt it to your needs
+	$result->idspaces($ontology->idspaces()->get_set());
+	$result->default_namespace($ontology->default_namespace());
 	$result->remarks("Ontology with transitive closures");
-	
-	$result->idspaces($ontology->idspaces()); # assuming the same idspaces
 	$result->subsets($ontology->subsets()->get_set()); # add all subsets by default
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 	
@@ -404,7 +420,7 @@ my ($self, $ontology) = @_;
 	foreach my $term (@terms){
 		my $current_term =  $result->get_term_by_id($term->id());
 		if (defined $current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
-			$current_term->is_anonymous("true") if (!defined $current_term->is_anonymous() && $term->is_anonymous());
+			$current_term->is_anonymous(1) if (!defined $current_term->is_anonymous() && $term->is_anonymous());
 			foreach ($term->alt_id()->get_set()) {
 				$current_term->alt_id($_);
 			}
@@ -431,14 +447,14 @@ my ($self, $ontology) = @_;
 			foreach ($term->disjoint_from()) {
 				$current_term->disjoint_from($_);
 			}
-			$current_term->is_obsolete("true") if (!defined $current_term->is_obsolete() && $term->is_obsolete());
+			$current_term->is_obsolete(1) if (!defined $current_term->is_obsolete() && $term->is_obsolete());
 			foreach ($term->replaced_by()->get_set()) {
 				$current_term->replaced_by($_);
 			}
 			foreach ($term->consider()->get_set()) {
 				$current_term->consider($_);
 			}
-			$current_term->builtin("true") if (!defined $current_term->builtin() && $term->builtin());
+			$current_term->builtin(1) if (!defined $current_term->builtin() && $term->builtin());
 			
 			# fix the rel's
 			my @rels = @{$ontology->get_relationships_by_target_term($term)}; 

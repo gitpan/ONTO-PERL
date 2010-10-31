@@ -1,13 +1,12 @@
 #!/usr/local/bin/perl
-# $Id: term_id_vs_term_namespace.pl 2010-09-29 Erick Antezana $
+# $Id: get_term_id_vs_term_def.pl 2010-09-29 Erick Antezana $
 #
-# Script  : term_id_vs_term_namespace.pl
+# Script  : get_term_id_vs_term_def.pl
 #
 # Purpose : Generates a flat file with two columns (TAB separated) with the 
-#           term_id and term_namespace (e.g. biological process) from the elements 
-#           of the given OBO ontology.
+#           get_term_id and term_definition from the elements of the given OBO ontology.
 #
-# Usage   : term_id_vs_term_namespace.pl my_ontology.obo > term_id_vs_term_namespace.txt
+# Usage   : get_term_id_vs_term_def.pl my_ontology.obo > get_term_id_vs_term_def.txt
 #
 # License : Copyright (c) 2006, 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -27,7 +26,7 @@ my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
 
 foreach my $term (@{$ontology->get_terms()}) {
-	print $term->id(), "\t", $term->namespace(), "\n" if (defined $term->namespace()); 
+	print $term->id(), "\t", $term->def()->text(), "\n" if (defined $term->id() && $term->def()->text()); 
 }
 
 exit 0;
@@ -36,13 +35,12 @@ __END__
 
 =head1 NAME
 
-term_id_vs_term_namespace.pl - Gets the term IDs and its namespaces in a given ontology.
+get_term_id_vs_term_def.pl - Gets the term IDs and term defintions of a given ontology.
 
 =head1 DESCRIPTION
 
 Generates a flat file with two columns (TAB separated) with the 
-term_id and term_namespace (e.g. biological process) from the elements 
-of the given OBO ontology.
+get_term_id and term_definition from the elements of the given OBO ontology.
 
 =head1 AUTHOR
 

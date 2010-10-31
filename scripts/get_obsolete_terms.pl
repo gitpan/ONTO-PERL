@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
-# $Id: get_obsolete_terms.pl 2010-09-29 Erick Antezana $
+# $Id: get_get_obsolete_terms.pl 2010-09-29 Erick Antezana $
 #
-# Script  : get_obsolete_terms.pl
+# Script  : get_get_obsolete_terms.pl
 #
 # Purpose : Find all the obsolete terms in a given ontology.
 #
-# Usage   : get_obsolete_terms.pl my_ontology.obo > obsolete_terms.txt
+# Usage   : get_get_obsolete_terms.pl my_ontology.obo > get_obsolete_terms.txt
 #
 # License : Copyright (c) 2010 Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -33,11 +33,11 @@ __END__
 
 =head1 NAME
 
-get_obsolete_terms.pl - Find all the obsolete terms in a given ontology.
+get_get_obsolete_terms.pl - Find all the obsolete terms in a given ontology.
 
 =head1 USAGE
 
-get_obsolete_terms.pl my_ontology.obo > obsolete_terms.txt
+get_get_obsolete_terms.pl my_ontology.obo > get_obsolete_terms.txt
 
 =head1 DESCRIPTION
 

@@ -8,6 +8,7 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 package OBO::Util::SynonymTypeDefSet;
+# TODO This class is identical to OBO::Util::IDspaceSet
 
 =head1 NAME
 

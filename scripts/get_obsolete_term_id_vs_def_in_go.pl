@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
-# $Id: obsolete_term_id_vs_def_in_go.pl 2010-09-29 Erick Antezana $
+# $Id: get_obsolete_term_id_vs_def_in_go.pl 2010-09-29 Erick Antezana $
 #
-# Script  : obsolete_term_id_vs_def_in_go.pl
+# Script  : get_obsolete_term_id_vs_def_in_go.pl
 #
 # Purpose : Collects the obsolete GO terms: id vs. def.
 #
-# Usage   : obsolete_term_id_vs_def_in_go.pl gene_ontology.obo > obsolete_term_id_vs_def_in_go.out
+# Usage   : get_obsolete_term_id_vs_def_in_go.pl gene_ontology.obo > get_obsolete_term_id_vs_def_in_go.out
 #
 # License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -34,7 +34,7 @@ __END__
 
 =head1 NAME
 
-obsolete_term_id_vs_def_in_go.pl - Obsolete terms vs their definitions.
+get_obsolete_term_id_vs_def_in_go.pl - Obsolete terms vs their definitions.
 
 =head1 DESCRIPTION
 

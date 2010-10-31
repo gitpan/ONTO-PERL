@@ -1,13 +1,15 @@
- #!/usr/local/bin/perl
-# $Id: obsolete_term_id_vs_name_in_go.pl 2010-09-29 Erick Antezana $
+#!/usr/local/bin/perl
+# $Id: get_term_id_vs_term_namespace.pl 2010-09-29 Erick Antezana $
 #
-# Script  : obsolete_term_id_vs_name_in_go.pl
+# Script  : get_term_id_vs_term_namespace.pl
 #
-# Purpose : Collects the obsolete terms from within an OBO ontology.
+# Purpose : Generates a flat file with two columns (TAB separated) with the 
+#           get_term_id and term_namespace (e.g. biological process) from the elements 
+#           of the given OBO ontology.
 #
-# Usage   : obsolete_term_id_vs_name.pl gene_ontology.obo
+# Usage   : get_term_id_vs_term_namespace.pl my_ontology.obo > get_term_id_vs_term_namespace.txt
 #
-# License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #
@@ -25,7 +27,7 @@ my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
 
 foreach my $term (@{$ontology->get_terms()}) {
-	print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->def()->text() && $term->is_obsolete());
+	print $term->id(), "\t", $term->namespace(), "\n" if (defined $term->namespace()); 
 }
 
 exit 0;
@@ -34,11 +36,13 @@ __END__
 
 =head1 NAME
 
-obsolete_term_id_vs_name_in_go.pl - Obsolete terms vs their names.
+get_term_id_vs_term_namespace.pl - Gets the term IDs and its namespaces in a given ontology.
 
 =head1 DESCRIPTION
 
-Collects the obsolete terms from within an OBO ontology.
+Generates a flat file with two columns (TAB separated) with the 
+get_term_id and term_namespace (e.g. biological process) from the elements 
+of the given OBO ontology.
 
 =head1 AUTHOR
 

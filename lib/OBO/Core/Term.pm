@@ -1,4 +1,4 @@
-# $Id: Term.pm 2054 2010-09-29 Erick Antezana $
+# $Id: Term.pm 2010-09-29 Erick Antezana $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -260,6 +260,8 @@ sub new {
 	$self->{DISJOINT_FROM}      = OBO::Util::Set->new();        # (0..N)
 	$self->{CREATED_BY}         = undef;                        # scalar (0..1)
 	$self->{CREATION_DATE}      = undef;                        # scalar (0..1)
+	$self->{MODIFIED_BY}        = undef;                        # scalar (0..1)
+	$self->{MODIFICATION_DATE}  = undef;                        # scalar (0..1)
 	$self->{IS_OBSOLETE}        = undef;                        # [1|0], 0 by default
 	$self->{REPLACED_BY}        = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{CONSIDER}           = OBO::Util::Set->new();        # set of scalars (0..N)
@@ -468,8 +470,8 @@ sub def_as_string {
 =head2 namespace
 
   Usage    - $term->namespace() or $term->namespace($ns1, $ns2, $ns3, ...)
-  Returns  - an array with the namespace to which this term belongs
-  Args     - the namespacet(s) to which this term belongs
+  Returns  - an array with the namespace(s) to which this term belongs
+  Args     - the namespace(s) to which this term belongs
   Function - gets/sets the namespace(s) to which this term belongs
   
 =cut
@@ -544,7 +546,6 @@ sub synonym_set {
 sub synonym_as_string {
 	my ($self, $synonym_text, $dbxrefs, $scope, $synonym_type_name) = @_;
 	if ($synonym_text && $dbxrefs && $scope) {
-
 		my $synonym = OBO::Core::Synonym->new();
 		$synonym->def_as_string($synonym_text, $dbxrefs);
 		$synonym->type($scope);
@@ -719,6 +720,34 @@ sub creation_date {
 	my ($self, $creation_date) = @_;
 	if ($creation_date) { $self->{CREATION_DATE} = $creation_date }
 	return $self->{CREATION_DATE};
+}
+
+=head2 modified_by
+
+  Usage    - print $term->modified_by() or $term->modified_by("erick_antezana")
+  Returns  - name (string) of the modificator of the term, may be a short username, initials or ID
+  Args     - name (string) of the modificator of the term, may be a short username, initials or ID
+  Function - gets/sets the name of the modificator of the term
+  
+=cut
+sub modified_by {
+	my ($self, $modified_by) = @_;
+	if ($modified_by) { $self->{MODIFIED_BY} = $modified_by }
+	return $self->{MODIFIED_BY};
+}
+
+=head2 modification_date
+
+  Usage    - print $term->modification_date() or $term->modification_date("2010-04-13T01:32:36Z")
+  Returns  - date (string) of modification of the term specified in ISO 8601 format
+  Args     - date (string) of modification of the term specified in ISO 8601 format
+  Function - gets/sets the date of modification of the term
+  
+=cut
+sub modification_date {
+	my ($self, $modification_date) = @_;
+	if ($modification_date) { $self->{MODIFICATION_DATE} = $modification_date }
+	return $self->{MODIFICATION_DATE};
 }
 
 =head2 is_obsolete

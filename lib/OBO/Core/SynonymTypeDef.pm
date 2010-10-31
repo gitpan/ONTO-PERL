@@ -106,6 +106,7 @@ sub new {
 =cut
 
 sub synonym_type_name {
+	# TODO Rename to simply name()
 	my ($self, $synonym_type_name) = @_;
 	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
 	return $self->{SYNONYM_TYPE_NAME};
@@ -151,6 +152,7 @@ sub scope {
 =cut
 
 sub synonym_type_def_as_string {
+	# TODO rename this sub to : as_string()
 	my ($self, $synonym_type_name, $desc, $scope) = @_;
 	if ($synonym_type_name && $desc){
 		$self->{SYNONYM_TYPE_NAME} = $synonym_type_name;

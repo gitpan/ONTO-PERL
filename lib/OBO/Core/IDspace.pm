@@ -139,12 +139,19 @@ sub description {
 =cut
 
 sub as_string {
-	my ($self) = @_;
-	confess "Neither the local idspace nor the URI of this idspace is defined." if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
-	my $result = $self->{LOCAL_IDSPACE}." ".$self->{URI};
-	$result .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
-	$result = "" if ($result =~ /^\s*$/);
-	return $result;
+	my ($self, $local_idspace, $uri, $description) = @_;
+	if ($local_idspace && $uri){
+		$self->{LOCAL_IDSPACE} = $local_idspace;
+		$self->{URI}           = $uri;
+		$self->{DESCRIPTION}   = $description if ($description);
+		return; # set mode
+	} else {
+		confess "Neither the local idspace nor the URI of this idspace is defined." if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
+		my $result = $self->{LOCAL_IDSPACE}." ".$self->{URI};
+		$result .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
+		$result = "" if ($result =~ /^\s*$/);
+		return $result;
+	}
 }
 
 =head2 equals

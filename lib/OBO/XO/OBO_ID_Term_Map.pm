@@ -55,8 +55,8 @@ use strict;
 use OBO::XO::OBO_ID_Set;
 
 sub new {
-    my $class = shift;
-    my $self  = {};
+    my $class     = shift;
+    my $self      = {};
     $self->{FILE} = shift;
 
     %{ $self->{MAP_BY_ID} }   = ();    # key=obo_id; value=term name

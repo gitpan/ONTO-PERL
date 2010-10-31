@@ -60,35 +60,39 @@ WriteMakefile(
 								scripts/get_ancestor_terms.pl
 								scripts/get_child_terms.pl
 								scripts/get_descendent_terms.pl
+								scripts/get_obsolete_term_id_vs_def_in_go.pl
+								scripts/get_obsolete_term_id_vs_name_in_go.pl
 								scripts/get_obsolete_terms.pl
 								scripts/get_parent_terms.pl
+								scripts/get_term_id_vs_term_def.pl
+								scripts/get_term_id_vs_term_name.pl
+								scripts/get_term_id_vs_term_namespace.pl
 								scripts/get_relationship_types.pl
 								scripts/get_root_terms.pl
 								scripts/get_subontology_from.pl
+								scripts/get_relationship_id_vs_relationship_def.pl
+								scripts/get_relationship_id_vs_relationship_name.pl
+								scripts/get_relationship_id_vs_relationship_namespace.pl
 								scripts/get_term_synonyms.pl
 								scripts/get_terms_by_name.pl
 								scripts/get_terms.pl
 								scripts/go2owl.pl
-								scripts/obo_trimming.pl
 								scripts/obo2cco.pl
 								scripts/obo2owl.pl
 								scripts/obo2rdf.pl
 								scripts/obo2tran.pl	
 								scripts/obo2xml.pl
-								scripts/obsolete_term_id_vs_def_in_go.pl
-								scripts/obsolete_term_id_vs_name_in_go.pl
+								scripts/obo_trimming.pl
 								scripts/owl2obo.pl
-								scripts/term_id_vs_term_def.pl
-								scripts/term_id_vs_term_name.pl
-								scripts/term_id_vs_term_namespace.pl
 							)
 						],
 			
 	($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-	(AUTHOR           => 'Erick Antezana <erick.antezana -@- gmail.com>') : ()),
-	 dist             => { 
-			'SUFFIX'       => ".gz",
-			'DIST_DEFAULT' => 'all tardist',
-			'COMPRESS'     => "gzip -9f" 
-			},
+	(AUTHOR   => 'Erick Antezana <erick.antezana -@- gmail.com>') : ()),
+	dist      => { 
+					'SUFFIX'       => ".gz",
+					'DIST_DEFAULT' => 'all tardist',
+					'COMPRESS'     => "gzip -9f" 
+				},
+	clean      => {FILES => "t/data/goa.rdf t/data/go.obo t/data/go_transitive_closure.obo t/data/ncbi.rdf t/data/out_int_cco.obo t/data/pre_cco_taxa.obo t/data/test0.obo t/data/test1.obo t/data/test1.rdf t/data/test1.xml t/data/test2.dot t/data/test2.obo t/data/test2.owl t/data/test2.rdf t/data/test2.xml t/data/test_ulo_cco2.obo t/data/test_ulo_cco.dot t/data/test_ulo_cco.owl"},
 );

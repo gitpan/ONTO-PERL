@@ -428,6 +428,7 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 use OBO::Core::IDspace;
+use OBO::Util::IDspaceSet;
 use OBO::Util::SynonymTypeDefSet;
 use OBO::Util::TermSet;
 
@@ -437,26 +438,26 @@ use Carp;
 use Carp qw(cluck);
 use Data::Dumper qw(Dumper); 
 
-our $VERSION = '1.25';
+our $VERSION = '1.26';
 
 sub new {
 	my $class                      = shift;
 	my $self                       = {};
         
-	$self->{ID}                    = undef;                 # required, (1)
-	$self->{NAME}                  = undef;                 # required, (1)
-	$self->{IMPORTS}               = OBO::Util::Set->new(); # set (0..N)
-	$self->{IDSPACES}              = OBO::Util::Set->new(); # required, (0..N)
-	$self->{DEFAULT_NAMESPACE}     = undef;                 # string (0..1)
-	$self->{DATA_VERSION}          = undef;                 # string (0..1)
-	$self->{DATE}                  = undef;                 # (1) The current date in dd:MM:yyyy HH:mm format
-	$self->{SAVED_BY}              = undef;                 # string (0..1)
-	$self->{REMARKS}               = OBO::Util::Set->new(); # set (0..N)
-	$self->{SUBSETS_SET}           = OBO::Util::Set->new(); # set (0..N); A subset is a view over an ontology
+	$self->{ID}                    = undef;                        # required, (1)
+	$self->{NAME}                  = undef;                        # not required, (0..1)
+	$self->{IMPORTS}               = OBO::Util::Set->new();        # set (0..N)
+	$self->{IDSPACES_SET}          = OBO::Util::IDspaceSet->new(); # string (0..N)
+	$self->{DEFAULT_NAMESPACE}     = undef;                        # string (0..1)
+	$self->{DATA_VERSION}          = undef;                        # string (0..1)
+	$self->{DATE}                  = undef;                        # (1) The current date in dd:MM:yyyy HH:mm format
+	$self->{SAVED_BY}              = undef;                        # string (0..1)
+	$self->{REMARKS}               = OBO::Util::Set->new();        # set (0..N)
+	$self->{SUBSETS_SET}           = OBO::Util::Set->new();        # set (0..N); A subset is a view over an ontology
 	$self->{SYNONYM_TYPE_DEF_SET}  = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
         
 	$self->{TERMS}                 = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..N)
-	$self->{RELATIONSHIP_TYPES}    = {}; # map: relationship_type_id vs. relationship_type  (0..N)
+	$self->{RELATIONSHIP_TYPES}    = {}; # map: relationship_type_id(string) vs. relationship_type(OBO::Core::RelationshipType) (0..N)
 	$self->{RELATIONSHIPS}         = {}; # (0..N)
 	
 	# TERMS_SET will be enabled once the Set is refactored
@@ -554,8 +555,8 @@ sub default_namespace {
 =head2 idspaces
 
   Usage    - $ontology->idspaces() or $ontology->idspaces($IDspace)
-  Returns  - the id spaces, a set (OBO::Util::Set) of OBO::Core::IDspace's, of this ontology
-  Args     - the id spaces, a set (OBO::Util::Set) of OBO::Core::IDspace's, of this ontology
+  Returns  - the id spaces, as a set (OBO::Util::IDspaceSet) of OBO::Core::IDspace's, of this ontology
+  Args     - the id spaces, as a set (OBO::Util::IDspaceSet) of OBO::Core::IDspace's, of this ontology
   Function - gets/sets the idspaces of this ontology
   
 =cut
@@ -563,23 +564,14 @@ sub default_namespace {
 sub idspaces {
 	my $self = shift;
 	if (scalar(@_) > 1) {
-		$self->{IDSPACES}->add_all(@_);
+		$self->{IDSPACES_SET}->add_all(@_);
 	} elsif (scalar(@_) == 1) {
-		$self->{IDSPACES}->add($_[0]);
+		$self->{IDSPACES_SET}->add($_[0]);
 	}
-	return $self->{IDSPACES};
+	return $self->{IDSPACES_SET};
 } 
 
-=head2 idspace_as_string
-
-  Usage    - $ontology->idspace_as_string() or $ontology->idspace_as_string($local_id, $uri, $description)
-  Returns  - the idspace as string (string). Empty string is returned if the IDspace was not defined
-  Args     - the local idspace (string), the uri (string) and the description (string)
-  Function - gets the idspaces of this ontology or sets ONE idspace for this ontology
-  
-=cut
-
-sub idspace_as_string {
+sub _idspace_as_string {
 	my ($self, $local_id, $uri, $description) = @_;
 	if ($local_id && $uri) {
 		my $new_idspace = OBO::Core::IDspace->new();
@@ -589,15 +581,20 @@ sub idspace_as_string {
 		$self->idspaces($new_idspace);
 		return $new_idspace;
 	}
-	my @idspaces = $self->{IDSPACES}->get_set();
-	if (!@idspaces) {
+	my @idspaces = $self->idspaces()->get_set();
+	my @idspaces_as_string = ();
+	foreach my $idspace (@idspaces) {
+		my $idspace_as_string          = $idspace->local_idspace();
+		$idspace_as_string            .= " ".$idspace->uri();
+		my $idspace_description_string = $idspace->description();
+		$idspace_as_string            .= " \"".$idspace_description_string."\"" if (defined $idspace_description_string);
+		
+		push @idspaces_as_string, $idspace_as_string;
+	}
+	if (!@idspaces_as_string) {
 		return ""; # empty string
 	} else {
-		my $idspaces_as_string = "";
-		foreach my $idspace (@idspaces) {
-			#$idspaces_as_string = $idspace->as_string(), "\n";
-		}
-		return $idspaces_as_string
+		return @idspaces_as_string
 	}
 }
 
@@ -627,8 +624,8 @@ sub data_version {
 
 sub saved_by {
 	my ($self, $sb) = @_;
-    if ($sb) { $self->{SAVED_BY} = $sb }
-    return $self->{SAVED_BY};
+	if ($sb) { $self->{SAVED_BY} = $sb }
+	return $self->{SAVED_BY};
 }
 
 =head2 remarks
@@ -660,6 +657,7 @@ sub remarks {
 =cut
 
 sub subsets {
+	# TODO implement a new class: a map with name -> description
 	my $self = shift;             
 	if (scalar(@_) > 1) {         
 		$self->{SUBSETS_SET}->add_all(@_);
@@ -757,7 +755,7 @@ sub add_relationship_type {
 		$self->{RELATIONSHIP_TYPES}->{$relationship_type->id()} = $relationship_type;
 		return $relationship_type;
 		
-		# TODO Is necessary to implement a set of rel types? for get_relationship_types()?
+		# TODO Is it necessary to implement a set of relationship types? Maybe for get_relationship_types()?
 		#$self->{RELATIONSHIP_TYPES_SET}->add($relationship_type);
     } else {
     	confess "Missing relationship type";
@@ -1323,6 +1321,7 @@ sub get_head_by_relationship_type {
 			my @rels = values %{$hash};
 			foreach my $rel (@rels) {
 				push @heads, $rel->head() if ($rel->type() eq $relationship_type_id);
+				#Fix? push @heads, $rel->head() if ($rel->type() eq $relationship_type->name());
 			}
 		}
 	}
@@ -1480,10 +1479,14 @@ sub export {
     
 	if ($format eq "obo") { 
 		# preambule: OBO header tags
-		print $file_handle "format-version: 1.2\n";
+		print $file_handle "format-version: 1.4\n";
+		my $data_version = $self->data_version();
+		print $file_handle "data-version:", $data_version, "\n" if ($data_version);
 		chomp(my $local_date = __date()); # `date '+%d:%m:%Y %H:%M'` # date: 11:05:2008 12:52
 		print $file_handle "date: ", (defined $self->date())?$self->date():$local_date, "\n";
-		print $file_handle "auto-generated-by: ONTO-PERL\n";
+		my $saved_by = $self->saved_by();
+		print $file_handle "saved-by: ", $saved_by, "\n" if (defined $saved_by);
+		print $file_handle "auto-generated-by: ONTO-PERL $VERSION\n";
 		
 		# import
 		foreach my $import ($self->imports()->get_set()) {
@@ -1500,11 +1503,12 @@ sub export {
 			print $file_handle "synonymtypedef: ", $st->synonym_type_def_as_string(), "\n";
 		}
 
-		# idspace's
+		# idspace's		
 		foreach my $idspace ($self->idspaces()->get_set()) {
-			print $file_handle "idspace: ", $idspace, "\n";
+			print $file_handle "idspace: ", $idspace->as_string(), "\n";
 		}
 		
+		# default_namespace
 		my $dns = $self->default_namespace();
 		print $file_handle "default-namespace: ", $dns, "\n" if (defined $dns);
 		
@@ -1608,12 +1612,10 @@ sub export {
 				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 				foreach my $head (grep (!$saw_is_a{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
+					my $is_a_txt = "\nis_a: ".$head->id();
 					my $head_name = $head->name();
-					if (defined $head_name) {
-						print $file_handle "\nis_a: ", $head->id(), " ! ", $head_name;
-					} else {
-						confess "The term with id: ", $head->id(), " has no name!" ;
-					}
+					$is_a_txt .= " ! ".$head_name if (defined $head_name);
+					print $file_handle $is_a_txt;
 				}
 			}
 
@@ -1666,6 +1668,16 @@ sub export {
 			print $file_handle "\ncreation_date: ", $term->creation_date() if (defined $term->creation_date());
 			
 			#
+			# modified_by:
+			#
+			print $file_handle "\nmodified_by: ", $term->modified_by() if (defined $term->modified_by());
+
+			#
+			# modification_date:
+			#
+			print $file_handle "\nmodification_date: ", $term->modification_date() if (defined $term->modification_date());
+			
+			#
 			# is_obsolete
 			#
 			print $file_handle "\nis_obsolete: true" if ($term->is_obsolete());
@@ -1694,7 +1706,10 @@ sub export {
 		foreach my $relationship_type (sort {lc($a->id()) cmp lc($b->id())} @all_relationship_types) {
 			print $file_handle "\n[Typedef]";
 			print $file_handle "\nid: ", $relationship_type->id();
-			print $file_handle "\nname: ", $relationship_type->name();
+			my $relationship_type_name = $relationship_type->name();
+			if (defined $relationship_type_name) {
+				print $file_handle "\nname: ", $relationship_type_name;
+			}
 			print $file_handle "\nbuiltin: true" if ($relationship_type->builtin() == 1);
 			print $file_handle "\ndef: ", $relationship_type->def_as_string() if (defined $relationship_type->def()->text());
 			print $file_handle "\ncomment: ", $relationship_type->comment() if (defined $relationship_type->comment());
@@ -1728,7 +1743,7 @@ sub export {
 			print $file_handle "\nis_transitive: true" if ($relationship_type->is_transitive() == 1);
 	    	
 			#
-			# is_a: TODO missing function to retieve the rel types 
+			# is_a: TODO missing function to retieve the rel types
 			#
 			my $rt = $self->get_relationship_type_by_name("is_a");
 			if (defined $rt)  {
@@ -1738,8 +1753,9 @@ sub export {
 					if (defined $head_name) {
 						print $file_handle "\nis_a: ", $head->id(), " ! ", $head_name;
 					} else {
-						confess "The relationship type with id: '", $head->id(), "' has no name!" ;
+						print $file_handle "\nis_a: ", $head->id();
 					}
+					
 				}
 			}
 	    	
@@ -1761,6 +1777,16 @@ sub export {
 			# creation_date:
 			#
 			print $file_handle "\ncreation_date: ", $relationship_type->creation_date() if (defined $relationship_type->creation_date());
+			
+			#
+			# modified_by:
+			#
+			print $file_handle "\nmodified_by: ", $relationship_type->modified_by() if (defined $relationship_type->modified_by());
+
+			#
+			# modification_date:
+			#
+			print $file_handle "\nmodification_date: ", $relationship_type->modification_date() if (defined $relationship_type->modification_date());
 			
 			#
 			# is_obsolete
@@ -1804,26 +1830,15 @@ sub export {
 			$default_URL = $url;
 		}
 
-		# TODO Implement a method for getting the ontology namespace directly from the ontology
-		# TODO A method for getting the root term of the ontology
-
-		my @all_terms = values(%{$self->{TERMS}});
-
-		# get the adecuate namespace
-		my $NS = undef;
-		foreach my $term (@all_terms) {
-			$NS = $term->idspace();
-			last if(defined $NS);
-		}
-		$NS = "NN" if(!$NS);
+		my $IS = $self->get_terms_idspace();
 		
 		#
 		# Semantic Systems Biology server
 		#
-		my $ssb_ns = $NS; # my $ssb_ns = lc ($NS); using the exact case from the ontology 
-		$NS = "OBO" if ($sbb_url);
+		my $ssb_ns = $IS;
+		$IS = "OBO" if ($sbb_url);
 
-		my $ns = lc ($NS);
+		my $ns = lc ($IS);
 
 		#
 		# Preamble: namespaces
@@ -1832,11 +1847,12 @@ sub export {
 		print $file_handle "<rdf:RDF\n";
 		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
 		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-		print $file_handle "\txmlns:".$ns."=\"".$default_URL.$NS."#\">\n";
+		print $file_handle "\txmlns:".$ns."=\"".$default_URL.$IS."#\">\n";
 
 		#
 		# Terms
 		#
+		my @all_terms = values(%{$self->{TERMS}});
 		foreach my $term (sort {lc($a->id()) cmp lc($b->id())} @all_terms) {
 
 			#	C	Cellular component
@@ -1880,14 +1896,10 @@ sub export {
 			#
 			# name:
 			#
-			if (defined $term->name()) {
-				print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($term->name())."</rdfs:label>\n";
-			} else {
-				warn "The term with id: ", $term->id(), " has no name!";
-				print $file_handle "\t</",$ns,":".$rdf_subnamespace.">\n"; # close the term tag! (skipping the rest of the data, contact those guys)
-				next;
-			}
-	    	
+			my $term_name = $term->name();
+			my $term_name_to_print = (defined $term_name)?$term_name:"no_name";
+			print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($term_name_to_print)."</rdfs:label>\n";
+				    	
 			#
 			# alt_id:
 			#
@@ -1998,16 +2010,14 @@ sub export {
 			#
 			# builtin:
 			#
-			print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>" if ($term->builtin() == 1);
+			print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($term->builtin() == 1);
 
 			# 
 			# end of term
 			#
 			print $file_handle "\t</",$ns,":".$rdf_subnamespace.">\n";
-
 		}
-		
-		
+
 		#
 		# relationship types
 		#
@@ -2051,7 +2061,7 @@ sub export {
 				#
 				# builtin:
 				#
-				print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>" if ($relationship_type->builtin() == 1);
+				print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($relationship_type->builtin() == 1);
 							
 				#
 				# synonym:
@@ -2172,20 +2182,60 @@ sub export {
 		# terms
 		my @all_terms = values(%{$self->{TERMS}});
 	    
+	    # terms idspace
+	    my $IS = $self->get_terms_idspace();
+	    
 		# preambule: OBO header tags
 		print $file_handle "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
-		print $file_handle "<cco>\n";
+		print $file_handle "<".$IS.">\n";
 		
 		print $file_handle "\t<header>\n";
-		print $file_handle "\t\t<format-version>1.2</format-version>\n";
+		print $file_handle "\t\t<format-version>1.4</format-version>\n";
+
+		my $data_version = $self->data_version();
+		print $file_handle "\t\t<data-version>", $data_version, "</data-version>\n" if ($data_version);
+		
 		chomp(my $date = (defined $self->date())?$self->date():__date()); #`date '+%d:%m:%Y %H:%M'`);
-		print $file_handle "\t\t<hasDate>", $date, "</hasDate>\n";
-		print $file_handle "\t\t<savedBy>", $self->saved_by(), "</savedBy>\n" if ($self->saved_by());
-		print $file_handle "\t\t<default-namespace>", $self->default_namespace(), "</default-namespace>\n" if ($self->default_namespace());
-		print $file_handle "\t\t<autoGeneratedBy>", $0, "</autoGeneratedBy>\n";
+		print $file_handle "\t\t<date>", $date, "</date>\n";
+		
+		my $saved_by = $self->saved_by();
+		print $file_handle "\t\t<saved-by>", $saved_by, "</saved-by>\n" if ($saved_by);
+
+		print $file_handle "\t\t<auto-generated-by>ONTO-PERL ", $VERSION, "</auto-generated-by>\n";
+		
+		# import
+		foreach my $import ($self->imports()->get_set()) {
+			print $file_handle "\t\t<import>", $import, "</import>\n";
+		}
+		
+		# subsetdef
+		foreach my $subset ($self->subsets()->get_set()) {
+			print $file_handle "\t\t<subsetdef>", $subset, "</subsetdef>\n";
+		}
+		
+		# synonyntypedef
+		foreach my $st ($self->synonym_type_def_set()->get_set()) {
+			print $file_handle "\t\t<synonymtypedef>\n";
+			print $file_handle "\t\t\t<name>", $st->synonym_type_name(), "</name>\n";
+			print $file_handle "\t\t\t<scope>", $st->scope(), "</scope>\n";
+			print $file_handle "\t\t\t<description>", $st->description(), "</description>\n";
+			print $file_handle "\t\t</synonymtypedef>\n";
+		}
+
+		# idspace's		
+		foreach my $idspace ($self->idspaces()->get_set()) {
+			print $file_handle "\t\t<idspace>", $idspace->as_string(), "</idspace>\n";
+		}
+		
+		# default_namespace
+		my $dns = $self->default_namespace();
+		print $file_handle "\t\t<default-namespace>", $dns, "</default-namespace>\n" if (defined $dns);
+		
+		# remark's
 		foreach my $remark ($self->remarks()->get_set()) {
 			print $file_handle "\t\t<remark>", $remark, "</remark>\n";
 		}
+		
 		print $file_handle "\t</header>\n\n";
 		
 		foreach my $term (sort {lc($a->id()) cmp lc($b->id())} @all_terms) {
@@ -2198,42 +2248,88 @@ sub export {
 			# id:
 			#
 			print $file_handle "\t\t<id>", $term->id(), "</id>\n";
+			
+			#
+			# is_anonymous:
+			#
+			print $file_handle "\t\t<is_anonymous>true</is_anonymous>\n" if ($term->is_anonymous());
 	    	
 			#
 			# name:
 			#
-			if (defined $term->name()) {
-				print $file_handle "\t\t<name>", $term->name(), "</name>\n";
-			} else {
-				confess "The term with id: ", $term->id(), " has no name!" ;
+			print $file_handle "\t\t<name>", &char_hex_http($term->name()), "</name>\n" if (defined $term->name());
+	    	
+	    	#
+			# namespace
+			#
+			foreach my $ns ($term->namespace()) {
+				print $file_handle "\t\t<namespace>", $ns, "</namespace>\n";
 			}
 	    	
 			#
 			# alt_id:
 			#
 			foreach my $alt_id ($term->alt_id()->get_set()) {
-				print $file_handle "\t\t<hasAlternativeId>", $alt_id, "</hasAlternativeId>\n";
+				print $file_handle "\t\t<alt_id>", $alt_id, "</alt_id>\n";
 			}
 
 			#
-			# comment
+			# builtin:
 			#
-			print $file_handle "\t<comment>", $term->comment(), "</comment>\n" if ($term->comment());
-			
+			print $file_handle "\t\t<builtin>true</builtin>\n" if ($term->builtin() == 1);
+
 			#
 			# def:
 			#
-			if (defined $term->def()->text()) {
-				print $file_handle "\t\t<Definition label=\"", $term->def()->text(), "\">\n";				
-				for my $ref ($term->def()->dbxref_set()->get_set()) {
-			        print $file_handle "\t\t\t<DbXref xref=\"", $ref->name(), "\">\n";
+			my $term_def = $term->def();
+			if (defined $term_def->text()) {
+				print $file_handle "\t\t<def>\n";
+				print $file_handle "\t\t\t<def_text>", &char_hex_http($term_def->text()), "</def_text>\n";				
+				for my $ref ($term_def->dbxref_set()->get_set()) {
+			        print $file_handle "\t\t\t<dbxref xref=\"", $ref->name(), "\">\n";
 			        print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
 			        print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
-			        print $file_handle "\t\t\t</DbXref>\n";
+			        print $file_handle "\t\t\t</dbxref>\n";
 				}
-				print $file_handle "\t\t</Definition>\n";
+				print $file_handle "\t\t</def>\n";
+			}
+			
+			#
+			# comment
+			#
+			my $comment = $term->comment();
+			print $file_handle "\t\t<comment>", &char_hex_http($comment), "</comment>\n" if (defined $comment);
+
+			#
+			# subset
+			#
+			foreach my $sset ($term->subset()) {
+				print $file_handle "\t\t<subset>", $sset, "</subset>\n";
 			}
 
+			#
+			# synonym:
+			#
+			foreach my $synonym ($term->synonym_set()) {
+				print $file_handle "\t\t<synonym>\n";
+				print $file_handle "\t\t\t<syn_text>", &char_hex_http($synonym->def()->text()), "</syn_text>\n";
+			    print $file_handle "\t\t\t<scope>", $synonym->type(),"</scope>\n";
+				for my $ref ($synonym->def()->dbxref_set()->get_set()) {
+					print $file_handle "\t\t\t<DbXref>\n";
+			        	print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
+			        	print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
+					print $file_handle "\t\t\t</DbXref>\n";
+				}
+				print $file_handle "\t\t</synonym>\n";
+			}
+
+			#
+			# xref:
+			#
+			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $term->xref_set_as_string()) {
+				print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
+			}
+						
 			#
 			# disjoint_from:
 			#
@@ -2250,11 +2346,8 @@ sub export {
 				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
 				foreach my $head (grep (!$saw_is_a{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 					my $head_name = $head->name();
-					if (defined $head_name) {
-						print $file_handle "\t\t<is_a id=\"", $head->id(), "\">", $head_name, "</is_a>\n";
-					} else {
-						confess "The term with id: ", $head->id(), " has no name!" ;
-					}
+					my $head_name_to_print = (defined $head_name)?$head_name:"no_name";
+					print $file_handle "\t\t<is_a id=\"".$head->id()."\">".$head_name_to_print."</is_a>\n";
 				}
 			}
 			
@@ -2275,29 +2368,34 @@ sub export {
 			}
 
 			#
-			# synonym:
+			# created_by:
 			#
-			foreach my $synonym ($term->synonym_set()) {
-				print $file_handle "\t\t<synonym scope=\"", $synonym->type(), "\">", $synonym->def_as_string(), "</synonym>\n";
+			print $file_handle "\t\t<created_by>", $term->created_by(), "</created_by>\n" if (defined $term->created_by());
+
+			#
+			# creation_date:
+			#
+			print $file_handle "\t\t<creation_date>", $term->creation_date(), "</creation_date>\n" if (defined $term->creation_date());
+			
+			#
+			# is_obsolete
+			#
+			print $file_handle "\t\t<is_obsolete>true</is_obsolete>\n" if ($term->is_obsolete());
+
+			#
+			# replaced_by
+			#
+			foreach my $replaced_by ($term->replaced_by()->get_set()) {
+				print $file_handle "\t\t<replaced_by>", $replaced_by, "</replaced_by>\n";
 			}
-	    	
+			
 			#
-			# comment:
+			# consider
 			#
-			print $file_handle "\t\t<comment>", $term->comment(), "</comment>\n" if (defined $term->comment());
-	    	
-			#
-			# xref:
-			#
-			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $term->xref_set_as_string()) {
-				print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
+			foreach my $consider ($term->consider()->get_set()) {
+				print $file_handle "\t\t<consider>", $consider, "</consider>\n";
 			}
-	    	
-			#
-			# builtin:
-			#
-			print $file_handle "\t\t<builtin>true</builtin>" if ($term->builtin() == 1);
-	    	
+
 			#
 			# end
 			#
@@ -2309,27 +2407,124 @@ sub export {
 		foreach my $relationship_type (sort {lc($a->id()) cmp lc($b->id())} @all_relationship_types) {
 			print $file_handle "\t<typedef>\n";
 			print $file_handle "\t\t<id>", $relationship_type->id(), "</id>\n";
-			print $file_handle "\t\t<name>", $relationship_type->name(), "</name>\n";
-			print $file_handle "\t\t<builtin>true</builtin>" if ($relationship_type->builtin() == 1);
-			print $file_handle "\t\t<def>", $relationship_type->def_as_string(), "</def>\n" if (defined $relationship_type->def()->text());
-			foreach my $rt_synonym ($relationship_type->synonym_set()) {
-				print $file_handle "\t\t<synonym scope=\"", $rt_synonym->type(), "\">", $rt_synonym->def()->text(), "</synonym>\n";
+			my $relationship_type_name = $relationship_type->name();
+			if (defined $relationship_type_name) {
+				print $file_handle "\t\t<name>", &char_hex_http($relationship_type_name), "</name>\n";
 			}
-			print $file_handle "\t\t<comment>", $relationship_type->comment(), "</comment>\n" if (defined $relationship_type->comment());
-			print $file_handle "\t\t<is_cyclic>true</is_cyclic>" if ($relationship_type->is_cyclic() == 1);
-			print $file_handle "\t\t<is_reflexive>true</is_reflexive>" if ($relationship_type->is_reflexive() == 1);
-			print $file_handle "\t\t<is_symmetric>true</is_symmetric>" if ($relationship_type->is_symmetric() == 1);
-			print $file_handle "\t\t<is_anti_symmetric>true</is_anti_symmetric>" if ($relationship_type->is_anti_symmetric() == 1);
-			print $file_handle "\t\t<is_transitive>true</is_transitive>" if ($relationship_type->is_transitive() == 1);
-			print $file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>" if ($relationship_type->is_metadata_tag() == 1);
+			print $file_handle "\t\t<builtin>true</builtin>\n" if ($relationship_type->builtin() == 1);
+			
+			#
+			# def:
+			#
+			my $relationship_type_def = $relationship_type->def();
+			if (defined $relationship_type_def->text()) {
+				print $file_handle "\t\t<def label=\"", &char_hex_http($relationship_type_def->text()), "\">\n";				
+				for my $ref ($relationship_type_def->dbxref_set()->get_set()) {
+			        print $file_handle "\t\t\t<dbxref xref=\"", $ref->name(), "\">\n";
+			        print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
+			        print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
+			        print $file_handle "\t\t\t</dbxref>\n";
+				}
+				print $file_handle "\t\t</def>\n";
+			}
+			
+			print $file_handle "\t\t<comment>", &char_hex_http($relationship_type->comment()), "</comment>\n" if (defined $relationship_type->comment());
+			
+			#
+			# synonym:
+			#
+			foreach my $rt_synonym ($relationship_type->synonym_set()) {
+				print $file_handle "\t\t<synonym>\n";
+				print $file_handle "\t\t\t<syn_text>", &char_hex_http($rt_synonym->def()->text()), "</syn_text>\n";			
+			    print $file_handle "\t\t\t<scope>", $rt_synonym->type(),"</scope>\n";
+				for my $ref ($rt_synonym->def()->dbxref_set()->get_set()) {
+					print $file_handle "\t\t\t<DbXref>\n";
+			        	print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
+			        	print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
+					print $file_handle "\t\t\t</DbXref>\n";
+				}
+				print $file_handle "\t\t</synonym>\n";
+			}
+			
+			#
+			# xref:
+			#
 			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $relationship_type->xref_set_as_string()) {
 				print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
+			}
+			
+			#
+			# domain
+			#
+			foreach my $domain ($relationship_type->domain()->get_set()) {
+				print $file_handle "\t\t<domain>", $domain, "</domain>\n";
+			}
+			
+			#
+			# range
+			#
+			foreach my $range ($relationship_type->range()->get_set()) {
+				print $file_handle "\t\t<range>", $range, "</range>\n";
+			}
+			
+			print $file_handle "\t\t<is_anti_symmetric>true</is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric() == 1);
+			print $file_handle "\t\t<is_cyclic>true</is_cyclic>\n" if ($relationship_type->is_cyclic() == 1);
+			print $file_handle "\t\t<is_reflexive>true</is_reflexive>\n" if ($relationship_type->is_reflexive() == 1);
+			print $file_handle "\t\t<is_symmetric>true</is_symmetric>\n" if ($relationship_type->is_symmetric() == 1);
+			print $file_handle "\t\t<is_transitive>true</is_transitive>\n" if ($relationship_type->is_transitive() == 1);
+			
+			#
+			# is_a: TODO missing function to retieve the rel types 
+			#
+			my $rt = $self->get_relationship_type_by_name("is_a");
+			if (defined $rt)  {
+				my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
+				foreach my $head (@heads) {
+					print $file_handle "\t\t<is_a>", $head->id(), "</is_a>\n";
+				}
+			}
+			
+			print $file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
+	    	
+	    	#
+			# transitive_over
+			#
+			foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
+				print $file_handle "\t\t<transitive_over>", $transitive_over, "</transitive_over>\n";
+			}
+
+			#
+			# created_by:
+			#
+			print $file_handle "\t\t<created_by>", $relationship_type->created_by(), "</created_by>\n" if (defined $relationship_type->created_by());
+
+			#
+			# creation_date:
+			#
+			print $file_handle "\t\t<creation_date>", $relationship_type->creation_date(), "</creation_date>\n" if (defined $relationship_type->creation_date());
+			
+			#
+			# is_obsolete
+			#
+			print $file_handle "\t\t<is_obsolete>true</is_obsolete>\n" if ($relationship_type->is_obsolete());
+			
+			#
+			# replaced_by
+			#
+			foreach my $replaced_by ($relationship_type->replaced_by()->get_set()) {
+				print $file_handle "\t\t<replaced_by>", $replaced_by, "</replaced_by>\n";
+			}
+			
+			#
+			# consider
+			#
+			foreach my $consider ($relationship_type->consider()->get_set()) {
+				print $file_handle "\t\t<consider>", $consider, "</consider>\n";
 			}
 	    	
 			print $file_handle "\t</typedef>\n\n";
 		}
-	    
-		print $file_handle "</cco>\n";
+		print $file_handle "</".$IS.">\n";
 	} elsif ($format eq "owl") {
 
 		my $oboContentUrl = shift || "http://www.cellcycleontology.org/ontology/owl/"; # "http://purl.org/obo/owl/"; 
@@ -2686,7 +2881,10 @@ sub export {
 			#
 			# name:
 			#
-			print $file_handle "\t<rdfs:label xml:lang=\"en\">", $relationship_type->name(), "</rdfs:label>\n" if ($relationship_type->name());
+			my $relationship_type_name = $relationship_type->name();
+			if (defined $relationship_type_name) {
+				print $file_handle "\t<rdfs:label xml:lang=\"en\">", $relationship_type_name, "</rdfs:label>\n";
+			}
 			
 			#
 			# comment:
@@ -2845,9 +3043,9 @@ sub export {
 				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
 				foreach my $head (grep (!$saw_is_a{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 					if (!defined $term->name()) {
-						confess "The term with id: ", $term_id, " has no name!" ;
+						warn "Warning: The term with id: ", $term_id, " has no name!" ;
 					} elsif (!defined $head->name()) {
-						confess "The term with id: ", $head->id(), " has no name!" ;
+						warn "Warning: The term with id: ", $head->id(), " has no name!" ;
 					} else {
 						# TODO Write down the name() instead of the id()
 						print $file_handle "\n\t", obo_id2owl_id($term_id), " -> ", obo_id2owl_id($head->id()), ";";
@@ -2864,9 +3062,9 @@ sub export {
 					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 					foreach my $head (grep (!$saw_rel{$_}++, sort {lc($a->id()) cmp lc($b->id())} @heads)) {
 						if (!defined $term->name()) {
-				    		confess "The term with id: ", $term_id, " has no name!" ;
+				    		warn "Warning: The term with id: ", $term_id, " has no name!" ;
 				    	} elsif (!defined $head->name()) {
-				    		confess "The term with id: ", $head->id(), " has no name!" ;
+				    		warn "Warning: The term with id: ", $head->id(), " has no name!" ;
 				    	} else {	
 							print $file_handle "\n\t", obo_id2owl_id($term_id), " -> ", obo_id2owl_id($head->id()), ";";
 						}
@@ -2883,7 +3081,7 @@ sub export {
 		#
 		# begin GML format
 		#
-		print $file_handle "Creator \"ONTO-PERL\"\n";
+		print $file_handle "Creator \"ONTO-PERL, $VERSION\"\n";
 		print $file_handle "Version	1.0\n";
 		print $file_handle "graph [\n";
 		#print $file_handle "\tVendor \"ONTO-PERL\"\n";
@@ -3364,30 +3562,64 @@ sub owl_id2obo_id {
 =head2 char_hex_http
 
   Usage    - $ontology->char_hex_http($seq)
-  Returns  - the sequence with the hexadecimal representation for the http special characters
+  Returns  - the sequence with the numeric HTML representation for the given special character
   Args     - the sequence of characters
-  Function - Transforms a http character to its equivalent one in hexadecimal. E.g. : -> %3A
+  Function - Transforms a character into its equivalent HTML number, e.g. : -> &#58;
   
 =cut
 
 sub char_hex_http { 
-	$_[0] =~ s/:/%3A/g;
-	$_[0] =~ s/;/%3B/g;
-	$_[0] =~ s/</%3C/g;
-	$_[0] =~ s/=/%3D/g;
-	$_[0] =~ s/>/%3E/g;
-	$_[0] =~ s/\?/%3F/g;
 	
-#number sign                    #     23   &#035; --> #   &num;      --> &num;
-#dollar sign                    $     24   &#036; --> $   &dollar;   --> &dollar;
-#percent sign                   %     25   &#037; --> %   &percnt;   --> &percnt;
-
-	$_[0] =~ s/\//%2F/g;
-	$_[0] =~ s/&/%26/g;
+	$_[0] =~ s/:/&#58;/g;  # colon
+	$_[0] =~ s/;/&#59;/g;  # semicolon
+	$_[0] =~ s/</&#60;/g;  # less than sign
+	$_[0] =~ s/=/&#61;/g;  # equal sign
+	$_[0] =~ s/>/&#62;/g;  # greater than sign
+	$_[0] =~ s/\?/&#63;/g; # question mark
+	$_[0] =~ s/\//&#47;/g; # slash
+	$_[0] =~ s/&/&#38;/g;  # ampersand
+	$_[0] =~ s/"/&#34;/g;  # double quotes
+	$_[0] =~ s/±/&#177;/g; # plus-or-minus sign
+	
+#	$_[0] =~ s/:/%3A/g;
+#	$_[0] =~ s/;/%3B/g;
+#	$_[0] =~ s/</%3C/g;
+#	$_[0] =~ s/=/%3D/g;
+#	$_[0] =~ s/>/%3E/g;
+#	$_[0] =~ s/\?/%3F/g;
+#	$_[0] =~ s/#/%23/g;
+#	$_[0] =~ s/$/%24/g;
+#	$_[0] =~ s/%/%25/g;
+#	$_[0] =~ s/\//%2F/g;
+#	$_[0] =~ s/&/%26/g;
+#	$_[0] =~ s/"/%22/g;
+#	$_[0] =~ s/±/%B1/g;
 
 	return $_[0];
 }
 
+=head2 get_terms_idspace
+
+  Usage    - $ontology->get_terms_idspace()
+  Returns  - the idspace (e.g. GO) of the terms held by this ontology
+  Args     - none
+  Function - look for the idspace of the terms held by this ontology
+  Remark   - it is assumed that all terms share the same idspace (e.g. GO)
+  
+=cut
+
+sub get_terms_idspace {
+	# TODO Find an efficient way to get it...
+	my ($self) = @_;
+	my $IS = undef;
+	my @all_terms = values(%{$self->{TERMS}});
+	foreach my $term (@all_terms) {
+		$IS = $term->idspace();
+		last if(defined $IS);
+	}
+	return ($IS)?lc($IS):"NN";
+}
+	
 sub print_hasDbXref_for_owl {
 	my ($file_handle, $set, $oboContentUrl, $tab_times) = @_;
 	my $tab0 = "\t"x$tab_times;

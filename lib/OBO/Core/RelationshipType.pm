@@ -103,38 +103,45 @@ use warnings;
 use Carp;
 
 sub new {
-        my $class                   = shift;
-        my $self                    = {};
-        
-        $self->{ID}                 = undef;                 # required, string (1)
-        $self->{NAME}               = undef;                 # required, string (1)
-        
-        $self->{ALT_ID}             = OBO::Util::Set->new(); # set (0..N)
-        $self->{DEF}                = OBO::Core::Def->new;   # (0..1)
-        $self->{NAMESPACE_SET}      = OBO::Util::Set->new(); # set (0..N)
-        $self->{COMMENT}            = undef;                 # string (0..1)
-        $self->{SUBSET_SET}         = OBO::Util::Set->new(); # set of scalars (0..N)
-        $self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
-        $self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
-        $self->{DOMAIN}             = OBO::Util::Set->new(); # set of scalars (0..N)
-        $self->{RANGE}              = OBO::Util::Set->new(); # set of scalars (0..N)
-        $self->{IS_CYCLIC}          = undef;                 # [1|0], 0 by default
-        $self->{IS_REFLEXIVE}       = undef;                 # [1|0], 0 by default
-        $self->{IS_SYMMETRIC}       = undef;                 # [1|0], 0 by default
-        $self->{IS_ANTI_SYMMETRIC}  = undef;                 # [1|0], 0 by default
-        $self->{IS_TRANSITIVE}      = undef;                 # [1|0], 0 by default
-        $self->{IS_METADATA_TAG}    = undef;                 # [1|0], 0 by default
-        $self->{INVERSE_OF}         = undef;                 # string (0..1)
-        $self->{TRANSITIVE_OVER}    = OBO::Util::Set->new(); # set of scalars (0..N)
-       	$self->{CREATED_BY}         = undef;                 # scalar (0..1)
-		$self->{CREATION_DATE}      = undef;                 # scalar (0..1)
-        $self->{IS_OBSOLETE}        = undef;                 # [1|0], 0 by default
-        $self->{REPLACED_BY}        = OBO::Util::Set->new(); # set of scalars (0..N)
-		$self->{CONSIDER}           = OBO::Util::Set->new(); # set of scalars (0..N)
-        $self->{BUILTIN}            = undef;                 # [1|0], 0 by default
-	
-        bless ($self, $class);
-        return $self;
+	my $class                   = shift;
+	my $self                    = {};
+
+	$self->{ID}                 = undef;                 # required, string (1)
+	$self->{NAME}               = undef;                 # required, string (1)
+
+	$self->{ALT_ID}             = OBO::Util::Set->new(); # set (0..N)
+	$self->{DEF}                = OBO::Core::Def->new;   # (0..1)
+	$self->{NAMESPACE_SET}      = OBO::Util::Set->new(); # set (0..N)
+	$self->{COMMENT}            = undef;                 # string (0..1)
+	$self->{SUBSET_SET}         = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
+	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
+	$self->{DOMAIN}             = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{RANGE}              = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{IS_CYCLIC}          = undef;                 # [1|0], 0 by default
+	$self->{IS_REFLEXIVE}       = undef;                 # [1|0], 0 by default
+	$self->{IS_SYMMETRIC}       = undef;                 # [1|0], 0 by default
+	$self->{IS_ANTI_SYMMETRIC}  = undef;                 # [1|0], 0 by default
+	$self->{IS_TRANSITIVE}      = undef;                 # [1|0], 0 by default
+	$self->{IS_METADATA_TAG}    = undef;                 # [1|0], 0 by default
+	$self->{INVERSE_OF}         = undef;                 # string (0..1)
+	$self->{TRANSITIVE_OVER}    = OBO::Util::Set->new(); # set of scalars (0..N)
+
+	$self->{INTERSECTION_OF}    = OBO::Util::Set->new(); # (0..N)
+	$self->{UNION_OF}           = OBO::Util::Set->new(); # (0..N)
+	$self->{DISJOINT_FROM}      = OBO::Util::Set->new(); # (0..N)
+
+	$self->{CREATED_BY}         = undef;                 # scalar (0..1)
+	$self->{CREATION_DATE}      = undef;                 # scalar (0..1)
+	$self->{MODIFIED_BY}        = undef;                 # scalar (0..1)
+	$self->{MODIFICATION_DATE}  = undef;                 # scalar (0..1)
+	$self->{IS_OBSOLETE}        = undef;                 # [1|0], 0 by default
+	$self->{REPLACED_BY}        = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{CONSIDER}           = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{BUILTIN}            = undef;                 # [1|0], 0 by default
+
+	bless ($self, $class);
+	return $self;
 }
 
 =head2 id
@@ -623,6 +630,60 @@ sub transitive_over {
 	return $self->{TRANSITIVE_OVER};
 }
 
+=head2 intersection_of
+        
+  Usage    - $relationship_type->intersection_of() or $relationship_type->intersection_of($t1, $t2, $r1, ...)
+  Returns  - an array with the terms/relations which define this relationship type
+  Args     - a set (strings) of terms/relations which define this relationship type
+  Function - gets/sets the set of terms/relatonships defining this relationship type
+        
+=cut
+sub intersection_of {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{INTERSECTION_OF}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{INTERSECTION_OF}->add(shift);
+	}
+	return $self->{INTERSECTION_OF}->get_set();
+}
+
+=head2 union_of
+        
+  Usage    - $relationship_type->union_of() or $relationship_type->union_of($t1, $t2, $r1, ...)
+  Returns  - an array with the terms/relations which define this relationship type
+  Args     - a set (strings) of terms/relations which define this relationship type
+  Function - gets/sets the set of terms/relatonships defining this relationship type
+        
+=cut    
+sub union_of {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{UNION_OF}->add_all(@_);
+	} elsif (scalar(@_) == 1) { 
+		$self->{UNION_OF}->add(shift);
+	}
+	return $self->{UNION_OF}->get_set();
+} 
+
+=head2 disjoint_from
+
+  Usage    - $relationship_type->disjoint_from() or $relationship_type->disjoint_from($disjoint_term_id1, $disjoint_term_id2, $disjoint_term_id3, ...)
+  Returns  - the disjoint relationship type id(s) (string(s)) from this one
+  Args     - the relationship type id(s) (string) that is (are) disjoint from this one
+  Function - gets/sets the disjoint relationship type(s) from this one
+  
+=cut
+sub disjoint_from {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+   		$self->{DISJOINT_FROM}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{DISJOINT_FROM}->add(shift);
+	}
+	return $self->{DISJOINT_FROM}->get_set();
+}
+
 =head2 created_by
 
   Usage    - print $relationship_type->created_by() or $relationship_type->created_by("erick_antezana")
@@ -649,6 +710,34 @@ sub creation_date {
 	my ($self, $creation_date) = @_;
 	if ($creation_date) { $self->{CREATION_DATE} = $creation_date }
 	return $self->{CREATION_DATE};
+}
+
+=head2 modified_by
+
+  Usage    - print $relationship_type->modified_by() or $relationship_type->modified_by("erick_antezana")
+  Returns  - name (string) of the modificator of the relationship type, may be a short username, initials or ID
+  Args     - name (string) of the modificator of the relationship type, may be a short username, initials or ID
+  Function - gets/sets the name of the modificator of the relationship type
+  
+=cut
+sub modified_by {
+	my ($self, $modified_by) = @_;
+	if ($modified_by) { $self->{MODIFIED_BY} = $modified_by }
+	return $self->{MODIFIED_BY};
+}
+
+=head2 modification_date
+
+  Usage    - print $relationship_type->modification_date() or $relationship_type->modification_date("2010-04-13T01:32:36Z")
+  Returns  - date (string) of modification of the relationship type specified in ISO 8601 format
+  Args     - date (string) of modification of the relationship type specified in ISO 8601 format
+  Function - gets/sets the date of modification of the relationship type
+  
+=cut
+sub modification_date {
+	my ($self, $modification_date) = @_;
+	if ($modification_date) { $self->{MODIFICATION_DATE} = $modification_date }
+	return $self->{MODIFICATION_DATE};
 }
 
 =head2 is_obsolete

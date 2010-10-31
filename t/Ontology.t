@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 196;
+    plan tests => 194;
 }
 
 #########################
@@ -170,8 +170,13 @@ my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000
 ok($#odd_processes == 1);
 ok($odd_processes[0]->id() eq "CCO:P0000003");
 ok($odd_processes[1]->id() eq "CCO:P0000005");
-ok($onto->idspace_as_string() eq "");
-$onto->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO", "cell cycle ontology terms");
+
+# IDspace's
+my $ids = $onto->idspaces();
+ok($ids->is_empty() == 1);
+my $id1 = OBO::Core::IDspace->new();
+$id1->as_string("CCO", "http://www.cellcycle.org/ontology/CCO", "cell cycle ontology terms");
+$onto->idspaces($id1);
 ok(($onto->idspaces()->get_set())[0]->local_idspace() eq "CCO");
 my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
 ok(@same_processes == @processes);
@@ -467,15 +472,22 @@ $so->imports("o1", "02");
 $so->date("11:03:2007 21:46");
 $so->data_version("09:03:2007 19:30");
 
-$so->idspace_as_string("CCO", "http://www.cellcycleontology.org/ontology/CCO", "cell cycle terms");
-$so->idspace_as_string("GO", "urn:lsid:bioontology.org:GO:", "gene ontology terms");
-my @idspaces = sort ($so->idspaces()->get_set());
-ok(($so->idspaces()->get_set())[0]->local_idspace() eq "CCO");
-ok(($so->idspaces()->get_set())[0]->uri() eq "http://www.cellcycleontology.org/ontology/CCO");
-ok(($so->idspaces()->get_set())[0]->description() eq "cell cycle terms");
-ok(($so->idspaces()->get_set())[1]->local_idspace() eq "GO");
-ok(($so->idspaces()->get_set())[1]->uri() eq "urn:lsid:bioontology.org:GO:");
-ok(($so->idspaces()->get_set())[1]->description() eq "gene ontology terms");
+# More IDspace's tests
+$ids = $onto->idspaces();
+ok($ids->is_empty() == 0);
+my $id2 = OBO::Core::IDspace->new();
+my $id3 = OBO::Core::IDspace->new();
+
+$id2->as_string("CCO", "http://www.cellcycle.org/ontology/CCO", "cell cycle ontology terms");
+$id3->as_string("GO", "urn:lsid:bioontology.org:GO:", "gene ontology terms");
+$so->idspaces($id2, $id3);
+
+my $idspaces = $so->idspaces();
+ok($idspaces->size() == 2);
+
+my @IDs = sort $so->idspaces()->get_set();
+ok($IDs[0]->as_string() eq "CCO http://www.cellcycle.org/ontology/CCO \"cell cycle ontology terms\"");
+ok($IDs[1]->as_string() eq "GO urn:lsid:bioontology.org:GO: \"gene ontology terms\"");
 
 $so->remarks("1. This is a test ontology", "2. This is a second remark", "3. This is the last remark");
 my @remarks = sort ($so->remarks()->get_set());

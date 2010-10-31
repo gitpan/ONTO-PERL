@@ -31,7 +31,7 @@ my $syn3 = OBO::Core::Synonym->new();
 my $syn4 = OBO::Core::Synonym->new();
 
 
-# type
+# scope
 
 $syn1->type('EXACT');
 
@@ -168,9 +168,9 @@ sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{TYPE}               = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
+	$self->{SCOPE}               = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
 	$self->{DEF}                = OBO::Core::Def->new(); # required
-	$self->{SYNONYM_TYPE_NAME}  = undef;
+	$self->{SYNONYM_TYPE_NAME}  = undef; # optional
 
 	bless ($self, $class);
 	return $self;
@@ -186,18 +186,18 @@ sub new {
 =cut
 
 sub type {
-	my ($self, $synonym_type) = @_;
-	if ($synonym_type) {
-		my $possible_types = OBO::Util::Set->new();
-		my @synonym_types = ('EXACT', 'BROAD', 'NARROW', 'RELATED');
-		$possible_types->add_all(@synonym_types);
-		if ($possible_types->contains($synonym_type)) {
-			$self->{TYPE} = $synonym_type;
+	my ($self, $synonym_scope) = @_;
+	if ($synonym_scope) {
+		my $possible_scopes = OBO::Util::Set->new();
+		my @synonym_scopes = ('EXACT', 'BROAD', 'NARROW', 'RELATED');
+		$possible_scopes->add_all(@synonym_scopes);
+		if ($possible_scopes->contains($synonym_scope)) {
+			$self->{SCOPE} = $synonym_scope;
 		} else {
-			confess "The synonym type must be one of the following: ", join (', ', @synonym_types);
+			croak "The synonym scope you provided must be one of the following: ", join (', ', @synonym_scopes);
 		}
 	}
-    return $self->{TYPE};
+    return $self->{SCOPE};
 }
 
 =head2 def
@@ -321,10 +321,10 @@ sub equals {
 	my $result = 0;
 	if ($target) {
 		
-		confess "The type of this synonym is undefined" if (!defined($self->{TYPE}));
-		confess "The type of the target synonym is undefined" if (!defined($target->{TYPE}));
+		croak "The scope of this synonym is undefined" if (!defined($self->{SCOPE}));
+		croak "The scope of the target synonym is undefined" if (!defined($target->{SCOPE}));
 		
-		$result = (($self->{TYPE} eq $target->{TYPE}) && ($self->{DEF}->equals($target->{DEF})));
+		$result = (($self->{SCOPE} eq $target->{SCOPE}) && ($self->{DEF}->equals($target->{DEF})));
 		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
 	}
 	return $result;

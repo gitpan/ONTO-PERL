@@ -6,15 +6,11 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 42;
+    plan tests => 44;
 }
 
 #########################
-# $Id: RelationshipType.t 291 2006-06-01 16:21:45Z easr $
-#
-# Purpose : ONTO-PERL usage examples.
-# Contact : Erick Antezana <erick.antezana -@- gmail.com>
-#
+
 use OBO::Core::RelationshipType;
 use OBO::Core::Synonym;
 use strict;
@@ -41,6 +37,12 @@ $r1->created_by("erick_antezana");
 ok($r1->created_by() eq "erick_antezana");
 $r1->creation_date("2008-04-13T01:32:36Z ");
 ok($r1->creation_date() eq "2008-04-13T01:32:36Z ");
+
+# rel. type modificator + date
+$r1->modified_by("erick_antezana");
+ok($r1->modified_by() eq "erick_antezana");
+$r1->modification_date("2008-04-13T01:32:36Z ");
+ok($r1->modification_date() eq "2008-04-13T01:32:36Z ");
 
 # default values
 ok(!$r1->is_anti_symmetric());

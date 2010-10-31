@@ -72,7 +72,7 @@ use Carp;
 
 sub add {
 	my ($self, $new_id) = @_;
-	my $result = undef; # nothing added
+	my $result     = undef; # nothing added
 	my $element_id = $new_id->id();
 	if ($element_id && !$self->contains($new_id)) {
 		$self->{MAP}->{$element_id} = $new_id;
