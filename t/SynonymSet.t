@@ -28,9 +28,9 @@ my $sn2 = OBO::Core::Synonym->new();
 my $sn3 = OBO::Core::Synonym->new();
 
 # type and def
-$sn1->type('EXACT');
-$sn2->type('EXACT');
-$sn3->type('EXACT');
+$sn1->scope('EXACT');
+$sn2->scope('EXACT');
+$sn3->scope('EXACT');
 
 $sn1->def_as_string("This is a dummy synonym1", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
 $sn2->def_as_string("This is a dummy synonym2", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
@@ -59,9 +59,9 @@ my $sn5 = OBO::Core::Synonym->new();
 my $sn6 = OBO::Core::Synonym->new();
 
 # type and def
-$sn4->type('EXACT');
-$sn5->type('EXACT');
-$sn6->type('EXACT');
+$sn4->scope('EXACT');
+$sn5->scope('EXACT');
+$sn6->scope('EXACT');
 
 $sn4->def_as_string("This is a dummy synonym4", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
 $sn5->def_as_string("This is a dummy synonym5", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
@@ -117,8 +117,8 @@ ok($my_set2->size() == 0);
 my $snA = OBO::Core::Synonym->new();
 my $snB = OBO::Core::Synonym->new();
 
-$snA->type('EXACT');
-$snB->type('EXACT');
+$snA->scope('EXACT');
+$snB->scope('EXACT');
 
 $snA->def_as_string("This is a very dummy synonym", "[]");
 $snB->def_as_string("This is a very dummy synonym", "[]");
@@ -132,7 +132,7 @@ ok($my_set2->contains($snA));
 # one more
 #
 my $snC = OBO::Core::Synonym->new();
-$snC->type('EXACT');
+$snC->scope('EXACT');
 $snC->def_as_string("SPCC645.04", "[]");
 $my_set2->clear();
 $my_set2->add($snC);

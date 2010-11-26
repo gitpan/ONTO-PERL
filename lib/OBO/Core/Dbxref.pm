@@ -1,4 +1,4 @@
-# $Id: Dbxref.pm 2010-09-29 Erick Antezana $
+# $Id: Dbxref.pm 2010-10-29 Erick Antezana $
 #
 # Module  : Dbxref.pm
 # Purpose : Reference structure.
@@ -97,7 +97,7 @@ sub new {
 sub name {
 	my ($self, $name) = @_;
 	if ($name) {
-		($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\w-]+):([~\w:\\,\"\+\?\{\}\$\/\(\)\[\]\.=&!%_-]+)/ || $name =~ /(http):\/\/(.*)/);
+		($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/ || $name =~ /(http):\/\/(.*)/);
 	} else { # get-mode
 		confess "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
 	}

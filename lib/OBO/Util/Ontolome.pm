@@ -87,7 +87,7 @@ sub union () {
 	foreach my $ontology (@ontos) {
 		$result->remarks($ontology->remarks()->get_set());   # add all the remark's of the ontologies
 		$result->idspaces($ontology->idspaces()->get_set()); # assuming the same idspace
-		$result->subsets($ontology->subsets()->get_set());   # add all subsets by default
+		$result->subset_def_set($ontology->subset_def_set()->get_set());   # add all subset_def_set's by default
 		$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 		$default_namespace = $ontology->default_namespace(); # keep the namespace of the last ontology argument
 
@@ -257,7 +257,7 @@ sub intersection () {
 	$result->idspaces($onto1->idspaces()->get_set());
 	$result->idspaces($onto2->idspaces()->get_set());
 	
-	$result->subsets($onto1->subsets()->get_set()); # add all subsets by default
+	$result->subset_def_set($onto1->subset_def_set()->get_set()); # add all subset_def_set's by default
 
 	foreach my $term (@{$onto1->get_terms()}){
 		my $current_term = $onto2->get_term_by_id($term->id()); ### could also be $result->get_term_by_name_or_synonym()
@@ -413,7 +413,7 @@ my ($self, $ontology) = @_;
 	$result->idspaces($ontology->idspaces()->get_set());
 	$result->default_namespace($ontology->default_namespace());
 	$result->remarks("Ontology with transitive closures");
-	$result->subsets($ontology->subsets()->get_set()); # add all subsets by default
+	$result->subset_def_set($ontology->subset_def_set()->get_set()); # add all subset_def_set's by default
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 	
 	my @terms = @{$ontology->get_terms()};

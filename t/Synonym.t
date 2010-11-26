@@ -20,11 +20,11 @@ my $syn3 = OBO::Core::Synonym->new();
 my $syn4 = OBO::Core::Synonym->new();
 
 # scope
-ok(!defined $syn1->type());
-$syn1->type('EXACT');
-$syn2->type('BROAD');
-$syn3->type('NARROW');
-$syn4->type('NARROW');
+ok(!defined $syn1->scope());
+$syn1->scope('EXACT');
+$syn2->scope('BROAD');
+$syn3->scope('NARROW');
+$syn4->scope('NARROW');
 
 # def
 my $def1 = OBO::Core::Def->new();
@@ -89,7 +89,7 @@ ok(($syn4->def()->dbxref_set()->get_set())[0]->name() eq "CCO:ea");
 
 # syn3 and syn4 are equal
 ok($syn3->equals($syn4));
-ok($syn3->type() eq $syn4->type());
+ok($syn3->scope() eq $syn4->scope());
 ok($syn3->def()->equals($syn4->def()));
 ok($syn3->def()->text() eq $syn4->def()->text());
 ok(($syn3->def()->dbxref_set())->equals($syn4->def()->dbxref_set()));

@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 2010-09-29 Erick Antezana $
+# $Id: OBOParser.pm 2010-11-29 Erick Antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO files.
@@ -60,17 +60,20 @@ at your option, any later version of Perl 5 you may have available.
 
 =cut
 
+use strict;
+use warnings;
+use Carp;
+#use Date::Manip::Date; # TODO Consider to use this module to manipulate dates
+
 use OBO::Core::Term;
 use OBO::Core::Ontology;
 use OBO::Core::Dbxref;
 use OBO::Core::Relationship;
 use OBO::Core::RelationshipType;
+use OBO::Core::SubsetDef;
 use OBO::Core::SynonymTypeDef;
 use OBO::Util::IDspaceSet;
 use OBO::Util::Set;
-use strict;
-use warnings;
-use Carp;
 
 sub new {
 	my $class                   = shift;
@@ -113,16 +116,20 @@ sub work {
 			$imports->add($2);
 			$chunks[0] =~ s/$1//;
 		}
-		my $subsetdef = OBO::Util::Set->new();
-		while ($chunks[0] =~ /(subsetdef:\s*(.*)\n)/) { # TODO implement Subset.pm to capture the subset elements
-			$subsetdef->add($2);
-			$chunks[0] =~ s/$1//;
+		my $subset_def_set = OBO::Util::SubsetDefSet->new();
+		while ($chunks[0] =~ /(subsetdef:\s*(.*)\s+\"(.*)\")/) {
+			my $line = $1;
+			my $ssd  = OBO::Core::SubsetDef->new();
+			$ssd->name($2);
+			$ssd->description($3);
+			$subset_def_set->add($ssd);
+			$chunks[0] =~ s/$line//;
 		}
 		my $synonym_type_def_set = OBO::Util::SynonymTypeDefSet->new();
 		while ($chunks[0] =~ /(synonymtypedef:\s*(.*)\s+\"(.*)\"(.*)?)/) {
 			my $line = $1;
 			my $std  = OBO::Core::SynonymTypeDef->new();
-			$std->synonym_type_name($2);
+			$std->name($2);
 			$std->description($3);
 			my $sc = $4;
 			$std->scope($sc) if (defined $sc && $sc =~s/\s//);
@@ -153,7 +160,7 @@ sub work {
 		$result->date($date) if ($date);
 		$result->saved_by($saved_by) if ($saved_by);
 		#$result->auto_generated_by($auto_generated_by) if ($auto_generated_by);
-		$result->subsets($subsetdef->get_set());
+		$result->subset_def_set($subset_def_set->get_set());
 		$result->imports($imports->get_set());
 		$result->synonym_type_def_set($synonym_type_def_set->get_set());
 		$result->idspaces($idspaces->get_set());
@@ -205,19 +212,27 @@ sub work {
 					} elsif ($line =~ /^comment:\s*(.*)/) {
 						$term->comment($1);
 					} elsif ($line =~ /^subset:\s*(.*)/) {
-						# TODO Wait until the OBO spec 1.4 be there, then check that the used subsets belong to the ones defined in the header
-						$term->subset($1); # it is a Set
+						my $ss = $1;
+						my $found = 0; # check that the 'synonym type name' was defined in the header!
+						foreach my $ssd ($result->subset_def_set()->get_set()) {
+							if ($ssd->name() eq $ss) {
+								$found = 1;
+								$term->subset($ss); # it is a Set (i.e. added to a Set)
+								last;
+							}
+						}
+						croak "The subset '", $ss, "' is not defined in the header!" if (!$found);
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) { # OBO spec 1.1
 						$term->synonym_as_string($2, $3, uc($1));
 					} elsif ($line =~ /^synonym:\s*\"(.*)\"(\s+(EXACT|BROAD|NARROW|RELATED))?(\s+([-\w]+))?\s+(\[.*\])\s*/) {
 						my $scope = (defined $3)?$3:"RELATED";
-						# From OBO flat file spec v1.2, we use:
+						# As of OBO flat file spec v1.2, we use:
 						# synonym: "endomitosis" EXACT []
 						if (defined $5) {
 							my $found = 0; # check that the 'synonym type name' was defined in the header!
 							foreach my $st ($result->synonym_type_def_set()->get_set()) {
 								# Adapt the scope if necessary to the one defined in the header!
-								if ($st->synonym_type_name() eq $5) {
+								if ($st->name() eq $5) {
 									$found = 1;
 									my $default_scope = $st->scope();
 									$scope = $default_scope if (defined $default_scope);
@@ -327,7 +342,7 @@ sub work {
 					} elsif ($line =~ /^comment:\s*(.*)/) {
 						$type->comment($1);
 					} elsif ($line =~ /^subset:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.3 is there, then check that the used subsets belong to the defined in the header
+						# TODO wait until the OBO spec 1.4 be officialy there, then check that the used subsets belong to the defined in the header
 						$type->subset($1);
 					} elsif ($line =~ /^domain:\s*(.*)/) {
 						$type->domain($1);
@@ -355,7 +370,7 @@ sub work {
 							my $found = 0; # check that the 'synonym type name' was defined in the header!
 							foreach my $st ($result->synonym_type_def_set()->get_set()) {
 								# Adapt the scope if necessary to the one defined in the header!
-								if ($st->synonym_type_name() eq $5) {
+								if ($st->name() eq $5) {
 									$found = 1;
 									my $default_scope = $st->scope();
 									$scope = $default_scope if (defined $default_scope);
@@ -368,20 +383,27 @@ sub work {
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
 						$type->xref_set_as_string($1);
 					} elsif ($line =~ /^is_a:\s*(\w+)\s*(\!\s*(.*))?/) { # intrinsic or not??? # The comment is ignored here but retrieved later internally
+						my $r = $1;
 						my $rel = OBO::Core::Relationship->new();
-						$rel->id($type->id()."_"."is_a"."_".$1);
+						$rel->id($type->id()."_"."is_a"."_".$r);
 						$rel->type("is_a");
-						my $target = $result->get_relationship_type_by_id($1); # does this relationship type is already in the ontology?
+						my $target = $result->get_relationship_type_by_id($r); # does this relationship type is already in the ontology?
 						if (!defined $target) {
 							$target = OBO::Core::RelationshipType->new(); # if not, create a new relationship type
-							$target->id($1);
+							$target->id($r);
 							$result->add_relationship_type($target);
 						}
 						$rel->link($type, $target); # add a relationship between two relationship types
 						$result->add_relationship($rel);
-					} elsif ($line =~ /^inverse_of:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.4 be released, then implement it in RelationshipType
-						#$type->inverse_of($1);
+					} elsif ($line =~ /^inverse_of:\s*(\w+)\s*(\!\s*(.*))?/) { # e.g. inverse_of: has_participant ! has participant
+						my $inv_id   = $1;
+						my $inv_type = $result->get_relationship_type_by_id($inv_id); # does this INVERSE relationship type is already in the ontology?
+						if (!defined $inv_type){
+							$inv_type = OBO::Core::RelationshipType->new();  # if not, create a new type
+							$inv_type->id($inv_id);
+							$result->add_relationship_type($inv_type);       # add it to the ontology
+						}
+						$type->inverse_of($inv_type);
 					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
 						# TODO wait until the OBO spec 1.4 be released
 						$type->intersection_of($1);

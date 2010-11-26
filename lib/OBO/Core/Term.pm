@@ -1,4 +1,4 @@
-# $Id: Term.pm 2010-09-29 Erick Antezana $
+# $Id: Term.pm 2010-11-29 Erick Antezana $
 #
 # Module  : Term.pm
 # Purpose : Term in the Ontology.
@@ -75,7 +75,7 @@ $n1->is_anonymous(0);
 
 my $syn1 = OBO::Core::Synonym->new();
 
-$syn1->type('EXACT');
+$syn1->scope('EXACT');
 
 my $def1 = OBO::Core::Def->new();
 
@@ -98,7 +98,7 @@ $n1->synonym($syn1);
 
 my $syn2 = OBO::Core::Synonym->new();
 
-$syn2->type('BROAD');
+$syn2->scope('BROAD');
 
 my $def2 = OBO::Core::Def->new();
 
@@ -123,7 +123,7 @@ $n2->synonym($syn2);
 
 my $syn3 = OBO::Core::Synonym->new();
 
-$syn3->type('BROAD');
+$syn3->scope('BROAD');
 
 my $def3 = OBO::Core::Def->new();
 
@@ -309,7 +309,7 @@ sub idspace {
 =cut
 sub subnamespace {
 	my $self = shift;
-	$self->{ID} =~ /:([A-Z])/ if ($self->{ID});
+	$self->{ID} =~ /:([A-Z][a-z]?)/ if ($self->{ID});
 	return $1 || 'X';
 }
 
@@ -323,7 +323,7 @@ sub subnamespace {
 =cut
 sub code {
 	my $self = shift;
-	$self->{ID} =~ /:[A-Z]?(.*)/ if ($self->{ID});	
+	$self->{ID} =~ /:[A-Z]?[a-z]?(.*)/ if ($self->{ID});	
 	return $1 || '0000000';
 }
 
@@ -501,10 +501,10 @@ sub comment {
 
 =head2 subset
 
-  Usage    - $term->subset() or $term->subset($ss1, $ss2, $ss3, ...)
-  Returns  - an array with the subset to which this term belongs
-  Args     - the subset(s) to which this term belongs
-  Function - gets/sets the subset(s) to which this term belongs
+  Usage    - $term->subset() or $term->subset($ss_name1, $ss_name2, $ss_name3, ...)
+  Returns  - an array with the subset name(s) to which this term belongs
+  Args     - the subset name(s) (string) to which this term belongs
+  Function - gets/sets the subset name(s) to which this term belongs
   
 =cut
 sub subset {
@@ -530,7 +530,7 @@ sub synonym_set {
 	foreach my $synonym (@_) {
 		confess "The name of this term (", $self->id(), ") is undefined" if (!defined($self->name()));
 		# do not add 'EXACT' synonyms with the same 'name':
-		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->type() eq "EXACT" && $synonym->def()->text() eq $self->name()));
+		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->scope() eq "EXACT" && $synonym->def()->text() eq $self->name()));
    	}
 	return $self->{SYNONYM_SET}->get_set();
 }
@@ -548,7 +548,7 @@ sub synonym_as_string {
 	if ($synonym_text && $dbxrefs && $scope) {
 		my $synonym = OBO::Core::Synonym->new();
 		$synonym->def_as_string($synonym_text, $dbxrefs);
-		$synonym->type($scope);
+		$synonym->scope($scope);
 		$synonym->synonym_type_name($synonym_type_name); # optional argument
 		$self->synonym_set($synonym);
 		return; # set operation

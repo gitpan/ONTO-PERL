@@ -1,4 +1,4 @@
-# $Id: Synonym.pm 2010-09-29 Erick Antezana $
+# $Id: Synonym.pm 2010-10-29 Erick Antezana $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
@@ -33,13 +33,13 @@ my $syn4 = OBO::Core::Synonym->new();
 
 # scope
 
-$syn1->type('EXACT');
+$syn1->scope('EXACT');
 
-$syn2->type('BROAD');
+$syn2->scope('BROAD');
 
-$syn3->type('NARROW');
+$syn3->scope('NARROW');
 
-$syn4->type('NARROW');
+$syn4->scope('NARROW');
 
 
 # def
@@ -168,7 +168,7 @@ sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{SCOPE}               = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
+	$self->{SCOPE}              = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
 	$self->{DEF}                = OBO::Core::Def->new(); # required
 	$self->{SYNONYM_TYPE_NAME}  = undef; # optional
 
@@ -176,16 +176,16 @@ sub new {
 	return $self;
 }
 
-=head2 type
+=head2 scope
 
-  Usage    - print $synonym->type() or $synonym->type("EXACT")
+  Usage    - print $synonym->scope() or $synonym->scope("EXACT")
   Returns  - the synonym scope
   Args     - the synonym scope: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
   Function - gets/sets the synonym scope
   
 =cut
 
-sub type {
+sub scope {
 	my ($self, $synonym_scope) = @_;
 	if ($synonym_scope) {
 		my $possible_scopes = OBO::Util::Set->new();

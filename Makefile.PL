@@ -49,7 +49,7 @@ MSG
 WriteMakefile(
 	NAME              => 'ONTO-PERL',
 	DISTNAME          => 'ONTO-PERL',
-	ABSTRACT          => 'PERL Modules for biomedical ontologies such as the Cell Cycle Ontology (CCO) and OBO ontologies in general like Gene Ontology (GO)',
+	ABSTRACT          => 'PERL Modules for biomedical ontologies such as the Cell Cycle Ontology (CCO) and OBO ontologies in general like the Gene Ontology (GO)',
 	VERSION_FROM      => 'lib/OBO/Core/Ontology.pm', # finds $VERSION
 	#LICENCE           => 'perl',
 	#PREREQ_PM         => {
@@ -64,25 +64,28 @@ WriteMakefile(
 								scripts/get_obsolete_term_id_vs_name_in_go.pl
 								scripts/get_obsolete_terms.pl
 								scripts/get_parent_terms.pl
-								scripts/get_term_id_vs_term_def.pl
-								scripts/get_term_id_vs_term_name.pl
-								scripts/get_term_id_vs_term_namespace.pl
-								scripts/get_relationship_types.pl
-								scripts/get_root_terms.pl
-								scripts/get_subontology_from.pl
 								scripts/get_relationship_id_vs_relationship_def.pl
 								scripts/get_relationship_id_vs_relationship_name.pl
 								scripts/get_relationship_id_vs_relationship_namespace.pl
+								scripts/get_relationship_types.pl
+								scripts/get_root_terms.pl
+								scripts/get_subontology_from.pl
+								scripts/get_term_id_vs_term_def.pl
+								scripts/get_term_id_vs_term_name.pl
+								scripts/get_term_id_vs_term_namespace.pl
 								scripts/get_term_synonyms.pl
-								scripts/get_terms_by_name.pl
 								scripts/get_terms.pl
+								scripts/get_terms_by_name.pl
 								scripts/go2owl.pl
+								scripts/goa2rdf.pl
 								scripts/obo2cco.pl
 								scripts/obo2owl.pl
 								scripts/obo2rdf.pl
 								scripts/obo2tran.pl	
 								scripts/obo2xml.pl
+								scripts/obo_intersection.pl
 								scripts/obo_trimming.pl
+								scripts/obo_union.pl
 								scripts/owl2obo.pl
 							)
 						],
@@ -94,5 +97,5 @@ WriteMakefile(
 					'DIST_DEFAULT' => 'all tardist',
 					'COMPRESS'     => "gzip -9f" 
 				},
-	clean      => {FILES => "t/data/goa.rdf t/data/go.obo t/data/go_transitive_closure.obo t/data/ncbi.rdf t/data/out_int_cco.obo t/data/pre_cco_taxa.obo t/data/test0.obo t/data/test1.obo t/data/test1.rdf t/data/test1.xml t/data/test2.dot t/data/test2.obo t/data/test2.owl t/data/test2.rdf t/data/test2.xml t/data/test_ulo_cco2.obo t/data/test_ulo_cco.dot t/data/test_ulo_cco.owl"},
+	clean      => {FILES => "t/data/add_goa_assocs.out t/data/goa.rdf t/data/go.obo t/data/go_transitive_closure.obo t/data/ncbi.rdf t/data/out_int_cco.obo t/data/pre_cco_taxa.obo t/data/test0.obo t/data/test1.obo t/data/test1.rdf t/data/test1.xml t/data/test2.dot t/data/test2.obo t/data/test2.owl t/data/test2.rdf t/data/test2.xml t/data/test_ulo_cco2.obo t/data/test_ulo_cco.dot t/data/test_ulo_cco.owl"},
 );

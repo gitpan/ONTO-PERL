@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2010-09-29 Erick Antezana $
+# $Id: Ontology.pm 2010-11-29 Erick Antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -429,6 +429,7 @@ at your option, any later version of Perl 5 you may have available.
 
 use OBO::Core::IDspace;
 use OBO::Util::IDspaceSet;
+use OBO::Util::SubsetDefSet;
 use OBO::Util::SynonymTypeDefSet;
 use OBO::Util::TermSet;
 
@@ -438,22 +439,22 @@ use Carp;
 use Carp qw(cluck);
 use Data::Dumper qw(Dumper); 
 
-our $VERSION = '1.26';
+our $VERSION = '1.27';
 
 sub new {
 	my $class                      = shift;
 	my $self                       = {};
         
-	$self->{ID}                    = undef;                        # required, (1)
-	$self->{NAME}                  = undef;                        # not required, (0..1)
-	$self->{IMPORTS}               = OBO::Util::Set->new();        # set (0..N)
-	$self->{IDSPACES_SET}          = OBO::Util::IDspaceSet->new(); # string (0..N)
-	$self->{DEFAULT_NAMESPACE}     = undef;                        # string (0..1)
-	$self->{DATA_VERSION}          = undef;                        # string (0..1)
-	$self->{DATE}                  = undef;                        # (1) The current date in dd:MM:yyyy HH:mm format
-	$self->{SAVED_BY}              = undef;                        # string (0..1)
-	$self->{REMARKS}               = OBO::Util::Set->new();        # set (0..N)
-	$self->{SUBSETS_SET}           = OBO::Util::Set->new();        # set (0..N); A subset is a view over an ontology
+	$self->{ID}                    = undef;                          # required, (1)
+	$self->{NAME}                  = undef;                          # not required, (0..1)
+	$self->{IMPORTS}               = OBO::Util::Set->new();          # set (0..N)
+	$self->{IDSPACES_SET}          = OBO::Util::IDspaceSet->new();   # string (0..N)
+	$self->{DEFAULT_NAMESPACE}     = undef;                          # string (0..1)
+	$self->{DATA_VERSION}          = undef;                          # string (0..1)
+	$self->{DATE}                  = undef;                          # (1) The current date in dd:MM:yyyy HH:mm format
+	$self->{SAVED_BY}              = undef;                          # string (0..1)
+	$self->{REMARKS}               = OBO::Util::Set->new();          # set (0..N)
+	$self->{SUBSETDEF_SET}         = OBO::Util::SubsetDefSet->new(); # set of maps (0..N); A subset is a view over an ontology
 	$self->{SYNONYM_TYPE_DEF_SET}  = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
         
 	$self->{TERMS}                 = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..N)
@@ -647,31 +648,30 @@ sub remarks {
 	return $self->{REMARKS};
 }
 
-=head2 subsets
+=head2 subset_def_set
 
-  Usage    - $onto->subsets() or $onto->subsets($ss1, $ss2, $ss3, ...)
-  Returns  - a set (OBO::Util::Set) with the subsets used in this ontology. A subset is a view over an ontology
-  Args     - the subset(s) (string) used in this ontology 
-  Function - gets/sets the subset(s) of this ontology
+  Usage    - $onto->subset_def_set() or $onto->subset_def_set($ss1, $ss2, $ss3, ...)
+  Returns  - a map (OBO::Util::SubsetDefSet) with the subset definition(s) used in this ontology. A subset is a view over an ontology
+  Args     - a subset definition(s) (OBO::Core::SubsetDef) used in this ontology 
+  Function - gets/sets the subset definition(s) of this ontology
         
 =cut
 
-sub subsets {
-	# TODO implement a new class: a map with name -> description
-	my $self = shift;             
-	if (scalar(@_) > 1) {         
-		$self->{SUBSETS_SET}->add_all(@_);
-	} elsif (scalar(@_) == 1) {   
-		$self->{SUBSETS_SET}->add($_[0]);
+sub subset_def_set {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{SUBSETDEF_SET}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{SUBSETDEF_SET}->add($_[0]);
 	}
-	return $self->{SUBSETS_SET};      
+	return $self->{SUBSETDEF_SET};
 }
 
 =head2 synonym_type_def_set
 
   Usage    - $onto->synonym_type_def_set() or $onto->synonym_type_def_set($st1, $st2, $st3, ...)
   Returns  - a set (OBO::Util::SynonymTypeDefSet) with the synonym type definitions used in this ontology. A synonym type is a description of a user-defined synonym type 
-  Args     - the synonym type defintion(s) (OBO::Core::SynonymTypeDef) used in this ontology 
+  Args     - the synonym type definition(s) (OBO::Core::SynonymTypeDef) used in this ontology 
   Function - gets/sets the synonym type definitions (s) of this ontology
         
 =cut
@@ -934,9 +934,9 @@ sub get_terms {
 
 =head2 get_terms_by_subnamespace
 
-  Usage    - $ontology->get_terms_by_subnamespace() or $ontology->get_terms_by_subnamespace("P")
+  Usage    - $ontology->get_terms_by_subnamespace() or $ontology->get_terms_by_subnamespace("P") or or $ontology->get_terms_by_subnamespace("Pa")
   Returns  - the terms held by this ontology corresponding to the requested subnamespace as a reference to an array of OBO::Core::Term's
-  Args     - none or the subnamespace: 'P', 'I', and so on.
+  Args     - none or the subnamespace: 'P', 'I', 'Pa', 'Ia' and so on.
   Function - returns the terms held by this ontology corresponding to the requested subnamespace
   
 =cut
@@ -953,6 +953,26 @@ sub get_terms_by_subnamespace {
 		}
 	}
 	return $terms;
+}
+
+=head2 get_terms_by_subset
+
+  Usage    - $ontology->get_terms_by_subset("GO_SLIM")
+  Returns  - the terms held by this ontology belonging to the given subset as a reference to an array of OBO::Core::Term's
+  Args     - a subset name
+  Function - returns the terms held by this ontology belonging to the requested subset
+  
+=cut
+
+sub get_terms_by_subset {
+	my ($self, $subset) = @_;
+	my @terms;
+	foreach my $term (values(%{$self->{TERMS}})) {
+		foreach my $ss ($term->subset()) {
+			push @terms, $term if ($ss =~ /$subset/);
+		}
+	}
+	return \@terms;
 }
 
 =head2 get_relationships
@@ -1146,7 +1166,7 @@ sub get_term_by_name_or_synonym {
 			return $term if (defined ($term->name()) && (lc($term->name()) eq $name_or_synonym));
 			# Check its synonyms
 			foreach my $syn ($term->synonym_set()){
-				return $term if ($syn->type() eq "EXACT" && $syn->def()->text() eq $name_or_synonym);
+				return $term if ($syn->scope() eq "EXACT" && $syn->def()->text() eq $name_or_synonym);
 			}
 		}
     }
@@ -1220,10 +1240,10 @@ sub add_relationship {
 	#
 	my $target_element = $self->{RELATIONSHIPS}->{$id}->head();
 	my $source_element = $self->{RELATIONSHIPS}->{$id}->tail();
-	if (UNIVERSAL::isa($target_element, "OBO::Core::Term") && UNIVERSAL::isa($source_element, "OBO::Core::Term")) {
+	if (eval { $target_element->isa("OBO::Core::Term") } && eval { $source_element->isa("OBO::Core::Term") }) {
 		$self->has_term($target_element) || $self->add_term($target_element);	
 		$self->has_term($source_element) || $self->add_term($source_element);	
-	} elsif (UNIVERSAL::isa($target_element, "OBO::Core::RelationshipType") && UNIVERSAL::isa($source_element, "OBO::Core::RelationshipType")) {
+	} elsif (eval { $target_element->isa("OBO::Core::RelationshipType") } && eval { $source_element->isa("OBO::Core::RelationshipType") }) {
 		$self->has_relationship_type($target_element) || $self->add_relationship_type($target_element);
 		$self->has_relationship_type($source_element) || $self->add_relationship_type($source_element);
 	} else {
@@ -1494,13 +1514,13 @@ sub export {
 		}
 		
 		# subsetdef
-		foreach my $subset ($self->subsets()->get_set()) {
-			print $file_handle "subsetdef: ", $subset, "\n";
+		foreach my $subsetdef ($self->subset_def_set()->get_set()) {
+			print $file_handle "subsetdef: ", $subsetdef->as_string(), "\n";
 		}
 		
 		# synonyntypedef
 		foreach my $st ($self->synonym_type_def_set()->get_set()) {
-			print $file_handle "synonymtypedef: ", $st->synonym_type_def_as_string(), "\n";
+			print $file_handle "synonymtypedef: ", $st->as_string(), "\n";
 		}
 
 		# idspace's		
@@ -1581,8 +1601,8 @@ sub export {
 			#
 			# subset
 			#
-			foreach my $sset ($term->subset()) {
-				print $file_handle "\nsubset: ", $sset;
+			foreach my $sset_name ($term->subset()) {
+				print $file_handle "\nsubset: ", $sset_name;
 			}
 
 			#
@@ -1591,9 +1611,9 @@ sub export {
 			foreach my $synonym (sort {lc($a->def()->text()) cmp lc($b->def()->text())} $term->synonym_set()) {
 				my $stn = $synonym->synonym_type_name();
 				if (defined $stn) {
-					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $stn, " ", $synonym->def()->dbxref_set_as_string();
+					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->scope(), " ", $stn, " ", $synonym->def()->dbxref_set_as_string();
 				} else {
-					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
+					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->scope(), " ", $synonym->def()->dbxref_set_as_string();
 				}
 			}
 	    	
@@ -1715,7 +1735,7 @@ sub export {
 			print $file_handle "\ncomment: ", $relationship_type->comment() if (defined $relationship_type->comment());
 
 			foreach my $synonym ($relationship_type->synonym_set()) {
-				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->type(), " ", $synonym->def()->dbxref_set_as_string();
+				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->scope(), " ", $synonym->def()->dbxref_set_as_string();
 			}
 	    	
 			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $relationship_type->xref_set_as_string()) {
@@ -1745,7 +1765,7 @@ sub export {
 			#
 			# is_a: TODO missing function to retieve the rel types
 			#
-			my $rt = $self->get_relationship_type_by_name("is_a");
+			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
 				foreach my $head (@heads) {
@@ -1872,21 +1892,21 @@ sub export {
 
 			my $subnamespace = $term->subnamespace(); # CCO has this feature
 			my $rdf_subnamespace = undef;
-			if    ( $subnamespace eq "C" ) { $rdf_subnamespace = "cellular_component";}
-			elsif ( $subnamespace eq "F" ) { $rdf_subnamespace = "molecular_function";}
-			elsif ( $subnamespace eq "P" ) { $rdf_subnamespace = "biological_process";}
-			elsif ( $subnamespace eq "B" ) { $rdf_subnamespace = "protein";}
-			elsif ( $subnamespace eq "G" ) { $rdf_subnamespace = "gene";}
-			elsif ( $subnamespace eq "I" ) { $rdf_subnamespace = "interaction";}
-			elsif ( $subnamespace eq "R" ) { $rdf_subnamespace = "reference";}
-			elsif ( $subnamespace eq "T" ) { $rdf_subnamespace = "taxon";}
-			elsif ( $subnamespace eq "I" ) { $rdf_subnamespace = "instance";}
-			elsif ( $subnamespace eq "U" ) { $rdf_subnamespace = "upper_level_ontology";}
-			elsif ( $subnamespace eq "L" ) { $rdf_subnamespace = "relationship_type";}
-			elsif ( $subnamespace eq "Y" ) { $rdf_subnamespace = "interaction_type";}
-			elsif ( $subnamespace eq "O" ) { $rdf_subnamespace = "type_protein";}
-			elsif ( $subnamespace eq "Z" ) { $rdf_subnamespace = "unknown";}
-			elsif ( $subnamespace eq "X" ) { $rdf_subnamespace = $ssb_ns;} # "term"
+			if    ( $subnamespace =~ /^C[a-z]?/ ) { $rdf_subnamespace = "cellular_component";}
+			elsif ( $subnamespace =~ /^F[a-z]?/ ) { $rdf_subnamespace = "molecular_function";}
+			elsif ( $subnamespace =~ /^P[a-z]?/ ) { $rdf_subnamespace = "biological_process";}
+			elsif ( $subnamespace =~ /^B[a-z]?/ ) { $rdf_subnamespace = "protein";}
+			elsif ( $subnamespace =~ /^G[a-z]?/ ) { $rdf_subnamespace = "gene";}
+			elsif ( $subnamespace =~ /^I[a-z]?/ ) { $rdf_subnamespace = "interaction";}
+			elsif ( $subnamespace =~ /^R[a-z]?/ ) { $rdf_subnamespace = "reference";}
+			elsif ( $subnamespace =~ /^T[a-z]?/ ) { $rdf_subnamespace = "taxon";}
+			elsif ( $subnamespace =~ /^I[a-z]?/ ) { $rdf_subnamespace = "instance";}
+			elsif ( $subnamespace =~ /^U[a-z]?/ ) { $rdf_subnamespace = "upper_level_ontology";}
+			elsif ( $subnamespace =~ /^L[a-z]?/ ) { $rdf_subnamespace = "relationship_type";}
+			elsif ( $subnamespace =~ /^Y[a-z]?/ ) { $rdf_subnamespace = "interaction_type";}
+			elsif ( $subnamespace =~ /^O[a-z]?/ ) { $rdf_subnamespace = "type_protein";}
+			elsif ( $subnamespace =~ /^Z[a-z]?/ ) { $rdf_subnamespace = "unknown";}
+			elsif ( $subnamespace =~ /^X[a-z]?/ ) { $rdf_subnamespace = $ssb_ns;} # "term"
 			else  { $rdf_subnamespace = $ssb_ns;}
 
 			my $term_id = $term->id();
@@ -1935,7 +1955,7 @@ sub export {
 			#
 			# is_a:
 			#
-			my $rt = $self->get_relationship_type_by_name("is_a");
+			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
 				print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc); # workaround for the rdf_tc!!!
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
@@ -1973,7 +1993,7 @@ sub export {
 				print $file_handle "\t\t\t<rdf:Description>\n";
 
 				print $file_handle "\t\t\t\t<",$ns,":syn>", &char_hex_http($synonym->def()->text()), "</",$ns,":syn>\n";			
-			        print $file_handle "\t\t\t\t<",$ns,":scope>", $synonym->type(),"</",$ns,":scope>\n";
+			        print $file_handle "\t\t\t\t<",$ns,":scope>", $synonym->scope(),"</",$ns,":scope>\n";
 
 					for my $ref ($synonym->def()->dbxref_set()->get_set()) {
 						print $file_handle "\t\t\t\t<",$ns,":DbXref>\n";
@@ -2071,7 +2091,7 @@ sub export {
 					print $file_handle "\t\t\t<rdf:Description>\n";
 	
 					print $file_handle "\t\t\t\t<",$ns,":syn>", &char_hex_http($synonym->def()->text()), "</",$ns,":syn>\n";			
-				        print $file_handle "\t\t\t\t<",$ns,":scope>", $synonym->type(),"</",$ns,":scope>\n";
+				        print $file_handle "\t\t\t\t<",$ns,":scope>", $synonym->scope(),"</",$ns,":scope>\n";
 	
 						for my $ref ($synonym->def()->dbxref_set()->get_set()) {
 							print $file_handle "\t\t\t\t<",$ns,":DbXref>\n";
@@ -2128,7 +2148,7 @@ sub export {
 				#
 				# is_a:
 				#
-				my $rt = $self->get_relationship_type_by_name("is_a");
+				my $rt = $self->get_relationship_type_by_id("is_a");
 				if (defined $rt)  {
 					my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
 					foreach my $head (@heads) {
@@ -2209,14 +2229,17 @@ sub export {
 		}
 		
 		# subsetdef
-		foreach my $subset ($self->subsets()->get_set()) {
-			print $file_handle "\t\t<subsetdef>", $subset, "</subsetdef>\n";
+		foreach my $subsetdef ($self->subset_def_set()->get_set()) {
+			print $file_handle "\t\t<subsetdef>\n";
+			print $file_handle "\t\t\t<name>", $subsetdef->name(), "</name>\n";
+			print $file_handle "\t\t\t<description>", $subsetdef->description(), "</description>\n";
+			print $file_handle "\t\t</subsetdef>\n";
 		}
 		
 		# synonyntypedef
 		foreach my $st ($self->synonym_type_def_set()->get_set()) {
 			print $file_handle "\t\t<synonymtypedef>\n";
-			print $file_handle "\t\t\t<name>", $st->synonym_type_name(), "</name>\n";
+			print $file_handle "\t\t\t<name>", $st->name(), "</name>\n";
 			print $file_handle "\t\t\t<scope>", $st->scope(), "</scope>\n";
 			print $file_handle "\t\t\t<description>", $st->description(), "</description>\n";
 			print $file_handle "\t\t</synonymtypedef>\n";
@@ -2303,8 +2326,8 @@ sub export {
 			#
 			# subset
 			#
-			foreach my $sset ($term->subset()) {
-				print $file_handle "\t\t<subset>", $sset, "</subset>\n";
+			foreach my $sset_name ($term->subset()) {
+				print $file_handle "\t\t<subset>", $sset_name, "</subset>\n";
 			}
 
 			#
@@ -2313,7 +2336,7 @@ sub export {
 			foreach my $synonym ($term->synonym_set()) {
 				print $file_handle "\t\t<synonym>\n";
 				print $file_handle "\t\t\t<syn_text>", &char_hex_http($synonym->def()->text()), "</syn_text>\n";
-			    print $file_handle "\t\t\t<scope>", $synonym->type(),"</scope>\n";
+			    print $file_handle "\t\t\t<scope>", $synonym->scope(),"</scope>\n";
 				for my $ref ($synonym->def()->dbxref_set()->get_set()) {
 					print $file_handle "\t\t\t<DbXref>\n";
 			        	print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
@@ -2340,7 +2363,7 @@ sub export {
 			#
 			# is_a:
 			#
-			my $rt = $self->get_relationship_type_by_name("is_a");
+			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
@@ -2436,7 +2459,7 @@ sub export {
 			foreach my $rt_synonym ($relationship_type->synonym_set()) {
 				print $file_handle "\t\t<synonym>\n";
 				print $file_handle "\t\t\t<syn_text>", &char_hex_http($rt_synonym->def()->text()), "</syn_text>\n";			
-			    print $file_handle "\t\t\t<scope>", $rt_synonym->type(),"</scope>\n";
+			    print $file_handle "\t\t\t<scope>", $rt_synonym->scope(),"</scope>\n";
 				for my $ref ($rt_synonym->def()->dbxref_set()->get_set()) {
 					print $file_handle "\t\t\t<DbXref>\n";
 			        	print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
@@ -2476,7 +2499,7 @@ sub export {
 			#
 			# is_a: TODO missing function to retieve the rel types 
 			#
-			my $rt = $self->get_relationship_type_by_name("is_a");
+			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
 				foreach my $head (@heads) {
@@ -2582,11 +2605,10 @@ sub export {
 		}
 		
 		# subsetdef
-		foreach my $subset ($self->subsets()->get_set()) {
-			my ($t, @desc) = split(/\s+/, $subset);
+		foreach my $subsetdef ($self->subset_def_set()->get_set()) {
 			print $file_handle "\t<oboInOwl:hasSubset>\n";
-			print $file_handle "\t\t<oboInOwl:Subset rdf:about=\"", $oboContentUrl, $t, "\">\n";
-			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", join(' ', @desc), "</rdfs:comment>\n";
+			print $file_handle "\t\t<oboInOwl:Subset rdf:about=\"", $oboContentUrl, $subsetdef->name(), "\">\n";
+			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $subsetdef->description(), "</rdfs:comment>\n";
 			print $file_handle "\t\t</oboInOwl:Subset>\n";
 			print $file_handle "\t</oboInOwl:hasSubset>\n";
 		}
@@ -2594,7 +2616,7 @@ sub export {
 		# synonyntypedef
 		foreach my $st ($self->synonym_type_def_set()->get_set()) {
 			print $file_handle "\t<oboInOwl:hasSynonymType>\n";
-			print $file_handle "\t\t<oboInOwl:SynonymType rdf:about=\"", $oboContentUrl, $st->synonym_type_name(), "\">\n";
+			print $file_handle "\t\t<oboInOwl:SynonymType rdf:about=\"", $oboContentUrl, $st->name(), "\">\n";
 			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $st->description(), "</rdfs:comment>\n";
 			my $scope = $st->scope();
 			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $scope, "</rdfs:comment>\n" if (defined $scope);
@@ -2653,8 +2675,8 @@ sub export {
 			#
 			# subset
 			#
-			foreach my $sset ($term->subset()) {
-				print $file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, &_get_name_without_whitespaces($sset), "\"/>\n";
+			foreach my $sset_name ($term->subset()) {
+				print $file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, &_get_name_without_whitespaces($sset_name), "\"/>\n";
 			}
 			
 			#
@@ -2675,7 +2697,7 @@ sub export {
 			# synonym:
 			#
 			foreach my $synonym ($term->synonym_set()) {
-				my $st = $synonym->type();
+				my $st = $synonym->scope();
 				my $synonym_type;
 				if ($st eq "EXACT") {
 					$synonym_type = "hasExactSynonym";
@@ -2722,7 +2744,7 @@ sub export {
 			# is_a:
 			#
 #			my @disjoint_term = (); # for collecting the disjoint terms of the running term
-			my $rt = $self->get_relationship_type_by_name("is_a");
+			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
 		    		my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 		    		my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
@@ -2734,7 +2756,7 @@ sub export {
 #					#
 #		#			my $child_rels = $graph->get_child_relationships($rel->object_acc);
 #		#			foreach my $r (@{$child_rels}){
-#		#				if ($r->type eq "is_a") { # Only consider the children playing a role in the is_a realtionship
+#		#				if ($r->scope eq "is_a") { # Only consider the children playing a role in the is_a realtionship
 #		#					my $already_in_array = grep /$r->subject_acc/, @disjoint_term;
 #		#					push @disjoint_term, $r->subject_acc if (!$already_in_array && $r->subject_acc ne $rel->subject_acc());
 #		#				}
@@ -2909,7 +2931,7 @@ sub export {
 			# Synonym:
 			#
 			foreach my $synonym ($relationship_type->synonym_set()) {
-				my $st = $synonym->type();
+				my $st = $synonym->scope();
 				my $synonym_type;
 				if ($st eq "EXACT") {
 					$synonym_type = "hasExactSynonym";
@@ -2949,7 +2971,7 @@ sub export {
 			#
 			# is_a:
 			#
-			my $rt = $self->get_relationship_type_by_name("is_a");
+			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
 		    		my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
 		    		foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
@@ -3037,7 +3059,7 @@ sub export {
 			#
 			# is_a: term1 -> term2
 			#
-			my $rt = $self->get_relationship_type_by_name("is_a");
+			my $rt = $self->get_relationship_type_by_id("is_a");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
@@ -3239,7 +3261,7 @@ sub export {
 #		foreach my $term (@sorted_terms) {
 #			my $term_id = $term->id();
 #			my $int_id = $sn{$2}.$3 if ($term_id =~ /(.*):([A-Z])?(\d+)/);
-#			my $rt = $self->get_relationship_type_by_name("is_a");
+#			my $rt = $self->get_relationship_type_by_id("is_a");
 #			if (defined $rt)  {
 #				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 #                                foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
@@ -3289,7 +3311,7 @@ sub export {
 			print $file_handle "<VNodes x=\"245\" y=\"322\" counter=\"1\" w=\"28\" h=\"18\" labelOn=\"true\" labelSize=\"10\" linkDisplayed=\"true\" mid=\"M7000\" childVisible=\"false\" ncc=\"126 133 181\">\n";
 			print $file_handle "<vlabel>$int_id</vlabel>\n";
 			print $file_handle "<children>";
-			my $rt = $self->get_relationship_type_by_name("has_participant");
+			my $rt = $self->get_relationship_type_by_id("has_participant");
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
 				my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
@@ -3509,7 +3531,7 @@ sub get_subontology_from {
 		$result->data_version($self->data_version());
 		$result->imports($self->imports()->get_set());
 		$result->idspaces($self->idspaces());
-		$result->subsets($self->subsets()->get_set()); # add (by default) all the subsets
+		$result->subset_def_set($self->subset_def_set()->get_set()); # add (by default) all the subset_def_set's
 		$result->synonym_type_def_set($self->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 		$result->default_namespace($self->default_namespace());
 		$result->remarks($self->remarks()->get_set());
@@ -3649,23 +3671,26 @@ sub print_hasDbXref_for_owl {
 
 =head2 get_descendent_terms
 
-  Usage    - $ontology->get_descendent_terms($term)
+  Usage    - $ontology->get_descendent_terms($term) or $ontology->get_descendent_terms($term_id)
   Returns  - a set with the descendent terms (OBO::Core::Term) of the given term
-  Args     - the term (OBO::Core::Term) for which all the descendent will be found
+  Args     - the term, as an object (OBO::Core::Term) or string (e.g. GO:0003677), for which all the descendents will be found
   Function - returns recursively all the child terms of the given term
   
 =cut
 
 sub get_descendent_terms {
-	# TODO Implement another method: get_descendent_terms(string)
 	my ($self, $term) = @_;
 	my $result = OBO::Util::TermSet->new();
-	if ($term) {    	
-		my @queue = @{$self->get_child_terms($term)}; 
+	if ($term) {
+		if (!eval { $term->isa("OBO::Core::Term") }) {
+			# term is a string representing its (unique) ID (e.g. GO:0034544)
+			$term = $self->get_term_by_id($term);
+		}
+		my @queue = @{$self->get_child_terms($term)};
 		while (scalar(@queue) > 0) {
 			my $unqueued = pop @queue;
 			$result->add($unqueued); 
-			my @children = @{$self->get_child_terms($unqueued)}; 
+			my @children = @{$self->get_child_terms($unqueued)};
 			@queue = (@children, @queue);
 		}
 	}
@@ -3702,7 +3727,7 @@ sub get_ancestor_terms {
 
   Usage    - $ontology->get_descendent_terms_by_subnamespace($term, subnamespace)
   Returns  - a set with the descendent terms (OBO::Core::Term) of the given subnamespace 
-  Args     - the term (OBO::Core::Term), the subnamespace (string, e.g. 'P', 'R' etc)
+  Args     - the term (OBO::Core::Term), the subnamespace (string, e.g. 'P', 'R', 'Ia' etc)
   Function - returns recursively the given term's children of the given subnamespace
   
 =cut
@@ -3728,7 +3753,7 @@ sub get_descendent_terms_by_subnamespace {
 
   Usage    - $ontology->get_ancestor_terms_by_subnamespace($term, subnamespace)
   Returns  - a set with the ancestor terms (OBO::Core::Term) of the given subnamespace 
-  Args     - the term (OBO::Core::Term), the subnamespace (string, e.g. 'P', 'R' etc)
+  Args     - the term (OBO::Core::Term), the subnamespace (string, e.g. 'P', 'R', 'Ia' etc)
   Function - returns recursively the given term's parents of the given subnamespace
   
 =cut
@@ -4092,7 +4117,7 @@ sub get_paths_term_terms () {
 
 =head2 get_paths_term_terms_same_rel
 
-  Usage    - $ontology->get_paths_term_terms_same_rel($term, $set_of_terms)
+  Usage    - $ontology->get_paths_term_terms_same_rel($term_id, $set_of_terms, $type_of_relationship)
   Returns  - an array of references to the paths between a given term ID and a given set of terms IDs 
   Args     - the IDs of the terms for which a path (or paths) will be found and the ID of the relationship type 
   Function - returns the path(s) linking term and the given set of terms along the same relationship (e.g. is_a)
@@ -4123,8 +4148,8 @@ sub get_paths_term_terms_same_rel () {
 
 		my $p          = $self->get_term_by_id($p_id);
 
-		my @ps         = @{$self->get_head_by_relationship_type($n, $self->get_relationship_type_by_name($rel))};
-		my @hi         = @{$self->get_head_by_relationship_type($p, $self->get_relationship_type_by_name($rel))};
+		my @ps         = @{$self->get_head_by_relationship_type($n, $self->get_relationship_type_by_id($rel))};
+		my @hi         = @{$self->get_head_by_relationship_type($p, $self->get_relationship_type_by_id($rel))};
 
 		$hijos{$p_id}  = $#hi + 1;
 		$hijos{$n_id}  = $#ps + 1;

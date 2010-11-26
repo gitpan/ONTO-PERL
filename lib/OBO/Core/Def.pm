@@ -1,4 +1,4 @@
-# $Id: Def.pm 2010-09-29 Erick Antezana $
+# $Id: Def.pm 2010-10-29 Erick Antezana $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.
@@ -11,7 +11,7 @@ package OBO::Core::Def;
 
 =head1 NAME
 
-OBO::Core::Def  - A definition structure of the current term. A term must 
+OBO::Core::Def  - A definition structure of the current term. A term should 
 have zero or one instance of this type per term description.
     
 =head1 SYNOPSIS
@@ -175,7 +175,7 @@ sub dbxref_set_as_string {
 	if ($dbxref_as_string) {
 		$dbxref_as_string =~ s/^\[//;
 		$dbxref_as_string =~ s/\]$//;		
-		$dbxref_as_string =~ s/\\,/;;;;/g; # trick to keep the comma's
+		$dbxref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
 		$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
 
 		my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
@@ -206,7 +206,7 @@ sub dbxref_set_as_string {
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , and "
 				$match = _unescape($1);
 				$db    = _unescape($2);
 				$acc   = _unescape($3);

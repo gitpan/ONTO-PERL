@@ -665,7 +665,7 @@ sub endElement {
 					$result->remarks($comment);
 				}
 			} elsif (defined $subsets_and_comment) {
-				$result->subsets($subsets_and_comment);
+				$result->subset_def_set($subsets_and_comment);
 			}
 			$data_current_tag{"comment"} = undef;
 			$data_current_tag{"subsets_and_comments"} = undef;

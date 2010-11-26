@@ -1,6 +1,6 @@
 format-version: 1.4
 date: 16:02:2007 16:06
-auto-generated-by: ONTO-PERL 1.27
+auto-generated-by: ONTO-PERL 1.26
 default-namespace: CCO
 
 [Term]
@@ -37,6 +37,106 @@ name: Q84JF0_ARATH
 xref: UniProtKB:Q84JF0
 is_a: CCO:B0000000 ! core cell cycle protein
 relationship: participates_in CCO:P0000103 ! meiosis
+
+[Term]
+id: CCO:C0000242
+name: intracellular
+namespace: cellular_component
+def: "The living contents of a cell; the matter contained within (but not including) the plasma membrane, usually taken to exclude large vacuoles and masses of secretory or ingested material. In eukaryotes it includes the nucleus and cytoplasm." [ISBN:0198506732 "Oxford Dictionary of Biochemistry and Molecular Biology"]
+synonym: "internal to cell" EXACT []
+synonym: "nucleocytoplasm" RELATED [GOC:mah]
+synonym: "protoplasm" EXACT []
+synonym: "protoplast" RELATED [GOC:mah]
+xref: GO:0005622
+xref: Wikipedia:Intracellular
+
+[Term]
+id: CCO:C0000397
+name: cytosol
+namespace: cellular_component
+def: "The part of the cytoplasm that does not contain organelles but which does contain other particulate matter, such as protein complexes." [GOC:hgd, GOC:jl]
+xref: GO:0005829
+xref: NIF_Subcellular:sao101633890
+xref: Wikipedia:Cytosol
+
+[Term]
+id: CCO:C0000407
+name: ribosome
+namespace: cellular_component
+def: "An intracellular organelle, about 200 A in diameter, consisting of RNA and protein. It is the site of protein biosynthesis resulting from translation of messenger RNA (mRNA). It consists of two subunits, one large and one small, each containing only protein and RNA. Both the ribosome and its subunits are characterized by their sedimentation coefficients, expressed in Svedberg units (symbol: S). Hence, the prokaryotic ribosome (70S) comprises a large (50S) subunit and a small (30S) subunit, while the eukaryotic ribosome (80S) comprises a large (60S) subunit and a small (40S) subunit. Two sites on the ribosomal large subunit are involved in translation, namely the aminoacyl site (A site) and peptidyl site (P site). Ribosomes from prokaryotes, eukaryotes, mitochondria, and chloroplasts have characteristically distinct ribosomal proteins." [ISBN:0198506732 "Oxford Dictionary of Biochemistry and Molecular Biology"]
+synonym: "ribosomal RNA" RELATED []
+xref: GO:0005840
+xref: NIF_Subcellular:sao1429207766
+xref: Wikipedia:Ribosome
+
+[Term]
+id: CCO:C0000636
+name: chloroplast
+namespace: cellular_component
+def: "A chlorophyll-containing plastid with thylakoids organized into grana and frets, or stroma thylakoids, and embedded in a stroma." [ISBN:0471245208]
+xref: GO:0009507
+xref: Wikipedia:Chloroplast
+
+[Term]
+id: CCO:C0001750
+name: protein complex
+namespace: cellular_component
+def: "Any macromolecular complex composed of two or more polypeptide subunits, which may or may not be identical. Protein complexes may have other associated non-protein prosthetic groups, such as nucleotides, metal ions or other small molecules." [GOC:go_curators]
+synonym: "protein-protein complex" EXACT []
+xref: GO:0043234
+xref: Wikipedia:Protein_complex
+
+[Term]
+id: CCO:F0000315
+name: structural constituent of ribosome
+namespace: molecular_function
+def: "The action of a molecule that contributes to the structural integrity of the ribosome." [GOC:mah]
+comment: Note that this term may be used to annotate ribosomal RNAs as well as ribosomal proteins.
+synonym: "ribosomal protein" BROAD []
+synonym: "ribosomal RNA" RELATED []
+xref: GO:0003735
+xref: GO:0003736
+xref: GO:0003737
+xref: GO:0003738
+xref: GO:0003739
+xref: GO:0003740
+xref: GO:0003741
+xref: GO:0003742
+
+[Term]
+id: CCO:F0001633
+name: binding
+namespace: molecular_function
+def: "The selective, non-covalent, often stoichiometric, interaction of a molecule with one or more specific sites on another molecule." [GOC:ceb, GOC:mah, ISBN:0198506732 "Oxford Dictionary of Biochemistry and Molecular Biology"]
+comment: For ligands that bind to signal transducing receptors, consider the molecular function term 'receptor binding ; GO:0005102' and its children.
+synonym: "ligand" NARROW []
+xref: GO:0005488
+xref: Wikipedia:Binding_(molecular)
+
+[Term]
+id: CCO:F0001655
+name: ATP binding
+namespace: molecular_function
+def: "Interacting selectively and non-covalently with ATP, adenosine 5'-triphosphate, a universally important coenzyme and enzyme regulator." [ISBN:0198506732 "Oxford Dictionary of Biochemistry and Molecular Biology"]
+xref: GO:0005524
+xref: Reactome:1403 "ATP binding"
+
+[Term]
+id: CCO:F0003114
+name: kinase activity
+namespace: molecular_function
+def: "Catalysis of the transfer of a phosphate group, usually from ATP, to a substrate molecule." [ISBN:0198506732 "Oxford Dictionary of Biochemistry and Molecular Biology"]
+comment: Note that this term encompasses all activities that transfer a single phosphate group; although ATP is by far the most common phosphate donor, reactions using other phosphate donors are included in this term.
+synonym: "phosphokinase activity" EXACT []
+xref: GO:0016301
+xref: Reactome:1423 "kinase activity"
+
+[Term]
+id: CCO:F0004192
+name: rRNA binding
+namespace: molecular_function
+def: "Interacting selectively and non-covalently with ribosomal RNA." [GOC:jl]
+xref: GO:0019843
 
 [Term]
 id: CCO:P0000001

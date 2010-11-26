@@ -1,4 +1,4 @@
-# $Id: RelationshipType.pm 2010-09-29 Erick Antezana $
+# $Id: RelationshipType.pm 2010-10-29 Erick Antezana $
 #
 # Module  : RelationshipType.pm
 # Purpose : Type of Relationship in the Ontology: is_a, part_of, etc.
@@ -349,7 +349,7 @@ sub synonym_set {
 	foreach my $synonym (@_) {		
 		confess "The name of this relationship type (", $self->id(), ") is undefined" if (!defined($self->name()));
 		# do not add 'EXACT' synonyms with the same 'name':
-		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->type() eq "EXACT" && $synonym->def()->text() eq $self->name()));
+		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->scope() eq "EXACT" && $synonym->def()->text() eq $self->name()));
    	}
 	return $self->{SYNONYM_SET}->get_set();
 }
@@ -369,7 +369,7 @@ sub synonym_as_string {
 
 		my $synonym = OBO::Core::Synonym->new();
 		$synonym->def_as_string($synonym_text, $dbxrefs);
-		$synonym->type($scope);
+		$synonym->scope($scope);
 		$synonym->synonym_type_name($synonym_type_name); # optional argument
 		$self->synonym_set($synonym);
 	}
@@ -516,7 +516,7 @@ sub inverse_of {
     if ($rel) {
 		$self->{INVERSE_OF} = $rel;
 		$rel->{INVERSE_OF}  = $self;
-		# Future improvement: test what would happend when we delete any of those two relationships.
+		# TODO: test what would happend when we delete any of those two relationships.
 	}
     return $self->{INVERSE_OF};
 }

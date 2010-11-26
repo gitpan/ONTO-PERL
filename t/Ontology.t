@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 194;
+    plan tests => 207;
 }
 
 #########################
@@ -22,6 +22,7 @@ use OBO::Core::SynonymTypeDef;
 use OBO::Parser::OBOParser;
 use OBO::Util::TermSet;
 
+
 # three new terms
 my $n1 = OBO::Core::Term->new();
 my $n2 = OBO::Core::Term->new();
@@ -32,6 +33,14 @@ my $onto = OBO::Core::Ontology->new();
 ok($onto->get_number_of_terms() == 0);
 ok($onto->get_number_of_relationships() == 0);
 ok(1);
+
+my $my_ssd = OBO::Core::SubsetDef->new();
+$my_ssd->as_string("GO_SS", "Term used for My GO");
+$onto->subset_def_set($my_ssd);
+
+my @my_ssd = $onto->subset_def_set()->get_set();
+ok($my_ssd[0]->name() eq "GO_SS");
+ok($my_ssd[0]->description() eq "Term used for My GO");
 
 $n1->id("CCO:P0000001");
 $n2->id("CCO:P0000002");
@@ -285,6 +294,17 @@ ok(scalar(@descendents3) == 2);
 my @descendents5 = @{$onto->get_descendent_terms($n5)};
 ok(scalar(@descendents5) == 3);
 
+# get descendents of a term (using its unique ID)
+@descendents1 = @{$onto->get_descendent_terms("CCO:P0000001")};
+ok(scalar(@descendents1) == 0);
+@descendents2 = @{$onto->get_descendent_terms("CCO:P0000002")};
+ok(scalar(@descendents2) == 1);
+ok($descendents2[0]->id eq "CCO:P0000001");
+@descendents3 = @{$onto->get_descendent_terms("CCO:P0000003")};
+ok(scalar(@descendents3) == 2);
+@descendents5 = @{$onto->get_descendent_terms("CCO:P0000005")};
+ok(scalar(@descendents5) == 3);
+
 # get all ancestors
 my @ancestors1 = @{$onto->get_ancestor_terms($n1)};
 ok(scalar(@ancestors1) == 4);
@@ -485,7 +505,7 @@ $so->idspaces($id2, $id3);
 my $idspaces = $so->idspaces();
 ok($idspaces->size() == 2);
 
-my @IDs = sort $so->idspaces()->get_set();
+my @IDs = sort {$a->local_idspace() cmp $b->local_idspace()} ($so->idspaces()->get_set());
 ok($IDs[0]->as_string() eq "CCO http://www.cellcycle.org/ontology/CCO \"cell cycle ontology terms\"");
 ok($IDs[1]->as_string() eq "GO urn:lsid:bioontology.org:GO: \"gene ontology terms\"");
 
@@ -494,14 +514,32 @@ my @remarks = sort ($so->remarks()->get_set());
 ok($remarks[0] eq "1. This is a test ontology");
 ok($remarks[1] eq "2. This is a second remark");
 ok($remarks[2] eq "3. This is the last remark");
-$so->subsets("Jukumari Term used for jukumari", "Jukucha Term used for jukucha");
+
+my $ssd1 = OBO::Core::SubsetDef->new();
+my $ssd2 = OBO::Core::SubsetDef->new();
+$ssd1->as_string("Jukumari", "Term used for jukumari");
+$ssd2->as_string("Jukucha", "Term used for jukucha");
+$so->subset_def_set($ssd1, $ssd2);
+
+my @ssd = sort {$a->name() cmp $b->name()} $so->subset_def_set()->get_set();
+ok($ssd[0]->name() eq "Jukucha");
+ok($ssd[1]->name() eq "Jukumari");
+ok($ssd[0]->description() eq "Term used for jukucha");
+ok($ssd[1]->description() eq "Term used for jukumari");
+
 my $std1 = OBO::Core::SynonymTypeDef->new();
 my $std2 = OBO::Core::SynonymTypeDef->new();
-$std1->synonym_type_def_as_string("acronym", "acronym", "EXACT");
-$std2->synonym_type_def_as_string("common_name", "common name", "EXACT");
+$std1->as_string("acronym", "acronym", "EXACT");
+$std2->as_string("common_name", "common name", "EXACT");
 $so->synonym_type_def_set($std1, $std2);
 $n1->subset("Jukumari");
 $n1->subset("Jukucha");
+
+my @terms_by_ss = @{$so->get_terms_by_subset("Jukumari")};
+ok($terms_by_ss[0]->name() eq "mitotic cell cycle");
+@terms_by_ss = @{$so->get_terms_by_subset("Jukucha")};
+ok($terms_by_ss[0]->name() eq "mitotic cell cycle");
+
 $n2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}]');
 $n1->xref_set_as_string("CCO:ea");
 $n3->synonym_as_string("This is a dummy synonym definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}]', "EXACT");

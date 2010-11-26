@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 19;
+    plan tests => 36;
 }
 
 #########################
@@ -19,10 +19,24 @@ ok(1);
 
 my $mini_onto = $my_parser->work("./t/data/header.obo");
 ok(($mini_onto->imports()->get_set())[0] eq 'ulo.obo');
-ok(scalar $mini_onto->subsets()->get_set() == 7);
+
+my %ssd = ("Arabidopsis" => "Term used for Arabidopsis",
+			"Citrus"     => "Term used for citrus",
+			"Maize"      => "Term used for maize",
+			"Poaceae"    => "Term used for grasses",
+			"Rice"       => "Term used for rice",
+			"Tomato"     => "Term used for tomato",
+			"reference"  => "reference plant structure term");
+my @ss = sort keys %ssd;
+ok(scalar $mini_onto->subset_def_set()->get_set() == 7);
+my $i = 0;
+foreach my $ssd (sort {$a->name() cmp $b->name()} $mini_onto->subset_def_set()->get_set()) {
+	ok($ssd->name() eq $ss[$i]);
+	ok($ssd->description() eq $ssd{$ss[$i++]});
+}
 ok(scalar $mini_onto->synonym_type_def_set()->get_set() == 6);
+
 # export to OBO
-#$ontology->export(\*STDERR);
 open (FH, ">./t/data/test0.obo") || die "Run as root the tests: ", $!;
 $mini_onto->export(\*FH);
 close FH;
@@ -36,13 +50,11 @@ ok($ontology->get_relationship_by_id("CCO:B9999998_is_a_CCO:B0000000")->type() e
 ok($ontology->get_relationship_by_id("CCO:B9999996_part_of_CCO:B9999992")->type() eq "part_of");
 
 # export to OBO
-#$ontology->export(\*STDERR);
 open (FH, ">./t/data/test1.obo") || die "Run as root the tests: ", $!;
 $ontology->export(\*FH);
 close FH;
 
 # export to RDF
-
 # for RDF get the whole ontology, as we need interactions, processes ...
 my $rdf_ontology = $my_parser->work("./t/data/out_I_A_thaliana.obo");
 open (FH, ">./t/data/test1.rdf") || die "Run as root the tests: ", $!;
@@ -50,7 +62,6 @@ $rdf_ontology->export(\*FH, 'rdf');
 close FH;
 
 # export to RDF (generic)
-
 my $rdf_ontology_gen = $my_parser->work("./t/data/cell.obo");
 open (FH, ">./t/data/test2.rdf") || die "Run as root the tests: ", $!;
 $rdf_ontology_gen->export(\*FH, 'rdf');
@@ -62,7 +73,11 @@ $ontology->export(\*FH, 'xml');
 close FH;
 
 my $ontology2 = $my_parser->work("./t/data/pre_cco.obo");
-#warn "number of terms: ", $ontology2->get_number_of_terms();
+my $has_participant = $ontology2->get_relationship_type_by_id("has_participant");
+my $participates_in = $ontology2->get_relationship_type_by_id("participates_in");
+ok($has_participant->inverse_of()->equals($participates_in));
+ok($participates_in->inverse_of()->equals($has_participant));
+ok($ontology2->get_number_of_terms() == 636);
 
 # export to XML 2
 open (FH, ">./t/data/test2.xml") || die "Run as root the tests: ", $!;
@@ -109,18 +124,4 @@ close FH;
 open (FH, ">./t/data/test_ulo_cco.dot") || die "Run as root the tests: ", $!;
 $ontology3->export(\*FH, 'dot');
 close FH;
-
-# Internal parsing tests with huge OBO ontologies
-#my $ontologia = $my_parser->work("./t/data/mammalian_phenotype.obo");
-#$ontologia = $my_parser->work("./t/data/environment_ontology.obo");
-#my $ontologia = $my_parser->work("./t/data/gene_ontology_edit.obo");
-#$ontologia = $my_parser->work("./t/data/MPheno_OBO.ontology");
-#$ontologia = $my_parser->work("./t/data/PSI-MOD.obo");
-#$ontologia = $my_parser->work("./t/data/fma_obo.obo");
-#$ontologia = $my_parser->work("./t/data/psi-mod.obo");
-#$ontologia = $my_parser->work("./t/data/zea_mays_anatomy.obo");
-#open (FH, ">./t/data/MPheno_OBO.ontology2") || die "Run as root the tests: ", $!;
-#$ontologia->export(\*FH, 'obo');
-#close FH;
-
 ok(1);

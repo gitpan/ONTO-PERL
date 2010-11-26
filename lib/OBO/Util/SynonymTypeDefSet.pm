@@ -1,4 +1,4 @@
-# $Id: SynonymTypeDefSet.pm 2010-09-29 Erick Antezana $
+# $Id: SynonymTypeDefSet.pm 2010-10-29 Erick Antezana $
 #
 # Module  : SynonymTypeDefSet.pm
 # Purpose : Synonym Type Definition Set.
@@ -9,6 +9,7 @@
 #
 package OBO::Util::SynonymTypeDefSet;
 # TODO This class is identical to OBO::Util::IDspaceSet
+# TODO This class is identical to OBO::Util::SubsetDefSet, which is not implemented...
 
 =head1 NAME
 

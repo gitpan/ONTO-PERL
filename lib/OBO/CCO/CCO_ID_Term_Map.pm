@@ -88,7 +88,7 @@ sub new {
     else {
         open( CCO_ID_MAP_IN_FH, "$self->{FILE}" );
 
-        # TODO include date?
+        # TODO Should I include a date?
         close CCO_ID_MAP_IN_FH;
     }
 
@@ -103,7 +103,7 @@ sub _is_valid_id () {
 
 =head2 get_new_id
 
-  Usage    - $map->get_new_id("CCO", "P", "cell cycle")
+  Usage    - $map->get_new_id("CCO", "P", "cell cycle") or $map->get_new_id("CCO", "Pa", "cell cycle")
   Returns  - a new CCO ID (string)
   Args     - idspace (string), subnamespace (string), term (string)
   Function - get a new CCO ID and insert it (put) into this map

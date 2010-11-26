@@ -5596,6 +5596,7 @@ id: participates_in
 name: participates_in
 def: "C participates_in P if and only if: given any continuant c that instantiates C there is some process p, and some time t, such that: p has part c at t" [CCO:ea]
 is_a: relationship ! relationship
+inverse_of: has_participant ! has participant
 xref: OBO_REL:participates_in
 xref: CCO_REL:participates_in
 

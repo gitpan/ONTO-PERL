@@ -1,4 +1,4 @@
-# $Id: GoaParser.pm 2159 2010-09-29 Erick Antezana $
+# $Id: GoaParser.pm 2159 2010-11-29 Erick Antezana $
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files
@@ -30,12 +30,11 @@ This method assumes:
 
 =head1 AUTHOR
 
-Vladimir Mironov
-vladimir.mironov@bio.ntnu.no
+Vladimir Mironov E<lt>vladimir.mironov@bio.ntnu.noE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2010 by Vladimir Mironov
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Vladimir Mironov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -253,77 +252,118 @@ sub work {
 	return $ontology;
 }
 
-#
-# This function adds relations to the existing ontology terms, no new terms are created
-#
+=head2 work
+
+ Usage    - $GoaParser->add_goa_assocs($ref_file_names)
+ Returns  - updated OBO::Core::Ontology object
+ Args     - reference to a list of filenames(input OBO file, output OBO file, GOA associations file, UniProt map file 'AC'\t'ID', 'go_id'\t'cco_id' map file)
+ Function - parses a GOA associations file, adds new associations to the input  ontology, writes OBO
+
+=cut
+
 sub add_go_assocs {
    my $self = shift;
-
    # Get the arguments
-   my ($old_OBO_file,
-       $new_OBO_file,
-       $goa_assoc_file) = @{shift @_};
+   my (
+   $in_obo_file,
+   $out_obo_file,
+   $goa_assoc_file, # filtered by the cco proteins (in practice C F aspects only)
+   $up_map_file, # cco proteins: UniProt 'AC'\t'ID'
+   $go_map_file, # 'go_id'\t'cco_id' (in practice C F terms only)
+   ) = @{shift @_};
 
-   # Initialize the OBO parser, load the OBO file, check the assumptions
-   my $my_parser = OBO::Parser::OBOParser->new();
-   my $ontology = $my_parser->work($old_OBO_file);
+   # construct the maps
+   my %up_map; # keys - UniProt ACs, values - UniProt IDs
+   open my $FH, '<',  $up_map_file || croak "The file $up_map_file couldn't be opened";
+   while (<$FH>) {
+       chomp;
+       my ($ac, $id) = split;
+       $up_map{$ac} = $id;
+   }
+   close $FH;
+   my %go_map; # keys - GO ids, values - CCO ids
+   open $FH, '<',  $go_map_file || croak "The file $go_map_file couldn't be opened";
+   while (<$FH>) {
+       chomp;
+       my ($go_id, $cco_id) = split;
+       $go_map{$go_id} = $cco_id;
+   }
+   close $FH;
 
-   # rels
-   my $is_a            = 'is_a';
-
+   # Initialize the OBO parser, load the input OBO file, check the assumptions
+   my $obo_parser = OBO::Parser::OBOParser->new();
+   my $ontology = $obo_parser->work($in_obo_file);
+   my $is_a  = 'is_a';
    my $participates_in = 'participates_in';
    my $has_participant = 'has_participant';
-
    my $located_in      = 'located_in';
    my $location_of     = 'location_of';
    my $has_function    = 'has_function';
-
-   # rel existency check
    foreach (($is_a, $participates_in, $has_participant, $located_in, $location_of, $has_function)){
        die "Not a valid relationship type" unless($ontology->{RELATIONSHIP_TYPES}->{$_});
    }
 
-   # create a hash of protein names as the keys
-   my %prot_names;
-   foreach my $prot (@{$ontology->get_terms("CCO:B.*")}) {
-       $prot_names{$prot->name()} = 1; # all the proteins from the given ontology file
-   }
+   my %protein_terms; # keys - UP ACs, values - Term.pm objects for cco proteins
+   my %go_terms; # keys - GO ids, values - Term.pm objects for cco go terms
 
    # parse the GOA associations file
    my $goa_parser = OBO::CCO::GoaParser->new();
    my $goa_assoc_set = $goa_parser->parse($goa_assoc_file);
    foreach my $goaAssoc (@{$goa_assoc_set->{SET}}){
-       my $prot_name = $goaAssoc->obj_symb();
-       $prot_names{$prot_name} ? my $protein = $ontology-> get_term_by_name($prot_name) : next;
 
-       # add relationships with GO terms
-       my ($ns, $id) = split(/:/, $goaAssoc->go_id());
+       # get protein term
+       my $up_ac = $goaAssoc->obj_id();
+       my $protein = $protein_terms{$up_ac};
+       if (!$protein) {
+           my $up_id = $up_map{$up_ac};
+           if (!$up_id) {
+               carp "No UniProt ID for $up_ac in $up_map_file";
+               next;
+           }
+           $protein = $ontology->get_term_by_name($up_id);
+           if (!$protein) {
+               carp "No protein term in $in_obo_file for $up_ac|$up_id";
+               next;
+           }
+           $protein_terms{$up_ac} = $protein;
+       }
+       # get GO term
+       my $go_id = $goaAssoc->go_id();
+       my  $go_term = $go_terms{$go_id};
+       if (!$go_term) {
+           my $cco_id = $go_map{$go_id};
+           if (!$cco_id) {
+               carp "No CCO id for $go_id in $go_map_file\n";
+               next;
+           }
+           $go_term = $ontology->get_term_by_id($cco_id);
+           if (!$go_term) {
+               carp "No GO term in $in_obo_file for $cco_id\n";
+               next;
+           }
+           $go_terms{$go_id} = $go_term;
+       }
+
+       # create relations
        my $aspect = $goaAssoc->aspect();
-       my $cco_go_term = $ontology->get_term_by_xref($ns, $id); # for c and f GOA associations  $id is different in the CCO  and GO namespaces
-
-       if (!defined $cco_go_term){
-           warn "The term $ns:$id is missing in the ontology $old_OBO_file\n";
-           next;
+       if ($aspect eq 'F') {
+           $ontology->create_rel($protein, $has_function, $go_term);
        }
-
-       if ($aspect eq 'P') {
-           $ontology->create_rel($protein,     $participates_in, $cco_go_term);
-           $ontology->create_rel($cco_go_term, $has_participant, $protein); # inverse of 'participates_in'
-       } elsif ($aspect eq 'C') {
-           $ontology->create_rel($protein,     $located_in,  $cco_go_term);
-           $ontology->create_rel($cco_go_term, $location_of, $protein); # inverse of 'located_in'
-       } elsif ($aspect eq 'F') {
-
-           $ontology->create_rel($protein, $has_function, $cco_go_term);
+       elsif ($aspect eq 'C') {
+           $ontology->create_rel($protein,     $located_in,  $go_term);
+           $ontology->create_rel($go_term, $location_of, $protein); # inverse of 'located_in'
        }
-       else {
-       	warn "An illegal aspect in the GOA file $goa_assoc_file\n"
+       elsif ($aspect eq 'P') {
+           $ontology->create_rel($protein,     $participates_in, $go_term);
+           $ontology->create_rel($go_term, $has_participant, $protein); # inverse of 'participates_in'
        }
+       else {carp "An illigal aspect in the GOA file $goa_assoc_file\n"}
    }
 
-   # Write the new ontology and map to disk
-   open (FH, ">".$new_OBO_file) || die "Cannot write OBO file: ", $!;
+   # Write the new ontology to disk
+   open (FH, ">".$out_obo_file) || die "Cannot write OBO file: ", $!;
    $ontology->export(\*FH);
+   select( ( select($FH), $| = 1 )[0] );
    close FH;
    return $ontology;
 }

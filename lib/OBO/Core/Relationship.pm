@@ -1,4 +1,4 @@
-# $Id: Relationship.pm 1845 2010-09-29 Erick Antezana $
+# $Id: Relationship.pm 1845 2010-10-29 Erick Antezana $
 #
 # Module  : Relationship.pm
 # Purpose : Relationship in the Ontology.

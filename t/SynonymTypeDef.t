@@ -18,12 +18,11 @@ use strict;
 my $std1 = OBO::Core::SynonymTypeDef->new();
 my $std2 = OBO::Core::SynonymTypeDef->new();
 
-
-# synonym_type_name
-$std1->synonym_type_name("goslim_plant");
-ok ($std1->synonym_type_name() eq "goslim_plant");
-$std2->synonym_type_name("goslim_yeast");
-ok ($std2->synonym_type_name() eq "goslim_yeast");
+# name
+$std1->name("goslim_plant");
+ok ($std1->name() eq "goslim_plant");
+$std2->name("goslim_yeast");
+ok ($std2->name() eq "goslim_yeast");
 
 # description
 $std1->description("Plant GO slim");
@@ -36,12 +35,10 @@ $std1->scope("EXACT");
 ok ($std1->scope() eq "EXACT");
 $std2->scope("BROAD");
 ok ($std2->scope() eq "BROAD");
+
 # synonym type def as string
-
 my $std3 = OBO::Core::SynonymTypeDef->new();
-
-$std3->synonym_type_def_as_string("goslim_plant", "Plant GO slim", "EXACT");
-
+$std3->as_string("goslim_plant", "Plant GO slim", "EXACT");
 ok($std1->equals($std3));
 
 ok(1);

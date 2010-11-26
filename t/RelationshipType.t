@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 44;
+    plan tests => 45;
 }
 
 #########################
@@ -56,8 +56,10 @@ ok(!$r1->is_transitive());
 my $r3_inv = OBO::Core::RelationshipType->new();
 $r3_inv->id("CCO:L0000004");
 $r3_inv->name("has participant");
+$r3->def_as_string("This is the inverse rel of r3", '[CCO:ea]');
 $r3_inv->inverse_of($r3);
 ok($r3->inverse_of()->equals($r3_inv));
+ok($r3_inv->inverse_of()->equals($r3));
 
 # def as string
 $r2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana", http://mydomain.com/key1=value1&key2=value2]');
@@ -75,7 +77,7 @@ ok($r_r2{"http://mydomain.com/key1=value1&key2=value2"} eq "http://mydomain.com/
 
 # synonyms
 my $syn1 = OBO::Core::Synonym->new();
-$syn1->type('EXACT');
+$syn1->scope('EXACT');
 my $def1 = OBO::Core::Def->new();
 $def1->text("is_a");
 my $sref1 = OBO::Core::Dbxref->new();
@@ -87,7 +89,7 @@ $syn1->def($def1);
 $r1->synonym_set($syn1);
 
 my $syn2 = OBO::Core::Synonym->new();
-$syn2->type('BROAD');
+$syn2->scope('BROAD');
 my $def2 = OBO::Core::Def->new();
 $def2->text("part_of");
 my $sref2 = OBO::Core::Dbxref->new();
@@ -103,7 +105,7 @@ ok(!defined (($r3->synonym_set())[0]));
 ok(!$r3->synonym_set());
 
 my $syn3 = OBO::Core::Synonym->new();
-$syn3->type('BROAD');
+$syn3->scope('BROAD');
 my $def3 = OBO::Core::Def->new();
 $def3->text("part_of"); # fake synonym
 my $sref3 = OBO::Core::Dbxref->new();
@@ -117,7 +119,7 @@ $r3->synonym_set($syn3);
 ok(($r1->synonym_set())[0]->equals($syn1));
 ok(($r2->synonym_set())[0]->equals($syn2));
 ok(($r3->synonym_set())[0]->equals($syn3));
-ok(($r2->synonym_set())[0]->type() eq 'BROAD');
+ok(($r2->synonym_set())[0]->scope() eq 'BROAD');
 ok(($r2->synonym_set())[0]->def()->equals(($r3->synonym_set())[0]->def()));
 ok(($r2->synonym_set())[0]->equals(($r3->synonym_set())[0]));
 

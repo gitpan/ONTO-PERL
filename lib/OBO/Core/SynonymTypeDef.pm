@@ -1,4 +1,4 @@
-# $Id: SynonymTypeDef.pm 2010-09-29 Erick Antezana $
+# $Id: SynonymTypeDef.pm 2010-11-29 Erick Antezana $
 #
 # Module  : SynonymTypeDef.pm
 # Purpose : A synonym type definition.
@@ -26,11 +26,11 @@ my $std1 = OBO::Core::SynonymTypeDef->new();
 my $std2 = OBO::Core::SynonymTypeDef->new();
 
 
-# synonym_type_name
+# name
 
-$std1->synonym_type_name("goslim_plant");
+$std1->name("goslim_plant");
 
-$std2->synonym_type_name("goslim_yeast");
+$std2->name("goslim_yeast");
 
 
 # description
@@ -51,7 +51,7 @@ $std2->scope("BROAD");
 
 my $std3 = OBO::Core::SynonymTypeDef->new();
 
-$std3->synonym_type_def_as_string("goslim_plant", "Plant GO slim", "EXACT");
+$std3->as_string("goslim_plant", "Plant GO slim", "EXACT");
 
 if ($std1->equals($std3)) {
 	
@@ -62,7 +62,7 @@ if ($std1->equals($std3)) {
 
 =head1 DESCRIPTION
 
-A synonym type defintion provides a description of a user-defined synonym 
+A synonym type definition provides a description of a user-defined synonym 
 type. This object holds: a synonym type name, a description, and an 
 optional scope specifier (c.f. OBO flat file specification). The scope 
 specifier indicates the default scope for any synonym that has this type.
@@ -89,27 +89,26 @@ sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{SYNONYM_TYPE_NAME}  = undef; # required
+	$self->{NAME}               = undef; # required
 	$self->{DESCRIPTION}        = undef; # required
 	$self->{SCOPE}              = undef; # optional: The scope specifier indicates the default scope for any synonym that has this type.
 
 	bless ($self, $class);
 	return $self;
 }
-=head2 synonym_type_name
+=head2 name
 
-  Usage    - print $synonym_type_def->synonym_type_name() or $synonym_type_def->synonym_type_name($synonym_type_name)
+  Usage    - print $synonym_type_def->name() or $synonym_type_def->name($name)
   Returns  - the synonym type name (string)
   Args     - the synonym type name (string)
   Function - gets/sets the synonym type name
   
 =cut
 
-sub synonym_type_name {
-	# TODO Rename to simply name()
-	my ($self, $synonym_type_name) = @_;
-	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
-	return $self->{SYNONYM_TYPE_NAME};
+sub name {
+	my ($self, $name) = @_;
+	$self->{NAME} = $name if ($name);
+	return $self->{NAME};
 }
 
 =head2 description
@@ -142,29 +141,28 @@ sub scope {
 	return $self->{SCOPE};
 }
 
-=head2 synonym_type_def_as_string
+=head2 as_string
 
-  Usage    - $synonym_type_def->synonym_type_def_as_string() or $synonym_type_def->synonym_type_def_as_string("UK_SPELLING", "British spelling", "EXACT")
+  Usage    - $synonym_type_def->as_string() or $synonym_type_def->as_string("UK_SPELLING", "British spelling", "EXACT")
   Returns  - the synonym type definition (string)
   Args     - the synonym type definition (string)
   Function - gets/sets the definition of this synonym
   
 =cut
 
-sub synonym_type_def_as_string {
-	# TODO rename this sub to : as_string()
-	my ($self, $synonym_type_name, $desc, $scope) = @_;
-	if ($synonym_type_name && $desc){
-		$self->{SYNONYM_TYPE_NAME} = $synonym_type_name;
+sub as_string {
+	my ($self, $name, $desc, $scope) = @_;
+	if ($name && $desc){
+		$self->{NAME}        = $name;
 		$self->{DESCRIPTION} = $desc;
-		$self->{SCOPE} = $scope if ($scope);
+		$self->{SCOPE}       = $scope if ($scope);
 		return; # set mode
 	}
 	$scope = $self->{SCOPE};
 	if (defined $scope) {
-		return $self->{SYNONYM_TYPE_NAME}." "."\"".$self->{DESCRIPTION}."\""." ".$scope;
+		return $self->{NAME}." "."\"".$self->{DESCRIPTION}."\""." ".$scope;
 	} else {
-		return $self->{SYNONYM_TYPE_NAME}." "."\"".$self->{DESCRIPTION}."\"";
+		return $self->{NAME}." "."\"".$self->{DESCRIPTION}."\"";
 	}
 }
 
@@ -182,16 +180,16 @@ sub equals {
 	my $result = 0;
 	if ($target) {
 		
-		confess "The synonym type name of this synonym type definition is undefined" if (!defined($self->{SYNONYM_TYPE_NAME}));
-		confess "The synonym type name of the target synonym type definition is undefined" if (!defined($self->{SYNONYM_TYPE_NAME}));
+		confess "The synonym type name of this synonym type definition is undefined" if (!defined($self->{NAME}));
+		confess "The synonym type name of the target synonym type definition is undefined" if (!defined($self->{NAME}));
 		
 		confess "The description of the this synonym type definition is undefined" if (!defined($target->{DESCRIPTION}));
 		confess "The description of the target synonym type definition is undefined" if (!defined($target->{DESCRIPTION}));
 		
-		$result = ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) && ($self->{DESCRIPTION} eq$target->{DESCRIPTION});
-		$result = $result && ($self->{SCOPE} eq $target->{SCOPE}) if (defined $self->{SCOPE} && defined $target->{SCOPE}); # Future improvement, consider case: scope1 undefined and scope 2 defined!
+		$result = ($self->{NAME} eq $target->{NAME}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION});
+		$result = $result && ($self->{SCOPE} eq $target->{SCOPE}) if (defined $self->{SCOPE} && defined $target->{SCOPE}); # TODO Future improvement, consider case: scope1 undefined and scope 2 defined!
 	}
 	return $result;
 }
 
-1;    
+1;

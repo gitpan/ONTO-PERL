@@ -42,9 +42,9 @@ The OBO::CCO::CCO_ID class implements a Cell Cycle Ontology identifier.
 
 A CCO ID holds: IDSPACE, SUBNAMESPACE and a NUMBER in the following form:
 
-	CCO:[A-Z]nnnnnnn
+	CCO:[A-Z][a-z]?nnnnnnn
 
-For instance: CCO:P1234567
+For instance: CCO:Pa1234567
 
 The SUBNAMESPACE may be one of the following:
  
@@ -61,6 +61,16 @@ The SUBNAMESPACE may be one of the following:
 	L	Relationship type (e.g. is_a)
 	Y	Interaction type
 	Z	Unknown
+	
+plus an extra (optional) qualifier could be added to explicitly capture the organism:
+
+	a	Arabidopsis thaliana
+	h	Homo sapiens
+	y	Saccharomyces cerevisiae
+	s	Schizosaccharomyces pombe
+	c	Caenorhabditis elegans
+	d	Drosophila melanogaster
+	m	Mus musculus
 
 =head1 AUTHOR
 
@@ -119,7 +129,7 @@ sub subnamespace {
 
 sub id_as_string () {
 	my ($self, $id_as_string) = @_;
-	if ( defined $id_as_string && $id_as_string =~ /([A-Z][A-Z][A-Z]):([CFPXIRTBGNYZ])([0-9]{7})/ ) {
+	if ( defined $id_as_string && $id_as_string =~ /(CCO):([A-Z][a-z]?)([0-9]{7})/ ) {
 		$self->{IDSPACE} = $1;
 		$self->{SUBNAMESPACE} = $2;
 		$self->{LOCALID} = substr($3 + 10000000, 1, 7); # trick: forehead zeros

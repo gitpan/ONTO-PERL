@@ -106,7 +106,7 @@ sub _is_valid_id () {
   
 =cut
 
-sub put () {
+sub put {
 	my ( $self, $new_id, $new_name ) = @_;
 
 	if ( $new_id && $new_name ) {
@@ -132,7 +132,7 @@ sub put () {
 				warn "The pair: $new_id, $new_name is part of the map BUT they correspond to other entries!";
 			}
 		} else {
-			warn "This case should have never happened: -> ($new_id, $new_name)";
+			confess "This case should have never happened: -> ($new_id, $new_name)";
 		}
 		return $self->size();
 	} else {
@@ -149,7 +149,7 @@ sub put () {
   
 =cut
 
-sub get_new_id () {
+sub get_new_id {
     my ( $self, $idspace, $term_name ) = @_;
     my $new_id;
     if ( $idspace && $term_name ) {
@@ -172,7 +172,7 @@ sub get_new_id () {
   
 =cut
 
-sub get_term_by_id () {
+sub get_term_by_id {
 	my ( $self, $obo_id ) = @_;
 	return $self->{MAP_BY_ID}->{$obo_id};
 }
@@ -186,7 +186,7 @@ sub get_term_by_id () {
   
 =cut
 
-sub get_id_by_term () {
+sub get_id_by_term {
 	my ( $self, $term_name ) = @_;
 	return $self->{MAP_BY_TERM}->{$term_name};
 }
@@ -200,7 +200,7 @@ sub get_id_by_term () {
   
 =cut
 
-sub keys_set () {
+sub keys_set {
 	my $self = shift;
 	return keys( %{ $self->{MAP_BY_ID} } );
 }
@@ -214,7 +214,7 @@ sub keys_set () {
   
 =cut
 
-sub values_set () {
+sub values_set {
 	my $self = shift;
 	return values( %{ $self->{MAP_BY_ID} } );
 }
@@ -228,7 +228,7 @@ sub values_set () {
   
 =cut
 
-sub contains_key () {
+sub contains_key {
     my ( $self, $searched_key ) = @_;
     return ( defined $self->{MAP_BY_ID}->{$searched_key} ) ? 1 : 0;
 }
@@ -256,7 +256,7 @@ sub contains_value () {
   
 =cut
 
-sub equals () {
+sub equals {
     my $self      = shift;
     my $result    = 0;
     my $other_map = shift;
@@ -304,7 +304,7 @@ sub equals () {
   
 =cut
 
-sub size () {
+sub size {
     my $self = shift;
     my @keys = keys( %{ $self->{MAP_BY_ID} } );
     return $#keys + 1;
@@ -319,7 +319,7 @@ sub size () {
   
 =cut
 
-sub file () {
+sub file {
     my $self = shift;
     if (@_) { $self->{FILE} = shift }
     return $self->{FILE};
@@ -334,7 +334,7 @@ sub file () {
   
 =cut
 
-sub clear () {
+sub clear {
     my $self = shift;
     %{ $self->{MAP_BY_ID} }   = ();
     %{ $self->{MAP_BY_TERM} } = ();
@@ -349,7 +349,7 @@ sub clear () {
   
 =cut
 
-sub is_empty () {
+sub is_empty {
     my $self = shift;
     return ( $self->size() == 0 );
 }
@@ -363,7 +363,7 @@ sub is_empty () {
   
 =cut
 
-sub write_map () {
+sub write_map {
 	my $self = shift;
 	open( FH, ">" . $self->{FILE} ) || die "Cannot write map into the file: '$self->{FILE}', $!";
 	foreach ( sort keys %{ $self->{MAP_BY_ID} } ) {
@@ -385,7 +385,7 @@ sub write_map () {
   
 =cut
 
-sub remove_by_key () {
+sub remove_by_key {
     my ($self, $key) = @_;
     my $value = $self->{MAP_BY_ID}{$key};
     delete $self->{MAP_BY_ID}{$key};

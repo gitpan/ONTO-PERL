@@ -30,8 +30,8 @@ ok($n1->subnamespace() eq "X");
 ok($n1->code() eq "0000000");
 
 # id's
-$n1->id("CCO:P0000001");
-ok($n1->id() eq "CCO:P0000001");
+$n1->id("CCO:Pa0000001");
+ok($n1->id() eq "CCO:Pa0000001");
 $n2->id("CCO:P0000002");
 ok($n2->id() eq "CCO:P0000002");
 $n3->id("CCO:P0000003");
@@ -39,7 +39,7 @@ ok($n3->id() eq "CCO:P0000003");
 
 # name, subnamespace, code
 ok($n1->idspace() eq "CCO");
-ok($n1->subnamespace() eq "P");
+ok($n1->subnamespace() eq "Pa");
 ok($n1->code() eq "0000001");
 
 # term creator + date
@@ -102,7 +102,7 @@ ok($n1->is_anonymous() != 1);
 
 # synonyms
 my $syn1 = OBO::Core::Synonym->new();
-$syn1->type('EXACT');
+$syn1->scope('EXACT');
 my $def1 = OBO::Core::Def->new();
 $def1->text("Hola mundo1");
 my $sref1 = OBO::Core::Dbxref->new();
@@ -114,7 +114,7 @@ $syn1->def($def1);
 $n1->synonym_set($syn1);
 
 my $syn2 = OBO::Core::Synonym->new();
-$syn2->type('BROAD');
+$syn2->scope('BROAD');
 my $def2 = OBO::Core::Def->new();
 $def2->text("Hola mundo2");
 my $sref2 = OBO::Core::Dbxref->new();
@@ -130,7 +130,7 @@ ok(!defined (($n3->synonym_set())[0]));
 ok(!$n3->synonym_set());
 
 my $syn3 = OBO::Core::Synonym->new();
-$syn3->type('BROAD');
+$syn3->scope('BROAD');
 my $def3 = OBO::Core::Def->new();
 $def3->text("Hola mundo2");
 my $sref3 = OBO::Core::Dbxref->new();
@@ -144,7 +144,7 @@ $n3->synonym_set($syn3);
 ok(($n1->synonym_set())[0]->equals($syn1));
 ok(($n2->synonym_set())[0]->equals($syn2));
 ok(($n3->synonym_set())[0]->equals($syn3));
-ok(($n2->synonym_set())[0]->type() eq 'BROAD');
+ok(($n2->synonym_set())[0]->scope() eq 'BROAD');
 ok(($n2->synonym_set())[0]->def()->equals(($n3->synonym_set())[0]->def()));
 ok(($n2->synonym_set())[0]->equals(($n3->synonym_set())[0]));
 
@@ -226,8 +226,8 @@ ok($n2->def_as_string() eq '"This is a dummy definition" [CCO:ea "Erick Antezana
 $n2->disjoint_from($n1->id(), $n3->id());
 my @dis = sort {$a cmp $b} $n2->disjoint_from();
 ok($#dis == 1);
-ok($dis[0] eq $n1->id());
-ok($dis[1] eq $n3->id());
+ok($dis[0] eq $n3->id());
+ok($dis[1] eq $n1->id());
 
 # empty def, empty dbxref
 $n4->def_as_string("", "");

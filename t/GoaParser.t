@@ -6,7 +6,7 @@
 BEGIN {
 	eval { require Test; };
     use Test;    
-    plan tests => 6;
+    plan tests => 7;
 }
 #########################
 
@@ -40,3 +40,14 @@ ok(!$ontology->get_term_by_name("Q6NMC8_ARATH")); #this entry has no synonyms (i
 ok($ontology->get_term_by_name("RK20_ARATH"));
 ok($ontology->get_term_by_name("Q6XJG8_ARATH"));
 ok($ontology->get_term_by_name("Q84JF0_ARATH"));
+
+@files = (
+"./t/data/add_goa_assocs.obo",
+"./t/data/add_goa_assocs.out",
+"./t/data/add_goa_assocs.goa",
+"./t/data/add_goa_assocs_up.map",
+"./t/data/add_goa_assocs_goa.map",
+);
+
+$ontology = $my_parser->add_go_assocs(\@files);
+ok(1);

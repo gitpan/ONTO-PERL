@@ -28,9 +28,9 @@ my $std2 = OBO::Core::SynonymTypeDef->new();
 my $std3 = OBO::Core::SynonymTypeDef->new();
 
 # filling them...
-$std1->synonym_type_def_as_string("goslim_plant1", "Plant GO slim1", "EXACT");
-$std2->synonym_type_def_as_string("goslim_plant2", "Plant GO slim2", "EXACT");
-$std3->synonym_type_def_as_string("goslim_plant3", "Plant GO slim3", "EXACT");
+$std1->as_string("goslim_plant1", "Plant GO slim1", "EXACT");
+$std2->as_string("goslim_plant2", "Plant GO slim2", "EXACT");
+$std3->as_string("goslim_plant3", "Plant GO slim3", "EXACT");
 
 # tests with empty set
 $my_set->remove($std1);
@@ -56,9 +56,9 @@ my $std5 = OBO::Core::SynonymTypeDef->new();
 my $std6 = OBO::Core::SynonymTypeDef->new();
 
 # filling them...
-$std4->synonym_type_def_as_string("goslim_plant4", "Plant GO slim4", "EXACT");
-$std5->synonym_type_def_as_string("goslim_plant5", "Plant GO slim5", "EXACT");
-$std6->synonym_type_def_as_string("goslim_plant1", "Plant GO slim1", "EXACT"); # repeated !!!
+$std4->as_string("goslim_plant4", "Plant GO slim4", "EXACT");
+$std5->as_string("goslim_plant5", "Plant GO slim5", "EXACT");
+$std6->as_string("goslim_plant1", "Plant GO slim1", "EXACT"); # repeated !!!
 
 $my_set->add_all($std4, $std5);
 my $false = $my_set->add($std6);
@@ -110,9 +110,8 @@ ok($my_set2->size() == 0);
 my $stdA = OBO::Core::SynonymTypeDef->new();
 my $stdB = OBO::Core::SynonymTypeDef->new();
 
-$stdA->synonym_type_def_as_string("dummy", "Plant dummy", "EXACT");
-$stdB->synonym_type_def_as_string("dummy", "Plant dummy", "EXACT");
-
+$stdA->as_string("dummy", "Plant dummy", "EXACT");
+$stdB->as_string("dummy", "Plant dummy", "EXACT");
 
 $my_set2->clear();
 $my_set2->add_all($stdA, $stdB);

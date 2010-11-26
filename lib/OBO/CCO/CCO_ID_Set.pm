@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Set.pm 2010-09-29 Erick Antezana $
+# $Id: CCO_ID_Set.pm 2010-11-29 Erick Antezana $
 #
 # Module  : CCO_ID_Set.pm
 # Purpose : A set of CCO id's.
@@ -31,6 +31,8 @@ $size = $cco_id_set->size();
 if ($cco_id_set->add($id)) { ... }
 
 $new_id = $cco_id_set->get_new_id("CCO", "C");
+
+$other_id = $cco_id_set->get_new_id("CCO", "Ca");
 
 =head1 DESCRIPTION
 
@@ -80,7 +82,7 @@ sub add_as_string () {
 
 =head2 get_new_id
 
-  Usage    - $set->get_new_id($idspace, $subnamespace)
+  Usage    - $set->get_new_id($local_idspace, $subnamespace)
   Returns  - a new CCO id (string)
   Args     - none
   Function - returns a new CCO ID as string and adds this id to the set
@@ -88,11 +90,11 @@ sub add_as_string () {
 =cut
 
 sub get_new_id {
-	my ($self, $idspace, $subnamespace) = @_;
+	my ($self, $local_idspace, $subnamespace) = @_;
 	my $new_cco_id = OBO::CCO::CCO_ID->new();
-	confess "The idspace is invalid: ", $idspace if ($idspace !~ /[A-Z][A-Z][A-Z]/);
-	$new_cco_id->idspace($idspace);
-	confess "The subnamespace is invalid: ", $subnamespace if ($subnamespace !~ /[CFPXIORTBGNYZU]/);
+	confess "The idspace is invalid: ", $local_idspace if ($local_idspace !~ /[A-Z][A-Z][A-Z]/);
+	$new_cco_id->idspace($local_idspace);
+	confess "The subnamespace is invalid: ", $subnamespace if ($subnamespace !~ /[A-Z][a-z]?/);
 	$new_cco_id->subnamespace($subnamespace);
 	# get the last 'localID'
 	if ($self->is_empty()){
