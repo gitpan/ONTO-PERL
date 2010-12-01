@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 45;
+    plan tests => 63;
 }
 
 #########################
@@ -23,6 +23,14 @@ my $r3 = OBO::Core::RelationshipType->new();
 $r1->id("CCO:L0000001");
 $r2->id("CCO:L0000002");
 $r3->id("CCO:L0000003");
+
+ok($r1->is_anonymous() == 0); # not defined value.
+$r1->is_anonymous(1);
+ok($r1->is_anonymous() != 0);
+ok($r1->is_anonymous() == 1);
+$r1->is_anonymous(0);
+ok($r1->is_anonymous() == 0);
+ok($r1->is_anonymous() != 1);
 
 $r1->name("is a");
 $r2->name("part of");
@@ -172,5 +180,30 @@ ok(($r2->subset())[2] eq "CCO:P0000002_subset3");
 ok(($r2->subset())[3] eq "CCO:P0000002_subset4");
 ok(!defined (($r3->subset())[0]));
 ok(!$r3->subset());
+
+# holds_over_chain
+$r3->holds_over_chain($r1->id(), $r2->id());
+ok(!defined $r1->holds_over_chain()->get_set());
+ok(!defined $r2->holds_over_chain()->get_set());
+my @hoc = $r3->holds_over_chain()->get_set();
+ok(scalar(@hoc) == 1);
+foreach my $holds_over_chain ($r3->holds_over_chain()->get_set()) {
+	ok(@{$holds_over_chain}[0] eq $r1->id());
+	ok(@{$holds_over_chain}[1] eq $r2->id());
+}
+
+# functional and inverse functional
+ok(!$r1->functional());
+ok(!$r1->inverse_functional());
+ok(!$r2->functional());
+ok(!$r2->inverse_functional());
+$r1->functional(1);
+$r1->inverse_functional(1);
+$r2->functional(1);
+$r2->inverse_functional(1);
+ok($r1->functional());
+ok($r1->inverse_functional());
+ok($r2->functional());
+ok($r2->inverse_functional());
 
 ok(1);

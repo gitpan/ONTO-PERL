@@ -107,26 +107,31 @@ sub new {
 	my $self                    = {};
 
 	$self->{ID}                 = undef;                 # required, string (1)
-	$self->{NAME}               = undef;                 # required, string (1)
+	$self->{IS_ANONYMOUS}       = undef;                 # [1|0], 0 by default
+	$self->{NAME}               = undef;                 # string (1)
 
-	$self->{ALT_ID}             = OBO::Util::Set->new(); # set (0..N)
-	$self->{DEF}                = OBO::Core::Def->new;   # (0..1)
 	$self->{NAMESPACE_SET}      = OBO::Util::Set->new(); # set (0..N)
+	$self->{ALT_ID}             = OBO::Util::Set->new(); # set (0..N)
+	$self->{BUILTIN}            = undef;                 # [1|0], 0 by default
+	$self->{DEF}                = OBO::Core::Def->new;   # (0..1)
 	$self->{COMMENT}            = undef;                 # string (0..1)
 	$self->{SUBSET_SET}         = OBO::Util::Set->new(); # set of scalars (0..N)
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
 	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
 	$self->{DOMAIN}             = OBO::Util::Set->new(); # set of scalars (0..N)
 	$self->{RANGE}              = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{IS_ANTI_SYMMETRIC}  = undef;                 # [1|0], 0 by default
 	$self->{IS_CYCLIC}          = undef;                 # [1|0], 0 by default
 	$self->{IS_REFLEXIVE}       = undef;                 # [1|0], 0 by default
 	$self->{IS_SYMMETRIC}       = undef;                 # [1|0], 0 by default
-	$self->{IS_ANTI_SYMMETRIC}  = undef;                 # [1|0], 0 by default
 	$self->{IS_TRANSITIVE}      = undef;                 # [1|0], 0 by default
-	$self->{IS_METADATA_TAG}    = undef;                 # [1|0], 0 by default
-	$self->{INVERSE_OF}         = undef;                 # string (0..1)
+	$self->{INVERSE_OF}         = undef;                 # string (0..1) # TODO This should be a Set of Relationships...
 	$self->{TRANSITIVE_OVER}    = OBO::Util::Set->new(); # set of scalars (0..N)
 
+	$self->{HOLDS_OVER_CHAIN}   = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{FUNCTIONAL}         = undef;                 # [1|0], 0 by default
+	$self->{INVERSE_FUNCTIONAL} = undef;                 # [1|0], 0 by default
+	
 	$self->{INTERSECTION_OF}    = OBO::Util::Set->new(); # (0..N)
 	$self->{UNION_OF}           = OBO::Util::Set->new(); # (0..N)
 	$self->{DISJOINT_FROM}      = OBO::Util::Set->new(); # (0..N)
@@ -138,7 +143,7 @@ sub new {
 	$self->{IS_OBSOLETE}        = undef;                 # [1|0], 0 by default
 	$self->{REPLACED_BY}        = OBO::Util::Set->new(); # set of scalars (0..N)
 	$self->{CONSIDER}           = OBO::Util::Set->new(); # set of scalars (0..N)
-	$self->{BUILTIN}            = undef;                 # [1|0], 0 by default
+	$self->{IS_METADATA_TAG}    = undef;                 # [1|0], 0 by default
 
 	bless ($self, $class);
 	return $self;
@@ -157,6 +162,20 @@ sub id {
 	my ($self, $id) = @_;
 	if ($id) { $self->{ID} = $id }
 	return $self->{ID};
+}
+
+=head2 is_anonymous
+
+  Usage    - print $relationship_type->is_anonymous() or $relationship_type->is_anonymous("1")
+  Returns  - either 1 (true) or 0 (false)
+  Args     - either 1 (true) or 0 (false)
+  Function - tells whether this relationship type is anonymous or not.
+  
+=cut
+sub is_anonymous {
+	my $self = shift;
+    if (@_) { $self->{IS_ANONYMOUS} = shift }
+    return (defined($self->{IS_ANONYMOUS}) && $self->{IS_ANONYMOUS} == 1)?1:0;
 }
 
 =head2 name
@@ -505,8 +524,8 @@ sub range {
 =head2 inverse_of
 
   Usage    - $relationship_type->inverse_of()
-  Returns  - inverse relationship type of this relationship type
-  Args     - inverse relationship type of this relationship type
+  Returns  - inverse relationship type (OBO::Core::RelationshipType) of this relationship type
+  Args     - inverse relationship type (OBO::Core::RelationshipType) of this relationship type
   Function - gets/sets the inverse relationship type of this relationship type
   
 =cut
@@ -615,7 +634,7 @@ sub is_metadata_tag {
 
   Usage    - $relationship_type->transitive_over() or $relationship_type->transitive_over($id1, $id2, $id3, ...)
   Returns  - a set (OBO::Util::Set) with the relationship type(s) for which this relationship type is(are) transitive over
-  Args     - the relationship type(s) (OBO::Core::RelationshipType) with which this one is transitive over
+  Args     - the relationship type(s) (string) with which this one is transitive over
   Function - gets/sets the set of the relationship type(s) for which this relationship type is(are) transitive over
   
 =cut
@@ -628,6 +647,51 @@ sub transitive_over {
 		$self->{TRANSITIVE_OVER}->add(shift);
 	}
 	return $self->{TRANSITIVE_OVER};
+}
+
+=head2 holds_over_chain
+
+  Usage    - $relationship_type->holds_over_chain() or $relationship_type->holds_over_chain($rt1, $rt2)
+  Returns  - a set (OBO::Util::Set) with the relationship type identifiers for which this relationship type holds over a chain
+  Args     - the relationship type identifiers (string) with which this one holds over a chain
+  Function - gets/sets the set of the relationship types for which this relationship type holds over a chain
+  
+=cut
+
+sub holds_over_chain {
+	my $self = shift;
+	$self->{HOLDS_OVER_CHAIN}->add(\@_) if (scalar(@_) == 2);
+	return $self->{HOLDS_OVER_CHAIN};
+}
+
+=head2 functional
+
+  Usage    - $relationship_type->functional() or $relationship_type->functional(1) or $relationship_type->functional(0)
+  Returns  - tells if this relationship type is functional; false by default
+  Args     - 1 (true) or 0 (false)
+  Function - gets/sets the value indicating whether this relationship type is functional
+  
+=cut
+
+sub functional {
+	my ($self, $rel) = @_;
+	if ($rel) { $self->{FUNCTIONAL} = $rel }
+	return (defined($self->{FUNCTIONAL}) && $self->{FUNCTIONAL} == 1)?1:0;
+}
+
+=head2 inverse_functional
+
+  Usage    - $relationship_type->inverse_functional() or $relationship_type->inverse_functional(1) or $relationship_type->inverse_functional(0)
+  Returns  - tells if this relationship type is inverse functional; false by default
+  Args     - 1 (true) or 0 (false)
+  Function - gets/sets the value indicating whether this relationship type is inverse functional
+  
+=cut
+
+sub inverse_functional {
+	my ($self, $rel) = @_;
+	if ($rel) { $self->{INVERSE_FUNCTIONAL} = $rel }
+	return (defined($self->{INVERSE_FUNCTIONAL}) && $self->{INVERSE_FUNCTIONAL} == 1)?1:0;
 }
 
 =head2 intersection_of

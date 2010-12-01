@@ -41,6 +41,7 @@ lib/OBO/Util/ObjectIdSet.pm
 lib/OBO/Util/ObjectSet.pm
 lib/OBO/Util/Ontolome.pm
 lib/OBO/Util/Set.pm
+lib/OBO/Util/SubsetDefSet.pm
 lib/OBO/Util/SynonymSet.pm
 lib/OBO/Util/SynonymTypeDefSet.pm
 lib/OBO/Util/TermSet.pm

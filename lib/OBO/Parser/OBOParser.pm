@@ -190,6 +190,8 @@ sub work {
 							# The term is already in the ontology since it has a definition! (maybe empty?)
 							croak "The term with id '", $1, "' is duplicated in the OBO file.";
 						}
+					} elsif ($line =~ /^is_anonymous:\s*(.*)/) {
+						$term->is_anonymous(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^name:\s*(.*)/) {
 						croak "The term with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
 						if (!defined $1) {
@@ -200,8 +202,6 @@ sub work {
 						}
 					} elsif ($line =~ /^namespace:\s*(.*)/) {
 						$term->namespace($1); # it is a Set
-					} elsif ($line =~ /^is_anonymous:\s*(.*)/) {
-						$term->is_anonymous(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^alt_id:\s*(\w+:\w+)/) {
 						$term->alt_id($1);
 					} elsif ($line =~ /^def:\s*\"(.*)\"\s*(\[.*\])/) { # fill the definition
@@ -326,13 +326,15 @@ sub work {
 						} else {
 							# TODO Check this 'else' scenario warn "This relationship is: $line ...";
 						}
+					} elsif ($line =~ /^is_anonymous:\s*(.*)/) {
+						$type->is_anonymous(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^name:\s*(.*)/) {
 						croak "The typedef with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
 						$type->name($1);
 						$only_one_name_tag_per_entry = 1;
 					} elsif ($line =~ /^namespace:\s*(.*)/) {
 						$type->namespace($1); # it is a Set
-					} elsif ($line =~ /^alt_id:\s*(\w+)/) {
+					} elsif ($line =~ /^alt_id:\s*([:\w]+)/) {
 						$type->alt_id($1);
 					} elsif ($line =~ /^def:\s*\"(.*)\"\s*(\[.*\])/) { # fill the definition
 						my $def = OBO::Core::Def->new();
@@ -358,6 +360,19 @@ sub work {
 						$type->is_symmetric(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^is_transitive:\s*(.*)/) {
 						$type->is_transitive(($1 =~ /true/)?1:0);
+					} elsif ($line =~ /^is_a:\s*([:\w]+)\s*(\!\s*(.*))?/) { # intrinsic or not??? # The comment is ignored here but retrieved later internally
+						my $r = $1;
+						my $rel = OBO::Core::Relationship->new();
+						$rel->id($type->id()."_"."is_a"."_".$r);
+						$rel->type("is_a");
+						my $target = $result->get_relationship_type_by_id($r); # does this relationship type is already in the ontology?
+						if (!defined $target) {
+							$target = OBO::Core::RelationshipType->new(); # if not, create a new relationship type
+							$target->id($r);
+							$result->add_relationship_type($target);
+						}
+						$rel->link($type, $target); # add a relationship between two relationship types
+						$result->add_relationship($rel);
 					} elsif ($line =~ /^is_metadata_tag:\s*(.*)/) {
 						$type->is_metadata_tag(($1 =~ /true/)?1:0);
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"\s+(\[.*\])\s*/) {
@@ -382,28 +397,6 @@ sub work {
 						$type->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
 						$type->xref_set_as_string($1);
-					} elsif ($line =~ /^is_a:\s*(\w+)\s*(\!\s*(.*))?/) { # intrinsic or not??? # The comment is ignored here but retrieved later internally
-						my $r = $1;
-						my $rel = OBO::Core::Relationship->new();
-						$rel->id($type->id()."_"."is_a"."_".$r);
-						$rel->type("is_a");
-						my $target = $result->get_relationship_type_by_id($r); # does this relationship type is already in the ontology?
-						if (!defined $target) {
-							$target = OBO::Core::RelationshipType->new(); # if not, create a new relationship type
-							$target->id($r);
-							$result->add_relationship_type($target);
-						}
-						$rel->link($type, $target); # add a relationship between two relationship types
-						$result->add_relationship($rel);
-					} elsif ($line =~ /^inverse_of:\s*(\w+)\s*(\!\s*(.*))?/) { # e.g. inverse_of: has_participant ! has participant
-						my $inv_id   = $1;
-						my $inv_type = $result->get_relationship_type_by_id($inv_id); # does this INVERSE relationship type is already in the ontology?
-						if (!defined $inv_type){
-							$inv_type = OBO::Core::RelationshipType->new();  # if not, create a new type
-							$inv_type->id($inv_id);
-							$result->add_relationship_type($inv_type);       # add it to the ontology
-						}
-						$type->inverse_of($inv_type);
 					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
 						# TODO wait until the OBO spec 1.4 be released
 						$type->intersection_of($1);
@@ -412,10 +405,44 @@ sub work {
 						# Distinguish between terms and relations?
 						# Check there are at least 2 elements in the 'union_of' set
 						$type->union_of($1);
-					} elsif ($line =~ /^disjoint_from:\s*(\w+:\w+)\s*(\!\s*(.*))?/) {
+					} elsif ($line =~ /^disjoint_from:\s*([:\w]+)\s*(\!\s*(.*))?/) {
 						$type->disjoint_from($1); # We are assuming that the other relation type exists or will exist; otherwise , we have to create it like in the is_a section.
+					} elsif ($line =~ /^inverse_of:\s*([:\w]+)\s*(\!\s*(.*))?/) { # e.g. inverse_of: has_participant ! has participant
+						my $inv_id   = $1;
+						my $inv_type = $result->get_relationship_type_by_id($inv_id); # does this INVERSE relationship type is already in the ontology?
+						if (!defined $inv_type){
+							$inv_type = OBO::Core::RelationshipType->new();  # if not, create a new type
+							$inv_type->id($inv_id);
+							#$inv_type->name($3) if ($3); # not necessary, this name could be wrong...
+							$result->add_relationship_type($inv_type);       # add it to the ontology
+						}
+						$type->inverse_of($inv_type);
 					} elsif ($line =~ /^transitive_over:\s*(.*)/) {
 						$type->transitive_over($1);
+					} elsif ($line =~ /^holds_over_chain:\s*([:\w]+)\s*([:\w]+)\s*(\!\s*(.*))?/) { # R <- R1.R2 
+						my $r1_id   = $1;
+						my $r2_id   = $2;
+						my $r1_type = $result->get_relationship_type_by_id($r1_id); # does this relationship type is already in the ontology?
+						if (!defined $r1_type){
+							$r1_type = OBO::Core::RelationshipType->new();  # if not, create a new type
+							$r1_type->id($r1_id);
+							$result->add_relationship_type($r1_type);       # add it to the ontology
+						}
+						my $r2_type = $result->get_relationship_type_by_id($r2_id); # does this relationship type is already in the ontology?
+						if (!defined $r2_type){
+							$r2_type = OBO::Core::RelationshipType->new();  # if not, create a new type
+							$r2_type->id($r2_id);
+							$result->add_relationship_type($r2_type);       # add it to the ontology
+						}
+						$type->holds_over_chain($r1_type->id(), $r2_type->id());
+					} elsif ($line =~ /^equivalent_to_chain:\s*(.*)/) {
+						# TODO
+					} elsif ($line =~ /^disjoint_over:\s*(.*)/) {
+						# TODO
+					} elsif ($line =~ /^functional:\s*(.*)/) {
+						$type->functional(($1 eq "true")?1:0);
+					} elsif ($line =~ /^inverse_functional:\s*(.*)/) {
+						$type->inverse_functional(($1 eq "true")?1:0);
 					} elsif ($line =~ /^created_by:\s*(.*)/) {
 						$type->created_by($1);
 					} elsif ($line =~ /^creation_date:\s*(.*)/) {

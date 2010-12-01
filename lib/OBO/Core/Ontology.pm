@@ -439,7 +439,7 @@ use Carp;
 use Carp qw(cluck);
 use Data::Dumper qw(Dumper); 
 
-our $VERSION = '1.27';
+our $VERSION = '1.28';
 
 sub new {
 	my $class                      = shift;
@@ -1724,20 +1724,73 @@ sub export {
 		# relationship types
 		my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
 		foreach my $relationship_type (sort {lc($a->id()) cmp lc($b->id())} @all_relationship_types) {
+			
 			print $file_handle "\n[Typedef]";
+			
+			#
+			# id
+			#
 			print $file_handle "\nid: ", $relationship_type->id();
+			
+			#
+			# is_anonymous
+			#
+			print $file_handle "\nis_anonymous: true" if ($relationship_type->is_anonymous());
+			
+			#
+			# name
+			#
 			my $relationship_type_name = $relationship_type->name();
 			if (defined $relationship_type_name) {
 				print $file_handle "\nname: ", $relationship_type_name;
 			}
+			
+			#
+			# namespace
+			#
+			foreach my $ns ($relationship_type->namespace()) {
+				print $file_handle "\nnamespace: ", $ns;
+			}
+			
+			#
+			# alt_id:
+			#
+			foreach my $alt_id ($relationship_type->alt_id()->get_set()) {
+				print $file_handle "\nalt_id: ", $alt_id;
+			}
+			
+			#
+			# builtin
+			#
 			print $file_handle "\nbuiltin: true" if ($relationship_type->builtin() == 1);
+			
+			#
+			# def
+			#
 			print $file_handle "\ndef: ", $relationship_type->def_as_string() if (defined $relationship_type->def()->text());
+			
+			#
+			# comment
+			#
 			print $file_handle "\ncomment: ", $relationship_type->comment() if (defined $relationship_type->comment());
 
+			#
+			# subset
+			#
+			foreach my $sset_name ($relationship_type->subset()) {
+				print $file_handle "\nsubset: ", $sset_name;
+			}
+			
+			#
+			# synonym
+			#
 			foreach my $synonym ($relationship_type->synonym_set()) {
 				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->scope(), " ", $synonym->def()->dbxref_set_as_string();
 			}
 	    	
+	    	#
+	    	# xref
+	    	#
 			foreach my $xref (sort {lc($a->as_string()) cmp lc($b->as_string())} $relationship_type->xref_set_as_string()) {
 				print $file_handle "\nxref: ", $xref->as_string();
 			}
@@ -1778,15 +1831,43 @@ sub export {
 					
 				}
 			}
-	    	
-			print $file_handle "\nis_metadata_tag: true" if ($relationship_type->is_metadata_tag() == 1);
-	    	
+	    	    	
+	    	#
+			# inverse_of
+			#
+			my $ir = $relationship_type->inverse_of();
+			if (defined $ir) {
+				my $inv_name = $ir->name();
+				if (defined $inv_name) {
+					print $file_handle "\ninverse_of: ", $ir->id(), " ! ", $inv_name;
+				} else {
+					print $file_handle "\ninverse_of: ", $ir->id();
+				}
+			}
+			
 			#
 			# transitive_over
 			#
 			foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
 				print $file_handle "\ntransitive_over: ", $transitive_over;
 			}
+			
+			#
+			# holds_over_chain
+			#
+			foreach my $holds_over_chain ($relationship_type->holds_over_chain()->get_set()) {
+				print $file_handle "\nholds_over_chain: ", @{$holds_over_chain}[0], " ", @{$holds_over_chain}[1];
+			}
+			
+			#
+	    	# functional
+	    	#
+			print $file_handle "\nfunctional: true" if ($relationship_type->functional() == 1);
+			
+			#
+	    	# inverse_functional
+	    	#
+			print $file_handle "\ninverse_functional: true" if ($relationship_type->inverse_functional() == 1);
 
 			#
 			# created_by:
@@ -1826,6 +1907,11 @@ sub export {
 			foreach my $consider ($relationship_type->consider()->get_set()) {
 				print $file_handle "\nconsider: ", $consider;
 			}
+			
+	    	#
+	    	# is_metadata_tag
+	    	#
+			print $file_handle "\nis_metadata_tag: true" if ($relationship_type->is_metadata_tag() == 1);
 			
 			#
 			# the end...
@@ -1912,6 +1998,11 @@ sub export {
 			my $term_id = $term->id();
 			$term_id =~ s/:/_/g;
 			print $file_handle "\t<",$ns,":".$rdf_subnamespace." rdf:about=\"#".$term_id."\">\n";
+			
+			#
+			# is_anonymous:
+			#
+			print $file_handle "\t\t<",$ns,":is_anonymous>true</",$ns,":is_anonymous>\n" if ($term->is_anonymous());
 
 			#
 			# name:
@@ -1927,6 +2018,11 @@ sub export {
 				print $file_handle "\t\t<",$ns,":hasAlternativeId>", $alt_id, "</",$ns,":hasAlternativeId>\n";
 			}
  			
+ 			#
+			# builtin:
+			#
+			print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($term->builtin() == 1);
+			
 			#
 			# def:
 			#
@@ -1952,6 +2048,20 @@ sub export {
 				print $file_handle "\t\t<",$ns,":disjoint_from rdf:resource=\"#", $disjoint_term_id, "\"/>\n";
 			}
 			
+			#
+			# comment
+			#
+			if(defined $term->comment()){
+				print $file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($term->comment())."</rdfs:comment>\n";
+			}
+			
+			#
+			# subset
+			#
+			foreach my $sset_name ($term->subset()) {
+				print $file_handle "\t\t<",$ns,":subset>",$sset_name,"</",$ns,":subset>\n";
+			}
+
 			#
 			# is_a:
 			#
@@ -2008,12 +2118,6 @@ sub export {
 				print $file_handle "\t\t</",$ns,":synonym>\n";
 			}
 	    	
-			#
-			# comment
-			#
-			if(defined $term->comment()){
-				print $file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($term->comment())."</rdfs:comment>\n";
-			}
 	    	
 			#
 			# xref:
@@ -2026,12 +2130,46 @@ sub export {
 				print $file_handle "\t\t\t</rdf:Description>\n";
 				print $file_handle "\t\t</",$ns,":xref>\n";
 			}
-	    	
+			
 			#
-			# builtin:
+			# created_by:
 			#
-			print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($term->builtin() == 1);
-
+			print $file_handle "\t\t<",$ns,":created_by>", $term->created_by(), "</",$ns,":created_by>\n" if (defined $term->created_by());
+	
+			#
+			# creation_date:
+			#
+			print $file_handle "\t\t<",$ns,":creation_date>", $term->creation_date(), "</",$ns,":creation_date>\n" if (defined $term->creation_date());
+				
+			#
+			# modified_by:
+			#
+			print $file_handle "\t\t<",$ns,":modified_by>", $term->modified_by(), "</",$ns,":modified_by>\n" if (defined $term->modified_by());
+	
+			#
+			# modification_date:
+			#
+			print $file_handle "\t\t<",$ns,":modification_date>", $term->modification_date(), "</",$ns,":modification_date>\n" if (defined $term->modification_date());
+			
+	    	#
+			# is_obsolete
+			#
+			print $file_handle "\t\t<",$ns,":is_obsolete>true</",$ns,":is_obsolete>" if ($term->is_obsolete() == 1);
+				
+			#
+			# replaced_by
+			#
+			foreach my $replaced_by ($term->replaced_by()->get_set()) {
+				print $file_handle "\t\t<",$ns,":replaced_by>", $replaced_by, "</",$ns,":replaced_by>\n";
+			}
+				
+			#
+			# consider
+			#
+			foreach my $consider ($term->consider()->get_set()) {
+				print $file_handle "\t\t<",$ns,":consider>", $consider, "</",$ns,":consider>\n";
+			}
+			
 			# 
 			# end of term
 			#
@@ -2047,6 +2185,31 @@ sub export {
 				my $relationship_type_id = $relationship_type->id();
 				$relationship_type_id =~ s/:/_/g;
 				print $file_handle "\t<",$ns,":rel_type rdf:about=\"#".$relationship_type_id."\">\n";
+				
+				#
+				# is_anonymous
+				#
+				print $file_handle "\t\t<",$ns,":is_anonymous>true</",$ns,":is_anonymous>\n" if ($relationship_type->is_anonymous());
+
+				#
+				# namespace
+				#
+				foreach my $nspace ($relationship_type->namespace()) {
+					print $file_handle "\t\t<",$ns,":namespace>", $nspace, "</",$ns,":namespace>\n";
+				}
+				
+				#
+				# alt_id:
+				#
+				foreach my $alt_id ($relationship_type->alt_id()->get_set()) {
+					print $file_handle "\t\t<",$ns,":alt_id>", $alt_id, "</",$ns,":alt_id>\n";
+				}
+				
+				#
+				# builtin:
+				#
+				print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($relationship_type->builtin() == 1);
+				
 				#
 				# name:
 				#
@@ -2077,11 +2240,13 @@ sub export {
 					print $file_handle "\t\t\t</rdf:Description>\n";
 					print $file_handle "\t\t</",$ns,":Definition>\n";
 				}
-				
+
 				#
-				# builtin:
+				# comment
 				#
-				print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($relationship_type->builtin() == 1);
+				if(defined $relationship_type->comment()){
+					print $file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($relationship_type->comment())."</rdfs:comment>\n";
+				}
 							
 				#
 				# synonym:
@@ -2105,14 +2270,7 @@ sub export {
 					print $file_handle "\t\t\t</rdf:Description>\n";
 					print $file_handle "\t\t</",$ns,":synonym>\n";
 				}
-				
-				#
-				# comment
-				#
-				if(defined $relationship_type->comment()){
-					print $file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($relationship_type->comment())."</rdfs:comment>\n";
-				}
-				
+
 				#
 				# xref:
 				#
@@ -2128,17 +2286,17 @@ sub export {
 				#
 				# domain
 				#
-				#foreach my $domain ($relationship_type->domain()->get_set()) {
-				#	print $file_handle "\ndomain: ", $domain;
-				#}
+				foreach my $domain ($relationship_type->domain()->get_set()) {
+					print $file_handle "\t\t<",$ns,":domain>", $domain, "</",$ns,":domain>\n";
+				}
 				
 				#
 				# range
 				#
-				#foreach my $range ($relationship_type->range()->get_set()) {
-				#	print $file_handle "\nrange: ", $range;
-				#}
-				
+				foreach my $range ($relationship_type->range()->get_set()) {
+					print $file_handle "\t\t<",$ns,":range>", $range, "</",$ns,":range>\n";
+				}
+
 				print $file_handle "\t\t<",$ns,":is_anti_symmetric>true</",$ns,":is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric() == 1);
 				print $file_handle "\t\t<",$ns,":is_cyclic>true</",$ns,":is_cyclic>\n" if ($relationship_type->is_cyclic() == 1);
 				print $file_handle "\t\t<",$ns,":is_reflexive>true</",$ns,":is_reflexive>\n" if ($relationship_type->is_reflexive() == 1);
@@ -2158,15 +2316,61 @@ sub export {
 					}
 				}
 		    	
-		    	print $file_handle "\t\t<",$ns,":is_metadata_tag>true</",$ns,":is_metadata_tag>" if ($relationship_type->is_metadata_tag() == 1);
-		    	
+		    	#
+				# inverse_of
 				#
+				my $ir = $relationship_type->inverse_of();
+				if (defined $ir) {
+					print $file_handle "\t\t<",$ns,":inverse_of>", $ir->id(), "</",$ns,":inverse_of>\n";
+				}
+				
+		    	#
 				# transitive_over
 				#
-				#foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
-				#	print $file_handle "\ntransitive_over: ", $transitive_over;
-				#}
+				foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
+					print $file_handle "\t\t<",$ns,":transitive_over>", $transitive_over, "</",$ns,":transitive_over>\n";
+				}
 				
+				#
+				# holds_over_chain
+				#
+				foreach my $holds_over_chain ($relationship_type->holds_over_chain()->get_set()) {
+					print $file_handle "\t\t<",$ns,":holds_over_chain>\n";
+					print $file_handle "\t\t\t<",$ns,":r1>", @{$holds_over_chain}[0], "</",$ns,":r1>\n";
+					print $file_handle "\t\t\t<",$ns,":r2>", @{$holds_over_chain}[1], "</",$ns,":r2>\n";
+					print $file_handle "\t\t<",$ns,":/holds_over_chain>\n";
+				}
+
+				#
+		    	# functional
+		    	#
+		    	print $file_handle "\t\t<",$ns,":functional>true</",$ns,":functional>\n" if ($relationship_type->functional() == 1);
+				
+				#
+		    	# inverse_functional
+		    	#
+				print $file_handle "\t\t<",$ns,":inverse_functional>true</",$ns,":inverse_functional>\n" if ($relationship_type->inverse_functional() == 1);
+			
+				#
+				# created_by:
+				#
+				print $file_handle "\t\t<",$ns,":created_by>", $relationship_type->created_by(), "</",$ns,":created_by>\n" if (defined $relationship_type->created_by());
+	
+				#
+				# creation_date:
+				#
+				print $file_handle "\t\t<",$ns,":creation_date>", $relationship_type->creation_date(), "</",$ns,":creation_date>\n" if (defined $relationship_type->creation_date());
+				
+				#
+				# modified_by:
+				#
+				print $file_handle "\t\t<",$ns,":modified_by>", $relationship_type->modified_by(), "</",$ns,":modified_by>\n" if (defined $relationship_type->modified_by());
+	
+				#
+				# modification_date:
+				#
+				print $file_handle "\t\t<",$ns,":modification_date>", $relationship_type->modification_date(), "</",$ns,":modification_date>\n" if (defined $relationship_type->modification_date());
+			
 				#
 				# is_obsolete
 				#
@@ -2175,29 +2379,34 @@ sub export {
 				#
 				# replaced_by
 				#
-				#foreach my $replaced_by ($relationship_type->replaced_by()->get_set()) {
-				#	print $file_handle "\nreplaced_by: ", $replaced_by;
-				#}
+				foreach my $replaced_by ($relationship_type->replaced_by()->get_set()) {
+					print $file_handle "\t\t<",$ns,":replaced_by>", $replaced_by, "</",$ns,":replaced_by>\n";
+				}
 				
 				#
 				# consider
 				#
-				#foreach my $consider ($relationship_type->consider()->get_set()) {
-				#	print $file_handle "\nconsider: ", $consider;
-				#}
+				foreach my $consider ($relationship_type->consider()->get_set()) {
+					print $file_handle "\t\t<",$ns,":consider>", $consider, "</",$ns,":consider>\n";
+				}
 				
+				#
+	    		# is_metadata_tag
+	    		#
+		    	print $file_handle "\t\t<",$ns,":is_metadata_tag>true</",$ns,":is_metadata_tag>" if ($relationship_type->is_metadata_tag() == 1);
+		    	
 				# 
 				# end of relationship type
 				#
 				print $file_handle "\t</",$ns,":rel_type>\n";
 			}
-		}	
+		}
 		
 		#
 		# EOF:
 		#
 		print $file_handle "</rdf:RDF>\n\n";
-		print $file_handle "<!--\nGenerated with ONTO-PERL ($VERSION): ".$0.", ".__date()."\n-->";	
+		print $file_handle "<!--\nGenerated with ONTO-PERL ($VERSION): ".$0.", ".__date()."\n-->";
 	} elsif ($format eq "xml") {
 		# terms
 		my @all_terms = values(%{$self->{TERMS}});
@@ -2401,6 +2610,16 @@ sub export {
 			print $file_handle "\t\t<creation_date>", $term->creation_date(), "</creation_date>\n" if (defined $term->creation_date());
 			
 			#
+			# modified_by:
+			#
+			print $file_handle "\t\t<modified_by>", $term->modified_by(), "</modified_by>\n" if (defined $term->modified_by());
+	
+			#
+			# modification_date:
+			#
+			print $file_handle "\t\t<modification_date>", $term->modification_date(), "</modification_date>\n" if (defined $term->modification_date());
+			
+			#
 			# is_obsolete
 			#
 			print $file_handle "\t\t<is_obsolete>true</is_obsolete>\n" if ($term->is_obsolete());
@@ -2429,11 +2648,42 @@ sub export {
 		my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
 		foreach my $relationship_type (sort {lc($a->id()) cmp lc($b->id())} @all_relationship_types) {
 			print $file_handle "\t<typedef>\n";
+			
+			#
+			# id
+			#
 			print $file_handle "\t\t<id>", $relationship_type->id(), "</id>\n";
+			
+			#
+			# is_anonymous
+			#
+			print $file_handle "\t\t<is_anonymous>true</is_anonymous>\n" if ($relationship_type->is_anonymous());
+			
+			#
+			# name
+			#
 			my $relationship_type_name = $relationship_type->name();
 			if (defined $relationship_type_name) {
 				print $file_handle "\t\t<name>", &char_hex_http($relationship_type_name), "</name>\n";
 			}
+			
+			#
+			# namespace
+			#
+			foreach my $nasp ($relationship_type->namespace()) {
+				print $file_handle "\t\t<namespace>", $nasp, "</namespace>\n";
+			}
+			
+			#
+			# alt_id:
+			#
+			foreach my $alt_id ($relationship_type->alt_id()->get_set()) {
+				print $file_handle "\t\t<alt_id>", $alt_id, "</alt_id>\n";
+			}
+			
+			#
+			# builtin
+			#
 			print $file_handle "\t\t<builtin>true</builtin>\n" if ($relationship_type->builtin() == 1);
 			
 			#
@@ -2451,8 +2701,18 @@ sub export {
 				print $file_handle "\t\t</def>\n";
 			}
 			
+			#
+			# comment
+			#
 			print $file_handle "\t\t<comment>", &char_hex_http($relationship_type->comment()), "</comment>\n" if (defined $relationship_type->comment());
 			
+			#
+			# subset
+			#
+			foreach my $sset_name ($relationship_type->subset()) {
+				print $file_handle "\t\t<subset>",$sset_name,"</subset>\n";
+			}
+						
 			#
 			# synonym:
 			#
@@ -2507,15 +2767,41 @@ sub export {
 				}
 			}
 			
-			print $file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
-	    	
+			#
+			# inverse_of
+			#
+			my $ir = $relationship_type->inverse_of();
+			if (defined $ir) {
+				print $file_handle "\t\t<inverse_of>", $ir->id(), "</inverse_of>\n";
+			}
+			
 	    	#
 			# transitive_over
 			#
 			foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
 				print $file_handle "\t\t<transitive_over>", $transitive_over, "</transitive_over>\n";
 			}
+			
+			#
+			# holds_over_chain
+			#
+			foreach my $holds_over_chain ($relationship_type->holds_over_chain()->get_set()) {
+				print $file_handle "\t\t<holds_over_chain>\n";
+				print $file_handle "\t\t\t<r1>", @{$holds_over_chain}[0], "</r1>\n";
+				print $file_handle "\t\t\t<r2>", @{$holds_over_chain}[1], "</r2>\n";
+				print $file_handle "\t\t</holds_over_chain>\n";
+			}
 
+			#
+		    # functional
+		    #
+		    print $file_handle "\t\t<functional>true</functional>\n" if ($relationship_type->functional() == 1);
+				
+			#
+		    # inverse_functional
+		    #
+			print $file_handle "\t\t<inverse_functional>true</inverse_functional>\n" if ($relationship_type->inverse_functional() == 1);
+				
 			#
 			# created_by:
 			#
@@ -2545,6 +2831,14 @@ sub export {
 				print $file_handle "\t\t<consider>", $consider, "</consider>\n";
 			}
 	    	
+	    	#
+	    	# is_metadata_tag
+	    	#
+			print $file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
+			
+			#
+			# end typedef
+			#
 			print $file_handle "\t</typedef>\n\n";
 		}
 		print $file_handle "</".$IS.">\n";
@@ -3530,7 +3824,7 @@ sub get_subontology_from {
 
 		$result->data_version($self->data_version());
 		$result->imports($self->imports()->get_set());
-		$result->idspaces($self->idspaces());
+		$result->idspaces($self->idspaces()->get_set());
 		$result->subset_def_set($self->subset_def_set()->get_set()); # add (by default) all the subset_def_set's
 		$result->synonym_type_def_set($self->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 		$result->default_namespace($self->default_namespace());

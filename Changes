@@ -84,3 +84,5 @@ Revision history for ONTO-PERL
 1.26 IDspaces bug fix; new set: IDspaceSet; code cleaning. Improved exports.
 
 1.27 Closed some TODO's. Some refactoring to comply with the OBO guide. New modules Subset.pm and Map.pm
+
+1.28 Added missing file (SubsetDefSet.pm), which broke many tests. Fixed minor bugs.

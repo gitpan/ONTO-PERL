@@ -246,11 +246,12 @@ sub new {
 	my $self                    = {};
 
 	$self->{ID}                 = undef;                        # required, scalar (1)
-	$self->{NAME}               = undef;                        # not required since OBO spec 1.4, scalar (0..1)
 	$self->{IS_ANONYMOUS}       = undef;                        # [1|0], 0 by default
-	$self->{ALT_ID}             = OBO::Util::Set->new();        # set (0..N)
-	$self->{DEF}                = OBO::Core::Def->new();        # (0..1)
+	$self->{NAME}               = undef;                        # not required since OBO spec 1.4, scalar (0..1)
 	$self->{NAMESPACE_SET}      = OBO::Util::Set->new();        # set (0..N)
+	$self->{ALT_ID}             = OBO::Util::Set->new();        # set (0..N)
+	$self->{BUILTIN}            = undef;                        # [1|0], 0 by default
+	$self->{DEF}                = OBO::Core::Def->new();        # (0..1)
 	$self->{COMMENT}            = undef;                        # scalar (0..1)
 	$self->{SUBSET_SET}         = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
@@ -265,7 +266,6 @@ sub new {
 	$self->{IS_OBSOLETE}        = undef;                        # [1|0], 0 by default
 	$self->{REPLACED_BY}        = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{CONSIDER}           = OBO::Util::Set->new();        # set of scalars (0..N)
-	$self->{BUILTIN}            = undef;                        # [1|0], 0 by default
 
 	bless ($self, $class);
 	return $self;
