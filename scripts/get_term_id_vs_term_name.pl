@@ -27,7 +27,7 @@ my $onto_file = shift(@ARGV);
 die "The input OBO file was not found." if (!$onto_file);
 my $ontology = $my_parser->work($onto_file);
 
-foreach my $term (@{$ontology->get_terms()}) {
+foreach my $term (sort {$a->id() cmp $b->id()} @{$ontology->get_terms()}) {
 	print $term->id(), "\t", $term->name(), "\n" if (defined $term->id() && $term->name());
 }
 

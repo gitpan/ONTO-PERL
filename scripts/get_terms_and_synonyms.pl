@@ -1,0 +1,66 @@
+#!/usr/local/bin/perl
+# $Id: get_terms_and_synonyms.pl 2010-12-01 Erick Antezana $
+#
+# Script  : get_terms_and_synonyms.pl
+#
+# Purpose : Find all the terms and synonyms in a given ontology.
+#
+# Usage   : get_terms_and_synonyms.pl my_ontology.obo > term_and_its_synonyms.txt
+#
+# License : Copyright (c) 2010 Erick Antezana. All rights reserved.
+#           This program is free software; you can redistribute it and/or
+#           modify it under the same terms as Perl itself.
+#
+# Contact : Erick Antezana <erick.antezana -@- gmail.com>
+#
+###############################################################################
+
+use Carp;
+use strict;
+use warnings;
+
+use OBO::Parser::OBOParser;
+
+my $my_parser = OBO::Parser::OBOParser->new();
+my $ontology = $my_parser->work(shift(@ARGV));
+
+foreach my $term (sort {$a->name() cmp $b->name()}  @{$ontology->get_terms()}) {
+	print "\n", $term->name(), ":\n";
+	foreach my $synonym (sort {lc($a->def()->text()) cmp lc($b->def()->text())} $term->synonym_set()) {
+		my $stn = $synonym->synonym_type_name();
+		if (defined $stn) {
+			print "\t\"", $synonym->def()->text(), "\"\t", $synonym->type(), "\t", $stn, " ", $synonym->def()->dbxref_set_as_string(), "\n";
+		} else {
+			print "\t\"", $synonym->def()->text(), "\"\t", $synonym->type(), "\t", $synonym->def()->dbxref_set_as_string(), "\n";
+		}
+	}
+}
+exit 0;
+
+__END__
+
+=head1 NAME
+
+get_terms_and_synonyms.pl - Find all the terms and synonyms in a given ontology.
+
+=head1 USAGE
+
+get_terms_and_synonyms.pl my_ontology.obo > term_and_its_synonyms.txt
+
+=head1 DESCRIPTION
+
+This script retrieves all the terms and its synonyms in an OBO-formatted ontology. 
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

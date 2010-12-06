@@ -96,8 +96,9 @@ at your option, any later version of Perl 5 you may have available.
 
 use OBO::Core::Dbxref;
 use OBO::Core::Def;
-use OBO::Util::SynonymSet;
+use OBO::Util::Map;
 use OBO::Util::Set;
+use OBO::Util::SynonymSet;
 use strict;
 use warnings;
 use Carp;
@@ -128,7 +129,7 @@ sub new {
 	$self->{INVERSE_OF}         = undef;                 # string (0..1) # TODO This should be a Set of Relationships...
 	$self->{TRANSITIVE_OVER}    = OBO::Util::Set->new(); # set of scalars (0..N)
 
-	$self->{HOLDS_OVER_CHAIN}   = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{HOLDS_OVER_CHAIN}   = OBO::Util::Map->new(); # map of scalars-->ref's to arrays (0..N)
 	$self->{FUNCTIONAL}         = undef;                 # [1|0], 0 by default
 	$self->{INVERSE_FUNCTIONAL} = undef;                 # [1|0], 0 by default
 	
@@ -257,7 +258,7 @@ sub def_as_string {
 			$dbxref_as_string =~ s/\Q$cp\E/$l/;
 		}
 		
-		my @dbxrefs = split (/,/, $dbxref_as_string);
+		my @dbxrefs = split (",", $dbxref_as_string);
 		
 		foreach my $entry (@dbxrefs) {
 			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
@@ -296,10 +297,15 @@ sub def_as_string {
 		$self->{DEF} = $def;
 	}
 	my @result = (); # a Set?
-	foreach my $dbxref ($self->{DEF}->dbxref_set()->get_set()) {
+	foreach my $dbxref (sort {lc($a->id()) cmp lc($b->id())} $self->{DEF}->dbxref_set()->get_set()) {
 		push @result, $dbxref->as_string();
 	}
-	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+	my $d = $self->{DEF}->text();
+	if (defined $d) {
+		return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+	} else {
+		return "\"\" [".join(', ', @result)."]";
+	}
 }
 
 =head2 namespace
@@ -523,7 +529,7 @@ sub range {
 
 =head2 inverse_of
 
-  Usage    - $relationship_type->inverse_of()
+  Usage    - $relationship_type->inverse_of() or $relationship_type->inverse_of($inv_rel)
   Returns  - inverse relationship type (OBO::Core::RelationshipType) of this relationship type
   Args     - inverse relationship type (OBO::Core::RelationshipType) of this relationship type
   Function - gets/sets the inverse relationship type of this relationship type
@@ -652,7 +658,7 @@ sub transitive_over {
 =head2 holds_over_chain
 
   Usage    - $relationship_type->holds_over_chain() or $relationship_type->holds_over_chain($rt1, $rt2)
-  Returns  - a set (OBO::Util::Set) with the relationship type identifiers for which this relationship type holds over a chain
+  Returns  - an array of pairs (string) with the relationship type identifiers for which this relationship type holds over a chain
   Args     - the relationship type identifiers (string) with which this one holds over a chain
   Function - gets/sets the set of the relationship types for which this relationship type holds over a chain
   
@@ -660,8 +666,12 @@ sub transitive_over {
 
 sub holds_over_chain {
 	my $self = shift;
-	$self->{HOLDS_OVER_CHAIN}->add(\@_) if (scalar(@_) == 2);
-	return $self->{HOLDS_OVER_CHAIN};
+	my $composition_symbol = "&&";
+	if (scalar(@_) == 2) {
+		my $key = $_[0].$composition_symbol.$_[1]; # R<-R1&&R2
+		$self->{HOLDS_OVER_CHAIN}->put($key, \@_);
+	}
+	return $self->{HOLDS_OVER_CHAIN}->values();
 }
 
 =head2 functional

@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2010-11-29 Erick Antezana $
+# $Id: Ontology.pm 2010-12-02 Erick Antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -439,7 +439,7 @@ use Carp;
 use Carp qw(cluck);
 use Data::Dumper qw(Dumper); 
 
-our $VERSION = '1.28';
+our $VERSION = '1.29';
 
 sub new {
 	my $class                      = shift;
@@ -1657,7 +1657,11 @@ sub export {
 			# disjoint_from:
 			#
 			foreach my $disjoint_term_id ($term->disjoint_from()) {
-				print $file_handle "\ndisjoint_from: ", $disjoint_term_id;
+				my $disjoint_from_txt = "\ndisjoint_from: ".$disjoint_term_id;
+				my $dt                = $self->get_term_by_id($disjoint_term_id);
+				my $dt_name           = $dt->name() if (defined $dt);
+				$disjoint_from_txt   .= " ! ".$dt_name if (defined $dt_name);
+				print $file_handle $disjoint_from_txt;
 			}
 			
 			#
@@ -1855,7 +1859,7 @@ sub export {
 			#
 			# holds_over_chain
 			#
-			foreach my $holds_over_chain ($relationship_type->holds_over_chain()->get_set()) {
+			foreach my $holds_over_chain (sort {lc(@{$a}[0].@{$a}[1]) cmp lc(@{$b}[0].@{$b}[1])} $relationship_type->holds_over_chain()) {
 				print $file_handle "\nholds_over_chain: ", @{$holds_over_chain}[0], " ", @{$holds_over_chain}[1];
 			}
 			
@@ -2334,7 +2338,7 @@ sub export {
 				#
 				# holds_over_chain
 				#
-				foreach my $holds_over_chain ($relationship_type->holds_over_chain()->get_set()) {
+				foreach my $holds_over_chain ($relationship_type->holds_over_chain()) {
 					print $file_handle "\t\t<",$ns,":holds_over_chain>\n";
 					print $file_handle "\t\t\t<",$ns,":r1>", @{$holds_over_chain}[0], "</",$ns,":r1>\n";
 					print $file_handle "\t\t\t<",$ns,":r2>", @{$holds_over_chain}[1], "</",$ns,":r2>\n";
@@ -2785,7 +2789,7 @@ sub export {
 			#
 			# holds_over_chain
 			#
-			foreach my $holds_over_chain ($relationship_type->holds_over_chain()->get_set()) {
+			foreach my $holds_over_chain ($relationship_type->holds_over_chain()) {
 				print $file_handle "\t\t<holds_over_chain>\n";
 				print $file_handle "\t\t\t<r1>", @{$holds_over_chain}[0], "</r1>\n";
 				print $file_handle "\t\t\t<r2>", @{$holds_over_chain}[1], "</r2>\n";

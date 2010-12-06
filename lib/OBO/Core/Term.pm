@@ -456,7 +456,7 @@ sub def_as_string {
 		$self->{DEF} = $def;
 	}
 	my @result = (); # a Set?
-	foreach my $dbxref (sort {lc($a->as_string()) cmp lc($b->as_string())} $self->{DEF}->dbxref_set()->get_set()) {
+	foreach my $dbxref (sort {lc($a->id()) cmp lc($b->id())} $self->{DEF}->dbxref_set()->get_set()) {
 		push @result, $dbxref->as_string();
 	}
 	my $d = $self->{DEF}->text();

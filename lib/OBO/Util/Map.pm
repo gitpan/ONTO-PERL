@@ -368,4 +368,19 @@ sub size {
 	return $s;
 }
 
+=head2 values 
+
+  Usage    - $map->values()
+  Returns  - a collection view of the values contained in this map
+  Args     - none
+  Function - gets a collection view of the values contained in this map
+  
+=cut
+
+sub values  {
+	my $self       = shift;
+	my @collection = values %{$self->{MAP}};
+	return @collection;
+}
+
 1;

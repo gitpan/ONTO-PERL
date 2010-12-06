@@ -1,4 +1,4 @@
-# $Id: Ontolome.pm 2010-09-29 Erick Antezana $
+# $Id: Ontolome.pm 2010-12-02 Erick Antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
@@ -93,8 +93,8 @@ sub union () {
 
 		my @terms = @{$ontology->get_terms()};
 		foreach my $term (@terms){
-			my $term_id = $term->id();
-			my $current_term = $result->get_term_by_id($term_id); # could also be $result->get_term_by_name_or_synonym()
+			my $term_id      = $term->id();
+			my $current_term = $result->get_term_by_id($term_id); # N.B. it could also be $result->get_term_by_name_or_synonym()
 			if ($current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
 				$current_term->is_anonymous($term->is_anonymous());
 				foreach ($term->alt_id()->get_set()) {
@@ -147,10 +147,10 @@ sub union () {
 						my $new_term = OBO::Core::Term->new();
 						$new_term->id($tail_id);
 						$new_term->name($cola->name());
-						$result->add_term($new_term);			# add $cola if it is not present yet!
+						$result->add_term($new_term);			  # add $cola if it is not present yet!
 						$tail = $result->get_term_by_id($tail_id);
 					}
-					my $r_type = $r->type(); # e.g. is_a
+					my $r_type   = $r->type(); # e.g. is_a
 					my $rel_type = $ontology->get_relationship_type_by_id($r_type);
 					$result->has_relationship_type($rel_type) || $result->add_relationship_type_as_string($rel_type->id(), $r_type);
 					
@@ -164,32 +164,43 @@ sub union () {
 				push @terms, $term; # trick to visit again the just added term which wasn't treated yet
 			}
 		}
-		
+	
 		#
 		# Add relationships
 		#
-		foreach my $rela (@{$ontology->get_relationships()}){
-			my $rel_type_name = $rela->type();
-			my $onto_rela_type = $ontology->get_relationship_type_by_id($rel_type_name);
-			my $rel_type = $result->get_relationship_type_by_id($rel_type_name);
+		my @relationships = @{$ontology->get_relationships()};
+		foreach my $rela (@relationships){
+			my $rel_type_id    = $rela->type();
+			my $onto_rela_type = $ontology->get_relationship_type_by_id($rel_type_id);
+			my $rel_type       = $result->get_relationship_type_by_id($rel_type_id);
+			
 			if (!defined $rel_type) {
-				$rel_type = $rel_type_name;
-				$result->add_relationship_type_as_string($rel_type_name, $rel_type_name);
-				$rel_type = $result->get_relationship_type_by_id($rel_type_name);
-				warn "REL:", $rel_type_name;
+				my $rt_name       = $onto_rela_type->name();
+				my $rel_type_name = (defined $rt_name)?$rt_name:$rel_type_id;
+				$result->add_relationship_type_as_string($rel_type_id, $rel_type_id);
+				$rel_type = $result->get_relationship_type_by_id($rel_type_id);
 			} elsif (!$result->has_relationship_type($rel_type)) {
 				$result->add_relationship_type($rel_type); # add rel types between rel's (typical is_a, part_of)
-				$rel_type = $result->get_relationship_type_by_id($rel_type_name);
+				$rel_type = $result->get_relationship_type_by_id($rel_type_id);
 			}
+			
 			if ($onto_rela_type) {
+				$rel_type->is_anonymous($onto_rela_type->is_anonymous());				
+				
 				foreach ($onto_rela_type->alt_id()->get_set()) {
 					$rel_type->alt_id($_);
 				}
+				
+				$rel_type->builtin($onto_rela_type->builtin());
+				
 				$rel_type->def($onto_rela_type->def()) if (!defined $rel_type->def()->text() && $onto_rela_type->def()->text()); # TODO implement the case where the def xref's are not balanced!
+				
 				foreach ($onto_rela_type->namespace()) {
 					$rel_type->namespace($_);
 				}
+				
 				$rel_type->comment($onto_rela_type->comment()) if (!defined $rel_type->comment() && $onto_rela_type->comment());
+				
 				foreach ($onto_rela_type->subset()) { 
 					$rel_type->subset($_);
 				}
@@ -199,33 +210,137 @@ sub union () {
 				foreach ($onto_rela_type->xref_set()->get_set()) {
 					$rel_type->xref_set()->add($_);
 				}
+				foreach my $domain ($onto_rela_type->domain()->get_set()) {
+					$rel_type->xref_set()->add($domain);
+				}			
+				foreach my $range ($onto_rela_type->range()->get_set()) {
+					$rel_type->xref_set()->add($range);
+				}
+				$rel_type->is_anti_symmetric($onto_rela_type->is_anti_symmetric());
 				$rel_type->is_cyclic($onto_rela_type->is_cyclic());
 				$rel_type->is_reflexive($onto_rela_type->is_reflexive());
 				$rel_type->is_symmetric($onto_rela_type->is_symmetric());
-				$rel_type->is_anti_symmetric($onto_rela_type->is_anti_symmetric());
 				$rel_type->is_transitive($onto_rela_type->is_transitive());
-				$rel_type->is_metadata_tag($onto_rela_type->is_metadata_tag());
+				
+				my $ir = $onto_rela_type->inverse_of();
+				$rel_type->inverse_of($ir) if (defined $ir);
+				
+				$rel_type->transitive_over($onto_rela_type->transitive_over()->get_set());
+				
+				foreach my $holds_over_chain ($onto_rela_type->holds_over_chain()) {
+					$rel_type->holds_over_chain(@{$holds_over_chain}[0], @{$holds_over_chain}[1]);
+				}
+				
+				$rel_type->functional($onto_rela_type->functional());
+				$rel_type->inverse_functional($onto_rela_type->inverse_functional());
 				
 				$rel_type->created_by($onto_rela_type->created_by());
 				$rel_type->creation_date($onto_rela_type->creation_date());
 				
+				$rel_type->modified_by($onto_rela_type->modified_by());
+				$rel_type->modification_date($onto_rela_type->modification_date());
+				
 				$rel_type->is_obsolete($onto_rela_type->is_obsolete());
+				
 				foreach ($onto_rela_type->replaced_by()->get_set()) {
 					$rel_type->replaced_by($_);
 				}
+				
 				foreach ($onto_rela_type->consider()->get_set()) {
 					$rel_type->consider($_);
 				}
-				$rel_type->builtin($onto_rela_type->builtin());
+				
+				$rel_type->is_metadata_tag($onto_rela_type->is_metadata_tag());
+				
 			} else {
 				# TODO Why do we have this case?
 			}
+			
 			#
 			# link the rels:
 			#
 			my $rel_id = $rela->id();
 			if (! $result->has_relationship_id($rel_id)) {
 				$result->add_relationship($rela); # add rel's between rel's
+			}
+		}
+		
+		#
+		# Add relationship types
+		#
+		my @relationship_types = @{$ontology->get_relationship_types()};
+		foreach my $relationship_type (@relationship_types){
+			my $relationship_type_id      = $relationship_type->id();
+			my $current_relationship_type = $result->get_relationship_type_by_id($relationship_type_id); # N.B. it could also be $result->get_relationship_type_by_name_or_synonym()
+			if ($current_relationship_type) { # TODO && $current_relationship_type is in $relationship_type->namespace()  i.e. check if they belong to an identical namespace
+				$current_relationship_type->is_anonymous($relationship_type->is_anonymous());
+				foreach ($relationship_type->namespace()) {
+					$current_relationship_type->namespace($_);
+				}
+				foreach ($relationship_type->alt_id()->get_set()) {
+					$current_relationship_type->alt_id($_);
+				}
+				$current_relationship_type->builtin($relationship_type->builtin());
+				$current_relationship_type->def($relationship_type->def()) if (!defined $current_relationship_type->def()->text() && $relationship_type->def()->text()); # TODO implement the case where the def xref's are not balanced!
+				$current_relationship_type->comment($relationship_type->comment()) if (!defined $current_relationship_type->comment() && $relationship_type->comment());
+				foreach ($relationship_type->subset()) { 
+					$current_relationship_type->subset($_);
+				}
+				foreach ($relationship_type->synonym_set()) {
+					$current_relationship_type->synonym_set($_);
+				}
+				foreach ($relationship_type->xref_set()->get_set()) {
+					$current_relationship_type->xref_set()->add($_);
+				}
+				foreach ($relationship_type->domain()->get_set()) {
+					$current_relationship_type->domain($_);
+				}
+				foreach ($relationship_type->range()->get_set()) {
+					$current_relationship_type->range($_);
+				}
+				$current_relationship_type->is_anti_symmetric($relationship_type->is_anti_symmetric());
+				$current_relationship_type->is_cyclic($relationship_type->is_cyclic());
+				$current_relationship_type->is_reflexive($relationship_type->is_reflexive());
+				$current_relationship_type->is_symmetric($relationship_type->is_symmetric());
+				$current_relationship_type->is_transitive($relationship_type->is_transitive());
+				
+				$current_relationship_type->inverse_of($relationship_type->inverse_of());
+				
+				foreach ($relationship_type->transitive_over()->get_set()) {
+					$current_relationship_type->transitive_over($_);
+				}
+				foreach ($relationship_type->holds_over_chain()) {
+					$current_relationship_type->holds_over_chain(@{$_}[0], @{$_}[1]);
+				}
+				$current_relationship_type->functional($relationship_type->functional());
+				$current_relationship_type->inverse_functional($relationship_type->inverse_functional());
+				foreach ($relationship_type->intersection_of()) {
+					$current_relationship_type->intersection_of($_);
+				}
+				foreach ($relationship_type->union_of()) {
+					$current_relationship_type->union_of($_);
+				}
+				foreach ($relationship_type->disjoint_from()) {
+					$current_relationship_type->disjoint_from($_);
+				}
+				$current_relationship_type->created_by($relationship_type->created_by());
+				$current_relationship_type->creation_date($relationship_type->creation_date());
+				$current_relationship_type->modified_by($relationship_type->modified_by());
+				$current_relationship_type->modification_date($relationship_type->modification_date());
+				$current_relationship_type->is_obsolete($relationship_type->is_obsolete());
+				foreach ($relationship_type->replaced_by()->get_set()) {
+					$current_relationship_type->replaced_by($_);
+				}
+				foreach ($relationship_type->consider()->get_set()) {
+					$current_relationship_type->consider($_);
+				}
+				$current_relationship_type->is_metadata_tag($relationship_type->is_metadata_tag());
+			} else {
+				my $new_relationship_type = OBO::Core::RelationshipType->new();
+				$new_relationship_type->id($relationship_type_id);
+				$new_relationship_type->name($relationship_type->name());
+				$result->add_relationship_type($new_relationship_type);
+				push @relationship_types, $relationship_type; # trick to visit again the just added relationship_type which wasn't treated yet
 			}
 		}
 	}

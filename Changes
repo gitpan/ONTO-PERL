@@ -86,3 +86,5 @@ Revision history for ONTO-PERL
 1.27 Closed some TODO's. Some refactoring to comply with the OBO guide. New modules Subset.pm and Map.pm
 
 1.28 Added missing file (SubsetDefSet.pm), which broke many tests. Fixed minor bugs.
+
+1.29 Added missing script (get_terms_and_synonyms.pl), minor bug fixes.

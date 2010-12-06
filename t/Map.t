@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 43;
+    plan tests => 47;
 }
 
 #########################
@@ -52,6 +52,12 @@ ok($my_map2->get("GO") eq "Gene Ontology");
 ok($my_map2->get("CCO") eq "Cell Cycle Ontology");
 ok($my_map2->get("PO") eq "Plant Ontology");
 ok($my_map2->get("SO") eq "Sequence Ontology");
+
+my @values = sort {lc($a) cmp lc($b)} $my_map2->values();
+ok($values[0] eq "Cell Cycle Ontology");
+ok($values[1] eq "Gene Ontology");
+ok($values[2] eq "Plant Ontology");
+ok($values[3] eq "Sequence Ontology");
 
 $my_map2->put("TO", "Trait Ontology");
 ok(!$my_map->equals($my_map2));

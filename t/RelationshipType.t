@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 63;
+    plan tests => 65;
 }
 
 #########################
@@ -183,14 +183,20 @@ ok(!$r3->subset());
 
 # holds_over_chain
 $r3->holds_over_chain($r1->id(), $r2->id());
-ok(!defined $r1->holds_over_chain()->get_set());
-ok(!defined $r2->holds_over_chain()->get_set());
-my @hoc = $r3->holds_over_chain()->get_set();
+ok(!$r1->holds_over_chain());
+ok(!$r2->holds_over_chain());
+my @hoc = $r3->holds_over_chain();
 ok(scalar(@hoc) == 1);
-foreach my $holds_over_chain ($r3->holds_over_chain()->get_set()) {
+ok($r3->holds_over_chain());
+foreach my $holds_over_chain ($r3->holds_over_chain()) {
 	ok(@{$holds_over_chain}[0] eq $r1->id());
 	ok(@{$holds_over_chain}[1] eq $r2->id());
 }
+$r3->holds_over_chain($r1->id(), $r2->id());
+$r3->holds_over_chain($r1->id(), $r2->id());
+$r3->holds_over_chain($r1->id(), $r2->id());
+@hoc = $r3->holds_over_chain();
+ok(scalar(@hoc) == 1);
 
 # functional and inverse functional
 ok(!$r1->functional());

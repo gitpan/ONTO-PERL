@@ -149,9 +149,11 @@ sub work {
 		}
 		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)(\n)?/);
 		my $remarks = OBO::Util::Set->new();
-		while ($chunks[0] =~ /(remark:\s*(.*)\n)/) {
+		while ($chunks[0] =~ /(remark:\s*(.*)(\n)?)/) {
+			my $line = $1;
+			$line =~ s/\$/\\\$/g;
 			$remarks->add($2);
-			$chunks[0] =~ s/$1//;
+			$chunks[0] =~ s/$line//;
 		}
 	
 		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it." if (!defined $format_version);
@@ -300,14 +302,12 @@ sub work {
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {					
-						warn "A format problem has been detected (and ignored) in: '", $line, "' in the line: ", $file_line_number, " in the file: ", $self->{OBO_FILE};
+						warn "A format problem has been detected (and ignored) in line: ", $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
 					}
 				}
-				# Check for required fields: id and name
+				# Check for required fields: id
 				if (defined $term && !defined $term->id()) {
 					croak "There is no id for the term:\n", $chunk;
-				} elsif (!defined $term->name()) {
-					croak "The term with id '", $term->id(), "' has no name in the entry:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 				}
 				$file_line_number ++;				
 			} elsif ($stanza && $stanza =~ /\[Typedef\]/) { # treat [Typedef]
@@ -462,14 +462,12 @@ sub work {
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {
-						warn "A format problem has been detected (and ignored) in: ", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'";
+						warn "A format problem has been detected (and ignored) in the following entry:\n\n\t", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'\n";
 					}	
 				}
 				# Check for required fields: id and name
 				if (!defined $type->id()) {
 					croak "There is no id for the type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
-				} elsif (!defined $type->name()) {
-					croak "The type with id '", $type->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 				}
 				$file_line_number++;
 			}

@@ -24,7 +24,7 @@ my $name      = shift @ARGV;
 my $my_terms  = $ontology->get_terms_by_name($name);
 if ($my_terms) {
 	my @terms_arr = $my_terms->get_set();
-	foreach my $t (@terms_arr) {
+	foreach my $t (sort {$a->id() cmp $b->id()} @terms_arr) {
 		print $t->id(), "\t", $t->name(), "\n";
 	}
 }

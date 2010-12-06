@@ -21,18 +21,25 @@ format conversions: obo2owl, owl2obo; besides, there are also
 many examples that can be easily adapted for specific applications),
 and a set of test files for ensuring the implementation quality.
 
-See also:
+Citing ONTO-PERL
+================
+
+If you use ONTO-PERL in your work, you are kindly requested to cite:
+
+	ONTO-PERL: An API supporting the development and analysis of bio-ontologies
+    E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
+    Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
+
+See also
+========
 
   1. perldoc ONTO-PERL.pod
   
-  2. ONTO-PERL: An API supporting the development and analysis of bio-ontologies
-     E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
-     Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
-
-  3. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
+  2. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
      http://bitbucket.org/easr/onto-toolkit
 
-Files in 'ONTO-PERL':
+Files in 'ONTO-PERL'
+====================
 
   README						Readme file
 
@@ -45,15 +52,16 @@ Files in 'ONTO-PERL':
   Changes						Description about the changes in 'ONTO-PERL'
 
 
-Remark:
+Remark
+======
 
   'ONTO-PERL' is provided "as-is". The current version is stable; 
   nonetheless, improvements are expected as well as feedback is 
   very welcome. Please visit constantly this repository for checking 
   up-to-date versions of this distribution.
 
-
-Contact:
+Contact
+=======
 
   Any comments, suggestions can be addressed to: 
 

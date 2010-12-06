@@ -21,9 +21,13 @@ my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift @ARGV);
 
 my @my_terms = @{$ontology->get_terms()}; # get all the terms
-
-foreach my $t (@my_terms) {
-	print $t->id(), "\t", $t->name(), "\n";
+foreach my $t (sort {$b->id() cmp $a->id()} @my_terms) {
+	my $t_name = $t->name();
+	if (defined $t_name) {
+		print $t->id(), "\t", $t->name(), "\n";
+	} else {
+		print $t->id(), "\n";
+	}
 }
 
 exit 0;

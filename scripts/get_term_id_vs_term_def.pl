@@ -25,7 +25,7 @@ use OBO::Parser::OBOParser;
 my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
 
-foreach my $term (@{$ontology->get_terms()}) {
+foreach my $term (sort {$a->id() cmp $b->id()} @{$ontology->get_terms()}) {
 	print $term->id(), "\t", $term->def()->text(), "\n" if (defined $term->id() && $term->def()->text()); 
 }
 

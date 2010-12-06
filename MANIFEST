@@ -80,6 +80,7 @@ scripts/get_term_id_vs_term_name.pl
 scripts/get_term_id_vs_term_namespace.pl
 scripts/get_term_synonyms.pl
 scripts/get_terms.pl
+scripts/get_terms_and_synonyms.pl
 scripts/get_terms_by_name.pl
 scripts/go2owl.pl
 scripts/goa2rdf.pl

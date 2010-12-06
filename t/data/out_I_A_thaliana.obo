@@ -1,7 +1,8 @@
 format-version: 1.4
 date: 16:02:2007 16:06
-auto-generated-by: ONTO-PERL 1.28
+auto-generated-by: ONTO-PERL 1.29
 default-namespace: CCO
+remark: The Cell-Cycle Ontology
 
 [Term]
 id: CCO:B0000001
@@ -3930,7 +3931,7 @@ synonym: "cell cycle continuant" EXACT [CCO:ea]
 synonym: "endurant" EXACT [PMID:15892874]
 synonym: "thing" BROAD [PMID:15892874]
 is_a: CCO:U0000000 ! cell-cycle entity
-disjoint_from: CCO:U0000002
+disjoint_from: CCO:U0000002 ! cell-cycle process
 
 [Term]
 id: CCO:U0000002
@@ -3940,7 +3941,7 @@ synonym: "cell cycle process" EXACT [CCO:ea]
 synonym: "ocurrent" BROAD [PMID:15892874]
 synonym: "perdurant" EXACT [PMID:15892874]
 is_a: CCO:U0000000 ! cell-cycle entity
-disjoint_from: CCO:U0000001
+disjoint_from: CCO:U0000001 ! cell-cycle continuant
 
 [Term]
 id: CCO:U0000003
@@ -3955,7 +3956,7 @@ name: gene
 def: "A locatable region of genomic sequence, corresponding to a unit of inheritance, which is associated with regulatory regions, transcribed regions and/or other functional sequence regions." [SO:0000704]
 xref: SO:0000704
 is_a: CCO:U0000003 ! biopolymer
-disjoint_from: CCO:U0000005
+disjoint_from: CCO:U0000005 ! protein
 
 [Term]
 id: CCO:U0000005
@@ -3963,7 +3964,7 @@ name: protein
 def: "One or more polypeptides which may, or may not, be covalently bonded, and which assume a native secondary and tertiary structure." [SO:0000358]
 xref: SO:0000358
 is_a: CCO:U0000003 ! biopolymer
-disjoint_from: CCO:U0000004
+disjoint_from: CCO:U0000004 ! gene
 
 [Term]
 id: CCO:U0000006
