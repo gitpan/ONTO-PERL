@@ -1,4 +1,4 @@
-# $Id: SubsetDefSet.pm 2010-10-29 Erick Antezana $
+# $Id: SubsetDefSet.pm 2010-10-29 erick.antezana $
 #
 # Module  : SubsetDefSet.pm
 # Purpose : Synonym Type Definition Set.
@@ -11,79 +11,11 @@ package OBO::Util::SubsetDefSet;
 # TODO This class is identical to OBO::Util::IDspaceSet
 # TODO This class is identical to OBO::Util::SynonymTypeDefSet
 
-=head1 NAME
-
-OBO::Util::SubsetDefSet - A Set implementation of a subset definition.
-    
-=head1 SYNOPSIS
-
-use OBO::Util::SubsetDefSet;
-
-use OBO::Core::SubsetDef;
-
-use strict;
-
-my $my_set = OBO::Util::SubsetDefSet->new();
-
-my @arr = $my_set->get_set();
-
-my $n1 = OBO::Core::SubsetDef->new();
-
-my $n2 = OBO::Core::SubsetDef->new();
-
-my $n3 = OBO::Core::SubsetDef->new();
-
-
-$n1->name("GO_SLIM");
-
-$n2->name("CCO_SLIM");
-
-$n3->name("SO_SLIM");
-
-$n1->description("GO terms");
-
-$n2->description("CCO terms");
-
-$n3->description("SO terms");
-
-
-$my_set->add($n1);
-
-$my_set->add($n2);
-
-$my_set->add($n3);
-
-
-$my_set->remove($n1);
-
-$my_set->add($n1);
-
-$my_set->remove($n1);
-
-=head1 DESCRIPTION
-
-A set (OBO::Util::Set) of subset definitions (OBO::Core::SubsetDef).
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 our @ISA = qw(OBO::Util::Set);
 use OBO::Util::Set;
 
 use strict;
 use warnings;
-use Carp;
 
 =head2 contains
 
@@ -177,3 +109,73 @@ sub remove {
 }
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::Util::SubsetDefSet - A Set implementation of a subset definition.
+    
+=head1 SYNOPSIS
+
+use OBO::Util::SubsetDefSet;
+
+use OBO::Core::SubsetDef;
+
+use strict;
+
+my $my_set = OBO::Util::SubsetDefSet->new();
+
+my @arr = $my_set->get_set();
+
+my $n1 = OBO::Core::SubsetDef->new();
+
+my $n2 = OBO::Core::SubsetDef->new();
+
+my $n3 = OBO::Core::SubsetDef->new();
+
+
+$n1->name("GO_SLIM");
+
+$n2->name("CCO_SLIM");
+
+$n3->name("SO_SLIM");
+
+$n1->description("GO terms");
+
+$n2->description("CCO terms");
+
+$n3->description("SO terms");
+
+
+$my_set->add($n1);
+
+$my_set->add($n2);
+
+$my_set->add($n3);
+
+
+$my_set->remove($n1);
+
+$my_set->add($n1);
+
+$my_set->remove($n1);
+
+=head1 DESCRIPTION
+
+A set (OBO::Util::Set) of subset definitions (OBO::Core::SubsetDef).
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

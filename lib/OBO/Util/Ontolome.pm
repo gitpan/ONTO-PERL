@@ -1,4 +1,4 @@
-# $Id: Ontolome.pm 2010-12-02 Erick Antezana $
+# $Id: Ontolome.pm 2010-12-02 erick.antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
@@ -9,61 +9,11 @@
 #
 package OBO::Util::Ontolome;
 
-=head1 NAME
-
-OBO::Util::Ontolome  - A set of ontologies.
-    
-=head1 SYNOPSIS
-
-use OBO::Util::Set;
-
-use strict;
-
-my $o1 = OBO::Core::Ontology->new();
-
-my $o2 = OBO::Core::Ontology->new();
-
-my $o3 = OBO::Core::Ontology->new();
-
-
-my $ome1 = OBO::Util::Ontolome->new();
-
-$ome1->add($o1);
-
-$ome1->add_all($o2, $o3);
-
-
-my $ome2 = OBO::Util::Ontolome->new();
-
-$ome2->add_all($o1, $o2, $o3);
-
-
-=head1 DESCRIPTION
-
-A collection that contains no duplicate ontology elements. More formally, an
-ontolome contains no pair of ontologies $e1 and $e2 such that $e1->equals($e2). 
-As implied by its name, this package models the set of ontologies.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 our @ISA = qw(OBO::Util::ObjectSet);
 use OBO::Util::ObjectSet;
 
 use strict;
 use warnings;
-use Carp;
 
 =head2 union
 
@@ -81,7 +31,7 @@ sub union () {
 	my ($self, @ontos) = @_;
 	my $result         = OBO::Core::Ontology->new();
 	
-	$result->remarks("Union of ontologies");
+	$result->remarks('Union of ontologies');
 	
 	my $default_namespace;
 	foreach my $ontology (@ontos) {
@@ -140,7 +90,7 @@ sub union () {
 					my $cola    = $r->tail();
 					my $tail_id = $cola->id();
 					
-					#confess "There is no ID for the tail term linked to: ", $term->id() if (!$tail_id);
+					#Carp::confess 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
 					
 					my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
 					if (!defined $tail) {
@@ -366,7 +316,7 @@ sub intersection () {
 	my ($self, $onto1, $onto2) = @_;
 	my $result = OBO::Core::Ontology->new();
 	$result->default_namespace($onto1->default_namespace()); # use the default_namespace of the first argument
-	$result->remarks("Intersection of ontologies");
+	$result->remarks('Intersection of ontologies');
 	
 	# the IDspace's of both ontologies are added to the intersection ontology
 	$result->idspaces($onto1->idspaces()->get_set());
@@ -443,7 +393,7 @@ sub intersection () {
 			foreach my $tt (@$ref) {
 				$r_type = $tt->type();
 				if ($type ne $r_type) { # ONLY identical rel types in the path are admitted!!!
-					#warn "INVALID REL: ", $tt->id();
+					#warn 'INVALID REL: ', $tt->id();
 					$invalid = 1;
 					last; # no more walking
 				}
@@ -467,7 +417,7 @@ sub intersection () {
 	my %cola;
 	foreach (keys (%cand)) {
 		my $f = $1, my $r = $2, my $l = $3 if ($_ =~ /(.*)->(.*)->(.*)/);
-		$cola{$f} .= $l." ";  # hold the candidates
+		$cola{$f} .= $l.' ';  # hold the candidates
 	}	
 	
 	# transistive reduction
@@ -492,12 +442,12 @@ sub intersection () {
 		
 		while (my ($t, $veces) = each(%target)) {
 			if ($veces > 1) { # if so, the delete $k->$t
-				delete $cand{$k."->".$t};
+				delete $cand{$k.'->'.$t};
 			}
 		}
 	}
 	
-	# after "transitive reduction" we have
+	# after 'transitive reduction' we have
 	while (my ($k, $v) = each(%cand)) {
 		my $s = $1, my $r_type = $2, my $t = $3 if ($k =~ /(.*)->(.*)->(.*)/);
 		my $source    = $result->get_term_by_id($s);
@@ -527,7 +477,7 @@ my ($self, $ontology) = @_;
 	my $result = OBO::Core::Ontology->new();
 	$result->idspaces($ontology->idspaces()->get_set());
 	$result->default_namespace($ontology->default_namespace());
-	$result->remarks("Ontology with transitive closures");
+	$result->remarks('Ontology with transitive closures');
 	$result->subset_def_set($ontology->subset_def_set()->get_set()); # add all subset_def_set's by default
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 	
@@ -577,7 +527,7 @@ my ($self, $ontology) = @_;
 				my $cola    = $r->tail();
 				my $tail_id = $cola->id();
 				
-				#confess "There is no ID for the tail term linked to: ", $term->id() if (!$tail_id);
+				#Carp::confess 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
 				
 				my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
 				if (!defined $tail) {
@@ -585,10 +535,10 @@ my ($self, $ontology) = @_;
 					$tail = $result->get_term_by_id($tail_id);
 					
 					my @more_rels = @{$ontology->get_relationships_by_target_term($cola)};
-					@rels = (@rels, @more_rels); # trick to "recursively" visit the just added rel
+					@rels = (@rels, @more_rels); # trick to 'recursively' visit the just added rel
 				}
 				my $r_type = $r->type();
-				$r->id($tail_id."_".$r_type."_".$current_term->id());
+				$r->id($tail_id.'_'.$r_type.'_'.$current_term->id());
 				$r->link($tail, $current_term);
 				
 				$result->add_relationship($r);
@@ -601,7 +551,7 @@ my ($self, $ontology) = @_;
 			}
 		} else {
 			$result->add_term($term);
-			push @terms, $term; # trick to "recursively" visit the just added term
+			push @terms, $term; # trick to 'recursively' visit the just added term
 		}
 	}
 	foreach my $rel (@{$ontology->get_relationships()}){
@@ -620,17 +570,13 @@ my ($self, $ontology) = @_;
 	foreach my $term (@terms) {
 		my $term_id = $term->id();
 		# path of references:
-		foreach my $type_of_rel ("is_a", "part_of") {
+		foreach my $type_of_rel ('is_a', 'part_of') {
 			#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one relflexive relationship)
 	
 			# take the paths from the original ontology
 			my @ref_paths = $ontology->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
 
 			foreach my $ref_path (@ref_paths) {
-				#foreach my $tt (@$ref_path) {
-				#	warn $tt->id();
-				#}
-				#warn "\n";
 				my $f = @$ref_path[0]->tail();
 				my $l = @$ref_path[$#$ref_path]->head();
 				$result->create_rel($f, $type_of_rel, $l);
@@ -641,3 +587,54 @@ my ($self, $ontology) = @_;
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+OBO::Util::Ontolome  - A set of ontologies.
+    
+=head1 SYNOPSIS
+
+use OBO::Util::Set;
+
+use strict;
+
+my $o1 = OBO::Core::Ontology->new();
+
+my $o2 = OBO::Core::Ontology->new();
+
+my $o3 = OBO::Core::Ontology->new();
+
+
+my $ome1 = OBO::Util::Ontolome->new();
+
+$ome1->add($o1);
+
+$ome1->add_all($o2, $o3);
+
+
+my $ome2 = OBO::Util::Ontolome->new();
+
+$ome2->add_all($o1, $o2, $o3);
+
+
+=head1 DESCRIPTION
+
+A collection that contains no duplicate ontology elements. More formally, an
+ontolome contains no pair of ontologies $e1 and $e2 such that $e1->equals($e2). 
+As implied by its name, this package models the set of ontologies.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

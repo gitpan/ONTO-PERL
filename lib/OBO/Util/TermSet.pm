@@ -1,4 +1,4 @@
-# $Id: TermSet.pm 1846 2010-09-29 Erick Antezana $
+# $Id: TermSet.pm 2010-09-29 erick.antezana $
 #
 # Module  : TermSet.pm
 # Purpose : Term set.
@@ -8,6 +8,56 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 package OBO::Util::TermSet;
+
+our @ISA = qw(OBO::Util::ObjectSet);
+use OBO::Util::ObjectSet;
+
+use strict;
+use warnings;
+
+=head2 contains_id
+
+  Usage    - $set->contains_id($element_id)
+  Returns  - true if this set contains an element with the given ID
+  Args     - the ID to be checked
+  Function - checks if this set constains an element with the given ID
+  
+=cut
+
+sub contains_id {
+	my ($self, $id) = @_;
+	return ($self->{MAP}->{$id})?1:0;
+}
+
+=head2 contains_name
+
+  Usage    - $set->contains_name($element_name)
+  Returns  - true if this set contains an element with the given name
+  Args     - the name to be checked
+  Function - checks if this set constains an element with the given name
+  
+=cut
+
+sub contains_name {
+	my $self = shift;
+	my $result = 0;
+	if (@_) {
+		my $term_id = shift;
+		
+		foreach my $ele (values %{$self->{MAP}}){
+			if ($ele->name() eq $term_id) {
+				$result = 1;
+				last;
+			}
+		}
+	}
+	return $result;
+}
+
+1;
+
+__END__
+
 
 =head1 NAME
 
@@ -130,52 +180,4 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
-=cut    
-
-our @ISA = qw(OBO::Util::ObjectSet);
-use OBO::Util::ObjectSet;
-
-use strict;
-use warnings;
-use Carp;
-
-=head2 contains_id
-
-  Usage    - $set->contains_id($element_id)
-  Returns  - true if this set contains an element with the given ID
-  Args     - the ID to be checked
-  Function - checks if this set constains an element with the given ID
-  
 =cut
-
-sub contains_id {
-	my ($self, $id) = @_;
-	return ($self->{MAP}->{$id})?1:0;
-}
-
-=head2 contains_name
-
-  Usage    - $set->contains_name($element_name)
-  Returns  - true if this set contains an element with the given name
-  Args     - the name to be checked
-  Function - checks if this set constains an element with the given name
-  
-=cut
-
-sub contains_name {
-	my $self = shift;
-	my $result = 0;
-	if (@_) {
-		my $term_id = shift;
-		
-		foreach my $ele (values %{$self->{MAP}}){
-			if ($ele->name() eq $term_id) {
-				$result = 1;
-				last;
-			}
-		}
-	}
-	return $result;
-}
-
-1;

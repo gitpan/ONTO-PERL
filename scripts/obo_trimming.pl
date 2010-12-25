@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo_trimming.pl 2010-09-29 Erick Antezana $
+# $Id: obo_trimming.pl 2010-09-29 erick.antezana $
 #
 # Script  : obo_trimming.pl
 #

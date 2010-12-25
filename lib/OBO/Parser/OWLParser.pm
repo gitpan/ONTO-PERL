@@ -1,4 +1,4 @@
-# $Id: OWLParser.pm 2010-09-29 Erick Antezana $
+# $Id: OWLParser.pm 2010-09-29 erick.antezana $
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
@@ -9,53 +9,14 @@
 #
 package OBO::Parser::OWLParser;
 
-=head1 NAME
-
-OBO::Parser::OWLParser  - An OWL parser (oboInOwl mapping).
-    
-=head1 SYNOPSIS
-
-use OBO::Parser::OWLParser;
-
-use strict;
-
-my $my_parser = OBO::Parser::OWLParser->new;
-
-my $ontology = $my_parser->work("cco.owl");
-
-=head1 DESCRIPTION
-
-An OWLParser object works on parsing an OWL file which is compliant with
-the OBO to OWL  mapping described here: 
-
-http://www.bioontology.org/wiki/index.php/OboInOwl:Main_Page
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 use OBO::Core::Term;
 use OBO::Core::Ontology;
 use OBO::Core::Dbxref;
 use OBO::Core::Relationship;
 use OBO::Core::RelationshipType;
 
-use XML::Parser;
-use Data::Dumper;
-
 use strict;
 use warnings;
-use Carp;
 
 sub new {
 	my $class                   = shift;
@@ -185,7 +146,7 @@ sub work {
 						);
 	$my_parser->parsefile($self->{OWL_FILE});
 	
-	open (OWL_FILE, $self->{OWL_FILE}) || croak "The OWL file cannot be opened: $!";
+	open (OWL_FILE, $self->{OWL_FILE}) || die "The OWL file cannot be opened: $!";
 	
 	close OWL_FILE;
 
@@ -229,7 +190,7 @@ sub startElement {
 					$result->add_term($term);        # add it to the ontology
 				} elsif (defined $term->def()->text() && $term->def()->text() ne "") {
 					# the term is already in the ontology since it has a definition! (maybe empty?)
-					croak "The term with id '", $obo_like_id, "' is duplicated in the OWL file.";
+					die "The term with id '", $obo_like_id, "' is duplicated in the OWL file.";
 				}
 			}			
 			$parent_tag = $parseinst->current_element();
@@ -258,8 +219,8 @@ sub startElement {
 					my $rel = OBO::Core::Relationship->new();
 					my $target_id = $2;
 					$target_id = owl_id2obo_id($target_id);
-					$rel->id($term->id()."_"."is_a"."_".$target_id);
-					$rel->type("is_a");
+					$rel->id($term->id().'_is_a_'.$target_id);
+					$rel->type('is_a');
 					my $target = $result->get_term_by_id($target_id); # does this term is already in the ontology?
 					if (!defined $target) {
 						$target = OBO::Core::Term->new(); # if not, create a new term
@@ -334,7 +295,7 @@ sub startElement {
 					$result->add_relationship_type($type);        # add it to the ontology
 				} elsif (defined $type->def()->text() && $type->def()->text() ne "") {
 					# the type is already in the ontology since it has a definition! (maybe empty?)
-					croak "The relationship type with id '", $3, "' is duplicated in the OWL file.";
+					die "The relationship type with id '", $3, "' is duplicated in the OWL file.";
 				}
 				$owl_object_property_tag = 1;
 			}
@@ -350,7 +311,7 @@ sub startElement {
 			my $target_term_id = $1 if ($attrs{"rdf:resource"} =~ m/.*\#(.*)$/);
 			$target_term_id = owl_id2obo_id($target_term_id);
 			my $term = $result->get_term_by_id($current_term_id);
-			my $id = $term->id()."_".$relationship_type_id."_".$target_term_id;
+			my $id = $term->id().'_'.$relationship_type_id.'_'.$target_term_id;
 			my $rel = OBO::Core::Relationship->new();
 			$rel->id($id);
 			$rel->type($relationship_type_id);
@@ -367,13 +328,13 @@ sub startElement {
 			last SWITCH;
 		}
 		if ($tag eq RDFS_SUBPROPERTYOF){
-			if (defined $attrs{"rdf:resource"} && $attrs{"rdf:resource"} =~ m/.*\#(.*)$/) {
+			if (defined $attrs{'rdf:resource'} && $attrs{'rdf:resource'} =~ m/.*\#(.*)$/) {
 				my $target_id = $1;
 				if ($target_id) {
 					my $current_relationship_type_type = $result->get_relationship_type_by_id($current_relationship_type_id);
 					my $rel = OBO::Core::Relationship->new();
-					$rel->id($current_relationship_type_type->id()."_"."is_a"."_".$target_id);
-					$rel->type("is_a");
+					$rel->id($current_relationship_type_type->id().'_is_a_'.$target_id);
+					$rel->type('is_a');
 					my $target = $result->get_relationship_type_by_id($target_id); # does this relationship type is already in the ontology?
 					if (!defined $target) {
 						$target = OBO::Core::RelationshipType->new(); # if not, create a new relationship type
@@ -392,17 +353,17 @@ sub startElement {
 			last SWITCH;
 		}
 		if ($tag eq OBOINOWL_SUBSET) {
-			if (defined $attrs{"rdf:about"}) {
-				my @ss = split(/\//, $attrs{"rdf:about"});
+			if (defined $attrs{'rdf:about'}) {
+				my @ss = split(/\//, $attrs{'rdf:about'});
 				my $ss = $ss[$#ss];
-				$data_current_tag{"subsets_and_comments"} .= $ss." " if ($ss); # WHITESPACE: workaround to have a separation between the subset name and its comment
+				$data_current_tag{'subsets_and_comments'} .= $ss.' ' if ($ss); # WHITESPACE: workaround to have a separation between the subset name and its comment
 			}
 			$parent_tag = $parseinst->current_element();
 			last SWITCH;
 		}
 		if ($tag eq OBOINOWL_IN_SUBSET) {
-			if (defined $attrs{"rdf:resource"}) {
-				my @ss = split(/\//, $attrs{"rdf:resource"});
+			if (defined $attrs{'rdf:resource'}) {
+				my @ss = split(/\//, $attrs{'rdf:resource'});
 				my $ss = $ss[$#ss];
 				if ($ss) {
 					my $term = $result->get_term_by_id($current_term_id);
@@ -413,11 +374,11 @@ sub startElement {
 			last SWITCH;
 		}
 		if ($tag eq RDF_TYPE && $owl_object_property_tag) { # TransitiveProperty et al.
-			if (defined $attrs{"rdf:resource"} && $attrs{"rdf:resource"} =~ m/.*\#(.*)$/) {
+			if (defined $attrs{'rdf:resource'} && $attrs{'rdf:resource'} =~ m/.*\#(.*)$/) {
 				my $current_relationship_type = $result->get_relationship_type_by_id($current_relationship_type_id);
-				if ($1 eq "TransitiveProperty") {
+				if ($1 eq 'TransitiveProperty') {
 					$current_relationship_type->is_transitive(1);					
-				} elsif ($1 eq "SymmetricProperty") {
+				} elsif ($1 eq 'SymmetricProperty') {
 					$current_relationship_type->is_symmetric(1);
 				}
 			}
@@ -444,29 +405,29 @@ sub characterData {
 	
 	$data =~ s/\n|\t|\r|\\//g;
 	return unless $data;
-	my $context = join("", $parseinst->context());
+	my $context = join('', $parseinst->context());
 	SWITCH : {
 		#
 		# Ontology data
 		#
 		if ($parent_tag eq OWL_ONTOLOGY) {
 			if ($tag eq OBOINOWL_HAS_DATE) {
-				$data_current_tag{"has_date"} .= $data;
+				$data_current_tag{'has_date'} .= $data;
 				last SWITCH;
 			}
 			if ($tag eq OBOINOWL_HAS_DEFAULT_NAME_SPACE) {
-				$data_current_tag{"default_name_space"} .= $data;
+				$data_current_tag{'default_name_space'} .= $data;
 				last SWITCH;
 			}
 			if ($tag eq RDFS_COMMENT) {
-				$data_current_tag{"comment"} .= $data;
+				$data_current_tag{'comment'} .= $data;
 				last SWITCH;
 			}
 			last SWITCH;
 		}
 		if ($parent_tag eq OBOINOWL_SUBSET) {
 			if ($tag eq RDFS_COMMENT) {
-				$data_current_tag{"subsets_and_comments"} .= $data;
+				$data_current_tag{'subsets_and_comments'} .= $data;
 				last SWITCH;
 			}
 			last SWITCH;
@@ -476,7 +437,7 @@ sub characterData {
 		#
 		if ($parent_tag eq OWL_CLASS) {
 			if ($tag eq RDFS_LABEL) {
-				$data_current_tag{"name"} .= $data;
+				$data_current_tag{'name'} .= $data;
 				last SWITCH;
 			}
 			if ($tag eq OBOINOWL_HAS_NAMESPACE) {
@@ -484,26 +445,26 @@ sub characterData {
 				last SWITCH;
 			}
 			if ($tag eq RDFS_COMMENT) {
-				$data_current_tag{"comment"} .= $data;
+				$data_current_tag{'comment'} .= $data;
 				last SWITCH;
 			}
 			if ($tag eq OBOINOWL_HAS_ALTERNATIVE_ID) {
-				$data_current_tag{"alt_id"} .= $data;
+				$data_current_tag{'alt_id'} .= $data;
 				last SWITCH;
 			}
 			if ($tag eq OBOINOWL_REPLACED_BY) {
-				$data_current_tag{"replaced_by"} .= $data;
+				$data_current_tag{'replaced_by'} .= $data;
 				last SWITCH;
 			}
 			if ($tag eq OBOINOWL_CONSIDER) {
-				$data_current_tag{"consider"} .= $data;
+				$data_current_tag{'consider'} .= $data;
 				last SWITCH;
 			}
 			last SWITCH;
 		}
 		if (($parent_tag eq OBOINOWL_DEFINITION) && ($tag eq RDFS_LABEL)) { # is it needed to check that '$tag eq RDFS_LABEL' ?
-			$data_current_tag{"def"} .= $data, $def_char = 1 if ($owl_class_tag);
-			$data_current_tag{"def"} .= $data, $def_char = 1 if ($owl_object_property_tag);
+			$data_current_tag{'def'} .= $data, $def_char = 1 if ($owl_class_tag);
+			$data_current_tag{'def'} .= $data, $def_char = 1 if ($owl_object_property_tag);
 			last SWITCH;
 		}
 		if ($context eq CLASS_DEF_DBXREF_LABEL){
@@ -528,7 +489,7 @@ sub characterData {
 			last SWITCH;
 		}
 		if (($context =~ /rdf:RDF(owl:Class|owl:ObjectProperty)oboInOwl:has(Exact|Broad|Narrow|Related)SynonymoboInOwl:Synonym/) && ($tag eq RDFS_LABEL)){
-			$data_current_tag{"xref"} .= $data;
+			$data_current_tag{'xref'} .= $data;
 			last SWITCH;
 		}
 		#
@@ -548,15 +509,15 @@ sub characterData {
 				last SWITCH;
 			}
 			if ($tag eq OBOINOWL_HAS_ALTERNATIVE_ID) {
-				$data_current_tag{"alt_id"} .= $data;
+				$data_current_tag{'alt_id'} .= $data;
 				last SWITCH;
 			}
 			if ($tag eq OBOINOWL_REPLACED_BY) {
-				$data_current_tag{"replaced_by"} .= $data;
+				$data_current_tag{'replaced_by'} .= $data;
 				last SWITCH;
 			}
 			if ($tag eq OBOINOWL_CONSIDER) {
-				$data_current_tag{"consider"} .= $data;
+				$data_current_tag{'consider'} .= $data;
 				last SWITCH;
 			}
 			last SWITCH;
@@ -577,7 +538,7 @@ sub endElement {
 	} elsif ($owl_object_property_tag && $current_relationship_type_id) {
 		$current_relationship_type = $result->get_relationship_type_by_id($current_relationship_type_id);
 	}
-	my $context = join("", $parseinst->context());
+	my $context = join('', $parseinst->context());
 		      
 	SWITCH: {
 		if ($element eq OWL_ONTOLOGY) {
@@ -585,20 +546,20 @@ sub endElement {
 			last SWITCH;
 		}
 		if ($element eq OBOINOWL_HAS_DATE) {
-			my $date = $data_current_tag{"has_date"};
+			my $date = $data_current_tag{'has_date'};
 			$result->date($date) if (defined $date);
-			$data_current_tag{"has_date"} = undef;
+			$data_current_tag{'has_date'} = undef;
 			last SWITCH;
 		}
 		if ($element eq OBOINOWL_HAS_DEFAULT_NAME_SPACE) {
-			my $default_namespace = $data_current_tag{"default_name_space"};
+			my $default_namespace = $data_current_tag{'default_name_space'};
 			$result->default_namespace($default_namespace) if (defined $default_namespace);
-			$data_current_tag{"default_name_space"} = undef;
+			$data_current_tag{'default_name_space'} = undef;
 			last SWITCH;
 		}
 		if ($element eq RDFS_LABEL && $context eq CLASS_CONTEXT) {
-			$current_term->name($data_current_tag{"name"});
-			$data_current_tag{"name"} = undef;
+			$current_term->name($data_current_tag{'name'});
+			$data_current_tag{'name'} = undef;
 			last SWITCH;
 		}
 		if ($element eq OWL_CLASS) {
@@ -614,20 +575,20 @@ sub endElement {
 			last SWITCH;
 		} 
 		if ($element eq OBOINOWL_DEFINITION && $def_char) {
-			my $def = char_hex2ascii($data_current_tag{"def"});
+			my $def = char_hex2ascii($data_current_tag{'def'});
 			$def =~ s/"/\\"/g;
 			$current_term->def()->text($def) if ($owl_class_tag);
 			$current_relationship_type->def()->text($def) if ($owl_object_property_tag);
 			$oboinowl_definition_tag = 0;
 			$def_char = 0;
-			$data_current_tag{"def"} = undef;
+			$data_current_tag{'def'} = undef;
 			last SWITCH;
 		} 
 		if ($context eq CLASS_DEF_DBXREF) {
 			my $label = $data_current_tag{+CLASS_DEF_DBXREF_LABEL};
 			if ($label) {
-				$label = "http:".char_hex2ascii($1) if ($label =~ /URL:http%3A%2F%2F(.*)/);
-				$current_term->def()->dbxref_set_as_string("[".$label."]") if (defined $label);
+				$label = 'http:'.char_hex2ascii($1) if ($label =~ /URL:http%3A%2F%2F(.*)/);
+				$current_term->def()->dbxref_set_as_string('['.$label.']') if (defined $label);
 			}
 			$data_current_tag{+CLASS_DEF_DBXREF_LABEL} = undef;
 			last SWITCH;
@@ -635,8 +596,8 @@ sub endElement {
 		if ($context eq PROP_DEF_DBXREF) {
 			my $label = $data_current_tag{+PROP_DEF_DBXREF_LABEL};
 			if ($label) {
-				$label = "http:".char_hex2ascii($1) if ($label =~ /URL:http%3A%2F%2F(.*)/);
-				$current_relationship_type->def()->dbxref_set_as_string("[".$label."]") if (defined $label);
+				$label = 'http:'.char_hex2ascii($1) if ($label =~ /URL:http%3A%2F%2F(.*)/);
+				$current_relationship_type->def()->dbxref_set_as_string('['.$label.']') if (defined $label);
 			}
 			$data_current_tag{+PROP_DEF_DBXREF_LABEL} = undef;
 			last SWITCH;
@@ -654,8 +615,8 @@ sub endElement {
 			last SWITCH;
 		} 
 		if ($element eq RDFS_COMMENT) {
-			my $comment = $data_current_tag{"comment"};
-			my $subsets_and_comment = $data_current_tag{"subsets_and_comments"};
+			my $comment = $data_current_tag{'comment'};
+			my $subsets_and_comment = $data_current_tag{'subsets_and_comments'};
 			if (defined $comment) {
 				if ($owl_class_tag) {
 					$current_term->comment($comment);
@@ -667,39 +628,39 @@ sub endElement {
 			} elsif (defined $subsets_and_comment) {
 				$result->subset_def_set($subsets_and_comment);
 			}
-			$data_current_tag{"comment"} = undef;
-			$data_current_tag{"subsets_and_comments"} = undef;
+			$data_current_tag{'comment'} = undef;
+			$data_current_tag{'subsets_and_comments'} = undef;
 			last SWITCH;
 		} 
 		if ($element eq OBOINOWL_HAS_ALTERNATIVE_ID) {
-			my $alt_id = $data_current_tag{"alt_id"};
+			my $alt_id = $data_current_tag{'alt_id'};
 			$current_term->alt_id($alt_id) if (defined $alt_id);
-			$data_current_tag{"alt_id"} = undef;
+			$data_current_tag{'alt_id'} = undef;
 			last SWITCH;
 		} 
 		if ($element eq OBOINOWL_REPLACED_BY) {
-			my $replaced_by = $data_current_tag{"replaced_by"};
+			my $replaced_by = $data_current_tag{'replaced_by'};
 			$current_term->alt_id($replaced_by) if (defined $replaced_by);
-			$data_current_tag{"replaced_by"} = undef;
+			$data_current_tag{'replaced_by'} = undef;
 			last SWITCH;
 		} 
 		if ($element eq OBOINOWL_CONSIDER) {
-			my $consider = $data_current_tag{"consider"};
+			my $consider = $data_current_tag{'consider'};
 			$current_term->alt_id($consider) if (defined $consider);
-			$data_current_tag{"consider"} = undef;
+			$data_current_tag{'consider'} = undef;
 			last SWITCH;
 		} 
 		if ($element eq OBOINOWL_SYNONYM) { # && $context =~ /rdf:RDFowl:ClassoboInOwl:has(Exact|Broad|Narrow|Related)SynonymoboInOwl:Synonym/
-			my $ref_label = $data_current_tag{"xref"};
+			my $ref_label = $data_current_tag{'xref'};
 			my $data_syn  = $data_current_tag{$type_of_synonym};
-			my $sref = ($ref_label)?"[".$ref_label."]":"[]";
+			my $sref = ($ref_label)?'['.$ref_label.']':'[]';
 			if (defined $data_syn) {
 				# Future improvement: get the 'synonym type name' and process it
 				$current_term->synonym_as_string($data_syn, $sref, $type_of_synonym) if (defined $current_term);
 				$current_relationship_type->synonym_as_string($data_syn, $sref, $type_of_synonym) if (defined $current_relationship_type);
 			}
 			$data_current_tag{$type_of_synonym} = undef;
-			$data_current_tag{"xref"} = undef;			
+			$data_current_tag{'xref'} = undef;			
 			last SWITCH;
 		} 
 		if ($element eq OBOINOWL_HAS_EXACT_SYNONYM) {
@@ -731,8 +692,8 @@ sub endElement {
 =cut
 
 sub owl_id2obo_id {
-	confess "owl_id2obo_id: Invalid argument: '", $_[0], "'", if ($_[0] !~ /_/);
-	$_[0] =~ s/_/:/;
+	die "owl_id2obo_id: Invalid argument: '", $_[0], "'", if ($_[0] !~ /_/);
+	$_[0] =~ tr/_/:/;
 	return $_[0];
 }
 
@@ -765,3 +726,41 @@ sub char_hex2ascii {
 }
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::Parser::OWLParser  - An OWL parser (oboInOwl mapping).
+    
+=head1 SYNOPSIS
+
+use OBO::Parser::OWLParser;
+
+use strict;
+
+my $my_parser = OBO::Parser::OWLParser->new;
+
+my $ontology = $my_parser->work("cco.owl");
+
+=head1 DESCRIPTION
+
+An OWLParser object works on parsing an OWL file which is compliant with
+the OBO to OWL  mapping described here: 
+
+http://www.bioontology.org/wiki/index.php/OboInOwl:Main_Page
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

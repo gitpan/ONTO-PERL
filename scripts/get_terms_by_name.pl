@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_terms_by_name.pl 2010-09-29 Erick Antezana $
+# $Id: get_terms_by_name.pl 2010-09-29 erick.antezana $
 #
 # Script  : get_terms_by_name.pl
 #

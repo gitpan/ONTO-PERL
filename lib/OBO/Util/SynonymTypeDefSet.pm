@@ -1,4 +1,4 @@
-# $Id: SynonymTypeDefSet.pm 2010-10-29 Erick Antezana $
+# $Id: SynonymTypeDefSet.pm 2010-10-29 erick.antezana $
 #
 # Module  : SynonymTypeDefSet.pm
 # Purpose : Synonym Type Definition Set.
@@ -11,103 +11,11 @@ package OBO::Util::SynonymTypeDefSet;
 # TODO This class is identical to OBO::Util::IDspaceSet
 # TODO This class is identical to OBO::Util::SubsetDefSet, which is not implemented...
 
-=head1 NAME
-
-OBO::Util::SynonymTypeDefSet - A Set implementation of Synonym Types.
-    
-=head1 SYNOPSIS
-
-use OBO::Util::SynonymTypeDefSet;
-
-use OBO::Core::SynonymTypeDef;
-
-use strict;
-
-my $my_set = OBO::Util::SynonymTypeDefSet->new();
-
-my @arr = $my_set->get_set();
-
-my $n1 = OBO::Core::SynonymTypeDef->new();
-
-my $n2 = OBO::Core::SynonymTypeDef->new();
-
-my $n3 = OBO::Core::SynonymTypeDef->new();
-
-
-$n1->id("CCO:P0000001");
-
-$n2->id("CCO:P0000002");
-
-$n3->id("CCO:P0000003");
-
-$n1->name("One");
-$n2->name("Two");
-$n3->name("Three");
-
-# remove from my_set
-$my_set->remove($n1);
-$my_set->add($n1);
-$my_set->remove($n1);
-
-### set versions ###
-$my_set->add($n1);
-$my_set->add($n2);
-$my_set->add($n3);
-
-my $n4 = OBO::Core::Synonym->new;
-my $n5 = OBO::Core::Synonym->new;
-my $n6 = OBO::Core::Synonym->new;
-
-$n4->id("CCO:P0000004");
-$n5->id("CCO:P0000005");
-$n6->id("CCO:P0000006");
-
-$n4->name("Four");
-$n5->name("Five");
-$n6->name("Six");
-
-$my_set->add_all($n4, $n5, $n6);
-
-$my_set->add_all($n4, $n5, $n6);
-
-# remove from my_set
-$my_set->remove($n4);
-
-my $n7 = $n4;
-my $n8 = $n5;
-my $n9 = $n6;
-
-my $my_set2 = OBO::Util::SynonymSet->new;
-
-$my_set->add_all($n4, $n5, $n6);
-$my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
-
-$my_set2->clear();
-
-=head1 DESCRIPTION
-
-A set (OBO::Util::Set) of synonym type definitions (OBO::Core::SynonymTypeDef).
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 our @ISA = qw(OBO::Util::Set);
 use OBO::Util::Set;
 
 use strict;
 use warnings;
-use Carp;
 
 =head2 contains
 
@@ -201,3 +109,97 @@ sub remove {
 }
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::Util::SynonymTypeDefSet - A Set implementation of Synonym Types.
+    
+=head1 SYNOPSIS
+
+use OBO::Util::SynonymTypeDefSet;
+
+use OBO::Core::SynonymTypeDef;
+
+use strict;
+
+my $my_set = OBO::Util::SynonymTypeDefSet->new();
+
+my @arr = $my_set->get_set();
+
+my $n1 = OBO::Core::SynonymTypeDef->new();
+
+my $n2 = OBO::Core::SynonymTypeDef->new();
+
+my $n3 = OBO::Core::SynonymTypeDef->new();
+
+
+$n1->id("CCO:P0000001");
+
+$n2->id("CCO:P0000002");
+
+$n3->id("CCO:P0000003");
+
+$n1->name("One");
+$n2->name("Two");
+$n3->name("Three");
+
+# remove from my_set
+$my_set->remove($n1);
+$my_set->add($n1);
+$my_set->remove($n1);
+
+### set versions ###
+$my_set->add($n1);
+$my_set->add($n2);
+$my_set->add($n3);
+
+my $n4 = OBO::Core::Synonym->new;
+my $n5 = OBO::Core::Synonym->new;
+my $n6 = OBO::Core::Synonym->new;
+
+$n4->id("CCO:P0000004");
+$n5->id("CCO:P0000005");
+$n6->id("CCO:P0000006");
+
+$n4->name("Four");
+$n5->name("Five");
+$n6->name("Six");
+
+$my_set->add_all($n4, $n5, $n6);
+
+$my_set->add_all($n4, $n5, $n6);
+
+# remove from my_set
+$my_set->remove($n4);
+
+my $n7 = $n4;
+my $n8 = $n5;
+my $n9 = $n6;
+
+my $my_set2 = OBO::Util::SynonymSet->new;
+
+$my_set->add_all($n4, $n5, $n6);
+$my_set2->add_all($n7, $n8, $n9, $n1, $n2, $n3);
+
+$my_set2->clear();
+
+=head1 DESCRIPTION
+
+A set (OBO::Util::Set) of synonym type definitions (OBO::Core::SynonymTypeDef).
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

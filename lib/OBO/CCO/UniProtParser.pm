@@ -1,4 +1,4 @@
-# $Id: UniProtParser.pm 2093 2010-09-29 Erick Antezana $
+# $Id: UniProtParser.pm 2093 2010-09-29 erick.antezana $
 #
 # Module  : UniProtParser.pm
 # Purpose : Parse UniProt files and add data to an ontology

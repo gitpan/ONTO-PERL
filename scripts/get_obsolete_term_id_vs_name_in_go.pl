@@ -1,5 +1,5 @@
  #!/usr/local/bin/perl
-# $Id: get_obsolete_term_id_vs_name_in_go.pl 2010-09-29 Erick Antezana $
+# $Id: get_obsolete_term_id_vs_name_in_go.pl 2010-09-29 erick.antezana $
 #
 # Script  : get_obsolete_term_id_vs_name_in_go.pl
 #

@@ -1,4 +1,4 @@
-# $Id: Interactor.pm 2010-09-29 Erick Antezana $
+# $Id: Interactor.pm 2010-09-29 erick.antezana $
 #
 # Module  : Interactor.pm
 # Purpose : An interactor.

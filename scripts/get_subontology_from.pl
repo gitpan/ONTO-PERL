@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_subontology_from.pl 2010-09-29 Erick Antezana $
+# $Id: get_subontology_from.pl 2010-09-29 erick.antezana $
 #
 # Script  : get_subontology_from.pl
 #

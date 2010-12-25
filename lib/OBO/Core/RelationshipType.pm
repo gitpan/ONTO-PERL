@@ -1,4 +1,4 @@
-# $Id: RelationshipType.pm 2010-10-29 Erick Antezana $
+# $Id: RelationshipType.pm 2010-12-22 erick.antezana $
 #
 # Module  : RelationshipType.pm
 # Purpose : Type of Relationship in the Ontology: is_a, part_of, etc.
@@ -9,142 +9,57 @@
 #
 package OBO::Core::RelationshipType;
 
-=head1 NAME
-
-OBO::Core::RelationshipType - A type of relationship type in an ontology.
-    
-=head1 SYNOPSIS
-
-use OBO::Core::RelationshipType;
-
 use strict;
-
-
-# three new relationships types
-
-my $r1 = OBO::Core::RelationshipType->new();
-
-my $r2 = OBO::Core::RelationshipType->new();
-
-my $r3 = OBO::Core::RelationshipType->new();
-
-
-$r1->id("CCO:R0000001");
-
-$r2->id("CCO:R0000002");
-
-$r3->id("CCO:R0000003");
-
-
-$r1->name("is a");
-
-$r2->name("part of");
-
-$r3->name("participates in");
-
-
-# rel. type creator + date
-
-$r1->created_by("erick_antezana");
-
-$r1->creation_date("2008-04-13T01:32:36Z ");
-
-
-# inverse
-
-my $r3_inv = OBO::Core::RelationshipType->new();
-
-$r3_inv->id("CCO:R0000004");
-
-$r3_inv->name("has participant");
-
-$r3_inv->inverse_of($r3);
-
-
-# def as string
-
-$r2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
-
-my @refs_r2 = $r2->def()->dbxref_set()->get_set();
-
-my %r_r2;
-
-foreach my $ref_r2 (@refs_r2) {
-	
-	$r_r2{$ref_r2->name()} = $ref_r2->name();
-	
-}
-
-
-=head1 DESCRIPTION
-
-A type of relationship in the ontology.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
+use warnings;
 
 use OBO::Core::Dbxref;
 use OBO::Core::Def;
 use OBO::Util::Map;
 use OBO::Util::Set;
 use OBO::Util::SynonymSet;
-use strict;
-use warnings;
-use Carp;
 
 sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{ID}                 = undef;                 # required, string (1)
-	$self->{IS_ANONYMOUS}       = undef;                 # [1|0], 0 by default
-	$self->{NAME}               = undef;                 # string (1)
+	$self->{ID}                 = undef;                        # required, string (1)
+	$self->{IS_ANONYMOUS}       = undef;                        # [1|0], 0 by default
+	$self->{NAME}               = undef;                        # string (1)
 
-	$self->{NAMESPACE_SET}      = OBO::Util::Set->new(); # set (0..N)
-	$self->{ALT_ID}             = OBO::Util::Set->new(); # set (0..N)
-	$self->{BUILTIN}            = undef;                 # [1|0], 0 by default
-	$self->{DEF}                = OBO::Core::Def->new;   # (0..1)
-	$self->{COMMENT}            = undef;                 # string (0..1)
-	$self->{SUBSET_SET}         = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{NAMESPACE_SET}      = OBO::Util::Set->new();        # set (0..N)
+	$self->{ALT_ID}             = OBO::Util::Set->new();        # set (0..N)
+	$self->{BUILTIN}            = undef;                        # [1|0], 0 by default
+	$self->{DEF}                = OBO::Core::Def->new;          # (0..1)
+	$self->{COMMENT}            = undef;                        # string (0..1)
+	$self->{SUBSET_SET}         = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
 	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
-	$self->{DOMAIN}             = OBO::Util::Set->new(); # set of scalars (0..N)
-	$self->{RANGE}              = OBO::Util::Set->new(); # set of scalars (0..N)
-	$self->{IS_ANTI_SYMMETRIC}  = undef;                 # [1|0], 0 by default
-	$self->{IS_CYCLIC}          = undef;                 # [1|0], 0 by default
-	$self->{IS_REFLEXIVE}       = undef;                 # [1|0], 0 by default
-	$self->{IS_SYMMETRIC}       = undef;                 # [1|0], 0 by default
-	$self->{IS_TRANSITIVE}      = undef;                 # [1|0], 0 by default
-	$self->{INVERSE_OF}         = undef;                 # string (0..1) # TODO This should be a Set of Relationships...
-	$self->{TRANSITIVE_OVER}    = OBO::Util::Set->new(); # set of scalars (0..N)
+	$self->{DOMAIN}             = OBO::Util::Set->new();        # set of scalars (0..N)
+	$self->{RANGE}              = OBO::Util::Set->new();        # set of scalars (0..N)
+	$self->{IS_ANTI_SYMMETRIC}  = undef;                        # [1|0], 0 by default
+	$self->{IS_CYCLIC}          = undef;                        # [1|0], 0 by default
+	$self->{IS_REFLEXIVE}       = undef;                        # [1|0], 0 by default
+	$self->{IS_SYMMETRIC}       = undef;                        # [1|0], 0 by default
+	$self->{IS_TRANSITIVE}      = undef;                        # [1|0], 0 by default
+	$self->{INVERSE_OF}         = undef;                        # string (0..1) # TODO This should be a Set of Relationships...
+	$self->{TRANSITIVE_OVER}    = OBO::Util::Set->new();        # set of scalars (0..N)
 
-	$self->{HOLDS_OVER_CHAIN}   = OBO::Util::Map->new(); # map of scalars-->ref's to arrays (0..N)
-	$self->{FUNCTIONAL}         = undef;                 # [1|0], 0 by default
-	$self->{INVERSE_FUNCTIONAL} = undef;                 # [1|0], 0 by default
+	$self->{HOLDS_OVER_CHAIN}   = OBO::Util::Map->new();        # map of scalars-->ref's to arrays (0..N)
+	$self->{FUNCTIONAL}         = undef;                        # [1|0], 0 by default
+	$self->{INVERSE_FUNCTIONAL} = undef;                        # [1|0], 0 by default
 	
-	$self->{INTERSECTION_OF}    = OBO::Util::Set->new(); # (0..N)
-	$self->{UNION_OF}           = OBO::Util::Set->new(); # (0..N)
-	$self->{DISJOINT_FROM}      = OBO::Util::Set->new(); # (0..N)
+	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N)
+	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N)
+	$self->{DISJOINT_FROM}      = OBO::Util::Set->new();        # (0..N)
 
-	$self->{CREATED_BY}         = undef;                 # scalar (0..1)
-	$self->{CREATION_DATE}      = undef;                 # scalar (0..1)
-	$self->{MODIFIED_BY}        = undef;                 # scalar (0..1)
-	$self->{MODIFICATION_DATE}  = undef;                 # scalar (0..1)
-	$self->{IS_OBSOLETE}        = undef;                 # [1|0], 0 by default
-	$self->{REPLACED_BY}        = OBO::Util::Set->new(); # set of scalars (0..N)
-	$self->{CONSIDER}           = OBO::Util::Set->new(); # set of scalars (0..N)
-	$self->{IS_METADATA_TAG}    = undef;                 # [1|0], 0 by default
+	$self->{CREATED_BY}         = undef;                        # scalar (0..1)
+	$self->{CREATION_DATE}      = undef;                        # scalar (0..1)
+	$self->{MODIFIED_BY}        = undef;                        # scalar (0..1)
+	$self->{MODIFICATION_DATE}  = undef;                        # scalar (0..1)
+	$self->{IS_OBSOLETE}        = undef;                        # [1|0], 0 by default
+	$self->{REPLACED_BY}        = OBO::Util::Set->new();        # set of scalars (0..N)
+	$self->{CONSIDER}           = OBO::Util::Set->new();        # set of scalars (0..N)
+	$self->{IS_METADATA_TAG}    = undef;                        # [1|0], 0 by default
 
 	bless ($self, $class);
 	return $self;
@@ -175,7 +90,7 @@ sub id {
 =cut
 sub is_anonymous {
 	my $self = shift;
-    if (@_) { $self->{IS_ANONYMOUS} = shift }
+    $self->{IS_ANONYMOUS} = shift if (@_);
     return (defined($self->{IS_ANONYMOUS}) && $self->{IS_ANONYMOUS} == 1)?1:0;
 }
 
@@ -190,7 +105,7 @@ sub is_anonymous {
 
 sub name {
 	my ($self, $name) = @_;
-	if ($name) { $self->{NAME} = $name }
+	$self->{NAME} = $name if ($name);
 	return $self->{NAME};
 }
 
@@ -224,9 +139,7 @@ sub alt_id {
 
 sub def {
 	my ($self, $def) = @_;
-	if ($def) {
-		$self->{DEF} = $def; 
-	}
+	$self->{DEF} = $def if ($def); 
     return $self->{DEF};
 }
 
@@ -284,7 +197,7 @@ sub def_as_string {
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 			} else {
-				confess "The references of the relationship type with ID: '", $self->id(), "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
+				die "The references of the relationship type with ID: '", $self->id(), "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
 			}
 			
 			# set the dbxref:
@@ -318,13 +231,13 @@ sub def_as_string {
 =cut
 
 sub namespace {
-        my $self = shift;
-        if (scalar(@_) > 1) {
-                $self->{NAMESPACE_SET}->add_all(@_);
-        } elsif (scalar(@_) == 1) {
-                $self->{NAMESPACE_SET}->add(shift);
-        }
-        return $self->{NAMESPACE_SET}->get_set();
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{NAMESPACE_SET}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{NAMESPACE_SET}->add(shift);
+	}
+	return $self->{NAMESPACE_SET}->get_set();
 }
 
 =head2 comment
@@ -372,7 +285,7 @@ sub subset {
 sub synonym_set {
 	my $self = shift;
 	foreach my $synonym (@_) {		
-		confess "The name of this relationship type (", $self->id(), ") is undefined" if (!defined($self->name()));
+		die "The name of this relationship type (", $self->id(), ") is undefined" if (!defined($self->name()));
 		# do not add 'EXACT' synonyms with the same 'name':
 		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->scope() eq "EXACT" && $synonym->def()->text() eq $self->name()));
    	}
@@ -475,7 +388,7 @@ sub xref_set_as_string {
 				$db    = _unescape($2);
 				$acc   = _unescape($3);
 			} else {
-				confess "The references of the relationship type with ID: '", $self->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
+				die "The references of the relationship type with ID: '", $self->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
 			}
 			
 			# set the dbxref:
@@ -557,7 +470,7 @@ sub inverse_of {
 
 sub is_cyclic {
 	my ($self, $rel) = @_;
-    if ($rel) { $self->{IS_CYCLIC} = $rel }
+    $self->{IS_CYCLIC} = $rel if ($rel);
     return (defined($self->{IS_CYCLIC}) && $self->{IS_CYCLIC} == 1)?1:0;
 }
 
@@ -572,7 +485,7 @@ sub is_cyclic {
 
 sub is_reflexive {
 	my ($self, $rel) = @_;
-    if ($rel) { $self->{IS_REFLEXIVE} = $rel }
+    $self->{IS_REFLEXIVE} = $rel if ($rel);
     return (defined($self->{IS_REFLEXIVE}) && $self->{IS_REFLEXIVE} == 1)?1:0;
 }
 
@@ -587,7 +500,7 @@ sub is_reflexive {
 
 sub is_symmetric {
 	my ($self, $rel) = @_;
-    if ($rel) { $self->{IS_SYMMETRIC} = $rel }
+    $self->{IS_SYMMETRIC} = $rel if ($rel);
     return (defined($self->{IS_SYMMETRIC}) && $self->{IS_SYMMETRIC} == 1)?1:0;
 }
 
@@ -602,7 +515,7 @@ sub is_symmetric {
 
 sub is_anti_symmetric {
 	my ($self, $rel) = @_;
-    if ($rel) { $self->{IS_ANTI_SYMMETRIC} = $rel }
+    $self->{IS_ANTI_SYMMETRIC} = $rel if ($rel);
     return (defined($self->{IS_ANTI_SYMMETRIC}) && $self->{IS_ANTI_SYMMETRIC} == 1)?1:0;
 }
 
@@ -617,7 +530,7 @@ sub is_anti_symmetric {
 
 sub is_transitive {
 	my ($self, $rel) = @_;
-    if ($rel) { $self->{IS_TRANSITIVE} = $rel }
+    $self->{IS_TRANSITIVE} = $rel if ($rel);
     return (defined($self->{IS_TRANSITIVE}) && $self->{IS_TRANSITIVE} == 1)?1:0;
 }
 
@@ -632,7 +545,7 @@ sub is_transitive {
 
 sub is_metadata_tag {
 	my ($self, $rel) = @_;
-    if ($rel) { $self->{IS_METADATA_TAG} = $rel }
+    $self->{IS_METADATA_TAG} = $rel if ($rel);
     return (defined($self->{IS_METADATA_TAG}) && $self->{IS_METADATA_TAG} == 1)?1:0;
 }
 
@@ -685,7 +598,7 @@ sub holds_over_chain {
 
 sub functional {
 	my ($self, $rel) = @_;
-	if ($rel) { $self->{FUNCTIONAL} = $rel }
+	$self->{FUNCTIONAL} = $rel if ($rel);
 	return (defined($self->{FUNCTIONAL}) && $self->{FUNCTIONAL} == 1)?1:0;
 }
 
@@ -700,7 +613,7 @@ sub functional {
 
 sub inverse_functional {
 	my ($self, $rel) = @_;
-	if ($rel) { $self->{INVERSE_FUNCTIONAL} = $rel }
+	$self->{INVERSE_FUNCTIONAL} = $rel if ($rel);
 	return (defined($self->{INVERSE_FUNCTIONAL}) && $self->{INVERSE_FUNCTIONAL} == 1)?1:0;
 }
 
@@ -768,7 +681,7 @@ sub disjoint_from {
 =cut
 sub created_by {
 	my ($self, $created_by) = @_;
-	if ($created_by) { $self->{CREATED_BY} = $created_by }
+	$self->{CREATED_BY} = $created_by if ($created_by);
 	return $self->{CREATED_BY};
 }
 
@@ -782,7 +695,7 @@ sub created_by {
 =cut
 sub creation_date {
 	my ($self, $creation_date) = @_;
-	if ($creation_date) { $self->{CREATION_DATE} = $creation_date }
+	$self->{CREATION_DATE} = $creation_date if ($creation_date);
 	return $self->{CREATION_DATE};
 }
 
@@ -796,7 +709,7 @@ sub creation_date {
 =cut
 sub modified_by {
 	my ($self, $modified_by) = @_;
-	if ($modified_by) { $self->{MODIFIED_BY} = $modified_by }
+	$self->{MODIFIED_BY} = $modified_by if ($modified_by);
 	return $self->{MODIFIED_BY};
 }
 
@@ -810,7 +723,7 @@ sub modified_by {
 =cut
 sub modification_date {
 	my ($self, $modification_date) = @_;
-	if ($modification_date) { $self->{MODIFICATION_DATE} = $modification_date }
+	$self->{MODIFICATION_DATE} = $modification_date if ($modification_date);
 	return $self->{MODIFICATION_DATE};
 }
 
@@ -825,7 +738,7 @@ sub modification_date {
 
 sub is_obsolete {
 	my ($self, $obs) = @_;
-    if ($obs) { $self->{IS_OBSOLETE} = $obs }
+    $self->{IS_OBSOLETE} = $obs if ($obs);
     return (defined($self->{IS_OBSOLETE}) && $self->{IS_OBSOLETE} == 1)?1:0;
 }
 
@@ -878,7 +791,7 @@ sub consider {
 
 sub builtin {
 	my ($self, $rel) = @_;
-	if ($rel) { $self->{BUILTIN} = $rel }
+	$self->{BUILTIN} = $rel if ($rel);
 	return (defined($self->{BUILTIN}) && $self->{BUILTIN} == 1)?1:0;
 }
 
@@ -897,8 +810,8 @@ sub equals  {
 	if ($target) {
 		my $self_id = $self->{'ID'};
 		my $target_id = $target->{'ID'};
-		confess "The ID of this relationship type is not defined" if (!defined($self_id));
-		confess "The ID of the target relationship type is not defined" if (!defined($target_id));
+		die "The ID of this relationship type is not defined." if (!defined($self_id));
+		die "The ID of the target relationship type is not defined." if (!defined($target_id));
 		$result = ($self_id eq $target_id);
 	}
 	return $result;
@@ -910,4 +823,93 @@ sub _unescape {
 	$match =~ s/;;;;/\\,/g;
 	return $match;
 }
+
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::Core::RelationshipType - A type of relationship type in an ontology.
+    
+=head1 SYNOPSIS
+
+use OBO::Core::RelationshipType;
+
+use strict;
+
+
+# three new relationships types
+
+my $r1 = OBO::Core::RelationshipType->new();
+
+my $r2 = OBO::Core::RelationshipType->new();
+
+my $r3 = OBO::Core::RelationshipType->new();
+
+
+$r1->id("CCO:R0000001");
+
+$r2->id("CCO:R0000002");
+
+$r3->id("CCO:R0000003");
+
+
+$r1->name("is a");
+
+$r2->name("part of");
+
+$r3->name("participates in");
+
+
+# rel. type creator + date
+
+$r1->created_by("erick_antezana");
+
+$r1->creation_date("2008-04-13T01:32:36Z ");
+
+
+# inverse
+
+my $r3_inv = OBO::Core::RelationshipType->new();
+
+$r3_inv->id("CCO:R0000004");
+
+$r3_inv->name("has participant");
+
+$r3_inv->inverse_of($r3);
+
+
+# def as string
+
+$r2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+
+my @refs_r2 = $r2->def()->dbxref_set()->get_set();
+
+my %r_r2;
+
+foreach my $ref_r2 (@refs_r2) {
+	
+	$r_r2{$ref_r2->name()} = $ref_r2->name();
+	
+}
+
+
+=head1 DESCRIPTION
+
+A type of relationship in the ontology.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

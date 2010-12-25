@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 207;
+    plan tests => 227;
 }
 
 #########################
@@ -173,9 +173,23 @@ ok(!$onto->has_term_id("CCO:P0000033"));
 ok($onto->get_number_of_terms() == 5);
 
 # get terms with argument
-my @processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P.*")};
+my @processes         = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P.*")};
+my @sorted_processes  = @{$onto->get_terms_sorted_by_id("CCO:P.*")};
+my @sorted_processes2 = @{$onto->get_terms_sorted_by_id()};
+ok($#processes == $#sorted_processes); # should be 5
+for (my $i = 0; $i <= $#sorted_processes; $i++) {
+	ok($processes[$i]->id() eq $sorted_processes[$i]->id());
+	ok($processes[$i]->id() eq $sorted_processes2[$i]->id());
+}
 ok($#processes == 4);
-my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000[35]")};
+ok($#sorted_processes2 == 4);
+
+my @odd_processes        = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000[35]")};
+my @sorted_odd_processes = @{$onto->get_terms_sorted_by_id("CCO:P000000[35]")};
+ok($#odd_processes == $#sorted_odd_processes); # should be 2
+for (my $i = 0; $i <= $#sorted_odd_processes; $i++) {
+	ok($odd_processes[$i]->id() eq $sorted_odd_processes[$i]->id());
+}
 ok($#odd_processes == 1);
 ok($odd_processes[0]->id() eq "CCO:P0000003");
 ok($odd_processes[1]->id() eq "CCO:P0000005");
@@ -401,8 +415,15 @@ ok($onto->get_relationship_type_by_id("has_participant")->equals($relationship_t
 ok($onto->get_number_of_relationship_types() == 4);
 
 # get relationship types
-my @rt = @{$onto->get_relationship_types()};
+my @rt  = @{$onto->get_relationship_types()};
+my @srt = @{$onto->get_relationship_types_sorted_by_id()};
 ok(scalar @rt == 4);
+ok($#rt == $#srt);
+my @RT = sort { $a->id() cmp $b->id() } @rt;
+for (my $i = 0; $i<=$#srt; $i++) {
+	ok($srt[$i]->name() eq $RT[$i]->name());
+}
+
 my %rrt;
 foreach my $relt (@rt) {
 	$rrt{$relt->name()} = $relt;

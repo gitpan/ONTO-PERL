@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_parent_terms.pl 2010-09-29 Erick Antezana $
+# $Id: get_parent_terms.pl 2010-09-29 erick.antezana $
 #
 # Script  : get_parent_terms.pl
 #

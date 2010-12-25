@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: relationship_id_vs_relationship_def.pl 2010-10-29 Erick Antezana $
+# $Id: relationship_id_vs_relationship_def.pl 2010-10-29 erick.antezana $
 #
 # Script  : relationship_id_vs_relationship_def.pl
 #

@@ -1,4 +1,4 @@
-# $Id: Set.pm 2010-09-29 Erick Antezana $
+# $Id: Set.pm 2010-09-29 erick.antezana $
 #
 # Module  : Set.pm
 # Purpose : An implementation of a Set of scalars.
@@ -10,90 +10,8 @@
 # TODO implement function 'eliminate duplicates', see GoaAssociationSet.t
 package OBO::Util::Set;
 
-=head1 NAME
-
-OBO::Util::Set - An implementation of a set of scalars (sensu PERL).
-    
-=head1 SYNOPSIS
-
-use OBO::Util::Set;
-
-use strict;
-
-my $my_set = OBO::Util::Set->new();
-
-$my_set->add("CCO:P0000001");
-
-print "contains" if ($my_set->contains("CCO:P0000001"));
-
-$my_set->add_all("CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
-
-print "contains" if ($my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
-
-foreach ($my_set->get_set()) {
-
-	print $_, "\n";
-
-}
-
-print "\nContained!\n" if ($my_set->contains("CCO:P0000001"));
-
-my $my_set2 = OBO::Util::Set->new();
-
-$my_set2->add_all("CCO:P0000001", "CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
-
-print "contains" if ($my_set2->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
-
-$my_set->equals($my_set2);
-
-$my_set2->size() == 4;
-
-$my_set2->remove("CCO:P0000003");
-
-print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
-
-$my_set2->size() == 3;
-
-$my_set2->remove("CCO:P0000005");
-
-print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
-
-$my_set2->size() == 3;
-
-$my_set2->clear();
-
-print "not contains" if (!$my_set2->contains("CCO:P0000001") || !$my_set->contains("CCO:P0000002") || !$my_set->contains("CCO:P0000004"));
-
-$my_set2->size() == 0;
-
-if ($my_set2->is_empty()) {
-	print "my_set2 is empty";
-}
-
-
-=head1 DESCRIPTION
-
-A collection that contains no duplicate elements. More formally, sets contain no 
-pair of elements $e1 and $e2 such that $e1->equals($e2). As implied by its name, 
-this interface models the mathematical set abstraction.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 use strict;
 use warnings;
-use Carp;
 
 sub new {
 	my $class        = shift;
@@ -281,3 +199,87 @@ sub equals {
 }
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::Util::Set - An implementation of a set of scalars (sensu PERL).
+    
+=head1 SYNOPSIS
+
+use OBO::Util::Set;
+
+use strict;
+
+my $my_set = OBO::Util::Set->new();
+
+$my_set->add("CCO:P0000001");
+
+print "contains" if ($my_set->contains("CCO:P0000001"));
+
+$my_set->add_all("CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
+
+print "contains" if ($my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
+
+foreach ($my_set->get_set()) {
+
+	print $_, "\n";
+
+}
+
+print "\nContained!\n" if ($my_set->contains("CCO:P0000001"));
+
+my $my_set2 = OBO::Util::Set->new();
+
+$my_set2->add_all("CCO:P0000001", "CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
+
+print "contains" if ($my_set2->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
+
+$my_set->equals($my_set2);
+
+$my_set2->size() == 4;
+
+$my_set2->remove("CCO:P0000003");
+
+print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
+
+$my_set2->size() == 3;
+
+$my_set2->remove("CCO:P0000005");
+
+print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
+
+$my_set2->size() == 3;
+
+$my_set2->clear();
+
+print "not contains" if (!$my_set2->contains("CCO:P0000001") || !$my_set->contains("CCO:P0000002") || !$my_set->contains("CCO:P0000004"));
+
+$my_set2->size() == 0;
+
+if ($my_set2->is_empty()) {
+	print "my_set2 is empty";
+}
+
+
+=head1 DESCRIPTION
+
+A collection that contains no duplicate elements. More formally, sets contain no 
+pair of elements $e1 and $e2 such that $e1->equals($e2). As implied by its name, 
+this interface models the mathematical set abstraction.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

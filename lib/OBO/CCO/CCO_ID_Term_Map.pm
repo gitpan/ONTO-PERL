@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Term_Map.pm 2010-12-02 Erick Antezana $
+# $Id: CCO_ID_Term_Map.pm 2010-12-02 erick.antezana $
 #
 # Module  : CCO_ID_Term_Map.pm
 # Purpose : A (birectional) map CCO_ID vs Term name.

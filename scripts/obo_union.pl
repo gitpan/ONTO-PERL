@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo_union.pl 2010-10-29 Erick Antezana $
+# $Id: obo_union.pl 2010-10-29 erick.antezana $
 #
 # Script  : obo_union.pl
 # Purpose : Finds the union ontology from the given OBO-formatted ontologies.

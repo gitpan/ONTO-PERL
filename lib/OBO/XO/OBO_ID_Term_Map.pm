@@ -1,4 +1,4 @@
-# $Id: OBO_ID_Term_Map.pm 2010-09-29 Erick Antezana $
+# $Id: OBO_ID_Term_Map.pm 2010-09-29 erick.antezana $
 #
 # Module  : OBO_ID_Term_Map.pm
 # Purpose : A (birectional) map OBO_ID vs Term name.
@@ -9,47 +9,6 @@
 #
 package OBO::XO::OBO_ID_Term_Map;
 
-=head1 NAME
-
-OBO::XO::OBO_ID_Term_Map - A map between OBO IDs and term names.
-    
-=head1 SYNOPSIS
-
-use OBO::XO::OBO_ID_Term_Map;
-
-$obo_id_set  = OBO_ID_Term_Map->new();
-
-$obo_id_set->file("gene_ontology.ids");
-
-$file = $obo_id_set->file();
-
-$size = $obo_id_set->size();
-
-$obo_id_set->file("OBO");
-
-if ($obo_id_set->add("OBO:0007049")) { ... }
-
-$new_id = $obo_id_set->get_new_id("GO");
-
-=head1 DESCRIPTION
-
-The OBO::XO::OBO_ID_Term_Map class implements a map for storing OBO IDs and their corresponding names.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
-use Carp;
 use strict;
 
 use OBO::XO::OBO_ID_Set;
@@ -65,7 +24,7 @@ sub new {
 
     bless( $self, $class );
 
-    confess if ( !defined $self->{FILE} );
+    die if ( !defined $self->{FILE} );
 
     # if the file exists:
     if ( -e $self->{FILE} && -r $self->{FILE} ) {
@@ -110,7 +69,7 @@ sub put {
 	my ( $self, $new_id, $new_name ) = @_;
 
 	if ( $new_id && $new_name ) {
-		confess "The ID is not valid: '$new_id'\n" if ($self->_is_valid_id($new_id));
+		die "The ID is not valid: '$new_id'\n" if ($self->_is_valid_id($new_id));
 
 		my $has_key   = $self->contains_key($new_id);
 		my $has_value = $self->contains_value($new_name);
@@ -132,11 +91,11 @@ sub put {
 				warn "The pair: $new_id, $new_name is part of the map BUT they correspond to other entries!";
 			}
 		} else {
-			confess "This case should have never happened: -> ($new_id, $new_name)";
+			die "This case should have never happened: -> ($new_id, $new_name)";
 		}
 		return $self->size();
 	} else {
-		confess "You should provide both a term ID and a term name -> ($new_id, $new_name)\n";
+		die "You should provide both a term ID and a term name -> ($new_id, $new_name)\n";
 	}    
 }
 
@@ -393,4 +352,48 @@ sub remove_by_key {
     delete $self->{KEYS}{MAP}{$key};
     return $value;
 }
+
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::XO::OBO_ID_Term_Map - A map between OBO IDs and term names.
+    
+=head1 SYNOPSIS
+
+use OBO::XO::OBO_ID_Term_Map;
+
+$obo_id_set  = OBO_ID_Term_Map->new();
+
+$obo_id_set->file("gene_ontology.ids");
+
+$file = $obo_id_set->file();
+
+$size = $obo_id_set->size();
+
+$obo_id_set->file("OBO");
+
+if ($obo_id_set->add("OBO:0007049")) { ... }
+
+$new_id = $obo_id_set->get_new_id("GO");
+
+=head1 DESCRIPTION
+
+The OBO::XO::OBO_ID_Term_Map class implements a map for storing OBO IDs and their corresponding names.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

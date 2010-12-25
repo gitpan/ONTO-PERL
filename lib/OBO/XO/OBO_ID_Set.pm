@@ -1,4 +1,4 @@
-# $Id: OBO_ID_Set.pm 2010-09-29 Erick Antezana $
+# $Id: OBO_ID_Set.pm 2010-09-29 erick.antezana $
 #
 # Module  : OBO_ID_Set.pm
 # Purpose : A set of OBO id's.
@@ -10,53 +10,12 @@
 
 package OBO::XO::OBO_ID_Set;
 
-
-=head1 NAME
-
-OBO::XO::OBO_ID_Set - An implementation of a set of OBO::XO::OBO_ID objects.
-
-=head1 SYNOPSIS
-
-use OBO::XO::OBO_ID_Set;
-
-use OBO::XO::OBO_ID;
-
-
-$obo_id_set = OBO::XO::OBO_ID_Set->new();
-
-$id = OBO::XO::OBO_ID->new();
-
-$size = $obo_id_set->size();
-
-if ($obo_id_set->add($id)) { ... }
-
-$new_id = $obo_id_set->get_new_id("XO", "C");
-
-=head1 DESCRIPTION
-
-The OBO::XO::OBO_ID_Set class implements a set of identifiers for any OBO ontology.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 our @ISA = qw(OBO::Util::ObjectSet);
 use OBO::Util::ObjectSet;
 use OBO::XO::OBO_ID;
 
 use strict;
 use warnings;
-use Carp;
     
 =head2 add_as_string
 
@@ -108,7 +67,7 @@ sub add_all_as_string () {
 sub get_new_id {
 	my ($self, $local_idspace) = @_;
 	my $new_obo_id = OBO::XO::OBO_ID->new();
-	confess "The local idspace is invalid: ", $local_idspace if ($local_idspace !~ /\w+/);
+	die "The local idspace is invalid: ", $local_idspace if ($local_idspace !~ /\w+/);
 	$new_obo_id->idspace($local_idspace);
 	# get the last 'localID'
 	if ($self->is_empty()){
@@ -122,3 +81,45 @@ sub get_new_id {
 }
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::XO::OBO_ID_Set - An implementation of a set of OBO::XO::OBO_ID objects.
+
+=head1 SYNOPSIS
+
+use OBO::XO::OBO_ID_Set;
+
+use OBO::XO::OBO_ID;
+
+
+$obo_id_set = OBO::XO::OBO_ID_Set->new();
+
+$id = OBO::XO::OBO_ID->new();
+
+$size = $obo_id_set->size();
+
+if ($obo_id_set->add($id)) { ... }
+
+$new_id = $obo_id_set->get_new_id("XO", "C");
+
+=head1 DESCRIPTION
+
+The OBO::XO::OBO_ID_Set class implements a set of identifiers for any OBO ontology.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

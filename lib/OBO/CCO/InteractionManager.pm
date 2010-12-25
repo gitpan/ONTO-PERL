@@ -1,4 +1,4 @@
-# $Id: InteractionManager.pm 2010-09-29 Erick Antezana $
+# $Id: InteractionManager.pm 2010-09-29 erick.antezana $
 #
 # Module  : InteractionManager.pm
 # Purpose : An interaction manager.

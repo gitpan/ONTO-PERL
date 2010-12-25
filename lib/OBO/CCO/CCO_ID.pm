@@ -1,4 +1,4 @@
-# $Id: CCO_ID.pm 2010-09-29 Erick Antezana $
+# $Id: CCO_ID.pm 2010-09-29 erick.antezana $
 #
 # Module  : CCO_ID.pm
 # Purpose : A CCO_ID.

@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_terms.pl 2010-09-29 Erick Antezana $
+# $Id: get_terms.pl 2010-12-29 erick.antezana $
 #
 # Script  : get_terms.pl
 #
@@ -20,8 +20,12 @@ use OBO::Parser::OBOParser;
 my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift @ARGV);
 
-my @my_terms = @{$ontology->get_terms()}; # get all the terms
-foreach my $t (sort {$b->id() cmp $a->id()} @my_terms) {
+my @sorted_terms = map { $_->[0] }           # restore original values
+				sort { $a->[1] cmp $b->[1] } # sort
+				map  { [$_, $_->id()] }      # transform: value, sortkey
+				@{$ontology->get_terms()};
+
+foreach my $t (@sorted_terms) {
 	my $t_name = $t->name();
 	if (defined $t_name) {
 		print $t->id(), "\t", $t->name(), "\n";

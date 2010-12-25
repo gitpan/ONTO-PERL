@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_term_id_vs_term_namespace.pl 2010-09-29 Erick Antezana $
+# $Id: get_term_id_vs_term_namespace.pl 2010-09-29 erick.antezana $
 #
 # Script  : get_term_id_vs_term_namespace.pl
 #

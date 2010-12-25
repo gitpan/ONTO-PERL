@@ -1,4 +1,4 @@
-# $Id: OBO_ID.pm 2010-09-29 Erick Antezana $
+# $Id: OBO_ID.pm 2010-09-29 erick.antezana $
 #
 # Module  : OBO_ID.pm
 # Purpose : A OBO_ID.
@@ -10,59 +10,7 @@
 
 package OBO::XO::OBO_ID;
 
-=head1 NAME
-
-OBO::XO::OBO_ID - A module for describing identifiers of any OBO ontology (e.g. XO). Its IDSpace and LocalID are stored.
-
-=head1 SYNOPSIS
-
-use OBO::XO::OBO_ID;
-
-$id = OBO_ID->new();
-
-$id->idspace("XO");
-
-$id->localID("0000001");
-
-$idspace = $id->idspace();
-
-$localID = $id->localID();
-
-print $id->id_as_string();
-
-$id->id_as_string("XO:1234567");
-
-=head1 DESCRIPTION
-
-The OBO::XO::OBO_ID class implements an identifier for any OBO ontology.
-
-A XO ID holds: IDSPACE, and a LOCALID in the following form:
-
-	IDSPACE:LOCALID
-
-For instance: XO:1234567
-
-Identifiers (IDs) in OBO should be strings consisting of an IDSpace 
-concatenated to a LocalID via a : (colon) character. The ID should not 
-contain any whitespace. The IDSpace should not itself contain any colon 
-characters, and should ideally be registered on the GO xrefs page or with OBO. 
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 use strict;
-use Carp;
     
 sub new {
 	my $class = shift;
@@ -178,3 +126,57 @@ sub previous_id () {
 }
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::XO::OBO_ID - A module for describing identifiers of any OBO ontology (e.g. XO). Its IDSpace and LocalID are stored.
+
+=head1 SYNOPSIS
+
+use OBO::XO::OBO_ID;
+
+$id = OBO_ID->new();
+
+$id->idspace("XO");
+
+$id->localID("0000001");
+
+$idspace = $id->idspace();
+
+$localID = $id->localID();
+
+print $id->id_as_string();
+
+$id->id_as_string("XO:1234567");
+
+=head1 DESCRIPTION
+
+The OBO::XO::OBO_ID class implements an identifier for any OBO ontology.
+
+A XO ID holds: IDSPACE, and a LOCALID in the following form:
+
+	IDSPACE:LOCALID
+
+For instance: XO:1234567
+
+Identifiers (IDs) in OBO should be strings consisting of an IDSpace 
+concatenated to a LocalID via a : (colon) character. The ID should not 
+contain any whitespace. The IDSpace should not itself contain any colon 
+characters, and should ideally be registered on the GO xrefs page or with OBO. 
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

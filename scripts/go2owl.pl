@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: go2owl.pl 2010-09-29 Erick Antezana $
+# $Id: go2owl.pl 2010-09-29 erick.antezana $
 #
 # Script  : go2owl.pl
 #

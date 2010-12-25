@@ -1,4 +1,4 @@
-# $Id: GoaParser.pm 2159 2010-11-29 Erick Antezana $
+# $Id: GoaParser.pm 2159 2010-11-29 erick.antezana $
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files

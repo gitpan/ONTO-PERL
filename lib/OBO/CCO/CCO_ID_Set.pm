@@ -1,4 +1,4 @@
-# $Id: CCO_ID_Set.pm 2010-11-29 Erick Antezana $
+# $Id: CCO_ID_Set.pm 2010-11-29 erick.antezana $
 #
 # Module  : CCO_ID_Set.pm
 # Purpose : A set of CCO id's.

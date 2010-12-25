@@ -1,4 +1,4 @@
-# $Id: SubsetDef.pm 2010-11-29 Erick Antezana $
+# $Id: SubsetDef.pm 2010-12-22 erick.antezana $
 #
 # Module  : SubsetDef.pm
 # Purpose : A synonym type definition.
@@ -8,6 +8,96 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 package OBO::Core::SubsetDef;
+
+use strict;
+use warnings;
+
+sub new {
+	my $class             = shift;
+	my $self              = {};
+
+	$self->{NAME}         = undef; # required
+	$self->{DESCRIPTION}  = undef; # required
+
+	bless ($self, $class);
+	return $self;
+}
+=head2 name
+
+  Usage    - print $subset_def->name() or $subset_def->name($name)
+  Returns  - the subset def name (string)
+  Args     - the subset def name (string)
+  Function - gets/sets thesubset def name
+  
+=cut
+
+sub name {
+	my ($self, $name) = @_;
+	$self->{NAME}     = $name if ($name);
+	return $self->{NAME};
+}
+
+=head2 description
+
+  Usage    - print $subset_def->description() or $subset_def->description($desc)
+  Returns  - the subset def description (string)
+  Args     - the subset def description (string)
+  Function - gets/sets the synonym description
+  
+=cut
+
+sub description {
+	my ($self, $desc)    = @_;
+	$self->{DESCRIPTION} = $desc if ($desc);
+	return $self->{DESCRIPTION};
+}
+
+=head2 as_string
+
+  Usage    - $subset_def->as_string() or $subset_def->as_string("GO_SLIM", "GO Slim")
+  Returns  - the subset def definition (string)
+  Args     - the subset def definition (string)
+  Function - gets/sets the definition of this synonym
+  
+=cut
+
+sub as_string {
+	my ($self, $name, $desc) = @_;
+	if ($name && $desc){
+		$self->{NAME}        = $name;
+		$self->{DESCRIPTION} = $desc;
+	}
+	return $self->{NAME}." \"".$self->{DESCRIPTION}."\"";
+}
+
+=head2 equals
+
+  Usage    - print $subset_def->equals($another_subset_def)
+  Returns  - either 1 (true) or 0 (false)
+  Args     - the subset def definition to compare with
+  Function - tells whether this subset def definition is equal to the given argument (another subset def definition)
+  
+=cut
+
+sub equals {
+	my ($self, $target) = @_;
+	my $result = 0;
+	if ($target) {
+		
+		die "The subset def name of this subset def definition is undefined." if (!defined($self->{NAME}));
+		die "The subset def name of the target subset def definition is undefined." if (!defined($self->{NAME}));
+		
+		die "The description of the this subset def definition is undefined." if (!defined($target->{DESCRIPTION}));
+		die "The description of the target subset def definition is undefined." if (!defined($target->{DESCRIPTION}));
+		
+		$result = ($self->{NAME} eq $target->{NAME}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION});
+	}
+	return $result;
+}
+
+1;
+
+__END__
 
 =head1 NAME
 
@@ -72,93 +162,3 @@ it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-use strict;
-use warnings;
-use Carp;
-
-sub new {
-	my $class             = shift;
-	my $self              = {};
-
-	$self->{NAME}         = undef; # required
-	$self->{DESCRIPTION}  = undef; # required
-
-	bless ($self, $class);
-	return $self;
-}
-=head2 name
-
-  Usage    - print $subset_def->name() or $subset_def->name($name)
-  Returns  - the subset def name (string)
-  Args     - the subset def name (string)
-  Function - gets/sets thesubset def name
-  
-=cut
-
-sub name {
-	my ($self, $name) = @_;
-	$self->{NAME} = $name if ($name);
-	return $self->{NAME};
-}
-
-=head2 description
-
-  Usage    - print $subset_def->description() or $subset_def->description($desc)
-  Returns  - the subset def description (string)
-  Args     - the subset def description (string)
-  Function - gets/sets the synonym description
-  
-=cut
-
-sub description {
-	my ($self, $desc) = @_;
-	$self->{DESCRIPTION} = $desc if ($desc);
-	return $self->{DESCRIPTION};
-}
-
-=head2 as_string
-
-  Usage    - $subset_def->as_string() or $subset_def->as_string("GO_SLIM", "GO Slim")
-  Returns  - the subset def definition (string)
-  Args     - the subset def definition (string)
-  Function - gets/sets the definition of this synonym
-  
-=cut
-
-sub as_string {
-	my ($self, $name, $desc) = @_;
-	if ($name && $desc){
-		$self->{NAME}        = $name;
-		$self->{DESCRIPTION} = $desc;
-		return; # set mode
-	}
-	return $self->{NAME}." "."\"".$self->{DESCRIPTION}."\"";
-}
-
-=head2 equals
-
-  Usage    - print $subset_def->equals($another_subset_def)
-  Returns  - either 1 (true) or 0 (false)
-  Args     - the subset def definition to compare with
-  Function - tells whether this subset def definition is equal to the given argument (another subset def definition)
-  
-=cut
-
-sub equals {
-	my ($self, $target) = @_;
-	my $result = 0;
-	if ($target) {
-		
-		confess "The subset def name of this subset def definition is undefined" if (!defined($self->{NAME}));
-		confess "The subset def name of the target subset def definition is undefined" if (!defined($self->{NAME}));
-		
-		confess "The description of the this subset def definition is undefined" if (!defined($target->{DESCRIPTION}));
-		confess "The description of the target subset def definition is undefined" if (!defined($target->{DESCRIPTION}));
-		
-		$result = ($self->{NAME} eq $target->{NAME}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION});
-	}
-	return $result;
-}
-
-1;

@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo2xml.pl 2010-09-29 Erick Antezana $
+# $Id: obo2xml.pl 2010-09-29 erick.antezana $
 #
 # Script  : obo2xml.pl
 #

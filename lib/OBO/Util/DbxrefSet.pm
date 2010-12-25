@@ -1,4 +1,4 @@
-# $Id: DbxrefSet.pm 2010-09-29 Erick Antezana $
+# $Id: DbxrefSet.pm 2010-09-29 erick.antezana $
 #
 # Module  : DbxrefSet.pm
 # Purpose : Reference structure set.
@@ -8,6 +8,59 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 package OBO::Util::DbxrefSet;
+
+our @ISA = qw(OBO::Util::ObjectSet);
+use OBO::Util::ObjectSet;
+
+use strict;
+use warnings;
+
+# TODO Values in dbxref lists should be ordered alphabetically on the dbxref name.
+
+=head2 equals
+
+  Usage    - $set->equals($another_dbxref_set)
+  Returns  - either 1 (true) or 0 (false)
+  Args     - the set (OBO::Util::DbxrefSet) to compare with
+  Function - tells whether this set is equal to the given one
+  
+=cut
+sub equals {
+	my $self = shift;
+	my $result = 0; # I guess they'are NOT identical
+	
+	if (@_) {
+		my $other_set = shift;
+		my %count = ();
+		
+		my @this = values %{$self->{MAP}};
+		my @that = $other_set->get_set();
+
+		if ($#this == $#that) {
+			if ($#this != -1) {
+				foreach (@this, @that) {
+					$count{$_->name().$_->description().$_->modifier()}++;
+				}
+				foreach my $count (values %count) {
+					if ($count != 2) {
+						$result = 0;
+						last;
+					} else {
+						$result = 1;
+					}
+				}
+			} else {
+				$result = 1; # they are equal: empty arrays
+			}
+		}
+	}
+	return $result;
+}
+
+1;
+
+__END__
+
 
 =head1 NAME
 
@@ -83,54 +136,3 @@ it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-our @ISA = qw(OBO::Util::ObjectSet);
-use OBO::Util::ObjectSet;
-
-use strict;
-use warnings;
-use Carp;
-
-# TODO Values in dbxref lists should be ordered alphabetically on the dbxref name.
-
-=head2 equals
-
-  Usage    - $set->equals($another_dbxref_set)
-  Returns  - either 1 (true) or 0 (false)
-  Args     - the set (OBO::Util::DbxrefSet) to compare with
-  Function - tells whether this set is equal to the given one
-  
-=cut
-sub equals {
-	my $self = shift;
-	my $result = 0; # I guess they'are NOT identical
-	
-	if (@_) {
-		my $other_set = shift;
-		my %count = ();
-		
-		my @this = values %{$self->{MAP}};
-		my @that = $other_set->get_set();
-
-		if ($#this == $#that) {
-			if ($#this != -1) {
-				foreach (@this, @that) {
-					$count{$_->name().$_->description().$_->modifier()}++;
-				}
-				foreach my $count (values %count) {
-					if ($count != 2) {
-						$result = 0;
-						last;
-					} else {
-						$result = 1;
-					}
-				}
-			} else {
-				$result = 1; # they are equal: empty arrays
-			}
-		}
-	}
-	return $result;
-}
-
-1;

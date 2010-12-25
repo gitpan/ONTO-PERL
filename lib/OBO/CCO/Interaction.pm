@@ -1,4 +1,4 @@
-# $Id: Interaction.pm 2094 2010-09-29 Erick Antezana $
+# $Id: Interaction.pm 2094 2010-09-29 erick.antezana $
 #
 # Module  : Interaction.pm
 # Purpose : An interaction.

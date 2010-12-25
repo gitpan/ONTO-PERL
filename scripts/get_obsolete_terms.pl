@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: get_get_obsolete_terms.pl 2010-09-29 Erick Antezana $
+# $Id: get_get_obsolete_terms.pl 2010-09-29 erick.antezana $
 #
 # Script  : get_get_obsolete_terms.pl
 #

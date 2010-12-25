@@ -1,4 +1,4 @@
-# $Id: ObjectSet.pm 2010-09-29 Erick Antezana $
+# $Id: ObjectSet.pm 2010-09-29 erick.antezana $
 #
 # Module  : ObjectSet.pm
 # Purpose : A generic set of ontology objects (terms, relationships, dbxrefs, etc.).
@@ -10,56 +10,11 @@
 
 package OBO::Util::ObjectSet;
 
-=head1 NAME
-
-OBO::Util::ObjectSet - An implementation of a set of OBO ontology objects.
-
-=head1 SYNOPSIS
-
-use OBO::Util::ObjectSet;
-
-$set = OBO::Util::ObjectSet->new();
-
-$id = OBO::XO::OBO_ID->new();
-
-$size = $set->size();
-
-if ($ok) {
-	
-	$set->add($term);
-	
-} else {
-	
-	$set->add($term);
-	
-	$set->add($relationship);
-	
-}
-
-=head1 DESCRIPTION
-
-The OBO::Util::ObjectSet class implements a set of ontology objects such as Terms, Relationships, etc.
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 our @ISA = qw(OBO::Util::ObjectIdSet);
 use OBO::Util::ObjectIdSet;
 
 use strict;
 use warnings;
-use Carp;
     
 =head2 add
 
@@ -167,3 +122,50 @@ sub equals {
 }
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::Util::ObjectSet - An implementation of a set of OBO ontology objects.
+
+=head1 SYNOPSIS
+
+use OBO::Util::ObjectSet;
+
+$set = OBO::Util::ObjectSet->new();
+
+$id = OBO::XO::OBO_ID->new();
+
+$size = $set->size();
+
+if ($ok) {
+	
+	$set->add($term);
+	
+} else {
+	
+	$set->add($term);
+	
+	$set->add($relationship);
+	
+}
+
+=head1 DESCRIPTION
+
+The OBO::Util::ObjectSet class implements a set of ontology objects such as Terms, Relationships, etc.
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

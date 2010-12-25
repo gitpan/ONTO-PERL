@@ -1,4 +1,4 @@
-# $Id: Synonym.pm 2010-10-29 Erick Antezana $
+# $Id: Synonym.pm 2010-10-29 erick.antezana $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
@@ -8,6 +8,193 @@
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 package OBO::Core::Synonym;
+
+use OBO::Core::Dbxref;
+use OBO::Core::Def;
+use OBO::Util::Set;
+use strict;
+use warnings;
+
+sub new {
+	my $class                   = shift;
+	my $self                    = {};
+
+	$self->{SCOPE}              = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
+	$self->{DEF}                = OBO::Core::Def->new(); # required
+	$self->{SYNONYM_TYPE_NAME}  = undef; # optional
+
+	bless ($self, $class);
+	return $self;
+}
+
+=head2 scope
+
+  Usage    - print $synonym->scope() or $synonym->scope("EXACT")
+  Returns  - the synonym scope
+  Args     - the synonym scope: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
+  Function - gets/sets the synonym scope
+  
+=cut
+
+sub scope {
+	my ($self, $synonym_scope) = @_;
+	if ($synonym_scope) {
+		my $possible_scopes = OBO::Util::Set->new();
+		my @synonym_scopes  = ('EXACT', 'BROAD', 'NARROW', 'RELATED');
+		$possible_scopes->add_all(@synonym_scopes);
+		if ($possible_scopes->contains($synonym_scope)) {
+			$self->{SCOPE} = $synonym_scope;
+		} else {
+			Carp::croak "The synonym scope you provided must be one of the following: ", join (', ', @synonym_scopes);
+		}
+	}
+    return $self->{SCOPE};
+}
+
+=head2 def
+
+  Usage    - print $synonym->def() or $synonym->def($def)
+  Returns  - the synonym definition (OBO::Core::Def)
+  Args     - the synonym definition (OBO::Core::Def)
+  Function - gets/sets the synonym definition
+  
+=cut
+
+sub def {
+	my ($self, $def) = @_;
+	$self->{DEF} = $def if ($def);
+	return $self->{DEF};
+}
+
+=head2 synonym_type_name
+
+  Usage    - print $synonym->synonym_type_name() or $synonym->synonym_type_name("UK_SPELLING")
+  Returns  - the name of the synonym type associated to this synonym
+  Args     - the synonym type name (string)
+  Function - gets/sets the synonym name
+  
+=cut
+
+sub synonym_type_name {
+	my ($self, $synonym_type_name) = @_;
+	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
+	return $self->{SYNONYM_TYPE_NAME};
+}
+
+=head2 def_as_string
+
+  Usage    - $synonym->def_as_string() or $synonym->def_as_string("Here goes the synonym.", "[GOC:elh, PMID:9334324]")
+  Returns  - the synonym text (string)
+  Args     - the synonym text plus the dbxref list describing the source of this definition
+  Function - gets/sets the definition of this synonym
+  
+=cut
+
+sub def_as_string {
+	my ($self, $text, $dbxref_as_string) = @_;
+	if ($text && $dbxref_as_string){
+		my $def = OBO::Core::Def->new();
+		$def->text($text);
+
+		$dbxref_as_string =~ s/^\[//;
+		$dbxref_as_string =~ s/\]$//;		
+		$dbxref_as_string =~ s/\\,/;;;;/g; # trick to keep the comma's
+		$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
+		
+		my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
+		foreach my $l (@lineas) {
+			my $cp = $l;
+			$l =~ s/,/;;;;/g; # trick to keep the comma's
+			$dbxref_as_string =~ s/\Q$cp\E/$l/;
+		}
+		
+		my @dbxrefs = split (/,/, $dbxref_as_string);
+		
+		foreach my $entry (@dbxrefs) {
+			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
+			my $dbxref = OBO::Core::Dbxref->new();
+			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
+				$match = _unescape($1);
+				$db    = _unescape($2);
+				$acc   = _unescape($3);
+				$desc  = _unescape($4);
+				$mod   = _unescape($5);
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
+				$match = _unescape($1);
+				$db    = _unescape($2);
+				$acc   = _unescape($3);
+				$mod   = _unescape($4);
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
+				$match = _unescape($1);
+				$db    = _unescape($2);
+				$acc   = _unescape($3);
+				$desc  = _unescape($4);
+			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
+				$match = _unescape($1);
+				$db    = _unescape($2);
+				$acc   = _unescape($3);
+			} else {
+				die "The references of this synonym: '", $text, "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
+			}
+			
+			# set the dbxref:
+			$dbxref->name($db.':'.$acc);
+			$dbxref->description($desc) if (defined $desc);
+			$dbxref->modifier($mod) if (defined $mod);
+			$def->{DBXREF_SET}->add($dbxref);
+		}
+		$self->{DEF} = $def;
+	}
+	
+	my @result  = (); # a Set?
+	my @dbxrefs = $self->{DEF}->dbxref_set()->get_set();
+	my @sorted_dbxrefs = map { $_->[0] }                 # restore original values
+						sort { $a->[1] cmp $b->[1] }     # sort
+						map  { [$_, lc($_->as_string)] } # transform: value, sortkey
+						$self->{DEF}->dbxref_set()->get_set();							
+	#foreach my $dbxref (sort {($a && $b)?(lc($a->as_string()) cmp lc($b->as_string())):0} @dbxrefs) {
+	foreach my $dbxref (@sorted_dbxrefs) {	
+		push @result, $dbxref->as_string();
+	}
+	# output: "synonym text" [dbxref's]
+	# modify here to have: "synonym text" synonym_type [dbxref's]
+	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+}
+
+=head2 equals
+
+  Usage    - print $synonym->equals($another_synonym)
+  Returns  - either 1 (true) or 0 (false)
+  Args     - the synonym to compare with
+  Function - tells whether this synonym is equal to the parameter
+  
+=cut
+
+sub equals {
+	my ($self, $target) = @_;
+	my $result = 0;
+	if ($target) {
+		
+		Carp::croak "The scope of this synonym is undefined." if (!defined($self->{SCOPE}));
+		Carp::croak "The scope of the target synonym is undefined." if (!defined($target->{SCOPE}));
+		
+		$result = (($self->{SCOPE} eq $target->{SCOPE}) && ($self->{DEF}->equals($target->{DEF})));
+		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
+	}
+	return $result;
+}
+
+sub _unescape {
+	my $match = $_[0];
+	$match =~ s/;;;;;/\\"/g;
+	$match =~ s/;;;;/\\,/g;
+	return $match;
+}
+
+1;
+
+__END__
+
 
 =head1 NAME
 
@@ -156,184 +343,3 @@ it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-use OBO::Core::Dbxref;
-use OBO::Core::Def;
-use OBO::Util::Set;
-use strict;
-use warnings;
-use Carp;
-
-sub new {
-	my $class                   = shift;
-	my $self                    = {};
-
-	$self->{SCOPE}              = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
-	$self->{DEF}                = OBO::Core::Def->new(); # required
-	$self->{SYNONYM_TYPE_NAME}  = undef; # optional
-
-	bless ($self, $class);
-	return $self;
-}
-
-=head2 scope
-
-  Usage    - print $synonym->scope() or $synonym->scope("EXACT")
-  Returns  - the synonym scope
-  Args     - the synonym scope: 'EXACT', 'BROAD', 'NARROW', 'RELATED'
-  Function - gets/sets the synonym scope
-  
-=cut
-
-sub scope {
-	my ($self, $synonym_scope) = @_;
-	if ($synonym_scope) {
-		my $possible_scopes = OBO::Util::Set->new();
-		my @synonym_scopes = ('EXACT', 'BROAD', 'NARROW', 'RELATED');
-		$possible_scopes->add_all(@synonym_scopes);
-		if ($possible_scopes->contains($synonym_scope)) {
-			$self->{SCOPE} = $synonym_scope;
-		} else {
-			croak "The synonym scope you provided must be one of the following: ", join (', ', @synonym_scopes);
-		}
-	}
-    return $self->{SCOPE};
-}
-
-=head2 def
-
-  Usage    - print $synonym->def() or $synonym->def($def)
-  Returns  - the synonym definition (OBO::Core::Def)
-  Args     - the synonym definition (OBO::Core::Def)
-  Function - gets/sets the synonym definition
-  
-=cut
-
-sub def {
-	my ($self, $def) = @_;
-	if ($def) {
-		$self->{DEF} = $def; 
-	}
-	return $self->{DEF};
-}
-
-=head2 synonym_type_name
-
-  Usage    - print $synonym->synonym_type_name() or $synonym->synonym_type_name("UK_SPELLING")
-  Returns  - the name of the synonym type associated to this synonym
-  Args     - the synonym type name (string)
-  Function - gets/sets the synonym name
-  
-=cut
-
-sub synonym_type_name {
-	my ($self, $synonym_type_name) = @_;
-	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
-	return $self->{SYNONYM_TYPE_NAME};
-}
-
-=head2 def_as_string
-
-  Usage    - $synonym->def_as_string() or $synonym->def_as_string("Here goes the synonym.", "[GOC:elh, PMID:9334324]")
-  Returns  - the synonym text (string)
-  Args     - the synonym text plus the dbxref list describing the source of this definition
-  Function - gets/sets the definition of this synonym
-  
-=cut
-
-sub def_as_string {
-	my ($self, $text, $dbxref_as_string) = @_;
-	if ($text && $dbxref_as_string){
-		my $def = OBO::Core::Def->new();
-		$def->text($text);
-
-		$dbxref_as_string =~ s/^\[//;
-		$dbxref_as_string =~ s/\]$//;		
-		$dbxref_as_string =~ s/\\,/;;;;/g; # trick to keep the comma's
-		$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
-		
-		my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
-		foreach my $l (@lineas) {
-			my $cp = $l;
-			$l =~ s/,/;;;;/g; # trick to keep the comma's
-			$dbxref_as_string =~ s/\Q$cp\E/$l/;
-		}
-		
-		my @dbxrefs = split (/,/, $dbxref_as_string);
-		
-		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
-			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-			} else {
-				confess "The references of this synonym: '", $text, "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
-			}
-			
-			# set the dbxref:
-			$dbxref->name($db.':'.$acc);
-			$dbxref->description($desc) if (defined $desc);
-			$dbxref->modifier($mod) if (defined $mod);
-			$def->{DBXREF_SET}->add($dbxref);
-		}
-		$self->{DEF} = $def;
-	}
-	
-	my @result  = (); # a Set?
-	my @dbxrefs = $self->{DEF}->dbxref_set()->get_set();
-	foreach my $dbxref (sort {($a && $b)?(lc($a->as_string()) cmp lc($b->as_string())):0} @dbxrefs) {
-		push @result, $dbxref->as_string();
-	}
-	# output: "synonym text" [dbxref's]
-	# modify here to have: "synonym text" synonym_type [dbxref's]
-	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
-}
-
-=head2 equals
-
-  Usage    - print $synonym->equals($another_synonym)
-  Returns  - either 1 (true) or 0 (false)
-  Args     - the synonym to compare with
-  Function - tells whether this synonym is equal to the parameter
-  
-=cut
-
-sub equals {
-	my ($self, $target) = @_;
-	my $result = 0;
-	if ($target) {
-		
-		croak "The scope of this synonym is undefined" if (!defined($self->{SCOPE}));
-		croak "The scope of the target synonym is undefined" if (!defined($target->{SCOPE}));
-		
-		$result = (($self->{SCOPE} eq $target->{SCOPE}) && ($self->{DEF}->equals($target->{DEF})));
-		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
-	}
-	return $result;
-}
-
-sub _unescape {
-	my $match = $_[0];
-	$match =~ s/;;;;;/\\"/g;
-	$match =~ s/;;;;/\\,/g;
-	return $match;
-}
-1;    

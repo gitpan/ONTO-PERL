@@ -1,4 +1,4 @@
-# $Id: Map.pm 2010-11-29 Erick Antezana $
+# $Id: Map.pm 2010-11-29 erick.antezana $
 #
 # Module  : Map.pm
 # Purpose : An implementation of a Map. An object that maps keys to values.
@@ -9,149 +9,8 @@
 #
 package OBO::Util::Map;
 
-=head1 NAME
-
-OBO::Util::Map - An implementation of a map (key -> value).
-    
-=head1 SYNOPSIS
-
-use OBO::Util::Map;
-
-use strict;
-
-
-my $my_map = OBO::Util::Map->new();
-
-
-if(!$my_map->contains_key("GO"))  { print "doesn't contain key: GO"; }
-
-if(!$my_map->contains_value("Gene Ontology"))  { print "doesn't contain value: Gene Ontology"; }
-
-if ($my_map->size() == 0) { print "empty map"; }
-
-if ($my_map->is_empty())  { print "empty map"; }
-
-
-$my_map->put("GO", "Gene Ontology");
-
-if ($my_map->contains_key("GO"))  { print "contains key: GO"; }
-
-if ($my_map->contains_value("Gene Ontology")) { print "contains value: Gene Ontology"; }
-
-if ($my_map->size() == 1) { print "map size is 1"; }
-
-if (!$my_map->is_empty()) { print "map is not empty"; }
-
-
-
-$my_map->put("CCO", "Cell Cycle Ontology");
-
-$my_map->put("PO", "Plant Ontology");
-
-$my_map->put("SO", "Sequence Ontology");
-
-if ($my_map->size() == 4) { print "map size is 4"; }
-
-
-
-if ($my_map->equals($my_map)) { print "my map is identical to itself"; }
-
-
-
-my $my_map2 = OBO::Util::Map->new();
-
-if (!$my_map->equals($my_map2)) { print "my map is not identical to map2"; }
-
-if (!$my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
-
-$my_map2->put("CCO", "Cell Cycle Ontology");
-
-$my_map2->put("PO", "Plant Ontology");
-
-$my_map2->put("SO", "Sequence Ontology");
-
-if (!$my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
-
-if (!$my_map->equals($my_map2)) { print "my map is not identical to map2"; }
-
-
-
-$my_map2->put("GO", "Gene Ontology");
-
-if ($my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
-
-if ($my_map->equals($my_map2)) { print "my map is not identical to map2"; }
-
-
-
-if ($my_map2->get("GO") eq "Gene Ontology") { print "get GO"}
-
-if ($my_map2->get("CCO") eq "Cell Cycle Ontology") { print "get CCO"}
-
-if ($my_map2->get("PO") eq "Plant Ontology") { print "get PO"}
-
-if ($my_map2->get("SO") eq "Sequence Ontology") { print "get SO"}
-
-
-
-$my_map2->put("TO", "Trait Ontology");
-
-if (!$my_map->equals($my_map2)) { print "my map is not identical to map2"; }
-
-if (!$my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
-
-if ($my_map2->size() == 5) { print "map size is 5"; }
-
-
-
-$my_map->clear();
-
-if ($my_map->size() == 0) { print "map size is 0"; }
-
-
-
-$my_map->put_all($my_map2);
-
-if ($my_map->equals($my_map2)) { print "my map is identical to map2"; }
-
-if ($my_map2->equals($my_map)) { print "map2 is identical to my map"; }
-
-if ($my_map->size() == 5) { print "map size is 5"; }
-
-
-
-my $UD = $my_map->remove("XO");
-
-my $GO = $my_map->remove("GO");
-
-if (!$my_map->contains_key("GO") && !$my_map->contains_value("Gene Ontology")) { print "GO is gone"}
-
-print $GO; # "Gene Ontology"
-
-if ($my_map->size() == 4) { print "map size is 4"; }
-
-=head1 DESCRIPTION
-
-An object that maps keys to values. A map cannot contain duplicate keys; 
-each key can map to at most one value. 
-
-=head1 AUTHOR
-
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-=cut
-
 use strict;
 use warnings;
-use Carp;
 
 use OBO::Util::Set;
 
@@ -310,7 +169,7 @@ sub put {
 		$old_value  = $self->{MAP}->{$key} if ($has_key);
 		$self->{MAP}->{$key} = $value;
 	} else {
-		confess "You should provide both a key and value -> ('$key', '$value')\n";
+		die "You should provide both a key and value -> ('$key', '$value')\n";
 	}    
 	return $old_value;
 }
@@ -384,3 +243,146 @@ sub values  {
 }
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+OBO::Util::Map - An implementation of a map (key -> value).
+    
+=head1 SYNOPSIS
+
+use OBO::Util::Map;
+
+use strict;
+
+
+my $my_map = OBO::Util::Map->new();
+
+
+if(!$my_map->contains_key("GO"))  { print "doesn't contain key: GO"; }
+
+if(!$my_map->contains_value("Gene Ontology"))  { print "doesn't contain value: Gene Ontology"; }
+
+if ($my_map->size() == 0) { print "empty map"; }
+
+if ($my_map->is_empty())  { print "empty map"; }
+
+
+$my_map->put("GO", "Gene Ontology");
+
+if ($my_map->contains_key("GO"))  { print "contains key: GO"; }
+
+if ($my_map->contains_value("Gene Ontology")) { print "contains value: Gene Ontology"; }
+
+if ($my_map->size() == 1) { print "map size is 1"; }
+
+if (!$my_map->is_empty()) { print "map is not empty"; }
+
+
+
+$my_map->put("CCO", "Cell Cycle Ontology");
+
+$my_map->put("PO", "Plant Ontology");
+
+$my_map->put("SO", "Sequence Ontology");
+
+if ($my_map->size() == 4) { print "map size is 4"; }
+
+
+
+if ($my_map->equals($my_map)) { print "my map is identical to itself"; }
+
+
+
+my $my_map2 = OBO::Util::Map->new();
+
+if (!$my_map->equals($my_map2)) { print "my map is not identical to map2"; }
+
+if (!$my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
+
+$my_map2->put("CCO", "Cell Cycle Ontology");
+
+$my_map2->put("PO", "Plant Ontology");
+
+$my_map2->put("SO", "Sequence Ontology");
+
+if (!$my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
+
+if (!$my_map->equals($my_map2)) { print "my map is not identical to map2"; }
+
+
+
+$my_map2->put("GO", "Gene Ontology");
+
+if ($my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
+
+if ($my_map->equals($my_map2)) { print "my map is not identical to map2"; }
+
+
+
+if ($my_map2->get("GO") eq "Gene Ontology") { print "get GO"}
+
+if ($my_map2->get("CCO") eq "Cell Cycle Ontology") { print "get CCO"}
+
+if ($my_map2->get("PO") eq "Plant Ontology") { print "get PO"}
+
+if ($my_map2->get("SO") eq "Sequence Ontology") { print "get SO"}
+
+
+
+$my_map2->put("TO", "Trait Ontology");
+
+if (!$my_map->equals($my_map2)) { print "my map is not identical to map2"; }
+
+if (!$my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
+
+if ($my_map2->size() == 5) { print "map size is 5"; }
+
+
+
+$my_map->clear();
+
+if ($my_map->size() == 0) { print "map size is 0"; }
+
+
+
+$my_map->put_all($my_map2);
+
+if ($my_map->equals($my_map2)) { print "my map is identical to map2"; }
+
+if ($my_map2->equals($my_map)) { print "map2 is identical to my map"; }
+
+if ($my_map->size() == 5) { print "map size is 5"; }
+
+
+
+my $UD = $my_map->remove("XO");
+
+my $GO = $my_map->remove("GO");
+
+if (!$my_map->contains_key("GO") && !$my_map->contains_value("Gene Ontology")) { print "GO is gone"}
+
+print $GO; # "Gene Ontology"
+
+if ($my_map->size() == 4) { print "map size is 4"; }
+
+=head1 DESCRIPTION
+
+An object that maps keys to values. A map cannot contain duplicate keys; 
+each key can map to at most one value. 
+
+=head1 AUTHOR
+
+Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
