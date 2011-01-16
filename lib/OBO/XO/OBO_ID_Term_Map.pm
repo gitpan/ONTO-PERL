@@ -2,7 +2,7 @@
 #
 # Module  : OBO_ID_Term_Map.pm
 # Purpose : A (birectional) map OBO_ID vs Term name.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -324,7 +324,7 @@ sub is_empty {
 
 sub write_map {
 	my $self = shift;
-	open( FH, ">" . $self->{FILE} ) || die "Cannot write map into the file: '$self->{FILE}', $!";
+	open( FH, '>' . $self->{FILE} ) || die "Cannot write map into the file: '$self->{FILE}', $!";
 	foreach ( sort keys %{ $self->{MAP_BY_ID} } ) {
 		if ($self->{MAP_BY_ID}->{$_}) {
 			print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";
@@ -390,7 +390,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

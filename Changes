@@ -90,3 +90,5 @@ Revision history for ONTO-PERL
 1.29 Added missing script (get_terms_and_synonyms.pl), minor bug fixes.
 
 1.30 Code cleaning. Code optimisation, minor bug fixes.
+
+1.31 Croak fixes. CCO modules clean-up.

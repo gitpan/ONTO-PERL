@@ -2,7 +2,7 @@
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -18,7 +18,7 @@ use OBO::Util::TermSet;
 use strict;
 use warnings;
 
-our $VERSION = '1.30';
+our $VERSION = '1.31';
 
 sub new {
 	my $class                      = shift;
@@ -163,14 +163,14 @@ sub _idspace_as_string {
 	my @idspaces_as_string = ();
 	foreach my $idspace (@idspaces) {
 		my $idspace_as_string          = $idspace->local_idspace();
-		$idspace_as_string            .= " ".$idspace->uri();
+		$idspace_as_string            .= ' '.$idspace->uri();
 		my $idspace_description_string = $idspace->description();
 		$idspace_as_string            .= " \"".$idspace_description_string."\"" if (defined $idspace_description_string);
 		
 		push @idspaces_as_string, $idspace_as_string;
 	}
 	if (!@idspaces_as_string) {
-		return ""; # empty string
+		return ''; # empty string
 	} else {
 		return @idspaces_as_string
 	}
@@ -281,10 +281,10 @@ sub add_term {
 			#$self->{TERMS_SET}->add($term);
 			return $term;
 		} else {
-			die "A term to be added to this ontology must have an ID.";
+			die 'A term to be added to this ontology must have an ID.';
 		}
 	} else {
-    	die "Missing term.";
+    	die 'Missing term.';
     }
 }
 
@@ -303,7 +303,7 @@ sub add_term_as_string {
 		my $term_id = shift;
 		if (!$self->has_term_id($term_id)){
 			my $term_name = shift;
-			$term_id || die "A term to be added to this ontology must have an ID.";
+			$term_id || die 'A term to be added to this ontology must have an ID.';
 			my $new_term = OBO::Core::Term->new();
 			$new_term->id($term_id);
 			$new_term->name($term_name);
@@ -313,7 +313,7 @@ sub add_term_as_string {
 			warn "The term you tried to add ($term_id) is already in the ontology.\n";
 		}
     } else {
-    	die "To add a term, you need to provide both a term ID and a term name.";
+    	die 'To add a term, you need to provide both a term ID and a term name.';
     }
 }
 
@@ -335,7 +335,7 @@ sub add_relationship_type {
 		# TODO Is it necessary to implement a set of relationship types? Maybe for get_relationship_types()?
 		#$self->{RELATIONSHIP_TYPES_SET}->add($relationship_type);
     } else {
-    	die "Missing relationship type.";
+    	die 'Missing relationship type.';
     }
 }
 
@@ -355,7 +355,7 @@ sub add_relationship_type_as_string {
 		if (!$self->has_relationship_type_id($relationship_type_id)){
 			my $relationship_type_name = shift;
 	    
-			$relationship_type_id   || die "A relationship type to be added to this ontology must have an ID";
+			$relationship_type_id   || die 'A relationship type to be added to this ontology must have an ID';
 	
 			my $new_relationship_type = OBO::Core::RelationshipType->new();
 			$new_relationship_type->id($relationship_type_id);
@@ -366,7 +366,7 @@ sub add_relationship_type_as_string {
 			warn "The relationship type you tried to add ($relationship_type_id) is already in the ontology\n";
 		}
     } else {
-    	die "To add a relationship type, you need to provide both a relationship type ID and a relationship type name";
+    	die 'To add a relationship type, you need to provide both a relationship type ID and a relationship type name';
     }
 }
 
@@ -382,7 +382,7 @@ sub add_relationship_type_as_string {
 sub delete_term {
     my ($self, $term) = @_;
     if ($term) {    
-		$term->id || die "The term to be deleted from this ontology does not have an ID.";
+		$term->id || die 'The term to be deleted from this ontology does not have an ID.';
     
 		my $id = $term->id;
 		if (defined($id) && defined($self->{TERMS}->{$id})) {
@@ -481,7 +481,7 @@ sub equals {
 	my $result =  0; 
 	
 	# TODO Implement this method
-	die "Method: OBO::Core:Ontology::equals in not implemented yet, use OBO::Util::Ontolome meanwhile";
+	die 'Method: OBO::Core:Ontology::equals in not implemented yet, use OBO::Util::Ontolome meanwhile';
 	
 	return $result;
 }
@@ -539,9 +539,9 @@ sub get_terms_by_subnamespace {
 	if (@_) {
 		my $is = $self->get_terms_idspace();
 		if (!defined $is) {
-			die "The local ID space is not defined for this ontology.";
+			die 'The local ID space is not defined for this ontology.';
 		} else {
-			$terms = $self->get_terms($is.":".$_[0]);
+			$terms = $self->get_terms($is.':'.$_[0]);
 		}
 	}
 	return $terms;
@@ -711,10 +711,10 @@ sub set_term_id {
 				# TODO Adapt the relationship ids of this term: CCO:P0000001_is_a_CCO:P0000002  => CCO:P0000003_is_a_CCO:P0000002
 				return $self->{TERMS}->{$new_term_id};
     		} else {
-    			die "The given new ID (", $new_term_id,") is already used by: ", $self->get_term_by_id($new_term_id)->name();
+    			die 'The given new ID (', $new_term_id, ') is already used by: ', $self->get_term_by_id($new_term_id)->name();
     		}
     	} else {
-    		die "The term for which you want to modify its ID (", $new_term_id,") is not in the ontology";
+    		die 'The term for which you want to modify its ID (', $new_term_id, ') is not in the ontology';
     	}
     }
 }
@@ -839,7 +839,7 @@ sub add_relationship {
 	my ($self, $relationship) = @_;
 
 	my $id = $relationship->id();
-	$id || die "The relationship to be added to this ontology does not have an ID";
+	$id || die 'The relationship to be added to this ontology does not have an ID';
 	$self->{RELATIONSHIPS}->{$id} = $relationship;
     
 	#
@@ -847,10 +847,10 @@ sub add_relationship {
 	#
 	my $target_element = $self->{RELATIONSHIPS}->{$id}->head();
 	my $source_element = $self->{RELATIONSHIPS}->{$id}->tail();
-	if (eval { $target_element->isa("OBO::Core::Term") } && eval { $source_element->isa("OBO::Core::Term") }) {
+	if (eval { $target_element->isa('OBO::Core::Term') } && eval { $source_element->isa('OBO::Core::Term') }) {
 		$self->has_term($target_element) || $self->add_term($target_element);	
 		$self->has_term($source_element) || $self->add_term($source_element);	
-	} elsif (eval { $target_element->isa("OBO::Core::RelationshipType") } && eval { $source_element->isa("OBO::Core::RelationshipType") }) {
+	} elsif (eval { $target_element->isa('OBO::Core::RelationshipType') } && eval { $source_element->isa('OBO::Core::RelationshipType') }) {
 		$self->has_relationship_type($target_element) || $self->add_relationship_type($target_element);
 		$self->has_relationship_type($source_element) || $self->add_relationship_type($source_element);
 	} else {
@@ -1096,7 +1096,7 @@ sub get_number_of_relationship_types {
 sub export {
 	my $self        = shift;
 	my $file_handle = shift || \*STDOUT;
-	my $format      = shift || "obo";
+	my $format      = shift || 'obo';
     
 	my $possible_formats = OBO::Util::Set->new();
 	$possible_formats->add_all('obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3');
@@ -1104,7 +1104,7 @@ sub export {
 		die "The export format must be one of the following: 'obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3'";
 	}
     
-	if ($format eq "obo") { 
+	if ($format eq 'obo') { 
 		# preambule: OBO header tags
 		print $file_handle "format-version: 1.4\n";
 		my $data_version = $self->data_version();
@@ -2625,7 +2625,7 @@ sub export {
 					$synonym_type = 'hasRelatedSynonym';
 				} else {
 					# TODO Consider the synonym types defined in the header: 'synonymtypedef' tag
-					die "A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED";
+					die 'A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED';
 				}
 				print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
 				print $file_handle "\t\t<oboInOwl:Synonym>\n";
@@ -2858,7 +2858,7 @@ sub export {
 					$synonym_type = 'hasRelatedSynonym';
 				} else {
 					# TODO Consider the synonym types defined in the header: 'synonymtypedef' tag
-					die "A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED";
+					die 'A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED';
 				}
 				print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
 				print $file_handle "\t\t<oboInOwl:Synonym>\n";
@@ -4678,7 +4678,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -2,7 +2,7 @@
 #
 # Module  : SubsetDef.pm
 # Purpose : A synonym type definition.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -84,11 +84,11 @@ sub equals {
 	my $result = 0;
 	if ($target) {
 		
-		die "The subset def name of this subset def definition is undefined." if (!defined($self->{NAME}));
-		die "The subset def name of the target subset def definition is undefined." if (!defined($self->{NAME}));
+		die 'The subset def name of this subset def definition is undefined.' if (!defined($self->{NAME}));
+		die 'The subset def name of the target subset def definition is undefined.' if (!defined($self->{NAME}));
 		
-		die "The description of the this subset def definition is undefined." if (!defined($target->{DESCRIPTION}));
-		die "The description of the target subset def definition is undefined." if (!defined($target->{DESCRIPTION}));
+		die 'The description of the this subset def definition is undefined.' if (!defined($target->{DESCRIPTION}));
+		die 'The description of the target subset def definition is undefined.' if (!defined($target->{DESCRIPTION}));
 		
 		$result = ($self->{NAME} eq $target->{NAME}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION});
 	}
@@ -155,7 +155,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

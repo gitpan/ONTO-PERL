@@ -2,7 +2,7 @@
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -45,7 +45,7 @@ sub scope {
 		if ($possible_scopes->contains($synonym_scope)) {
 			$self->{SCOPE} = $synonym_scope;
 		} else {
-			Carp::croak "The synonym scope you provided must be one of the following: ", join (', ', @synonym_scopes);
+			die 'The synonym scope you provided must be one of the following: ', join (', ', @synonym_scopes);
 		}
 	}
     return $self->{SCOPE};
@@ -175,8 +175,8 @@ sub equals {
 	my $result = 0;
 	if ($target) {
 		
-		Carp::croak "The scope of this synonym is undefined." if (!defined($self->{SCOPE}));
-		Carp::croak "The scope of the target synonym is undefined." if (!defined($target->{SCOPE}));
+		die 'The scope of this synonym is undefined.' if (!defined($self->{SCOPE}));
+		die 'The scope of the target synonym is undefined.' if (!defined($target->{SCOPE}));
 		
 		$result = (($self->{SCOPE} eq $target->{SCOPE}) && ($self->{DEF}->equals($target->{DEF})));
 		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
@@ -336,7 +336,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -90,7 +90,7 @@ sub union () {
 					my $cola    = $r->tail();
 					my $tail_id = $cola->id();
 					
-					#Carp::confess 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
+					#die 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
 					
 					my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
 					if (!defined $tail) {
@@ -527,7 +527,7 @@ my ($self, $ontology) = @_;
 				my $cola    = $r->tail();
 				my $tail_id = $cola->id();
 				
-				#Carp::confess 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
+				#die 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
 				
 				my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
 				if (!defined $tail) {

@@ -2,7 +2,7 @@
 #
 # Module  : Dbxref.pm
 # Purpose : Reference structure.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -16,10 +16,10 @@ sub new {
 	my $class            = shift;
 	my $self             = {};
 
-	$self->{DB}          = ""; # required, scalar (1)
-	$self->{ACC}         = ""; # required, scalar (1)
-	$self->{DESCRIPTION} = ""; # scalar (0..1)
-	$self->{MODIFIER}    = ""; # scalar (0..1)
+	$self->{DB}          = ''; # required, scalar (1)
+	$self->{ACC}         = ''; # required, scalar (1)
+	$self->{DESCRIPTION} = ''; # scalar (0..1)
+	$self->{MODIFIER}    = ''; # scalar (0..1)
     
 	bless ($self, $class);
 	return $self;
@@ -39,9 +39,9 @@ sub name {
 	if ($name) {
 		($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/ || $name =~ /(http):\/\/(.*)/);
 	} else { # get-mode
-		die "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
+		die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
 	}
-	return $self->{DB}.":".$self->{ACC};
+	return $self->{DB}.':'.$self->{ACC};
 }
 
 # Alias
@@ -80,7 +80,7 @@ sub acc {
 	if ($acc) {
 		$self->{ACC} = $acc;
 	} else { # get-mode
-		die "The accession number (acc) of this 'dbxref' is not defined." if (!defined($self->{ACC}));
+		die 'The accession number (acc) of this dbxref is not defined.' if (!defined($self->{ACC}));
 	}
 	return $self->{ACC};
 }
@@ -99,7 +99,7 @@ sub description {
 	if ($description) { 
 		$self->{DESCRIPTION} = $description;
 	} else { # get-mode
-		die "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
+		die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
 	}
 	return $self->{DESCRIPTION};
 }
@@ -118,7 +118,7 @@ sub modifier {
 	if ($modifier) { 
 		$self->{MODIFIER} = $modifier;
 	} else { # get-mode
-		die "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
+		die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
 	}
 	return $self->{MODIFIER};
 }
@@ -134,10 +134,10 @@ sub modifier {
 
 sub as_string {
 	my ($self) = @_;
-	die "The name of this 'dbxref' is not defined." if (!defined($self->{DB}) || !defined($self->{ACC}));
-	my $result = $self->{DB}.":".$self->{ACC};
-	$result   .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
-	$result   .= " ".$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne "");
+	die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
+	my $result = $self->{DB}.':'.$self->{ACC};
+	$result   .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne '');
+	$result   .= ' '.$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne "");
 	return $result;
 }
 
@@ -153,8 +153,8 @@ sub as_string {
 sub equals {
 	my ($self, $target) = @_;
 	if ($target) {
-		die "The name of this dbxref is undefined." if (!defined($self->{DB}) || !defined($self->{ACC}));
-		die "The name of the target dbxref is undefined." if (!defined($target->{DB}) || !defined($target->{ACC}));
+		die 'The name of this dbxref is undefined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
+		die 'The name of the target dbxref is undefined.' if (!defined($target->{DB}) || !defined($target->{ACC}));
 		return (($self->{DB}          eq $target->{DB})          &&
 				($self->{ACC}         eq $target->{ACC})         &&
 				($self->{DESCRIPTION} eq $target->{DESCRIPTION}) &&
@@ -218,7 +218,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

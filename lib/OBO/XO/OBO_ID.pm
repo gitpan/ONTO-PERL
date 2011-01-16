@@ -2,7 +2,7 @@
 #
 # Module  : OBO_ID.pm
 # Purpose : A OBO_ID.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -69,7 +69,7 @@ sub id_as_string () {
 		my $factor = '1'.0 x length($2);
 		$self->{LOCALID} = substr($2 + $factor, 1, 7); # trick: forehead zeros # TODO
 	} elsif ($self->{IDSPACE} && $self->{LOCALID}) {
-		return $self->{IDSPACE}.":".$self->{LOCALID};
+		return $self->{IDSPACE}.':'.$self->{LOCALID};
 	}
 }
 *id = \&id_as_string;
@@ -173,7 +173,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

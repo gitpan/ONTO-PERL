@@ -2,7 +2,7 @@
 #
 # Module  : CCO_ID.pm
 # Purpose : A CCO_ID.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -78,7 +78,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -134,7 +134,7 @@ sub id_as_string () {
 		$self->{SUBNAMESPACE} = $2;
 		$self->{LOCALID} = substr($3 + 10000000, 1, 7); # trick: forehead zeros
 	} elsif ($self->{IDSPACE} && $self->{SUBNAMESPACE} && $self->{LOCALID}) {
-		return $self->{IDSPACE}.":".$self->{SUBNAMESPACE}.$self->{LOCALID};
+		return $self->{IDSPACE}.':'.$self->{SUBNAMESPACE}.$self->{LOCALID};
 	}
 }
 *id = \&id_as_string;

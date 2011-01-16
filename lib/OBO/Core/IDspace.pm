@@ -16,8 +16,8 @@ sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{LOCAL_IDSPACE}      = "";    # required, scalar (1)
-	$self->{URI}                = "";    # required, scalar (1)
+	$self->{LOCAL_IDSPACE}      = '';    # required, scalar (1)
+	$self->{URI}                = '';    # required, scalar (1)
 	$self->{DESCRIPTION}        = undef; # optional scalar (0..1)
         
 	bless ($self, $class);
@@ -38,7 +38,7 @@ sub local_idspace {
 	if ($local_idspace) {
 		$self->{LOCAL_IDSPACE} = $local_idspace;
 	} else { # get-mode
-		die "The local ID space of this ID space is not defined." if (!defined($self->{LOCAL_IDSPACE}));
+		die 'The local ID space of this ID space is not defined.' if (!defined($self->{LOCAL_IDSPACE}));
 	}
 	return $self->{LOCAL_IDSPACE};
 }
@@ -57,7 +57,7 @@ sub uri {
 	if ($uri) {
 		$self->{URI} = $uri;
 	} else { # get-mode
-		die "The URI of this ID space is not defined." if (!defined($self->{URI}));
+		die 'The URI of this ID space is not defined.' if (!defined($self->{URI}));
 	}
 	return $self->{URI};
 }
@@ -76,7 +76,7 @@ sub description {
 	if ($description) { 
 		$self->{DESCRIPTION} = $description;
 	} else { # get-mode
-		die "Neither the local idspace nor the URI of this idspace is defined." if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
+		die 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
 	}
 	return $self->{DESCRIPTION};
 }
@@ -98,10 +98,10 @@ sub as_string {
 		$self->{DESCRIPTION}   = $description if ($description);
 		return; # set mode
 	} else {
-		die "Neither the local idspace nor the URI of this idspace is defined." if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
-		my $result = $self->{LOCAL_IDSPACE}." ".$self->{URI};
-		$result   .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne "");
-		$result    = "" if ($result =~ /^\s*$/);
+		die 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
+		my $result = $self->{LOCAL_IDSPACE}.' '.$self->{URI};
+		$result   .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne '');
+		$result    = '' if ($result =~ /^\s*$/);
 		return $result;
 	}
 }
@@ -118,8 +118,8 @@ sub as_string {
 sub equals {
 	my ($self, $target) = @_;
 	if ($target) {
-		die "Neither the local idspace or the URI of this idspace is defined." if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
-		die "Neither the local idspace or the URI of this idspace is defined." if (!defined($target->{LOCAL_IDSPACE}) || !defined($target->{URI}));
+		die 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
+		die 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($target->{LOCAL_IDSPACE}) || !defined($target->{URI}));
 		my $result = ((defined $self->{DESCRIPTION} && defined $target->{DESCRIPTION}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION}));
 		return $result && (($self->{LOCAL_IDSPACE} eq $target->{LOCAL_IDSPACE}) &&
 							($self->{URI} eq $target->{URI}));

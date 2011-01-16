@@ -2,7 +2,7 @@
 #
 # Module  : RelationshipType.pm
 # Purpose : Type of Relationship in the Ontology: is_a, part_of, etc.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -285,9 +285,9 @@ sub subset {
 sub synonym_set {
 	my $self = shift;
 	foreach my $synonym (@_) {		
-		die "The name of this relationship type (", $self->id(), ") is undefined" if (!defined($self->name()));
+		die 'The name of this relationship type (', $self->id(), ') is undefined.' if (!defined($self->name()));
 		# do not add 'EXACT' synonyms with the same 'name':
-		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->scope() eq "EXACT" && $synonym->def()->text() eq $self->name()));
+		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->scope() eq 'EXACT' && $synonym->def()->text() eq $self->name()));
    	}
 	return $self->{SYNONYM_SET}->get_set();
 }
@@ -810,8 +810,8 @@ sub equals  {
 	if ($target) {
 		my $self_id = $self->{'ID'};
 		my $target_id = $target->{'ID'};
-		die "The ID of this relationship type is not defined." if (!defined($self_id));
-		die "The ID of the target relationship type is not defined." if (!defined($target_id));
+		die 'The ID of this relationship type is not defined.' if (!defined($self_id));
+		die 'The ID of the target relationship type is not defined.' if (!defined($target_id));
 		$result = ($self_id eq $target_id);
 	}
 	return $result;
@@ -906,7 +906,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

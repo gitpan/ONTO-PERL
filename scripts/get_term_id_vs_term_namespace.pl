@@ -9,7 +9,7 @@
 #
 # Usage   : get_term_id_vs_term_namespace.pl my_ontology.obo > get_term_id_vs_term_namespace.txt
 #
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #

@@ -2,7 +2,7 @@
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -97,16 +97,16 @@ use constant SYNONYM_DBXREF           => 'SYNONYM_DBXREF';
 my %data_current_tag;                # for gathering the chars stream
 my $result;                   # The ontology
 my $count = 0;                # count terms
-my $tag = "";                 # current tag
-my $parent_tag = "";          # parent tag
-my $grant_parent_tag = "";    # grant parent tag
-my $great_parent_tag = "";    # great parent tag
+my $tag = '';                 # current tag
+my $parent_tag = '';          # parent tag
+my $grant_parent_tag = '';    # grant parent tag
+my $great_parent_tag = '';    # great parent tag
 
 my $current_term_id;                 # current term ID
 my $relationship_type_id;
 my $def_char = 0;                    # defintion characters streamed
 my $current_relationship_type_id;    # current relationship ID
-my $attr = "";                       # current relationship
+my $attr = '';                       # current relationship
 my $current_line = 0;                # current line in the parsed file
 my $is_metadata = 0;                 # if the element is aprt of the metadata (e.g. oboInOwl:DbXref)
 my @dbxref = ();                     # current dbxrefs
@@ -757,7 +757,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

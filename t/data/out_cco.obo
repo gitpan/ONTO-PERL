@@ -1,6 +1,6 @@
 format-version: 1.4
 date: 16:02:2007 16:06
-auto-generated-by: ONTO-PERL 1.30
+auto-generated-by: ONTO-PERL 1.31
 default-namespace: CCO
 remark: The Cell-Cycle Ontology
 remark: The Cell Cycle Ontology

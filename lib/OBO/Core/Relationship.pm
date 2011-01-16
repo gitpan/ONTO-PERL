@@ -2,7 +2,7 @@
 #
 # Module  : Relationship.pm
 # Purpose : Relationship in the Ontology.
-# License : Copyright (c) 2006, 2007, 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -72,8 +72,8 @@ sub equals  {
      	my $target    = shift;
 		my $self_id   = $self->{'ID'};
 		my $target_id = $target->{'ID'};
-		die "The ID of this relationship is not defined." if (!defined($self_id));
-		die "The ID of the target relationship is not defined." if (!defined($target_id));
+		die 'The ID of this relationship is not defined.' if (!defined($self_id));
+		die 'The ID of the target relationship is not defined.' if (!defined($target_id));
 		$result = ($self_id eq $target_id);
 	}
 	return $result;
@@ -211,7 +211,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006, 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
