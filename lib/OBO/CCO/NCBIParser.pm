@@ -207,7 +207,7 @@ sub work {
 
 	# Write the new ontology to disk
 	open (FH, ">".$new_OBOfileName) || die "Cannot write OBO file ", $!;
-	$ontology->export(\*FH);
+	$ontology->export('obo', \*FH);
 	close FH;
 	return $ontology;
 }

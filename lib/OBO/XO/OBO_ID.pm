@@ -167,6 +167,10 @@ concatenated to a LocalID via a : (colon) character. The ID should not
 contain any whitespace. The IDSpace should not itself contain any colon 
 characters, and should ideally be registered on the GO xrefs page or with OBO. 
 
+More info at:
+
+	http://www.obofoundry.org/id-policy.shtml
+
 =head1 AUTHOR
 
 Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>

@@ -88,14 +88,8 @@ ok(!$my_set->contains_id("CCO:P0000007"));
 ok($my_set->contains_name('Six'));
 ok(!$my_set->contains_name('Seven'));
 
-### get versions ###
-#foreach ($my_set->get_set()) {
-#	print $_, "\n";
-#}
-
 $my_set->add_all($n4, $n5, $n6);
 ok($my_set->size() == 6);
-
 
 # remove from my_set
 $rcode = $my_set->remove($n4);

@@ -49,7 +49,7 @@ MSG
 WriteMakefile(
 	NAME              => 'ONTO-PERL',
 	DISTNAME          => 'ONTO-PERL',
-	ABSTRACT          => 'PERL Modules for biomedical ontologies such as the Cell Cycle Ontology (CCO) and OBO ontologies in general like the Gene Ontology (GO)',
+	ABSTRACT          => 'PERL Modules for OBO-formatted ontologies such as the Gene Ontology (GO)',
 	VERSION_FROM      => 'lib/OBO/Core/Ontology.pm', # finds $VERSION
 	#LICENCE           => 'perl',
 	#PREREQ_PM         => {

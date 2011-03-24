@@ -21,9 +21,10 @@ use warnings;
   Returns  - an ontology (OBO::Core::Ontology) being the union of the parameters (ontologies)
   Args     - the ontologies (OBO::Core::Ontology) to be united
   Function - creates an ontology having the union of terms and relationships from the given ontologies
-  Remark1  - the IDspace's are collected and added to the result ontology
-  Remark2  - the union is made on the basis of the IDs
-  Remark3  - the default namespace is taken from the last ontology argument
+  Remark 1 - the IDspace's are collected and added to the result ontology
+  Remark 2 - the union is made on the basis of the IDs
+  Remark 3 - the default namespace is taken from the last ontology argument
+  Remark 4 - the merging order is important while merging definitions: the one from the last ontology will be taken
   
 =cut
 
@@ -35,11 +36,11 @@ sub union () {
 	
 	my $default_namespace;
 	foreach my $ontology (@ontos) {
-		$result->remarks($ontology->remarks()->get_set());   # add all the remark's of the ontologies
-		$result->idspaces($ontology->idspaces()->get_set()); # assuming the same idspace
-		$result->subset_def_set($ontology->subset_def_set()->get_set());   # add all subset_def_set's by default
+		$result->remarks($ontology->remarks()->get_set());    # add all the remark's of the ontologies
+		$result->idspaces($ontology->idspaces()->get_set());  # assuming the same idspace
+		$result->subset_def_map($ontology->subset_def_map()); # add all subset_def_map's by default
 		$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
-		$default_namespace = $ontology->default_namespace(); # keep the namespace of the last ontology argument
+		$default_namespace = $ontology->default_namespace();  # keep the namespace of the last ontology argument
 
 		my @terms = @{$ontology->get_terms()};
 		foreach my $term (@terms){
@@ -59,6 +60,10 @@ sub union () {
 					$current_term->subset($_);
 				}
 				foreach ($term->synonym_set()) {
+					# Special case: the synonym is identical and the scope is not...
+					# Solution    : take the one from the last ontology and avoid an entry with something like:
+					#   synonym: "lateral root-cap-epidermal stem cell" EXACT []
+					#   synonym: "lateral root-cap-epidermal stem cell" RELATED []
 					$current_term->synonym_set($_);
 				}
 				foreach ($term->xref_set()->get_set()) {
@@ -322,7 +327,7 @@ sub intersection () {
 	$result->idspaces($onto1->idspaces()->get_set());
 	$result->idspaces($onto2->idspaces()->get_set());
 	
-	$result->subset_def_set($onto1->subset_def_set()->get_set()); # add all subset_def_set's by default
+	$result->subset_def_map($onto1->subset_def_map()); # add all subset_def_map's by default
 
 	foreach my $term (@{$onto1->get_terms()}){
 		my $current_term = $onto2->get_term_by_id($term->id()); ### could also be $result->get_term_by_name_or_synonym()
@@ -360,9 +365,8 @@ sub intersection () {
 		push @pr2, [@pref2];
 	}	
 	
-	my %cand;
-	
 	# pr1
+	my %cand;	
 	foreach my $pref (@pr1) {
 		foreach my $ref (@$pref) {
 			my $type = @$ref[0]->type(); # first type
@@ -383,8 +387,9 @@ sub intersection () {
 			}
 		}
 	}
-	my %r_cand;
+
 	# pr2
+	my %r_cand;
 	foreach my $pref (@pr2) {
 		foreach my $ref (@$pref) {
 			my $type = @$ref[0]->type(); # first type
@@ -426,7 +431,7 @@ sub intersection () {
 		my $V= OBO::Util::Set->new();
 		$V->add($v);
 		
-		my @T = split (/ /, $v);
+		my @T = split (' ', $v);
 		
 		my %target = ();
 		my $r_type = $r_cand{$k.'->'.$T[$#T]}; # check
@@ -436,7 +441,7 @@ sub intersection () {
 			$target{$r_type.'->'.$n}++;
 			if (!$V->contains($n)) {
 				$V->add($n);				
-				push @T, split(/ /, $cola{$n}) if ($cola{$n});
+				push @T, split(' ', $cola{$n}) if ($cola{$n});
 			}
 		}
 		
@@ -478,7 +483,7 @@ my ($self, $ontology) = @_;
 	$result->idspaces($ontology->idspaces()->get_set());
 	$result->default_namespace($ontology->default_namespace());
 	$result->remarks('Ontology with transitive closures');
-	$result->subset_def_set($ontology->subset_def_set()->get_set()); # add all subset_def_set's by default
+	$result->subset_def_map($ontology->subset_def_map()); # add all subset_def_map's by default
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 	
 	my @terms = @{$ontology->get_terms()};

@@ -17,7 +17,7 @@ sub new {
 	my $class           = shift;
 	my $self            = {};
 
-	$self->{TEXT}       = undef; # required, scalar (1)
+	$self->{TEXT}       = undef;                       # required, scalar (1)
 	$self->{DBXREF_SET} = OBO::Util::DbxrefSet->new(); # required, Dbxref (0..n)
 
 	bless ($self, $class);
@@ -75,37 +75,31 @@ sub dbxref_set_as_string {
 		my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
 		foreach my $l (@lineas) {
 			my $cp = $l;
-			$l =~ s/,/;;;;/g; # trick to keep the comma's
+			$l     =~ s/,/;;;;/g; # trick to keep the comma's
 			$dbxref_as_string =~ s/\Q$cp\E/$l/;
 		}
 		
-		my @dbxrefs = split (/,/, $dbxref_as_string);
+		my @dbxrefs = split (',', $dbxref_as_string);
+		
+		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
 		
 		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
+			my ($match, $db, $acc, $desc, $mod) = undef;
 			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , and "
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
+			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3);
+				$mod   = _unescape($4) if ($4);
+			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3) if ($3);
+				$mod   = _unescape($4) if ($4);
 			} else {
-				die "The references of this definition: '", $self->text(), "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
+				Carp::confess "The references of this definition: '", $self->text(), "' were not properly defined. Check the 'dbxref' field (", $entry, ').';
 			}
 			
 			# set the dbxref:
@@ -119,7 +113,7 @@ sub dbxref_set_as_string {
 	foreach my $dbxref (sort {lc($b->as_string()) cmp lc($a->as_string())} $self->dbxref_set()->get_set()) {
 		unshift @result, $dbxref->as_string();
 	}
-	return "[".join(', ', @result)."]";
+	return '['.join(', ', @result).']';
 }
 
 =head2 equals
@@ -134,11 +128,14 @@ sub dbxref_set_as_string {
 sub equals {
 	my ($self, $target) = @_;
 	my $result = 0;
-	if ($target) {
+	if ($target && eval { $target->isa('OBO::Core::Def') }) {
+
 		die 'The text of this definition is undefined.' if (!defined($self->{TEXT}));
 		die 'The text of the target definition is undefined.' if (!defined($target->{TEXT}));
 
 		$result = (($self->{TEXT} eq $target->{TEXT}) && ($self->{DBXREF_SET}->equals($target->{DBXREF_SET})));
+	} else {
+		die "An unrecognized object type (not a OBO::Core::Def) was found: '", $target, "'";
 	}
 	return $result;
 }
@@ -153,7 +150,6 @@ sub _unescape {
 1;
 
 __END__
-
 
 =head1 NAME
 
@@ -221,7 +217,7 @@ $def3->dbxref_set($dbxref_set3);
 
 # dbxref_set_as_string
 
-$def2->dbxref_set_as_string("[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+$def2->dbxref_set_as_string('[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"] {opt=first}');
 
 my @refs_def2 = $def2->dbxref_set()->get_set();
 

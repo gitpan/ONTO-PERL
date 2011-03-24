@@ -11,20 +11,21 @@ package OBO::Core::Ontology;
 
 use OBO::Core::IDspace;
 use OBO::Util::IDspaceSet;
-use OBO::Util::SubsetDefSet;
+use OBO::Util::SubsetDefMap;
 use OBO::Util::SynonymTypeDefSet;
 use OBO::Util::TermSet;
+use OBO::Util::RelationshipTypeSet;
 
 use strict;
 use warnings;
 
-our $VERSION = '1.31';
+our $VERSION = '1.32';
 
 sub new {
 	my $class                      = shift;
 	my $self                       = {};
         
-	$self->{ID}                    = undef;                          # required, (1)
+	$self->{ID}                    = undef;                          # not required, (1)
 	$self->{NAME}                  = undef;                          # not required, (0..1)
 	$self->{IMPORTS}               = OBO::Util::Set->new();          # set (0..N)
 	$self->{IDSPACES_SET}          = OBO::Util::IDspaceSet->new();   # string (0..N)
@@ -33,7 +34,7 @@ sub new {
 	$self->{DATE}                  = undef;                          # (1) The current date in dd:MM:yyyy HH:mm format
 	$self->{SAVED_BY}              = undef;                          # string (0..1)
 	$self->{REMARKS}               = OBO::Util::Set->new();          # set (0..N)
-	$self->{SUBSETDEF_SET}         = OBO::Util::SubsetDefSet->new(); # set of maps (0..N); A subset is a view over an ontology
+	$self->{SUBSETDEF_MAP}         = OBO::Util::SubsetDefMap->new(); # map of SubsetDef's (0..N); A subset is a view over an ontology
 	$self->{SYNONYM_TYPE_DEF_SET}  = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
         
 	$self->{TERMS}                 = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..N)
@@ -54,9 +55,9 @@ sub new {
 =head2 id
 
   Usage    - print $ontology->id() or $ontology->id($id)
-  Returns  - the ontology ID (string)
-  Args     - the ontology ID (string)
-  Function - gets/sets the ontology ID
+  Returns  - the ID space of this ontology (string)
+  Args     - the ID space of this ontology (string)
+  Function - gets/sets the ID space of this ontology
   
 =cut
 
@@ -165,7 +166,7 @@ sub _idspace_as_string {
 		my $idspace_as_string          = $idspace->local_idspace();
 		$idspace_as_string            .= ' '.$idspace->uri();
 		my $idspace_description_string = $idspace->description();
-		$idspace_as_string            .= " \"".$idspace_description_string."\"" if (defined $idspace_description_string);
+		$idspace_as_string            .= ' "'.$idspace_description_string.'"' if (defined $idspace_description_string);
 		
 		push @idspaces_as_string, $idspace_as_string;
 	}
@@ -225,23 +226,19 @@ sub remarks {
 	return $self->{REMARKS};
 }
 
-=head2 subset_def_set
+=head2 subset_def_map
 
-  Usage    - $onto->subset_def_set() or $onto->subset_def_set($ss1, $ss2, $ss3, ...)
-  Returns  - a map (OBO::Util::SubsetDefSet) with the subset definition(s) used in this ontology. A subset is a view over an ontology
-  Args     - a subset definition(s) (OBO::Core::SubsetDef) used in this ontology 
+  Usage    - $onto->subset_def_map() or $onto->subset_def_map($subset_def_map)
+  Returns  - a map (OBO::Util::SubsetDefMap) with the subset definition(s) used in this ontology. A subset is a view over an ontology
+  Args     - a subset definitions map (OBO::Core::SubsetDefMap)
   Function - gets/sets the subset definition(s) of this ontology
         
 =cut
 
-sub subset_def_set {
+sub subset_def_map {
 	my $self = shift;
-	if (scalar(@_) > 1) {
-		$self->{SUBSETDEF_SET}->add_all(@_);
-	} elsif (scalar(@_) == 1) {
-		$self->{SUBSETDEF_SET}->add($_[0]);
-	}
-	return $self->{SUBSETDEF_SET};
+	$self->{SUBSETDEF_MAP}->put_all(@_);
+	return $self->{SUBSETDEF_MAP};
 }
 
 =head2 synonym_type_def_set
@@ -756,24 +753,33 @@ sub get_term_by_name {
 
 =head2 get_term_by_name_or_synonym
 
-  Usage    - $ontology->get_term_by_name_or_synonym($name)
-  Returns  - the term (OBO::Core::Term) associated to the given name or *EXACT* synonym
-  Args     - the term's name or synonym (string)
-  Function - returns the term associated to the given name or *EXACT* synonym
+  Usage    - $ontology->get_term_by_name_or_synonym($name, $scope)
+  Returns  - the term (OBO::Core::Term) associated to the given name or synonym (given its scope, EXACT by default)
+  Args     - the term's name or synonym (string) and optionally the scope of the synonym (EXACT by default)
+  Function - returns the term associated to the given name or synonym (given its scope, EXACT by default)
   Remark   - this function should be carefully used since among ontologies there may be homonyms at the level of the synonyms (e.g. genes)
   Remark   - the argument (string) is case sensitive
   
 =cut
 
 sub get_term_by_name_or_synonym {
-    my ($self, $name_or_synonym) = ($_[0], $_[1]);
+    my ($self, $name_or_synonym, $scope) = ($_[0], $_[1], $_[2]);
     my $result;
-    if ($name_or_synonym) {		
+    if ($name_or_synonym) {
+    	$scope = $scope || "EXACT";
 		foreach my $term (@{$self->get_terms()}) { # return the exact occurrence
-			return $term if (defined ($term->name()) && (lc($term->name()) eq $name_or_synonym));
-			# Check its synonyms
+			# Look up for the 'name'
+			my $t_name = $term->name();
+			if (defined ($t_name) && (lc($t_name) eq $name_or_synonym)) {
+				return $term;
+			}
+			# Look up for its synonyms (and optinal scope)
 			foreach my $syn ($term->synonym_set()){
-				return $term if ($syn->scope() eq "EXACT" && $syn->def()->text() eq $name_or_synonym);
+				my $s_text = $syn->def()->text();
+				if (($scope eq "ANY"  && $s_text eq $name_or_synonym) || 
+					($syn->scope() eq $scope && $s_text eq $name_or_synonym)) {
+					return $term;
+				}
 			}
 		}
     }
@@ -783,7 +789,7 @@ sub get_term_by_name_or_synonym {
 
   Usage    - $ontology->get_terms_by_name($name)
   Returns  - the term set (OBO::Util::TermSet) with all the terms (OBO::Core::Term) having $name in their names 
-  Args     - the term's name (string)
+  Args     - the term name (string)
   Function - returns the terms having $name in their names 
   
 =cut
@@ -792,8 +798,8 @@ sub get_terms_by_name {
 	my ($self, $name) = ($_[0], lc($_[1]));
 	my $result;
 	if ($name) {
+		$result   = OBO::Util::TermSet->new();
 		my @terms = @{$self->get_terms()};
-		$result = OBO::Util::TermSet->new();
 		
 		# NB. the following two lines are equivalent to the 'for' loop
 		#my @found_terms = grep {lc($_->name()) =~ /$name/} @terms;
@@ -801,6 +807,33 @@ sub get_terms_by_name {
 
 		foreach my $term (@terms) { # return the all the occurrences
 			$result->add($term) if (defined ($term->name()) && lc($term->name()) =~ /$name/); 
+		}
+	}
+	return $result;
+}
+
+=head2 get_relationship_types_by_name
+
+  Usage    - $ontology->get_relationship_types_by_name($name)
+  Returns  - the relationship types set (OBO::Util::RelationshipTypeSet) with all the relationship types (OBO::Core::RelationshipType) having $name in their names 
+  Args     - the relationship type name (string)
+  Function - returns the relationship type having $name in their names 
+  
+=cut
+
+sub get_relationship_types_by_name {
+	my ($self, $name) = ($_[0], lc($_[1]));
+	my $result;
+	if ($name) {
+		$result   = OBO::Util::RelationshipTypeSet->new();
+		my @relationship_types = @{$self->get_relationship_types()};
+		
+		# NB. the following two lines are equivalent to the 'for' loop
+		#my @found_relationship_types = grep {lc($_->name()) =~ /$name/} @relationship_types;
+		#$result->add_all(@found_relationship_types);
+
+		foreach my $relationship_type (@relationship_types) { # return the all the occurrences
+			$result->add($relationship_type) if (defined ($relationship_type->name()) && lc($relationship_type->name()) =~ /$name/); 
 		}
 	}
 	return $result;
@@ -1086,17 +1119,21 @@ sub get_number_of_relationship_types {
 
 =head2 export
 
-  Usage    - $ontology->export($file_handle, $export_format)
+  Usage    - $ontology->export($export_format, $output_file_handle, $error_file_handle)
   Returns  - exports this ontology
-  Args     - the file handle (STDOUT, STDERR, ...) and the format: obo (by default), xml, owl, dot, gml, xgmml, sbml. Default file handle: STDOUT.
+  Args     - the format: obo (by default), xml, owl, dot, gml, xgmml, sbml
+           - the output file handle (STDOUT by default), and
+           - the error file handle (STDERR by default)
   Function - exports this ontology
+  Remark   - warning and errors are printed in STDERR
   
 =cut
 
 sub export {
-	my $self        = shift;
-	my $file_handle = shift || \*STDOUT;
-	my $format      = shift || 'obo';
+	my $self               = shift;
+	my $format             = shift || 'obo';
+	my $output_file_handle = shift || \*STDOUT;
+	my $error_file_handle  = shift || \*STDERR;
     
 	my $possible_formats = OBO::Util::Set->new();
 	$possible_formats->add_all('obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3');
@@ -1104,44 +1141,48 @@ sub export {
 		die "The export format must be one of the following: 'obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3'";
 	}
     
-	if ($format eq 'obo') { 
+	if ($format eq 'obo') {
+		#
 		# preambule: OBO header tags
-		print $file_handle "format-version: 1.4\n";
+		#
+		print $output_file_handle "format-version: 1.4\n";
 		my $data_version = $self->data_version();
-		print $file_handle 'data-version:', $data_version, "\n" if ($data_version);
+		print $output_file_handle 'data-version:', $data_version, "\n" if ($data_version);
+		my $ontology_id_space = $self->id();
+		print $output_file_handle 'ontology:', $ontology_id_space, "\n" if ($ontology_id_space);
 		chomp(my $local_date = __date()); # `date '+%d:%m:%Y %H:%M'` # date: 11:05:2008 12:52
-		print $file_handle 'date: ', (defined $self->date())?$self->date():$local_date, "\n";
+		print $output_file_handle 'date: ', (defined $self->date())?$self->date():$local_date, "\n";
 		my $saved_by = $self->saved_by();
-		print $file_handle 'saved-by: ', $saved_by, "\n" if (defined $saved_by);
-		print $file_handle "auto-generated-by: ONTO-PERL $VERSION\n";
+		print $output_file_handle 'saved-by: ', $saved_by, "\n" if (defined $saved_by);
+		print $output_file_handle "auto-generated-by: ONTO-PERL $VERSION\n";
 		
 		# import
-		foreach my $import ($self->imports()->get_set()) {
-			print $file_handle 'import: ', $import, "\n";
+		foreach my $import (sort {lc($a) cmp lc($b)} $self->imports()->get_set()) {
+			print $output_file_handle 'import: ', $import, "\n";
 		}
 		
 		# subsetdef
-		foreach my $subsetdef ($self->subset_def_set()->get_set()) {
-			print $file_handle 'subsetdef: ', $subsetdef->as_string(), "\n";
+		foreach my $subsetdef (sort {lc($a->name()) cmp lc($b->name())} $self->subset_def_map()->values()) {
+			print $output_file_handle 'subsetdef: ', $subsetdef->as_string(), "\n";
 		}
 		
 		# synonyntypedef
-		foreach my $st ($self->synonym_type_def_set()->get_set()) {
-			print $file_handle 'synonymtypedef: ', $st->as_string(), "\n";
+		foreach my $st (sort {lc($a->name()) cmp lc($b->name())} $self->synonym_type_def_set()->get_set()) {
+			print $output_file_handle 'synonymtypedef: ', $st->as_string(), "\n";
 		}
 
 		# idspace's		
 		foreach my $idspace ($self->idspaces()->get_set()) {
-			print $file_handle 'idspace: ', $idspace->as_string(), "\n";
+			print $output_file_handle 'idspace: ', $idspace->as_string(), "\n";
 		}
 		
 		# default_namespace
 		my $dns = $self->default_namespace();
-		print $file_handle 'default-namespace: ', $dns, "\n" if (defined $dns);
+		print $output_file_handle 'default-namespace: ', $dns, "\n" if (defined $dns);
 		
 		# remark's
 		foreach my $remark ($self->remarks()->get_set()) {
-			print $file_handle 'remark: ', $remark, "\n";
+			print $output_file_handle 'remark: ', $remark, "\n";
 		}
 		
 		# terms
@@ -1150,70 +1191,74 @@ sub export {
 			#
 			# [Term]
 			#
-			print $file_handle "\n[Term]";
+			print $output_file_handle "\n[Term]";
 	    	
 			#
-			# id:
+			# id
 			#
-			print $file_handle "\nid: ", $term->id();
+			print $output_file_handle "\nid: ", $term->id();
 	    	
 			#
-			# is_anonymous:
+			# is_anonymous
 			#
-			print $file_handle "\nis_anonymous: true" if ($term->is_anonymous());
+			print $output_file_handle "\nis_anonymous: true" if ($term->is_anonymous());
 
 			#
-			# name:
+			# name
 			#
 			if (defined $term->name()) { # from OBO 1.4, the name is not mandatory anymore
-				print $file_handle "\nname: ", $term->name();
+				print $output_file_handle "\nname: ", $term->name();
 			}
 
 			#
 			# namespace
 			#
 			foreach my $ns ($term->namespace()) {
-				print $file_handle "\nnamespace: ", $ns;
+				print $output_file_handle "\nnamespace: ", $ns;
 			}
 	    	
 			#
-			# alt_id:
+			# alt_id
 			#
 			foreach my $alt_id ($term->alt_id()->get_set()) {
-				print $file_handle "\nalt_id: ", $alt_id;
+				print $output_file_handle "\nalt_id: ", $alt_id;
 			}
 	    	
 			#
-			# builtin:
+			# builtin
 			#
-			print $file_handle "\nbuiltin: true" if ($term->builtin());
+			print $output_file_handle "\nbuiltin: true" if ($term->builtin());
 	    	
 			#
-			# def:
+			# def
 			#
-			# QUICK FIX due to IntAct data... TODO
+			# QUICK FIX due to some odd files (e.g. IntAct data)
 			if (defined $term->def()->text()) {
 				my $def_as_string = $term->def_as_string();
 				$def_as_string =~ s/\n+//g;
 				$def_as_string =~ s/\r+//g;
 				$def_as_string =~ s/\t+//g;
-				print $file_handle "\ndef: ", $def_as_string;
+				print $output_file_handle "\ndef: ", $def_as_string;
 			}
 	    	
 			#
-			# comment:
+			# comment
 			#
-			print $file_handle "\ncomment: ", $term->comment() if (defined $term->comment());
+			print $output_file_handle "\ncomment: ", $term->comment() if (defined $term->comment());
 		
 			#
 			# subset
 			#
 			foreach my $sset_name ($term->subset()) {
-				print $file_handle "\nsubset: ", $sset_name;
+				if ($self->subset_def_map()->contains_key($sset_name)) {
+					print $output_file_handle "\nsubset: ", $sset_name;
+				} else {
+					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+				}
 			}
 
 			#
-			# synonym:
+			# synonym
 			#
 			my @sorted_defs = map { $_->[0] }        # restore original values
 				sort { $a->[1] cmp $b->[1] }         # sort
@@ -1222,22 +1267,22 @@ sub export {
 			foreach my $synonym (@sorted_defs) {
 				my $stn = $synonym->synonym_type_name();
 				if (defined $stn) {
-					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->scope(), ' ', $stn, ' ', $synonym->def()->dbxref_set_as_string();
+					print $output_file_handle "\nsynonym: \"".$synonym->def()->text().'" '.$synonym->scope().' '.$stn.' '.$synonym->def()->dbxref_set_as_string();
 				} else {
-					print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->scope(), ' ', $synonym->def()->dbxref_set_as_string();
+					print $output_file_handle "\nsynonym: \"".$synonym->def()->text().'" '.$synonym->scope().' '.$synonym->def()->dbxref_set_as_string();
 				}
 			}
 	    	
 			#
-			# xref:
+			# xref
 			#
 			my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $term->xref_set_as_string());
 			foreach my $xref (@sorted_xrefs) {
-				print $file_handle "\nxref: ", $xref->as_string();
+				print $output_file_handle "\nxref: ", $xref->as_string();
 			}
 	    	
 			#
-			# is_a:
+			# is_a
 			#
 			my $rt = $self->get_relationship_type_by_id('is_a');
 			if (defined $rt)  {
@@ -1247,7 +1292,7 @@ sub export {
 					my $is_a_txt = "\nis_a: ".$head->id();
 					my $head_name = $head->name();
 					$is_a_txt .= ' ! '.$head_name if (defined $head_name);
-					print $file_handle $is_a_txt;
+					print $output_file_handle $is_a_txt;
 				}
 			}
 
@@ -1255,29 +1300,29 @@ sub export {
 			# intersection_of (at least 2 entries)
 			#
 			foreach my $tr ($term->intersection_of()) {
-				print $file_handle "\nintersection_of: ", $tr;
+				print $output_file_handle "\nintersection_of: ", $tr;
 			}
 
 			#
 			# union_of (at least 2 entries)
 			#
 			foreach my $tr ($term->union_of()) {
-				print $file_handle "\nunion_of: ", $tr;
+				print $output_file_handle "\nunion_of: ", $tr;
 			}		
 	    	
 			#
-			# disjoint_from:
+			# disjoint_from
 			#
 			foreach my $disjoint_term_id ($term->disjoint_from()) {
 				my $disjoint_from_txt = "\ndisjoint_from: ".$disjoint_term_id;
 				my $dt                = $self->get_term_by_id($disjoint_term_id);
 				my $dt_name           = $dt->name() if (defined $dt);
 				$disjoint_from_txt   .= ' ! '.$dt_name if (defined $dt_name);
-				print $file_handle $disjoint_from_txt;
+				print $output_file_handle $disjoint_from_txt;
 			}
 			
 			#
-			# relationship:
+			# relationship
 			#
 			my %saw1;
 			my @sorted_rel_types = @{$self->get_relationship_types_sorted_by_id()};
@@ -1287,119 +1332,126 @@ sub export {
 					my %saw2;
 					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 					foreach my $head (grep (!$saw2{$_}++, @sorted_heads)) { # use this foreach-line if there are duplicated rel's
-						print $file_handle "\nrelationship: ", $rt_id, ' ', $head->id(), ' ! ', $head->name();
+						my $relationship_txt  = "\nrelationship: ".$rt_id.' '.$head->id();
+						my $relationship_name = $head->name();
+						$relationship_txt    .= ' ! '.$relationship_name if (defined $relationship_name);
+						print $output_file_handle $relationship_txt;
 					}
 				}
 			}
 
 			#
-			# created_by:
+			# created_by
 			#
-			print $file_handle "\ncreated_by: ", $term->created_by() if (defined $term->created_by());
+			print $output_file_handle "\ncreated_by: ", $term->created_by() if (defined $term->created_by());
 
 			#
-			# creation_date:
+			# creation_date
 			#
-			print $file_handle "\ncreation_date: ", $term->creation_date() if (defined $term->creation_date());
+			print $output_file_handle "\ncreation_date: ", $term->creation_date() if (defined $term->creation_date());
 			
 			#
-			# modified_by:
+			# modified_by
 			#
-			print $file_handle "\nmodified_by: ", $term->modified_by() if (defined $term->modified_by());
+			print $output_file_handle "\nmodified_by: ", $term->modified_by() if (defined $term->modified_by());
 
 			#
-			# modification_date:
+			# modification_date
 			#
-			print $file_handle "\nmodification_date: ", $term->modification_date() if (defined $term->modification_date());
+			print $output_file_handle "\nmodification_date: ", $term->modification_date() if (defined $term->modification_date());
 			
 			#
 			# is_obsolete
 			#
-			print $file_handle "\nis_obsolete: true" if ($term->is_obsolete());
+			print $output_file_handle "\nis_obsolete: true" if ($term->is_obsolete());
 
 			#
 			# replaced_by
 			#
 			foreach my $replaced_by ($term->replaced_by()->get_set()) {
-				print $file_handle "\nreplaced_by: ", $replaced_by;
+				print $output_file_handle "\nreplaced_by: ", $replaced_by;
 			}
 			
 			#
 			# consider
 			#
 			foreach my $consider ($term->consider()->get_set()) {
-				print $file_handle "\nconsider: ", $consider;
+				print $output_file_handle "\nconsider: ", $consider;
 			}
 			
 			#
 			# end
 			#
-			print $file_handle "\n";
+			print $output_file_handle "\n";
 		}
 		# relationship types
 		foreach my $relationship_type ( @{$self->get_relationship_types_sorted_by_id()} ) {
 			
-			print $file_handle "\n[Typedef]";
+			print $output_file_handle "\n[Typedef]";
 			
 			#
 			# id
 			#
-			print $file_handle "\nid: ", $relationship_type->id();
+			print $output_file_handle "\nid: ", $relationship_type->id();
 			
 			#
 			# is_anonymous
 			#
-			print $file_handle "\nis_anonymous: true" if ($relationship_type->is_anonymous());
+			print $output_file_handle "\nis_anonymous: true" if ($relationship_type->is_anonymous());
 			
 			#
 			# name
 			#
 			my $relationship_type_name = $relationship_type->name();
 			if (defined $relationship_type_name) {
-				print $file_handle "\nname: ", $relationship_type_name;
+				print $output_file_handle "\nname: ", $relationship_type_name;
 			}
 			
 			#
 			# namespace
 			#
 			foreach my $ns ($relationship_type->namespace()) {
-				print $file_handle "\nnamespace: ", $ns;
+				print $output_file_handle "\nnamespace: ", $ns;
 			}
 			
 			#
-			# alt_id:
+			# alt_id
 			#
 			foreach my $alt_id ($relationship_type->alt_id()->get_set()) {
-				print $file_handle "\nalt_id: ", $alt_id;
+				print $output_file_handle "\nalt_id: ", $alt_id;
 			}
 			
 			#
 			# builtin
 			#
-			print $file_handle "\nbuiltin: true" if ($relationship_type->builtin() == 1);
+			print $output_file_handle "\nbuiltin: true" if ($relationship_type->builtin() == 1);
 			
 			#
 			# def
 			#
-			print $file_handle "\ndef: ", $relationship_type->def_as_string() if (defined $relationship_type->def()->text());
+			print $output_file_handle "\ndef: ", $relationship_type->def_as_string() if (defined $relationship_type->def()->text());
 			
 			#
 			# comment
 			#
-			print $file_handle "\ncomment: ", $relationship_type->comment() if (defined $relationship_type->comment());
+			print $output_file_handle "\ncomment: ", $relationship_type->comment() if (defined $relationship_type->comment());
 
 			#
 			# subset
 			#
 			foreach my $sset_name ($relationship_type->subset()) {
-				print $file_handle "\nsubset: ", $sset_name;
+				if ($self->subset_def_map()->contains_key($sset_name)) {
+					print $output_file_handle "\nsubset: ", $sset_name;
+				} else {
+					print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+				}
 			}
 			
 			#
 			# synonym
 			#
 			foreach my $synonym ($relationship_type->synonym_set()) {
-				print $file_handle "\nsynonym: \"", $synonym->def()->text(), "\" ", $synonym->scope(), ' ', $synonym->def()->dbxref_set_as_string();
+				print $output_file_handle "\nsynonym: \"".$synonym->def()->text().'" '.$synonym->scope().' '.$synonym->def()->dbxref_set_as_string();
 			}
 	    	
 	    	#
@@ -1407,28 +1459,28 @@ sub export {
 	    	#
 	    	my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $relationship_type->xref_set_as_string());
 	    	foreach my $xref (@sorted_xrefs) {
-				print $file_handle "\nxref: ", $xref->as_string();
+				print $output_file_handle "\nxref: ", $xref->as_string();
 			}
 
 			#
 			# domain
 			#
 			foreach my $domain ($relationship_type->domain()->get_set()) {
-				print $file_handle "\ndomain: ", $domain;
+				print $output_file_handle "\ndomain: ", $domain;
 			}
 			
 			#
 			# range
 			#
 			foreach my $range ($relationship_type->range()->get_set()) {
-				print $file_handle "\nrange: ", $range;
+				print $output_file_handle "\nrange: ", $range;
 			}
 			
-			print $file_handle "\nis_anti_symmetric: true" if ($relationship_type->is_anti_symmetric() == 1);
-			print $file_handle "\nis_cyclic: true" if ($relationship_type->is_cyclic() == 1);
-			print $file_handle "\nis_reflexive: true" if ($relationship_type->is_reflexive() == 1);
-			print $file_handle "\nis_symmetric: true" if ($relationship_type->is_symmetric() == 1);
-			print $file_handle "\nis_transitive: true" if ($relationship_type->is_transitive() == 1);
+			print $output_file_handle "\nis_anti_symmetric: true" if ($relationship_type->is_anti_symmetric() == 1);
+			print $output_file_handle "\nis_cyclic: true" if ($relationship_type->is_cyclic() == 1);
+			print $output_file_handle "\nis_reflexive: true" if ($relationship_type->is_reflexive() == 1);
+			print $output_file_handle "\nis_symmetric: true" if ($relationship_type->is_symmetric() == 1);
+			print $output_file_handle "\nis_transitive: true" if ($relationship_type->is_transitive() == 1);
 	    	
 			#
 			# is_a: TODO missing function to retieve the rel types
@@ -1439,9 +1491,9 @@ sub export {
 				foreach my $head (@heads) {
 					my $head_name = $head->name();
 					if (defined $head_name) {
-						print $file_handle "\nis_a: ", $head->id(), ' ! ', $head_name;
+						print $output_file_handle "\nis_a: ", $head->id(), ' ! ', $head_name;
 					} else {
-						print $file_handle "\nis_a: ", $head->id();
+						print $output_file_handle "\nis_a: ", $head->id();
 					}
 					
 				}
@@ -1454,9 +1506,9 @@ sub export {
 			if (defined $ir) {
 				my $inv_name = $ir->name();
 				if (defined $inv_name) {
-					print $file_handle "\ninverse_of: ", $ir->id(), ' ! ', $inv_name;
+					print $output_file_handle "\ninverse_of: ", $ir->id(), ' ! ', $inv_name;
 				} else {
-					print $file_handle "\ninverse_of: ", $ir->id();
+					print $output_file_handle "\ninverse_of: ", $ir->id();
 				}
 			}
 			
@@ -1464,7 +1516,7 @@ sub export {
 			# transitive_over
 			#
 			foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
-				print $file_handle "\ntransitive_over: ", $transitive_over;
+				print $output_file_handle "\ntransitive_over: ", $transitive_over;
 			}
 			
 			#
@@ -1475,67 +1527,67 @@ sub export {
 							map  { [$_, lc(@{$_}[0].@{$_}[1])] } # transform: value, sortkey
 							$relationship_type->holds_over_chain();
 			foreach my $holds_over_chain (@sorted_hocs) {
-				print $file_handle "\nholds_over_chain: ", @{$holds_over_chain}[0], ' ', @{$holds_over_chain}[1];
+				print $output_file_handle "\nholds_over_chain: ", @{$holds_over_chain}[0], ' ', @{$holds_over_chain}[1];
 			}
 			
 			#
 	    	# functional
 	    	#
-			print $file_handle "\nfunctional: true" if ($relationship_type->functional() == 1);
+			print $output_file_handle "\nfunctional: true" if ($relationship_type->functional() == 1);
 			
 			#
 	    	# inverse_functional
 	    	#
-			print $file_handle "\ninverse_functional: true" if ($relationship_type->inverse_functional() == 1);
+			print $output_file_handle "\ninverse_functional: true" if ($relationship_type->inverse_functional() == 1);
 
 			#
-			# created_by:
+			# created_by
 			#
-			print $file_handle "\ncreated_by: ", $relationship_type->created_by() if (defined $relationship_type->created_by());
+			print $output_file_handle "\ncreated_by: ", $relationship_type->created_by() if (defined $relationship_type->created_by());
 
 			#
-			# creation_date:
+			# creation_date
 			#
-			print $file_handle "\ncreation_date: ", $relationship_type->creation_date() if (defined $relationship_type->creation_date());
+			print $output_file_handle "\ncreation_date: ", $relationship_type->creation_date() if (defined $relationship_type->creation_date());
 			
 			#
-			# modified_by:
+			# modified_by
 			#
-			print $file_handle "\nmodified_by: ", $relationship_type->modified_by() if (defined $relationship_type->modified_by());
+			print $output_file_handle "\nmodified_by: ", $relationship_type->modified_by() if (defined $relationship_type->modified_by());
 
 			#
-			# modification_date:
+			# modification_date
 			#
-			print $file_handle "\nmodification_date: ", $relationship_type->modification_date() if (defined $relationship_type->modification_date());
+			print $output_file_handle "\nmodification_date: ", $relationship_type->modification_date() if (defined $relationship_type->modification_date());
 			
 			#
 			# is_obsolete
 			#
-			print $file_handle "\nis_obsolete: true" if ($relationship_type->is_obsolete());
+			print $output_file_handle "\nis_obsolete: true" if ($relationship_type->is_obsolete());
 			
 			#
 			# replaced_by
 			#
 			foreach my $replaced_by ($relationship_type->replaced_by()->get_set()) {
-				print $file_handle "\nreplaced_by: ", $replaced_by;
+				print $output_file_handle "\nreplaced_by: ", $replaced_by;
 			}
 			
 			#
 			# consider
 			#
 			foreach my $consider ($relationship_type->consider()->get_set()) {
-				print $file_handle "\nconsider: ", $consider;
+				print $output_file_handle "\nconsider: ", $consider;
 			}
 			
 	    	#
 	    	# is_metadata_tag
 	    	#
-			print $file_handle "\nis_metadata_tag: true" if ($relationship_type->is_metadata_tag() == 1);
+			print $output_file_handle "\nis_metadata_tag: true" if ($relationship_type->is_metadata_tag() == 1);
 			
 			#
 			# the end...
 			#
-			print $file_handle "\n";
+			print $output_file_handle "\n";
 		}
 	} elsif ($format eq 'rdf') {
 		
@@ -1568,11 +1620,11 @@ sub export {
 		#
 		# Preamble: namespaces
 		#
-		print $file_handle "<?xml version=\"1.0\"?>\n";
-		print $file_handle "<rdf:RDF\n";
-		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
-		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-		print $file_handle "\txmlns:".$ns."=\"".$default_URL.$IS."#\">\n";
+		print $output_file_handle "<?xml version=\"1.0\"?>\n";
+		print $output_file_handle "<rdf:RDF\n";
+		print $output_file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
+		print $output_file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
+		print $output_file_handle "\txmlns:".$ns."=\"".$default_URL.$IS."#\">\n";
 
 		#
 		# Terms
@@ -1616,184 +1668,188 @@ sub export {
 
 			my $term_id = $term->id();
 			$term_id =~ tr/:/_/;
-			print $file_handle "\t<",$ns,":".$rdf_subnamespace." rdf:about=\"#".$term_id."\">\n";
+			print $output_file_handle "\t<",$ns,":".$rdf_subnamespace." rdf:about=\"#".$term_id."\">\n";
 			
 			#
-			# is_anonymous:
+			# is_anonymous
 			#
-			print $file_handle "\t\t<",$ns,":is_anonymous>true</",$ns,":is_anonymous>\n" if ($term->is_anonymous());
+			print $output_file_handle "\t\t<",$ns,":is_anonymous>true</",$ns,":is_anonymous>\n" if ($term->is_anonymous());
 
 			#
-			# name:
+			# name
 			#
 			my $term_name = $term->name();
 			my $term_name_to_print = (defined $term_name)?$term_name:'no_name';
-			print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($term_name_to_print)."</rdfs:label>\n";
+			print $output_file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($term_name_to_print)."</rdfs:label>\n";
 				    	
 			#
-			# alt_id:
+			# alt_id
 			#
 			foreach my $alt_id ($term->alt_id()->get_set()) {
-				print $file_handle "\t\t<",$ns,":hasAlternativeId>", $alt_id, "</",$ns,":hasAlternativeId>\n";
+				print $output_file_handle "\t\t<",$ns,":hasAlternativeId>", $alt_id, "</",$ns,":hasAlternativeId>\n";
 			}
  			
  			#
-			# builtin:
+			# builtin
 			#
-			print $file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($term->builtin() == 1);
+			print $output_file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($term->builtin() == 1);
 			
 			#
-			# def:
+			# def
 			#
 			if (defined $term->def()->text()) {
-				print $file_handle "\t\t<",$ns,":Definition>\n";
-				print $file_handle "\t\t\t<rdf:Description>\n";
-					print $file_handle "\t\t\t\t<",$ns,":def>", &char_hex_http($term->def()->text()), "</",$ns,":def>\n";
+				print $output_file_handle "\t\t<",$ns,":Definition>\n";
+				print $output_file_handle "\t\t\t<rdf:Description>\n";
+					print $output_file_handle "\t\t\t\t<",$ns,":def>", &char_hex_http($term->def()->text()), "</",$ns,":def>\n";
 					for my $ref ($term->def()->dbxref_set()->get_set()) {
-						print $file_handle "\t\t\t\t<",$ns,":DbXref>\n";
-						print $file_handle "\t\t\t\t\t<rdf:Description>\n";
-			        		print $file_handle "\t\t\t\t\t\t<",$ns,":acc>", $ref->acc(),"</",$ns,":acc>\n";
-			        		print $file_handle "\t\t\t\t\t\t<",$ns,":dbname>", $ref->db(),"</",$ns,":dbname>\n";
-						print $file_handle "\t\t\t\t\t</rdf:Description>\n";
-						print $file_handle "\t\t\t\t</",$ns,":DbXref>\n";
+						print $output_file_handle "\t\t\t\t<",$ns,":DbXref>\n";
+						print $output_file_handle "\t\t\t\t\t<rdf:Description>\n";
+			        		print $output_file_handle "\t\t\t\t\t\t<",$ns,":acc>", $ref->acc(),"</",$ns,":acc>\n";
+			        		print $output_file_handle "\t\t\t\t\t\t<",$ns,":dbname>", $ref->db(),"</",$ns,":dbname>\n";
+						print $output_file_handle "\t\t\t\t\t</rdf:Description>\n";
+						print $output_file_handle "\t\t\t\t</",$ns,":DbXref>\n";
 					}
 
-				print $file_handle "\t\t\t</rdf:Description>\n";
-				print $file_handle "\t\t</",$ns,":Definition>\n";
+				print $output_file_handle "\t\t\t</rdf:Description>\n";
+				print $output_file_handle "\t\t</",$ns,":Definition>\n";
 			}
 
 			foreach my $disjoint_term_id ($term->disjoint_from()) {
 				$disjoint_term_id =~ tr/:/_/;
-				print $file_handle "\t\t<",$ns,":disjoint_from rdf:resource=\"#", $disjoint_term_id, "\"/>\n";
+				print $output_file_handle "\t\t<",$ns,":disjoint_from rdf:resource=\"#", $disjoint_term_id, "\"/>\n";
 			}
 			
 			#
 			# comment
 			#
 			if(defined $term->comment()){
-				print $file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($term->comment())."</rdfs:comment>\n";
+				print $output_file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($term->comment())."</rdfs:comment>\n";
 			}
 			
 			#
 			# subset
 			#
 			foreach my $sset_name ($term->subset()) {
-				print $file_handle "\t\t<",$ns,":subset>",$sset_name,"</",$ns,":subset>\n";
+				if ($self->subset_def_map()->contains_key($sset_name)) {
+					print $output_file_handle "\t\t<",$ns,":subset>",$sset_name,"</",$ns,":subset>\n";
+				} else {
+					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+				}
 			}
 
 			#
-			# is_a:
+			# is_a
 			#
 			my $rt = $self->get_relationship_type_by_id('is_a');
 			if (defined $rt)  {
-				print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc); # workaround for the rdf_tc!!!
+				print $output_file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc); # workaround for the rdf_tc!!!
 				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
 				my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 				foreach my $head (grep (!$saw_is_a{$_}++, @sorted_heads)) {
 					my $head_id = $head->id();
 					$head_id =~ tr/:/_/;
-					print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
+					print $output_file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
 				}
 			}
 			
 			#
-			# relationship:
+			# relationship
 			#
 			foreach $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
 				my $rt_name = $rt->name();
 				if ($rt_name && $rt_name ne 'is_a') { # is_a is printed above
 					my $rt_name_clean = _get_name_without_whitespaces($rt_name);
-					print $file_handle "\t\t<",$ns,":", $rt_name_clean, " rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc && $rt_name_clean eq 'part_of');  # workaround for the rdf_tc!!!
+					print $output_file_handle "\t\t<",$ns,":", $rt_name_clean, " rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc && $rt_name_clean eq 'part_of');  # workaround for the rdf_tc!!!
 					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
 						my $head_id = $head->id();
 						$head_id =~ tr/:/_/;
-						print $file_handle "\t\t<",$ns,":", $rt_name_clean," rdf:resource=\"#", $head_id, "\"/>\n";
+						print $output_file_handle "\t\t<",$ns,":", $rt_name_clean," rdf:resource=\"#", $head_id, "\"/>\n";
 					}
 				}
 			}
 
 			#
-			# synonym:
+			# synonym
 			#
 			foreach my $synonym ($term->synonym_set()) {
-				print $file_handle "\t\t<",$ns,":synonym>\n";
-				print $file_handle "\t\t\t<rdf:Description>\n";
+				print $output_file_handle "\t\t<",$ns,":synonym>\n";
+				print $output_file_handle "\t\t\t<rdf:Description>\n";
 
-				print $file_handle "\t\t\t\t<",$ns,":syn>", &char_hex_http($synonym->def()->text()), "</",$ns,":syn>\n";			
-			        print $file_handle "\t\t\t\t<",$ns,":scope>", $synonym->scope(),"</",$ns,":scope>\n";
+				print $output_file_handle "\t\t\t\t<",$ns,":syn>", &char_hex_http($synonym->def()->text()), "</",$ns,":syn>\n";			
+			        print $output_file_handle "\t\t\t\t<",$ns,":scope>", $synonym->scope(),"</",$ns,":scope>\n";
 
 					for my $ref ($synonym->def()->dbxref_set()->get_set()) {
-						print $file_handle "\t\t\t\t<",$ns,":DbXref>\n";
-						print $file_handle "\t\t\t\t\t<rdf:Description>\n";
-			        		print $file_handle "\t\t\t\t\t\t<",$ns,":acc>", $ref->acc(),"</",$ns,":acc>\n";
-			        		print $file_handle "\t\t\t\t\t\t<",$ns,":dbname>", $ref->db(),"</",$ns,":dbname>\n";
-						print $file_handle "\t\t\t\t\t</rdf:Description>\n";
-						print $file_handle "\t\t\t\t</",$ns,":DbXref>\n";
+						print $output_file_handle "\t\t\t\t<",$ns,":DbXref>\n";
+						print $output_file_handle "\t\t\t\t\t<rdf:Description>\n";
+			        		print $output_file_handle "\t\t\t\t\t\t<",$ns,":acc>", $ref->acc(),"</",$ns,":acc>\n";
+			        		print $output_file_handle "\t\t\t\t\t\t<",$ns,":dbname>", $ref->db(),"</",$ns,":dbname>\n";
+						print $output_file_handle "\t\t\t\t\t</rdf:Description>\n";
+						print $output_file_handle "\t\t\t\t</",$ns,":DbXref>\n";
 					}
 
-				print $file_handle "\t\t\t</rdf:Description>\n";
-				print $file_handle "\t\t</",$ns,":synonym>\n";
+				print $output_file_handle "\t\t\t</rdf:Description>\n";
+				print $output_file_handle "\t\t</",$ns,":synonym>\n";
 			}
 	    	
 	    	
 			#
-			# xref:
+			# xref
 			#
 			my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $term->xref_set_as_string());
 			foreach my $xref (@sorted_xrefs) {
-				print $file_handle "\t\t<",$ns,":xref>\n";
-				print $file_handle "\t\t\t<rdf:Description>\n";
-			        print $file_handle "\t\t\t\t<",$ns,":acc>", $xref->acc(),'</',$ns,":acc>\n";
-			        print $file_handle "\t\t\t\t<",$ns,":dbname>", $xref->db(),'</',$ns,":dbname>\n";
-				print $file_handle "\t\t\t</rdf:Description>\n";
-				print $file_handle "\t\t</",$ns,":xref>\n";
+				print $output_file_handle "\t\t<",$ns,":xref>\n";
+				print $output_file_handle "\t\t\t<rdf:Description>\n";
+			        print $output_file_handle "\t\t\t\t<",$ns,":acc>", $xref->acc(),'</',$ns,":acc>\n";
+			        print $output_file_handle "\t\t\t\t<",$ns,":dbname>", $xref->db(),'</',$ns,":dbname>\n";
+				print $output_file_handle "\t\t\t</rdf:Description>\n";
+				print $output_file_handle "\t\t</",$ns,":xref>\n";
 			}
 			
 			#
-			# created_by:
+			# created_by
 			#
-			print $file_handle "\t\t<",$ns,':created_by>', $term->created_by(), '</',$ns,":created_by>\n" if (defined $term->created_by());
+			print $output_file_handle "\t\t<",$ns,':created_by>', $term->created_by(), '</',$ns,":created_by>\n" if (defined $term->created_by());
 	
 			#
-			# creation_date:
+			# creation_date
 			#
-			print $file_handle "\t\t<",$ns,':creation_date>', $term->creation_date(), '</',$ns,":creation_date>\n" if (defined $term->creation_date());
+			print $output_file_handle "\t\t<",$ns,':creation_date>', $term->creation_date(), '</',$ns,":creation_date>\n" if (defined $term->creation_date());
 				
 			#
-			# modified_by:
+			# modified_by
 			#
-			print $file_handle "\t\t<",$ns,':modified_by>', $term->modified_by(), '</',$ns,":modified_by>\n" if (defined $term->modified_by());
+			print $output_file_handle "\t\t<",$ns,':modified_by>', $term->modified_by(), '</',$ns,":modified_by>\n" if (defined $term->modified_by());
 	
 			#
-			# modification_date:
+			# modification_date
 			#
-			print $file_handle "\t\t<",$ns,':modification_date>', $term->modification_date(), '</',$ns,":modification_date>\n" if (defined $term->modification_date());
+			print $output_file_handle "\t\t<",$ns,':modification_date>', $term->modification_date(), '</',$ns,":modification_date>\n" if (defined $term->modification_date());
 			
 	    	#
 			# is_obsolete
 			#
-			print $file_handle "\t\t<",$ns,':is_obsolete>true</',$ns,":is_obsolete>\n" if ($term->is_obsolete() == 1);
+			print $output_file_handle "\t\t<",$ns,':is_obsolete>true</',$ns,":is_obsolete>\n" if ($term->is_obsolete() == 1);
 				
 			#
 			# replaced_by
 			#
 			foreach my $replaced_by ($term->replaced_by()->get_set()) {
-				print $file_handle "\t\t<",$ns,':replaced_by>', $replaced_by, '</',$ns,":replaced_by>\n";
+				print $output_file_handle "\t\t<",$ns,':replaced_by>', $replaced_by, '</',$ns,":replaced_by>\n";
 			}
 				
 			#
 			# consider
 			#
 			foreach my $consider ($term->consider()->get_set()) {
-				print $file_handle "\t\t<",$ns,':consider>', $consider, '</',$ns,":consider>\n";
+				print $output_file_handle "\t\t<",$ns,':consider>', $consider, '</',$ns,":consider>\n";
 			}
 			
 			# 
 			# end of term
 			#
-			print $file_handle "\t</",$ns,":".$rdf_subnamespace.">\n";
+			print $output_file_handle "\t</",$ns,":".$rdf_subnamespace.">\n";
 		}
 
 		#
@@ -1804,128 +1860,139 @@ sub export {
 			foreach my $relationship_type (@all_relationship_types) {
 				my $relationship_type_id = $relationship_type->id();
 				$relationship_type_id =~ tr/:/_/;
-				print $file_handle "\t<",$ns,":rel_type rdf:about=\"#".$relationship_type_id."\">\n";
+				print $output_file_handle "\t<",$ns,":rel_type rdf:about=\"#".$relationship_type_id."\">\n";
 				
 				#
 				# is_anonymous
 				#
-				print $file_handle "\t\t<",$ns,':is_anonymous>true</',$ns,":is_anonymous>\n" if ($relationship_type->is_anonymous());
+				print $output_file_handle "\t\t<",$ns,':is_anonymous>true</',$ns,":is_anonymous>\n" if ($relationship_type->is_anonymous());
 
 				#
 				# namespace
 				#
 				foreach my $nspace ($relationship_type->namespace()) {
-					print $file_handle "\t\t<",$ns,':namespace>', $nspace, '</',$ns,":namespace>\n";
+					print $output_file_handle "\t\t<",$ns,':namespace>', $nspace, '</',$ns,":namespace>\n";
 				}
 				
 				#
-				# alt_id:
+				# alt_id
 				#
 				foreach my $alt_id ($relationship_type->alt_id()->get_set()) {
-					print $file_handle "\t\t<",$ns,':alt_id>', $alt_id, '</',$ns,":alt_id>\n";
+					print $output_file_handle "\t\t<",$ns,':alt_id>', $alt_id, '</',$ns,":alt_id>\n";
 				}
 				
 				#
-				# builtin:
+				# builtin
 				#
-				print $file_handle "\t\t<",$ns,':builtin>true</',$ns,":builtin>\n" if ($relationship_type->builtin() == 1);
+				print $output_file_handle "\t\t<",$ns,':builtin>true</',$ns,":builtin>\n" if ($relationship_type->builtin() == 1);
 				
 				#
-				# name:
+				# name
 				#
 				if (defined $relationship_type->name()) {
-					print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($relationship_type->name())."</rdfs:label>\n";
+					print $output_file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($relationship_type->name())."</rdfs:label>\n";
 				} else {
 					warn "The relationship type with id: '", $relationship_type->id(), "' has no name!";
-					print $file_handle "\t</",$ns,":rel_type>\n"; # close the relationship type tag! (skipping the rest of the data, contact those guys)
+					print $output_file_handle "\t</",$ns,":rel_type>\n"; # close the relationship type tag! (skipping the rest of the data, contact those guys)
 					next;
 				}
 				
 				#
-				# def:
+				# def
 				#
 				if (defined $relationship_type->def()->text()) {
-					print $file_handle "\t\t<",$ns,":Definition>\n";
-					print $file_handle "\t\t\t<rdf:Description>\n";
-						print $file_handle "\t\t\t\t<",$ns,':def>', &char_hex_http($relationship_type->def()->text()), "</",$ns,":def>\n";
+					print $output_file_handle "\t\t<",$ns,":Definition>\n";
+					print $output_file_handle "\t\t\t<rdf:Description>\n";
+						print $output_file_handle "\t\t\t\t<",$ns,':def>', &char_hex_http($relationship_type->def()->text()), "</",$ns,":def>\n";
 						for my $ref ($relationship_type->def()->dbxref_set()->get_set()) {
-							print $file_handle "\t\t\t\t<",$ns,":DbXref>\n";
-							print $file_handle "\t\t\t\t\t<rdf:Description>\n";
-				        		print $file_handle "\t\t\t\t\t\t<",$ns,':acc>', $ref->acc(),'</',$ns,":acc>\n";
-				        		print $file_handle "\t\t\t\t\t\t<",$ns,':dbname>', $ref->db(),'</',$ns,":dbname>\n";
-							print $file_handle "\t\t\t\t\t</rdf:Description>\n";
-							print $file_handle "\t\t\t\t</",$ns,":DbXref>\n";
+							print $output_file_handle "\t\t\t\t<",$ns,":DbXref>\n";
+							print $output_file_handle "\t\t\t\t\t<rdf:Description>\n";
+				        		print $output_file_handle "\t\t\t\t\t\t<",$ns,':acc>', $ref->acc(),'</',$ns,":acc>\n";
+				        		print $output_file_handle "\t\t\t\t\t\t<",$ns,':dbname>', $ref->db(),'</',$ns,":dbname>\n";
+							print $output_file_handle "\t\t\t\t\t</rdf:Description>\n";
+							print $output_file_handle "\t\t\t\t</",$ns,":DbXref>\n";
 						}
 	
-					print $file_handle "\t\t\t</rdf:Description>\n";
-					print $file_handle "\t\t</",$ns,":Definition>\n";
+					print $output_file_handle "\t\t\t</rdf:Description>\n";
+					print $output_file_handle "\t\t</",$ns,":Definition>\n";
 				}
 
 				#
 				# comment
 				#
 				if(defined $relationship_type->comment()){
-					print $file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($relationship_type->comment())."</rdfs:comment>\n";
+					print $output_file_handle "\t\t<rdfs:comment xml:lang=\"en\">".&char_hex_http($relationship_type->comment())."</rdfs:comment>\n";
+				}
+				
+				#
+				# subset
+				#
+				foreach my $sset_name ($relationship_type->subset()) {
+					if ($self->subset_def_map()->contains_key($sset_name)) {
+						print $output_file_handle "\t\t<",$ns,":subset>",$sset_name,"</",$ns,":subset>\n";
+					} else {
+						print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+					}
 				}
 							
 				#
-				# synonym:
+				# synonym
 				#
 				foreach my $synonym ($relationship_type->synonym_set()) {
-					print $file_handle "\t\t<",$ns,":synonym>\n";
-					print $file_handle "\t\t\t<rdf:Description>\n";
+					print $output_file_handle "\t\t<",$ns,":synonym>\n";
+					print $output_file_handle "\t\t\t<rdf:Description>\n";
 	
-					print $file_handle "\t\t\t\t<",$ns,':syn>', &char_hex_http($synonym->def()->text()), "</",$ns,":syn>\n";			
-				        print $file_handle "\t\t\t\t<",$ns,':scope>', $synonym->scope(),'</',$ns,":scope>\n";
+					print $output_file_handle "\t\t\t\t<",$ns,':syn>', &char_hex_http($synonym->def()->text()), "</",$ns,":syn>\n";			
+				        print $output_file_handle "\t\t\t\t<",$ns,':scope>', $synonym->scope(),'</',$ns,":scope>\n";
 	
 						for my $ref ($synonym->def()->dbxref_set()->get_set()) {
-							print $file_handle "\t\t\t\t<",$ns,":DbXref>\n";
-							print $file_handle "\t\t\t\t\t<rdf:Description>\n";
-				        		print $file_handle "\t\t\t\t\t\t<",$ns,':acc>', $ref->acc(),'</',$ns,":acc>\n";
-				        		print $file_handle "\t\t\t\t\t\t<",$ns,':dbname>', $ref->db(),'</',$ns,":dbname>\n";
-							print $file_handle "\t\t\t\t\t</rdf:Description>\n";
-							print $file_handle "\t\t\t\t</",$ns,":DbXref>\n";
+							print $output_file_handle "\t\t\t\t<",$ns,":DbXref>\n";
+							print $output_file_handle "\t\t\t\t\t<rdf:Description>\n";
+				        		print $output_file_handle "\t\t\t\t\t\t<",$ns,':acc>', $ref->acc(),'</',$ns,":acc>\n";
+				        		print $output_file_handle "\t\t\t\t\t\t<",$ns,':dbname>', $ref->db(),'</',$ns,":dbname>\n";
+							print $output_file_handle "\t\t\t\t\t</rdf:Description>\n";
+							print $output_file_handle "\t\t\t\t</",$ns,":DbXref>\n";
 						}
 	
-					print $file_handle "\t\t\t</rdf:Description>\n";
-					print $file_handle "\t\t</",$ns,":synonym>\n";
+					print $output_file_handle "\t\t\t</rdf:Description>\n";
+					print $output_file_handle "\t\t</",$ns,":synonym>\n";
 				}
 
 				#
-				# xref:
+				# xref
 				#
 				my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $relationship_type->xref_set_as_string());
 				foreach my $xref (@sorted_xrefs) {
-					print $file_handle "\t\t<",$ns,":xref>\n";
-					print $file_handle "\t\t\t<rdf:Description>\n";
-				        print $file_handle "\t\t\t\t<",$ns,':acc>', $xref->acc(),'</',$ns,":acc>\n";
-				        print $file_handle "\t\t\t\t<",$ns,':dbname>', $xref->db(),'</',$ns,":dbname>\n";
-					print $file_handle "\t\t\t</rdf:Description>\n";
-					print $file_handle "\t\t</",$ns,":xref>\n";
+					print $output_file_handle "\t\t<",$ns,":xref>\n";
+					print $output_file_handle "\t\t\t<rdf:Description>\n";
+				        print $output_file_handle "\t\t\t\t<",$ns,':acc>', $xref->acc(),'</',$ns,":acc>\n";
+				        print $output_file_handle "\t\t\t\t<",$ns,':dbname>', $xref->db(),'</',$ns,":dbname>\n";
+					print $output_file_handle "\t\t\t</rdf:Description>\n";
+					print $output_file_handle "\t\t</",$ns,":xref>\n";
 				}
 	
 				#
 				# domain
 				#
 				foreach my $domain ($relationship_type->domain()->get_set()) {
-					print $file_handle "\t\t<",$ns,':domain>', $domain, '</',$ns,":domain>\n";
+					print $output_file_handle "\t\t<",$ns,':domain>', $domain, '</',$ns,":domain>\n";
 				}
 				
 				#
 				# range
 				#
 				foreach my $range ($relationship_type->range()->get_set()) {
-					print $file_handle "\t\t<",$ns,':range>', $range, '</',$ns,":range>\n";
+					print $output_file_handle "\t\t<",$ns,':range>', $range, '</',$ns,":range>\n";
 				}
 
-				print $file_handle "\t\t<",$ns,':is_anti_symmetric>true</',$ns,":is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric() == 1);
-				print $file_handle "\t\t<",$ns,':is_cyclic>true</',$ns,":is_cyclic>\n" if ($relationship_type->is_cyclic() == 1);
-				print $file_handle "\t\t<",$ns,':is_reflexive>true</',$ns,":is_reflexive>\n" if ($relationship_type->is_reflexive() == 1);
-				print $file_handle "\t\t<",$ns,':is_symmetric>true</',$ns,":is_symmetric>\n" if ($relationship_type->is_symmetric() == 1);
-				print $file_handle "\t\t<",$ns,':is_transitive>true</',$ns,":is_transitive>\n" if ($relationship_type->is_transitive() == 1);
+				print $output_file_handle "\t\t<",$ns,':is_anti_symmetric>true</',$ns,":is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric() == 1);
+				print $output_file_handle "\t\t<",$ns,':is_cyclic>true</',$ns,":is_cyclic>\n" if ($relationship_type->is_cyclic() == 1);
+				print $output_file_handle "\t\t<",$ns,':is_reflexive>true</',$ns,":is_reflexive>\n" if ($relationship_type->is_reflexive() == 1);
+				print $output_file_handle "\t\t<",$ns,':is_symmetric>true</',$ns,":is_symmetric>\n" if ($relationship_type->is_symmetric() == 1);
+				print $output_file_handle "\t\t<",$ns,':is_transitive>true</',$ns,":is_transitive>\n" if ($relationship_type->is_transitive() == 1);
 	
 				#
-				# is_a:
+				# is_a
 				#
 				my $rt = $self->get_relationship_type_by_id('is_a');
 				if (defined $rt)  {
@@ -1933,7 +2000,7 @@ sub export {
 					foreach my $head (@heads) {
 						my $head_id = $head->id();
 						$head_id =~ tr/:/_/;
-						print $file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
+						print $output_file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
 					}
 				}
 		    	
@@ -1942,92 +2009,92 @@ sub export {
 				#
 				my $ir = $relationship_type->inverse_of();
 				if (defined $ir) {
-					print $file_handle "\t\t<",$ns,':inverse_of>', $ir->id(), '</',$ns,":inverse_of>\n";
+					print $output_file_handle "\t\t<",$ns,':inverse_of>', $ir->id(), '</',$ns,":inverse_of>\n";
 				}
 				
 		    	#
 				# transitive_over
 				#
 				foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
-					print $file_handle "\t\t<",$ns,':transitive_over>', $transitive_over, '</',$ns,":transitive_over>\n";
+					print $output_file_handle "\t\t<",$ns,':transitive_over>', $transitive_over, '</',$ns,":transitive_over>\n";
 				}
 				
 				#
 				# holds_over_chain
 				#
 				foreach my $holds_over_chain ($relationship_type->holds_over_chain()) {
-					print $file_handle "\t\t<",$ns,":holds_over_chain>\n";
-					print $file_handle "\t\t\t<",$ns,':r1>', @{$holds_over_chain}[0], '</',$ns,":r1>\n";
-					print $file_handle "\t\t\t<",$ns,':r2>', @{$holds_over_chain}[1], '</',$ns,":r2>\n";
-					print $file_handle "\t\t<",$ns,":/holds_over_chain>\n";
+					print $output_file_handle "\t\t<",$ns,":holds_over_chain>\n";
+					print $output_file_handle "\t\t\t<",$ns,':r1>', @{$holds_over_chain}[0], '</',$ns,":r1>\n";
+					print $output_file_handle "\t\t\t<",$ns,':r2>', @{$holds_over_chain}[1], '</',$ns,":r2>\n";
+					print $output_file_handle "\t\t<",$ns,":/holds_over_chain>\n";
 				}
 
 				#
 		    	# functional
 		    	#
-		    	print $file_handle "\t\t<",$ns,':functional>true</',$ns,":functional>\n" if ($relationship_type->functional() == 1);
+		    	print $output_file_handle "\t\t<",$ns,':functional>true</',$ns,":functional>\n" if ($relationship_type->functional() == 1);
 				
 				#
 		    	# inverse_functional
 		    	#
-				print $file_handle "\t\t<",$ns,':inverse_functional>true</',$ns,":inverse_functional>\n" if ($relationship_type->inverse_functional() == 1);
+				print $output_file_handle "\t\t<",$ns,':inverse_functional>true</',$ns,":inverse_functional>\n" if ($relationship_type->inverse_functional() == 1);
 			
 				#
-				# created_by:
+				# created_by
 				#
-				print $file_handle "\t\t<",$ns,':created_by>', $relationship_type->created_by(), '</',$ns,":created_by>\n" if (defined $relationship_type->created_by());
+				print $output_file_handle "\t\t<",$ns,':created_by>', $relationship_type->created_by(), '</',$ns,":created_by>\n" if (defined $relationship_type->created_by());
 	
 				#
-				# creation_date:
+				# creation_date
 				#
-				print $file_handle "\t\t<",$ns,':creation_date>', $relationship_type->creation_date(), '</',$ns,":creation_date>\n" if (defined $relationship_type->creation_date());
+				print $output_file_handle "\t\t<",$ns,':creation_date>', $relationship_type->creation_date(), '</',$ns,":creation_date>\n" if (defined $relationship_type->creation_date());
 				
 				#
-				# modified_by:
+				# modified_by
 				#
-				print $file_handle "\t\t<",$ns,':modified_by>', $relationship_type->modified_by(), '</',$ns,":modified_by>\n" if (defined $relationship_type->modified_by());
+				print $output_file_handle "\t\t<",$ns,':modified_by>', $relationship_type->modified_by(), '</',$ns,":modified_by>\n" if (defined $relationship_type->modified_by());
 	
 				#
-				# modification_date:
+				# modification_date
 				#
-				print $file_handle "\t\t<",$ns,':modification_date>', $relationship_type->modification_date(), "</",$ns,":modification_date>\n" if (defined $relationship_type->modification_date());
+				print $output_file_handle "\t\t<",$ns,':modification_date>', $relationship_type->modification_date(), "</",$ns,":modification_date>\n" if (defined $relationship_type->modification_date());
 			
 				#
 				# is_obsolete
 				#
-				print $file_handle "\t\t<",$ns,':is_obsolete>true</',$ns,":is_obsolete>\n" if ($relationship_type->is_obsolete() == 1);
+				print $output_file_handle "\t\t<",$ns,':is_obsolete>true</',$ns,":is_obsolete>\n" if ($relationship_type->is_obsolete() == 1);
 				
 				#
 				# replaced_by
 				#
 				foreach my $replaced_by ($relationship_type->replaced_by()->get_set()) {
-					print $file_handle "\t\t<",$ns,':replaced_by>', $replaced_by, '</',$ns,":replaced_by>\n";
+					print $output_file_handle "\t\t<",$ns,':replaced_by>', $replaced_by, '</',$ns,":replaced_by>\n";
 				}
 				
 				#
 				# consider
 				#
 				foreach my $consider ($relationship_type->consider()->get_set()) {
-					print $file_handle "\t\t<",$ns,':consider>', $consider, '</',$ns,":consider>\n";
+					print $output_file_handle "\t\t<",$ns,':consider>', $consider, '</',$ns,":consider>\n";
 				}
 				
 				#
 	    		# is_metadata_tag
 	    		#
-		    	print $file_handle "\t\t<",$ns,':is_metadata_tag>true</',$ns,":is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
+		    	print $output_file_handle "\t\t<",$ns,':is_metadata_tag>true</',$ns,":is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
 		    	
 				# 
 				# end of relationship type
 				#
-				print $file_handle "\t</",$ns,":rel_type>\n";
+				print $output_file_handle "\t</",$ns,":rel_type>\n";
 			}
 		}
 		
 		#
 		# EOF:
 		#
-		print $file_handle "</rdf:RDF>\n\n";
-		print $file_handle "<!--\nGenerated with ONTO-PERL ($VERSION): ".$0.", ".__date()."\n-->";
+		print $output_file_handle "</rdf:RDF>\n\n";
+		print $output_file_handle "<!--\nGenerated with ONTO-PERL ($VERSION): ".$0.", ".__date()."\n-->";
 	} elsif ($format eq 'xml') {
 		# terms
 		my @all_terms = @{$self->get_terms_sorted_by_id()};
@@ -2036,163 +2103,170 @@ sub export {
 	    my $IS = lc ($self->get_terms_idspace());
 	    
 		# preambule: OBO header tags
-		print $file_handle "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
-		print $file_handle "<".$IS.">\n";
+		print $output_file_handle "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
+		print $output_file_handle "<".$IS.">\n";
 		
-		print $file_handle "\t<header>\n";
-		print $file_handle "\t\t<format-version>1.4</format-version>\n";
+		print $output_file_handle "\t<header>\n";
+		print $output_file_handle "\t\t<format-version>1.4</format-version>\n";
 
 		my $data_version = $self->data_version();
-		print $file_handle "\t\t<data-version>", $data_version, "</data-version>\n" if ($data_version);
+		print $output_file_handle "\t\t<data-version>", $data_version, "</data-version>\n" if ($data_version);
+		
+		my $ontology_id_space = $self->id();
+		print $output_file_handle '\t\t<ontology>', $ontology_id_space, "</ontology>\n" if ($ontology_id_space);
 		
 		chomp(my $date = (defined $self->date())?$self->date():__date()); #`date '+%d:%m:%Y %H:%M'`);
-		print $file_handle "\t\t<date>", $date, "</date>\n";
+		print $output_file_handle "\t\t<date>", $date, "</date>\n";
 		
 		my $saved_by = $self->saved_by();
-		print $file_handle "\t\t<saved-by>", $saved_by, "</saved-by>\n" if ($saved_by);
+		print $output_file_handle "\t\t<saved-by>", $saved_by, "</saved-by>\n" if ($saved_by);
 
-		print $file_handle "\t\t<auto-generated-by>ONTO-PERL ", $VERSION, "</auto-generated-by>\n";
+		print $output_file_handle "\t\t<auto-generated-by>ONTO-PERL ", $VERSION, "</auto-generated-by>\n";
 		
 		# import
 		foreach my $import ($self->imports()->get_set()) {
-			print $file_handle "\t\t<import>", $import, "</import>\n";
+			print $output_file_handle "\t\t<import>", $import, "</import>\n";
 		}
 		
 		# subsetdef
-		foreach my $subsetdef ($self->subset_def_set()->get_set()) {
-			print $file_handle "\t\t<subsetdef>\n";
-			print $file_handle "\t\t\t<name>", $subsetdef->name(), "</name>\n";
-			print $file_handle "\t\t\t<description>", $subsetdef->description(), "</description>\n";
-			print $file_handle "\t\t</subsetdef>\n";
+		foreach my $subsetdef (sort {lc($a->name()) cmp lc($b->name())} $self->subset_def_map()->values()) {
+			print $output_file_handle "\t\t<subsetdef>\n";
+			print $output_file_handle "\t\t\t<name>", $subsetdef->name(), "</name>\n";
+			print $output_file_handle "\t\t\t<description>", $subsetdef->description(), "</description>\n";
+			print $output_file_handle "\t\t</subsetdef>\n";
 		}
 		
 		# synonyntypedef
 		foreach my $st ($self->synonym_type_def_set()->get_set()) {
-			print $file_handle "\t\t<synonymtypedef>\n";
-			print $file_handle "\t\t\t<name>", $st->name(), "</name>\n";
-			print $file_handle "\t\t\t<scope>", $st->scope(), "</scope>\n";
-			print $file_handle "\t\t\t<description>", $st->description(), "</description>\n";
-			print $file_handle "\t\t</synonymtypedef>\n";
+			print $output_file_handle "\t\t<synonymtypedef>\n";
+			print $output_file_handle "\t\t\t<name>", $st->name(), "</name>\n";
+			print $output_file_handle "\t\t\t<scope>", $st->scope(), "</scope>\n";
+			print $output_file_handle "\t\t\t<description>", $st->description(), "</description>\n";
+			print $output_file_handle "\t\t</synonymtypedef>\n";
 		}
 
 		# idspace's		
 		foreach my $idspace ($self->idspaces()->get_set()) {
-			print $file_handle "\t\t<idspace>", $idspace->as_string(), "</idspace>\n";
+			print $output_file_handle "\t\t<idspace>", $idspace->as_string(), "</idspace>\n";
 		}
 		
 		# default_namespace
 		my $dns = $self->default_namespace();
-		print $file_handle "\t\t<default-namespace>", $dns, "</default-namespace>\n" if (defined $dns);
+		print $output_file_handle "\t\t<default-namespace>", $dns, "</default-namespace>\n" if (defined $dns);
 		
 		# remark's
 		foreach my $remark ($self->remarks()->get_set()) {
-			print $file_handle "\t\t<remark>", $remark, "</remark>\n";
+			print $output_file_handle "\t\t<remark>", $remark, "</remark>\n";
 		}
 		
-		print $file_handle "\t</header>\n\n";
+		print $output_file_handle "\t</header>\n\n";
 		
 		foreach my $term (@all_terms) {
 			#
 			# [Term]
 			#
-			print $file_handle "\t<term>\n";
+			print $output_file_handle "\t<term>\n";
 	    	
 			#
-			# id:
+			# id
 			#
-			print $file_handle "\t\t<id>", $term->id(), "</id>\n";
+			print $output_file_handle "\t\t<id>", $term->id(), "</id>\n";
 			
 			#
-			# is_anonymous:
+			# is_anonymous
 			#
-			print $file_handle "\t\t<is_anonymous>true</is_anonymous>\n" if ($term->is_anonymous());
+			print $output_file_handle "\t\t<is_anonymous>true</is_anonymous>\n" if ($term->is_anonymous());
 	    	
 			#
-			# name:
+			# name
 			#
-			print $file_handle "\t\t<name>", &char_hex_http($term->name()), "</name>\n" if (defined $term->name());
+			print $output_file_handle "\t\t<name>", &char_hex_http($term->name()), "</name>\n" if (defined $term->name());
 	    	
 	    	#
 			# namespace
 			#
 			foreach my $ns ($term->namespace()) {
-				print $file_handle "\t\t<namespace>", $ns, "</namespace>\n";
+				print $output_file_handle "\t\t<namespace>", $ns, "</namespace>\n";
 			}
 	    	
 			#
-			# alt_id:
+			# alt_id
 			#
 			foreach my $alt_id ($term->alt_id()->get_set()) {
-				print $file_handle "\t\t<alt_id>", $alt_id, "</alt_id>\n";
+				print $output_file_handle "\t\t<alt_id>", $alt_id, "</alt_id>\n";
 			}
 
 			#
-			# builtin:
+			# builtin
 			#
-			print $file_handle "\t\t<builtin>true</builtin>\n" if ($term->builtin() == 1);
+			print $output_file_handle "\t\t<builtin>true</builtin>\n" if ($term->builtin() == 1);
 
 			#
-			# def:
+			# def
 			#
 			my $term_def = $term->def();
 			if (defined $term_def->text()) {
-				print $file_handle "\t\t<def>\n";
-				print $file_handle "\t\t\t<def_text>", &char_hex_http($term_def->text()), "</def_text>\n";				
+				print $output_file_handle "\t\t<def>\n";
+				print $output_file_handle "\t\t\t<def_text>", &char_hex_http($term_def->text()), "</def_text>\n";				
 				for my $ref ($term_def->dbxref_set()->get_set()) {
-			        print $file_handle "\t\t\t<dbxref xref=\"", $ref->name(), "\">\n";
-			        print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
-			        print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
-			        print $file_handle "\t\t\t</dbxref>\n";
+			        print $output_file_handle "\t\t\t<dbxref xref=\"", $ref->name(), "\">\n";
+			        print $output_file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
+			        print $output_file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
+			        print $output_file_handle "\t\t\t</dbxref>\n";
 				}
-				print $file_handle "\t\t</def>\n";
+				print $output_file_handle "\t\t</def>\n";
 			}
 			
 			#
 			# comment
 			#
 			my $comment = $term->comment();
-			print $file_handle "\t\t<comment>", &char_hex_http($comment), "</comment>\n" if (defined $comment);
+			print $output_file_handle "\t\t<comment>", &char_hex_http($comment), "</comment>\n" if (defined $comment);
 
 			#
 			# subset
 			#
 			foreach my $sset_name ($term->subset()) {
-				print $file_handle "\t\t<subset>", $sset_name, "</subset>\n";
+				if ($self->subset_def_map()->contains_key($sset_name)) {
+					print $output_file_handle "\t\t<subset>", $sset_name, "</subset>\n";
+				} else {
+					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+				}
 			}
 
 			#
 			# synonym:
 			#
 			foreach my $synonym ($term->synonym_set()) {
-				print $file_handle "\t\t<synonym>\n";
-				print $file_handle "\t\t\t<syn_text>", &char_hex_http($synonym->def()->text()), "</syn_text>\n";
-			    print $file_handle "\t\t\t<scope>", $synonym->scope(),"</scope>\n";
+				print $output_file_handle "\t\t<synonym>\n";
+				print $output_file_handle "\t\t\t<syn_text>", &char_hex_http($synonym->def()->text()), "</syn_text>\n";
+			    print $output_file_handle "\t\t\t<scope>", $synonym->scope(),"</scope>\n";
 				for my $ref ($synonym->def()->dbxref_set()->get_set()) {
-					print $file_handle "\t\t\t<DbXref>\n";
-			        	print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
-			        	print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
-					print $file_handle "\t\t\t</DbXref>\n";
+					print $output_file_handle "\t\t\t<DbXref>\n";
+			        	print $output_file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
+			        	print $output_file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
+					print $output_file_handle "\t\t\t</DbXref>\n";
 				}
-				print $file_handle "\t\t</synonym>\n";
+				print $output_file_handle "\t\t</synonym>\n";
 			}
 
 			#
-			# xref:
+			# xref
 			#
 			my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $term->xref_set_as_string());
 			foreach my $xref (@sorted_xrefs) {
-				print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
+				print $output_file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
 			}
 						
 			#
 			# disjoint_from:
 			#
 			foreach my $disjoint_term_id ($term->disjoint_from()) {
-				print $file_handle "\t\t<disjoint_from>", $disjoint_term_id, "</disjoint_from>\n";
+				print $output_file_handle "\t\t<disjoint_from>", $disjoint_term_id, "</disjoint_from>\n";
 			}
 			
 			#
-			# is_a:
+			# is_a
 			#
 			my $rt = $self->get_relationship_type_by_id('is_a');
 			if (defined $rt)  {
@@ -2201,182 +2275,186 @@ sub export {
 				foreach my $head (grep (!$saw_is_a{$_}++, @sorted_heads)) {
 					my $head_name = $head->name();
 					my $head_name_to_print = (defined $head_name)?$head_name:"no_name";
-					print $file_handle "\t\t<is_a id=\"".$head->id()."\">".$head_name_to_print."</is_a>\n";
+					print $output_file_handle "\t\t<is_a id=\"".$head->id()."\">".$head_name_to_print."</is_a>\n";
 				}
 			}
 			
 			#
-			# relationship:
+			# relationship
 			#
 			foreach $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
 				if ($rt->name() ne 'is_a') { # is_a is printed above
 					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
-						print $file_handle "\t\t<relationship>\n";
-						print $file_handle "\t\t\t<type>", $rt->name(), "</type>\n";
-						print $file_handle "\t\t\t<target id=\"", $head->id(), "\">", $head->name(),"</target>\n";
-						print $file_handle "\t\t</relationship>\n";
+						print $output_file_handle "\t\t<relationship>\n";
+						print $output_file_handle "\t\t\t<type>", $rt->name(), "</type>\n";
+						print $output_file_handle "\t\t\t<target id=\"", $head->id(), "\">", $head->name(),"</target>\n";
+						print $output_file_handle "\t\t</relationship>\n";
 					}
 				}
 			}
 
 			#
-			# created_by:
+			# created_by
 			#
-			print $file_handle "\t\t<created_by>", $term->created_by(), "</created_by>\n" if (defined $term->created_by());
+			print $output_file_handle "\t\t<created_by>", $term->created_by(), "</created_by>\n" if (defined $term->created_by());
 
 			#
-			# creation_date:
+			# creation_date
 			#
-			print $file_handle "\t\t<creation_date>", $term->creation_date(), "</creation_date>\n" if (defined $term->creation_date());
+			print $output_file_handle "\t\t<creation_date>", $term->creation_date(), "</creation_date>\n" if (defined $term->creation_date());
 			
 			#
-			# modified_by:
+			# modified_by
 			#
-			print $file_handle "\t\t<modified_by>", $term->modified_by(), "</modified_by>\n" if (defined $term->modified_by());
+			print $output_file_handle "\t\t<modified_by>", $term->modified_by(), "</modified_by>\n" if (defined $term->modified_by());
 	
 			#
-			# modification_date:
+			# modification_date
 			#
-			print $file_handle "\t\t<modification_date>", $term->modification_date(), "</modification_date>\n" if (defined $term->modification_date());
+			print $output_file_handle "\t\t<modification_date>", $term->modification_date(), "</modification_date>\n" if (defined $term->modification_date());
 			
 			#
 			# is_obsolete
 			#
-			print $file_handle "\t\t<is_obsolete>true</is_obsolete>\n" if ($term->is_obsolete());
+			print $output_file_handle "\t\t<is_obsolete>true</is_obsolete>\n" if ($term->is_obsolete());
 
 			#
 			# replaced_by
 			#
 			foreach my $replaced_by ($term->replaced_by()->get_set()) {
-				print $file_handle "\t\t<replaced_by>", $replaced_by, "</replaced_by>\n";
+				print $output_file_handle "\t\t<replaced_by>", $replaced_by, "</replaced_by>\n";
 			}
 			
 			#
 			# consider
 			#
 			foreach my $consider ($term->consider()->get_set()) {
-				print $file_handle "\t\t<consider>", $consider, "</consider>\n";
+				print $output_file_handle "\t\t<consider>", $consider, "</consider>\n";
 			}
 
 			#
 			# end
 			#
-			print $file_handle "\t</term>\n\n";
+			print $output_file_handle "\t</term>\n\n";
 		}
 		
 		# relationship types
 		foreach my $relationship_type ( @{$self->get_relationship_types_sorted_by_id()} ) {
-			print $file_handle "\t<typedef>\n";
+			print $output_file_handle "\t<typedef>\n";
 			
 			#
 			# id
 			#
-			print $file_handle "\t\t<id>", $relationship_type->id(), "</id>\n";
+			print $output_file_handle "\t\t<id>", $relationship_type->id(), "</id>\n";
 			
 			#
 			# is_anonymous
 			#
-			print $file_handle "\t\t<is_anonymous>true</is_anonymous>\n" if ($relationship_type->is_anonymous());
+			print $output_file_handle "\t\t<is_anonymous>true</is_anonymous>\n" if ($relationship_type->is_anonymous());
 			
 			#
 			# name
 			#
 			my $relationship_type_name = $relationship_type->name();
 			if (defined $relationship_type_name) {
-				print $file_handle "\t\t<name>", &char_hex_http($relationship_type_name), "</name>\n";
+				print $output_file_handle "\t\t<name>", &char_hex_http($relationship_type_name), "</name>\n";
 			}
 			
 			#
 			# namespace
 			#
 			foreach my $nasp ($relationship_type->namespace()) {
-				print $file_handle "\t\t<namespace>", $nasp, "</namespace>\n";
+				print $output_file_handle "\t\t<namespace>", $nasp, "</namespace>\n";
 			}
 			
 			#
-			# alt_id:
+			# alt_id
 			#
 			foreach my $alt_id ($relationship_type->alt_id()->get_set()) {
-				print $file_handle "\t\t<alt_id>", $alt_id, "</alt_id>\n";
+				print $output_file_handle "\t\t<alt_id>", $alt_id, "</alt_id>\n";
 			}
 			
 			#
 			# builtin
 			#
-			print $file_handle "\t\t<builtin>true</builtin>\n" if ($relationship_type->builtin() == 1);
+			print $output_file_handle "\t\t<builtin>true</builtin>\n" if ($relationship_type->builtin() == 1);
 			
 			#
-			# def:
+			# def
 			#
 			my $relationship_type_def = $relationship_type->def();
 			if (defined $relationship_type_def->text()) {
-				print $file_handle "\t\t<def label=\"", &char_hex_http($relationship_type_def->text()), "\">\n";				
+				print $output_file_handle "\t\t<def label=\"", &char_hex_http($relationship_type_def->text()), "\">\n";				
 				for my $ref ($relationship_type_def->dbxref_set()->get_set()) {
-			        print $file_handle "\t\t\t<dbxref xref=\"", $ref->name(), "\">\n";
-			        print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
-			        print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
-			        print $file_handle "\t\t\t</dbxref>\n";
+			        print $output_file_handle "\t\t\t<dbxref xref=\"", $ref->name(), "\">\n";
+			        print $output_file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
+			        print $output_file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
+			        print $output_file_handle "\t\t\t</dbxref>\n";
 				}
-				print $file_handle "\t\t</def>\n";
+				print $output_file_handle "\t\t</def>\n";
 			}
 			
 			#
 			# comment
 			#
-			print $file_handle "\t\t<comment>", &char_hex_http($relationship_type->comment()), "</comment>\n" if (defined $relationship_type->comment());
+			print $output_file_handle "\t\t<comment>", &char_hex_http($relationship_type->comment()), "</comment>\n" if (defined $relationship_type->comment());
 			
 			#
 			# subset
 			#
 			foreach my $sset_name ($relationship_type->subset()) {
-				print $file_handle "\t\t<subset>",$sset_name,"</subset>\n";
+				if ($self->subset_def_map()->contains_key($sset_name)) {
+					print $output_file_handle "\t\t<subset>",$sset_name,"</subset>\n";
+				} else {
+					print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+				}
 			}
 						
 			#
-			# synonym:
+			# synonym
 			#
 			foreach my $rt_synonym ($relationship_type->synonym_set()) {
-				print $file_handle "\t\t<synonym>\n";
-				print $file_handle "\t\t\t<syn_text>", &char_hex_http($rt_synonym->def()->text()), "</syn_text>\n";			
-			    print $file_handle "\t\t\t<scope>", $rt_synonym->scope(),"</scope>\n";
+				print $output_file_handle "\t\t<synonym>\n";
+				print $output_file_handle "\t\t\t<syn_text>", &char_hex_http($rt_synonym->def()->text()), "</syn_text>\n";			
+			    print $output_file_handle "\t\t\t<scope>", $rt_synonym->scope(),"</scope>\n";
 				for my $ref ($rt_synonym->def()->dbxref_set()->get_set()) {
-					print $file_handle "\t\t\t<DbXref>\n";
-			        	print $file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
-			        	print $file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
-					print $file_handle "\t\t\t</DbXref>\n";
+					print $output_file_handle "\t\t\t<DbXref>\n";
+			        	print $output_file_handle "\t\t\t\t<acc>", $ref->acc(),"</acc>\n";
+			        	print $output_file_handle "\t\t\t\t<dbname>", $ref->db(),"</dbname>\n";
+					print $output_file_handle "\t\t\t</DbXref>\n";
 				}
-				print $file_handle "\t\t</synonym>\n";
+				print $output_file_handle "\t\t</synonym>\n";
 			}
 			
 			#
-			# xref:
+			# xref
 			#
 			my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $relationship_type->xref_set_as_string());
 			foreach my $xref (@sorted_xrefs) {
-				print $file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
+				print $output_file_handle "\t\t<xref>", $xref->as_string(), "</xref>\n";
 			}
 			
 			#
 			# domain
 			#
 			foreach my $domain ($relationship_type->domain()->get_set()) {
-				print $file_handle "\t\t<domain>", $domain, "</domain>\n";
+				print $output_file_handle "\t\t<domain>", $domain, "</domain>\n";
 			}
 			
 			#
 			# range
 			#
 			foreach my $range ($relationship_type->range()->get_set()) {
-				print $file_handle "\t\t<range>", $range, "</range>\n";
+				print $output_file_handle "\t\t<range>", $range, "</range>\n";
 			}
 			
-			print $file_handle "\t\t<is_anti_symmetric>true</is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric() == 1);
-			print $file_handle "\t\t<is_cyclic>true</is_cyclic>\n" if ($relationship_type->is_cyclic() == 1);
-			print $file_handle "\t\t<is_reflexive>true</is_reflexive>\n" if ($relationship_type->is_reflexive() == 1);
-			print $file_handle "\t\t<is_symmetric>true</is_symmetric>\n" if ($relationship_type->is_symmetric() == 1);
-			print $file_handle "\t\t<is_transitive>true</is_transitive>\n" if ($relationship_type->is_transitive() == 1);
+			print $output_file_handle "\t\t<is_anti_symmetric>true</is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric() == 1);
+			print $output_file_handle "\t\t<is_cyclic>true</is_cyclic>\n" if ($relationship_type->is_cyclic() == 1);
+			print $output_file_handle "\t\t<is_reflexive>true</is_reflexive>\n" if ($relationship_type->is_reflexive() == 1);
+			print $output_file_handle "\t\t<is_symmetric>true</is_symmetric>\n" if ($relationship_type->is_symmetric() == 1);
+			print $output_file_handle "\t\t<is_transitive>true</is_transitive>\n" if ($relationship_type->is_transitive() == 1);
 			
 			#
 			# is_a: TODO missing function to retieve the rel types 
@@ -2385,7 +2463,7 @@ sub export {
 			if (defined $rt)  {
 				my @heads = @{$self->get_head_by_relationship_type($relationship_type, $rt)};
 				foreach my $head (@heads) {
-					print $file_handle "\t\t<is_a>", $head->id(), "</is_a>\n";
+					print $output_file_handle "\t\t<is_a>", $head->id(), "</is_a>\n";
 				}
 			}
 			
@@ -2394,76 +2472,76 @@ sub export {
 			#
 			my $ir = $relationship_type->inverse_of();
 			if (defined $ir) {
-				print $file_handle "\t\t<inverse_of>", $ir->id(), "</inverse_of>\n";
+				print $output_file_handle "\t\t<inverse_of>", $ir->id(), "</inverse_of>\n";
 			}
 			
 	    	#
 			# transitive_over
 			#
 			foreach my $transitive_over ($relationship_type->transitive_over()->get_set()) {
-				print $file_handle "\t\t<transitive_over>", $transitive_over, "</transitive_over>\n";
+				print $output_file_handle "\t\t<transitive_over>", $transitive_over, "</transitive_over>\n";
 			}
 			
 			#
 			# holds_over_chain
 			#
 			foreach my $holds_over_chain ($relationship_type->holds_over_chain()) {
-				print $file_handle "\t\t<holds_over_chain>\n";
-				print $file_handle "\t\t\t<r1>", @{$holds_over_chain}[0], "</r1>\n";
-				print $file_handle "\t\t\t<r2>", @{$holds_over_chain}[1], "</r2>\n";
-				print $file_handle "\t\t</holds_over_chain>\n";
+				print $output_file_handle "\t\t<holds_over_chain>\n";
+				print $output_file_handle "\t\t\t<r1>", @{$holds_over_chain}[0], "</r1>\n";
+				print $output_file_handle "\t\t\t<r2>", @{$holds_over_chain}[1], "</r2>\n";
+				print $output_file_handle "\t\t</holds_over_chain>\n";
 			}
 
 			#
 		    # functional
 		    #
-		    print $file_handle "\t\t<functional>true</functional>\n" if ($relationship_type->functional() == 1);
+		    print $output_file_handle "\t\t<functional>true</functional>\n" if ($relationship_type->functional() == 1);
 				
 			#
 		    # inverse_functional
 		    #
-			print $file_handle "\t\t<inverse_functional>true</inverse_functional>\n" if ($relationship_type->inverse_functional() == 1);
+			print $output_file_handle "\t\t<inverse_functional>true</inverse_functional>\n" if ($relationship_type->inverse_functional() == 1);
 				
 			#
-			# created_by:
+			# created_by
 			#
-			print $file_handle "\t\t<created_by>", $relationship_type->created_by(), "</created_by>\n" if (defined $relationship_type->created_by());
+			print $output_file_handle "\t\t<created_by>", $relationship_type->created_by(), "</created_by>\n" if (defined $relationship_type->created_by());
 
 			#
-			# creation_date:
+			# creation_date
 			#
-			print $file_handle "\t\t<creation_date>", $relationship_type->creation_date(), "</creation_date>\n" if (defined $relationship_type->creation_date());
+			print $output_file_handle "\t\t<creation_date>", $relationship_type->creation_date(), "</creation_date>\n" if (defined $relationship_type->creation_date());
 			
 			#
 			# is_obsolete
 			#
-			print $file_handle "\t\t<is_obsolete>true</is_obsolete>\n" if ($relationship_type->is_obsolete());
+			print $output_file_handle "\t\t<is_obsolete>true</is_obsolete>\n" if ($relationship_type->is_obsolete());
 			
 			#
 			# replaced_by
 			#
 			foreach my $replaced_by ($relationship_type->replaced_by()->get_set()) {
-				print $file_handle "\t\t<replaced_by>", $replaced_by, "</replaced_by>\n";
+				print $output_file_handle "\t\t<replaced_by>", $replaced_by, "</replaced_by>\n";
 			}
 			
 			#
 			# consider
 			#
 			foreach my $consider ($relationship_type->consider()->get_set()) {
-				print $file_handle "\t\t<consider>", $consider, "</consider>\n";
+				print $output_file_handle "\t\t<consider>", $consider, "</consider>\n";
 			}
 	    	
 	    	#
 	    	# is_metadata_tag
 	    	#
-			print $file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
+			print $output_file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
 			
 			#
 			# end typedef
 			#
-			print $file_handle "\t</typedef>\n\n";
+			print $output_file_handle "\t</typedef>\n\n";
 		}
-		print $file_handle "</".$IS.">\n";
+		print $output_file_handle "</".$IS.">\n";
 	} elsif ($format eq 'owl') {
 
 		my $oboContentUrl = shift || 'http://www.cellcycleontology.org/ontology/owl/'; # "http://purl.org/obo/owl/"; 
@@ -2472,72 +2550,73 @@ sub export {
 		#
 		# preambule
 		#
-		print $file_handle "<?xml version=\"1.0\"?>\n";
-		print $file_handle "<rdf:RDF\n";
-		print $file_handle "\txmlns=\"".$oboContentUrl."\"\n";
-		print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
-		print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-		print $file_handle "\txmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n";
-		print $file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";
-		print $file_handle "\txmlns:oboInOwl=\"".$oboInOwlUrl."\"\n";
-		print $file_handle "\txmlns:oboContent=\"".$oboContentUrl."\"\n";
-		print $file_handle "\txml:base=\"".$oboContentUrl."CCO\"\n";
+		print $output_file_handle "<?xml version=\"1.0\"?>\n";
+		print $output_file_handle "<rdf:RDF\n";
+		print $output_file_handle "\txmlns=\"".$oboContentUrl."\"\n";
+		print $output_file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
+		print $output_file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
+		print $output_file_handle "\txmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n";
+		print $output_file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";
+		print $output_file_handle "\txmlns:oboInOwl=\"".$oboInOwlUrl."\"\n";
+		print $output_file_handle "\txmlns:oboContent=\"".$oboContentUrl."\"\n";
+		print $output_file_handle "\txml:base=\"".$oboContentUrl."CCO\"\n";
 
-		#print $file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
-		#print $file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
-		#print $file_handle "\txmlns:xsp=\"http://www.owl-ontologies.com/2005/08/07/xsp.owl#\"\n";
-		#print $file_handle "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n";
-		print $file_handle ">\n";
+		#print $output_file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
+		#print $output_file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
+		#print $output_file_handle "\txmlns:xsp=\"http://www.owl-ontologies.com/2005/08/07/xsp.owl#\"\n";
+		#print $output_file_handle "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n";
+		print $output_file_handle ">\n";
 
 		#
 		# meta-data: oboInOwl elements
 		#
 		foreach my $ap ('hasURI', 'hasAlternativeId', 'hasDate', 'hasVersion', 'hasDbXref', 'hasDefaultNamespace', 'hasNamespace', 'hasDefinition', 'hasExactSynonym', 'hasNarrowSynonym', 'hasBroadSynonym', 'hasRelatedSynonym', 'hasSynonymType', 'hasSubset', 'inSubset', 'savedBy', 'replacedBy', 'consider') {
-			print $file_handle "<owl:AnnotationProperty rdf:about=\"".$oboInOwlUrl.$ap."\"/>\n";
+			print $output_file_handle "<owl:AnnotationProperty rdf:about=\"".$oboInOwlUrl.$ap."\"/>\n";
 		}
 		foreach my $c ('DbXref', 'Definition', 'Subset', 'Synonym', 'SynonymType', 'ObsoleteClass') {
-			print $file_handle "<owl:Class rdf:about=\"".$oboInOwlUrl.$c."\"/>\n";
+			print $output_file_handle "<owl:Class rdf:about=\"".$oboInOwlUrl.$c."\"/>\n";
 		}
-		print $file_handle "<owl:ObjectProperty rdf:about=\"".$oboInOwlUrl."ObsoleteProperty\"/>\n";
-		print $file_handle "\n";
+		print $output_file_handle "<owl:ObjectProperty rdf:about=\"".$oboInOwlUrl."ObsoleteProperty\"/>\n";
+		print $output_file_handle "\n";
 
 		#
 		# header: http://oe0.spreadsheets.google.com/ccc?id=o06770842196506107736.4732937099693365844.03735622766900057712.3276521997699206495#
 		#
-		print $file_handle "<owl:Ontology rdf:about=\"\">\n";
+		print $output_file_handle "<owl:Ontology rdf:about=\"\">\n";
 		foreach my $import_obo ($self->imports()->get_set()) {
 			# As Ontology.pm is independant of the format (OBO, OWL) it will import the ID of the ontology
 			(my $import_owl = $import_obo) =~ s/\.obo/\.owl/;
-			print $file_handle "\t<owl:imports rdf:resource=\"", $import_owl, "\"/>\n";
+			print $output_file_handle "\t<owl:imports rdf:resource=\"", $import_owl, "\"/>\n";
 		}
 		# format-version is not treated
-		print $file_handle "\t<oboInOwl:hasDate>", $self->date(), "</oboInOwl:hasDate>\n" if ($self->date());
-		print $file_handle "\t<oboInOwl:hasDate>", $self->data_version(), "</oboInOwl:hasDate>\n" if ($self->data_version());
-		print $file_handle "\t<oboInOwl:savedBy>", $self->saved_by(), "</oboInOwl:savedBy>\n" if ($self->saved_by());
-		#print $file_handle "\t<rdfs:comment>autogenerated-by: ", $0, "</rdfs:comment>\n";
-		print $file_handle "\t<oboInOwl:hasDefaultNamespace>", $self->default_namespace(), "</oboInOwl:hasDefaultNamespace>\n" if ($self->default_namespace());
+		print $output_file_handle "\t<oboInOwl:hasDate>", $self->date(), "</oboInOwl:hasDate>\n" if ($self->date());
+		print $output_file_handle "\t<oboInOwl:hasDate>", $self->data_version(), "</oboInOwl:hasDate>\n" if ($self->data_version());
+		print $output_file_handle '\t\t<oboInOwl:ontology>', $self->id(), "</oboInOwl:ontology>\n" if ($self->id());
+		print $output_file_handle "\t<oboInOwl:savedBy>", $self->saved_by(), "</oboInOwl:savedBy>\n" if ($self->saved_by());
+		#print $output_file_handle "\t<rdfs:comment>autogenerated-by: ", $0, "</rdfs:comment>\n";
+		print $output_file_handle "\t<oboInOwl:hasDefaultNamespace>", $self->default_namespace(), "</oboInOwl:hasDefaultNamespace>\n" if ($self->default_namespace());
 		foreach my $remark ($self->remarks()->get_set()) {
-			print $file_handle "\t<rdfs:comment>", $remark, "</rdfs:comment>\n";
+			print $output_file_handle "\t<rdfs:comment>", $remark, "</rdfs:comment>\n";
 		}
 		
 		# subsetdef
-		foreach my $subsetdef ($self->subset_def_set()->get_set()) {
-			print $file_handle "\t<oboInOwl:hasSubset>\n";
-			print $file_handle "\t\t<oboInOwl:Subset rdf:about=\"", $oboContentUrl, $subsetdef->name(), "\">\n";
-			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $subsetdef->description(), "</rdfs:comment>\n";
-			print $file_handle "\t\t</oboInOwl:Subset>\n";
-			print $file_handle "\t</oboInOwl:hasSubset>\n";
+		foreach my $subsetdef (sort {lc($a->name()) cmp lc($b->name())} $self->subset_def_map()->values()) {
+			print $output_file_handle "\t<oboInOwl:hasSubset>\n";
+			print $output_file_handle "\t\t<oboInOwl:Subset rdf:about=\"", $oboContentUrl, $subsetdef->name(), "\">\n";
+			print $output_file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $subsetdef->description(), "</rdfs:comment>\n";
+			print $output_file_handle "\t\t</oboInOwl:Subset>\n";
+			print $output_file_handle "\t</oboInOwl:hasSubset>\n";
 		}
  
 		# synonyntypedef
 		foreach my $st ($self->synonym_type_def_set()->get_set()) {
-			print $file_handle "\t<oboInOwl:hasSynonymType>\n";
-			print $file_handle "\t\t<oboInOwl:SynonymType rdf:about=\"", $oboContentUrl, $st->name(), "\">\n";
-			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $st->description(), "</rdfs:comment>\n";
+			print $output_file_handle "\t<oboInOwl:hasSynonymType>\n";
+			print $output_file_handle "\t\t<oboInOwl:SynonymType rdf:about=\"", $oboContentUrl, $st->name(), "\">\n";
+			print $output_file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $st->description(), "</rdfs:comment>\n";
 			my $scope = $st->scope();
-			print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $scope, "</rdfs:comment>\n" if (defined $scope);
-			print $file_handle "\t\t</oboInOwl:SynonymType>\n";
-			print $file_handle "\t</oboInOwl:hasSynonymType>\n";
+			print $output_file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $scope, "</rdfs:comment>\n" if (defined $scope);
+			print $output_file_handle "\t\t</oboInOwl:SynonymType>\n";
+			print $output_file_handle "\t</oboInOwl:hasSynonymType>\n";
 		}
 		
 		# idspace
@@ -2546,21 +2625,21 @@ sub export {
 		if (defined $ids) {
 			$local_idspace = $ids->local_idspace(); 
 			if ($local_idspace) {
-				print $file_handle "\t<oboInOwl:IDSpace>\n";
-				print $file_handle "\t\t<oboInOwl:local>\n";
-				print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $local_idspace, "</rdfs:comment>\n";
-				print $file_handle "\t\t</oboInOwl:local>\n";
-				print $file_handle "\t\t<oboInOwl:global>\n";
-				print $file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->idspace()->uri(), "</rdfs:comment>\n";
-				print $file_handle "\t\t</oboInOwl:global>\n";
+				print $output_file_handle "\t<oboInOwl:IDSpace>\n";
+				print $output_file_handle "\t\t<oboInOwl:local>\n";
+				print $output_file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $local_idspace, "</rdfs:comment>\n";
+				print $output_file_handle "\t\t</oboInOwl:local>\n";
+				print $output_file_handle "\t\t<oboInOwl:global>\n";
+				print $output_file_handle "\t\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $self->idspace()->uri(), "</rdfs:comment>\n";
+				print $output_file_handle "\t\t</oboInOwl:global>\n";
 				my $desc = $ids->description();
-				print $file_handle "\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $desc, "</rdfs:comment>\n";
-				print $file_handle "\t</oboInOwl:IDSpace>\n";
+				print $output_file_handle "\t\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $desc, "</rdfs:comment>\n";
+				print $output_file_handle "\t</oboInOwl:IDSpace>\n";
 			}
 		}
 		
 		# Ontology end tag
-		print $file_handle "</owl:Ontology>\n\n";
+		print $output_file_handle "</owl:Ontology>\n\n";
 		
 		#
 		# term
@@ -2571,42 +2650,46 @@ sub export {
 			
 			# for the URLs
 			my $term_id = $term->id();
-			$local_idspace = $local_idspace || (split(/:/, $term_id))[0]; # the idspace or the space from the term itself. e.g. CCO
+			$local_idspace = $local_idspace || (split(':', $term_id))[0]; # the idspace or the space from the term itself. e.g. CCO
 		
 			#
 			# Class name
 			#
-			print $file_handle "<owl:Class rdf:about=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($term_id), "\">\n";
+			print $output_file_handle "<owl:Class rdf:about=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($term_id), "\">\n";
 			
 			#
 			# label name = class name
 			#
-			print $file_handle "\t<rdfs:label xml:lang=\"en\">", &char_hex_http($term->name()), "</rdfs:label>\n" if ($term->name());
+			print $output_file_handle "\t<rdfs:label xml:lang=\"en\">", &char_hex_http($term->name()), "</rdfs:label>\n" if ($term->name());
 			
 			#
 			# comment
 			#
-			print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $term->comment(), "</rdfs:comment>\n" if ($term->comment());
+			print $output_file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $term->comment(), "</rdfs:comment>\n" if ($term->comment());
 			
 			#
 			# subset
 			#
 			foreach my $sset_name ($term->subset()) {
-				print $file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, &_get_name_without_whitespaces($sset_name), "\"/>\n";
+				if ($self->subset_def_map()->contains_key($sset_name)) {
+					print $output_file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, &_get_name_without_whitespaces($sset_name), "\"/>\n";
+				} else {
+					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+				}
 			}
 			
 			#
 			# Def
 			#      
 			if (defined $term->def()->text()) {
-				print $file_handle "\t<oboInOwl:hasDefinition>\n";
-				print $file_handle "\t\t<oboInOwl:Definition>\n";
-				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", &char_hex_http($term->def()->text()), "</rdfs:label>\n";
+				print $output_file_handle "\t<oboInOwl:hasDefinition>\n";
+				print $output_file_handle "\t\t<oboInOwl:Definition>\n";
+				print $output_file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", &char_hex_http($term->def()->text()), "</rdfs:label>\n";
 				
-				print_hasDbXref_for_owl($file_handle, $term->def()->dbxref_set(), $oboContentUrl, 3);
+				print_hasDbXref_for_owl($output_file_handle, $term->def()->dbxref_set(), $oboContentUrl, 3);
 				
-				print $file_handle "\t\t</oboInOwl:Definition>\n";
-				print $file_handle "\t</oboInOwl:hasDefinition>\n";
+				print $output_file_handle "\t\t</oboInOwl:Definition>\n";
+				print $output_file_handle "\t</oboInOwl:hasDefinition>\n";
 			}
 			
 			#
@@ -2627,34 +2710,34 @@ sub export {
 					# TODO Consider the synonym types defined in the header: 'synonymtypedef' tag
 					die 'A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED';
 				}
-				print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
-				print $file_handle "\t\t<oboInOwl:Synonym>\n";
-				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
+				print $output_file_handle "\t<oboInOwl:", $synonym_type, ">\n";
+				print $output_file_handle "\t\t<oboInOwl:Synonym>\n";
+				print $output_file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
 				
-				print_hasDbXref_for_owl($file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
+				print_hasDbXref_for_owl($output_file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
 				
-				print $file_handle "\t\t</oboInOwl:Synonym>\n";
-				print $file_handle "\t</oboInOwl:", $synonym_type, ">\n";
+				print $output_file_handle "\t\t</oboInOwl:Synonym>\n";
+				print $output_file_handle "\t</oboInOwl:", $synonym_type, ">\n";
 			}
 			
 			#
 			# namespace
 			#
 			foreach my $ns ($term->namespace()) {
-				print $file_handle "\t<oboInOwl:hasOBONamespace>", $ns, "</oboInOwl:hasOBONamespace>\n";
+				print $output_file_handle "\t<oboInOwl:hasOBONamespace>", $ns, "</oboInOwl:hasOBONamespace>\n";
 			}
 
 			#
 			# alt_id:
 			#
 			foreach my $alt_id ($term->alt_id()->get_set()) {
-				print $file_handle "\t<oboInOwl:hasAlternativeId>", $alt_id, "</oboInOwl:hasAlternativeId>\n";
+				print $output_file_handle "\t<oboInOwl:hasAlternativeId>", $alt_id, "</oboInOwl:hasAlternativeId>\n";
 			}
 
 			#
 			# xref's
 			#
-			print_hasDbXref_for_owl($file_handle, $term->xref_set(), $oboContentUrl, 1);
+			print_hasDbXref_for_owl($output_file_handle, $term->xref_set(), $oboContentUrl, 1);
 	    	
 			#
 			# is_a:
@@ -2665,7 +2748,7 @@ sub export {
 		    		my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
 		    		my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 		    		foreach my $head (grep (!$saw_is_a{$_}++, @sorted_heads)) {
-						print $file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboContentUrl, $local_idspace, '#', obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
+						print $output_file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboContentUrl, $local_idspace, '#', obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
 		    		
 #					#
 #					# Gathering for the Disjointness (see below, after the bucle)
@@ -2684,7 +2767,7 @@ sub export {
 #				#
 #				#	foreach my $disjoint (@disjoint_term){
 #				#		$disjoint =~ tr/:/_/;
-#				#		print $file_handle "\t<owl:disjointWith rdf:resource=\"#", $disjoint, "\"/>\n";
+#				#		print $output_file_handle "\t<owl:disjointWith rdf:resource=\"#", $disjoint, "\"/>\n";
 #				#	}
 			}
 		
@@ -2696,14 +2779,14 @@ sub export {
 					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
-						print $file_handle "\t<rdfs:subClassOf>\n";
-						print $file_handle "\t\t<owl:Restriction>\n";
-						print $file_handle "\t\t\t<owl:onProperty>\n"; 
-						print $file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $rt->name(), "\"/>\n";
-						print $file_handle "\t\t\t</owl:onProperty>\n";
-						print $file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
-						print $file_handle "\t\t</owl:Restriction>\n";
-						print $file_handle "\t</rdfs:subClassOf>\n";
+						print $output_file_handle "\t<rdfs:subClassOf>\n";
+						print $output_file_handle "\t\t<owl:Restriction>\n";
+						print $output_file_handle "\t\t\t<owl:onProperty>\n"; 
+						print $output_file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $rt->name(), "\"/>\n";
+						print $output_file_handle "\t\t\t</owl:onProperty>\n";
+						print $output_file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
+						print $output_file_handle "\t\t</owl:Restriction>\n";
+						print $output_file_handle "\t</rdfs:subClassOf>\n";
 					}
 				}
 			}
@@ -2712,22 +2795,22 @@ sub export {
 			# disjoint_from:
 			#
 			foreach my $disjoint_term_id ($term->disjoint_from()) {
-				print $file_handle "\t<owl:disjointWith rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($disjoint_term_id), "\"/>\n";
+				print $output_file_handle "\t<owl:disjointWith rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($disjoint_term_id), "\"/>\n";
 			}
 
 			#
 			# obsolete
 			#
-			print $file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboInOwlUrl, "ObsoleteClass\"/>\n" if ($term->is_obsolete());
+			print $output_file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboInOwlUrl, "ObsoleteClass\"/>\n" if ($term->is_obsolete());
 
 			#
 			# intersection_of
 			#
 			my @intersection_of = $term->intersection_of();
 			if (@intersection_of) {
-				print $file_handle "\t<owl:equivalentClass>\n";
-				print $file_handle "\t\t<owl:Class>\n";
-				print $file_handle "\t\t\t<owl:intersectionOf rdf:parseType=\"Collection\">\n";
+				print $output_file_handle "\t<owl:equivalentClass>\n";
+				print $output_file_handle "\t\t<owl:Class>\n";
+				print $output_file_handle "\t\t\t<owl:intersectionOf rdf:parseType=\"Collection\">\n";
 				foreach my $tr (@intersection_of) {
 					# TODO Improve the parsing of the 'interection_of' elements
 					my @inter = split(/\s+/, $tr);
@@ -2735,21 +2818,21 @@ sub export {
 					my $idspace = ($tr =~ /([A-Z]+):/)?$1:$local_idspace;      
 					if (scalar @inter == 1) {
 						my $idspace = ($tr =~ /([A-Z]+):/)?$1:$local_idspace;
-						print $file_handle "\t\t\t<owl:Class rdf:about=\"", $oboContentUrl, $idspace, "/", obo_id2owl_id($tr), "\"/>\n";
+						print $output_file_handle "\t\t\t<owl:Class rdf:about=\"", $oboContentUrl, $idspace, "/", obo_id2owl_id($tr), "\"/>\n";
 					} elsif (scalar @inter == 2) { # restriction
-						print $file_handle "\t\t<owl:Restriction>\n";
-						print $file_handle "\t\t\t<owl:onProperty>\n";
-						print $file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $inter[0], "\"/>\n";
-						print $file_handle "\t\t\t</owl:onProperty>\n";
-						print $file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($inter[1]), "\"/>\n";
-						print $file_handle "\t\t</owl:Restriction>\n";
+						print $output_file_handle "\t\t<owl:Restriction>\n";
+						print $output_file_handle "\t\t\t<owl:onProperty>\n";
+						print $output_file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $inter[0], "\"/>\n";
+						print $output_file_handle "\t\t\t</owl:onProperty>\n";
+						print $output_file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($inter[1]), "\"/>\n";
+						print $output_file_handle "\t\t</owl:Restriction>\n";
 					} else {
 						die "Parsing error: 'intersection_of' tag has an unknown argument";
 					}
 				}
-				print $file_handle "\t\t\t</owl:intersectionOf>\n";
-				print $file_handle "\t\t</owl:Class>\n";
-				print $file_handle "\t</owl:equivalentClass>\n";
+				print $output_file_handle "\t\t\t</owl:intersectionOf>\n";
+				print $output_file_handle "\t\t</owl:Class>\n";
+				print $output_file_handle "\t</owl:equivalentClass>\n";
 			}
 
 			#
@@ -2757,17 +2840,17 @@ sub export {
 			#
 			my @union_of = $term->union_of();
 			if (@union_of) {
-				print $file_handle "\t<owl:equivalentClass>\n";
-				print $file_handle "\t\t<owl:Class>\n";
-				print $file_handle "\t\t\t<owl:unionOf rdf:parseType=\"Collection\">\n";
+				print $output_file_handle "\t<owl:equivalentClass>\n";
+				print $output_file_handle "\t\t<owl:Class>\n";
+				print $output_file_handle "\t\t\t<owl:unionOf rdf:parseType=\"Collection\">\n";
 				foreach my $tr (@union_of) {
 					# TODO Check the idspace of the terms in the set 'union_of'
 					my $idspace = ($tr =~ /([A-Z]+):/)?$1:$local_idspace; 
-					print $file_handle "\t\t\t<owl:Class rdf:about=\"", $oboContentUrl, $idspace, "/", obo_id2owl_id($tr), "\"/>\n";
+					print $output_file_handle "\t\t\t<owl:Class rdf:about=\"", $oboContentUrl, $idspace, "/", obo_id2owl_id($tr), "\"/>\n";
 				}
-				print $file_handle "\t\t\t</owl:unionOf>\n";
-				print $file_handle "\t\t</owl:Class>\n";
-				print $file_handle "\t</owl:equivalentClass>\n";
+				print $output_file_handle "\t\t\t</owl:unionOf>\n";
+				print $output_file_handle "\t\t</owl:Class>\n";
+				print $output_file_handle "\t</owl:equivalentClass>\n";
 			}
 			
 			#
@@ -2779,30 +2862,30 @@ sub export {
 			# replaced_by
 			#
 			foreach my $replaced_by ($term->replaced_by()->get_set()) {
-				print $file_handle "\t<oboInOwl:replacedBy rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($replaced_by), "\"/>\n";
+				print $output_file_handle "\t<oboInOwl:replacedBy rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($replaced_by), "\"/>\n";
 			}
 			
 			#
 			# consider
 			#
 			foreach my $consider ($term->consider()->get_set()) {
-				print $file_handle "\t<oboInOwl:consider rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($consider), "\"/>\n";
+				print $output_file_handle "\t<oboInOwl:consider rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($consider), "\"/>\n";
 			}
 
 			#
    			# End of the term
    			#
-			print $file_handle "</owl:Class>\n\n";
+			print $output_file_handle "</owl:Class>\n\n";
 		}
 		
 		#
 		# relationship types: properties
 		#
 		# TODO
-#		print $file_handle "<owl:TransitiveProperty rdf:about=\"", $oboContentUrl, "part_of\">\n";
-# 		print $file_handle "\t<rdfs:label xml:lang=\"en\">part of</rdfs:label>\n";
-#		print $file_handle "\t<oboInOwl:hasNamespace>", $self->default_namespace(), "</oboInOwl:hasNamespace>\n" if ($self->default_namespace());
-#		print $file_handle "</owl:TransitiveProperty>\n";
+#		print $output_file_handle "<owl:TransitiveProperty rdf:about=\"", $oboContentUrl, "part_of\">\n";
+# 		print $output_file_handle "\t<rdfs:label xml:lang=\"en\">part of</rdfs:label>\n";
+#		print $output_file_handle "\t<oboInOwl:hasNamespace>", $self->default_namespace(), "</oboInOwl:hasNamespace>\n" if ($self->default_namespace());
+#		print $output_file_handle "</owl:TransitiveProperty>\n";
 		
 		foreach my $relationship_type ( @{$self->get_relationship_types_sorted_by_id()} ) {
 
@@ -2813,33 +2896,33 @@ sub export {
 			#
 			# Object property
 			#
-			print $file_handle "<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $relationship_type_id, "\">\n";
+			print $output_file_handle "<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $relationship_type_id, "\">\n";
 			
 			#
 			# name:
 			#
 			my $relationship_type_name = $relationship_type->name();
 			if (defined $relationship_type_name) {
-				print $file_handle "\t<rdfs:label xml:lang=\"en\">", $relationship_type_name, "</rdfs:label>\n";
+				print $output_file_handle "\t<rdfs:label xml:lang=\"en\">", $relationship_type_name, "</rdfs:label>\n";
 			}
 			
 			#
 			# comment:
 			#
-			print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $relationship_type->comment(), "</rdfs:comment>\n" if ($relationship_type->comment());
+			print $output_file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", $relationship_type->comment(), "</rdfs:comment>\n" if ($relationship_type->comment());
 			
 			#
 			# Def:
 			#
 			if (defined $relationship_type->def()->text()) {
-				print $file_handle "\t<oboInOwl:hasDefinition>\n";
-				print $file_handle "\t\t<oboInOwl:Definition>\n";
-				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", &char_hex_http($relationship_type->def()->text()), "</rdfs:label>\n";
+				print $output_file_handle "\t<oboInOwl:hasDefinition>\n";
+				print $output_file_handle "\t\t<oboInOwl:Definition>\n";
+				print $output_file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", &char_hex_http($relationship_type->def()->text()), "</rdfs:label>\n";
 				
-				print_hasDbXref_for_owl($file_handle, $relationship_type->def()->dbxref_set(), $oboContentUrl, 3);
+				print_hasDbXref_for_owl($output_file_handle, $relationship_type->def()->dbxref_set(), $oboContentUrl, 3);
 				
-				print $file_handle "\t\t</oboInOwl:Definition>\n";
-				print $file_handle "\t</oboInOwl:hasDefinition>\n";
+				print $output_file_handle "\t\t</oboInOwl:Definition>\n";
+				print $output_file_handle "\t</oboInOwl:hasDefinition>\n";
 			}
 			
 			#
@@ -2860,27 +2943,27 @@ sub export {
 					# TODO Consider the synonym types defined in the header: 'synonymtypedef' tag
 					die 'A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED';
 				}
-				print $file_handle "\t<oboInOwl:", $synonym_type, ">\n";
-				print $file_handle "\t\t<oboInOwl:Synonym>\n";
-				print $file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
+				print $output_file_handle "\t<oboInOwl:", $synonym_type, ">\n";
+				print $output_file_handle "\t\t<oboInOwl:Synonym>\n";
+				print $output_file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
 				
-				print_hasDbXref_for_owl($file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
+				print_hasDbXref_for_owl($output_file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
 				
-				print $file_handle "\t\t</oboInOwl:Synonym>\n";
-				print $file_handle "\t</oboInOwl:", $synonym_type, ">\n";
+				print $output_file_handle "\t\t</oboInOwl:Synonym>\n";
+				print $output_file_handle "\t</oboInOwl:", $synonym_type, ">\n";
 			}
 			#
 			# namespace: TODO implement namespace in relationship
 			#
 			foreach my $ns ($relationship_type->namespace()) {
-				print $file_handle "\t<oboInOwl:hasOBONamespace>", $ns, "</oboInOwl:hasOBONamespace>\n";
+				print $output_file_handle "\t<oboInOwl:hasOBONamespace>", $ns, "</oboInOwl:hasOBONamespace>\n";
 			}
 			
 			#
 			# alt_id: TODO implement alt_id in relationship
 			#
 			foreach my $alt_id ($relationship_type->alt_id()->get_set()) {
-				print $file_handle "\t<oboInOwl:hasAlternativeId>", $alt_id, "</oboInOwl:hasAlternativeId>\n";
+				print $output_file_handle "\t<oboInOwl:hasAlternativeId>", $alt_id, "</oboInOwl:hasAlternativeId>\n";
 			}
 			
 			#
@@ -2890,42 +2973,42 @@ sub export {
 			if (defined $rt)  {
 		    		my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($relationship_type, $rt)});
 		    		foreach my $head (@sorted_heads) {
-						print $file_handle "\t<rdfs:subPropertyOf rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
+						print $output_file_handle "\t<rdfs:subPropertyOf rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
 		    		}
 			}
 			
 			#
 			# Properties:
 			#
-			print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#TransitiveProperty\"/>\n" if ($relationship_type->is_transitive());
-			print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#SymmetricProperty\"/>\n" if ($relationship_type->is_symmetric()); # No cases so far
-			print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n"if ($relationship_type->is_metadata_tag());
-			#print $file_handle "\t<is_reflexive rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">true</is_reflexive>\n" if ($relationship_type->is_reflexive());
-			#print $file_handle "\t<is_anti_symmetric rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">true</is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric()); # anti-symmetric <> not symmetric
+			print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#TransitiveProperty\"/>\n" if ($relationship_type->is_transitive());
+			print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#SymmetricProperty\"/>\n" if ($relationship_type->is_symmetric()); # No cases so far
+			print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n"if ($relationship_type->is_metadata_tag());
+			#print $output_file_handle "\t<is_reflexive rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">true</is_reflexive>\n" if ($relationship_type->is_reflexive());
+			#print $output_file_handle "\t<is_anti_symmetric rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">true</is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric()); # anti-symmetric <> not symmetric
 			
 			#
 			# xref's
 			#
-			print_hasDbXref_for_owl($file_handle, $relationship_type->xref_set(), $oboContentUrl, 1);
+			print_hasDbXref_for_owl($output_file_handle, $relationship_type->xref_set(), $oboContentUrl, 1);
 			
 			## There is no way to code these rel's in OBO
-			##print $file_handle "\t<rdf:type rdf:resource=\"&owl;FunctionalProperty\"/>\n" if (${$relationship{$_}}{"TODO"});
-			##print $file_handle "\t<rdf:type rdf:resource=\"&owl;InverseFunctionalProperty\"/>\n" if (${$relationship{$_}}{"TODO"});
-			##print $file_handle "\t<owl:inverseOf rdf:resource=\"#has_authors\"/>\n" if (${$relationship{$_}}{"TODO"});
-			print $file_handle "</owl:ObjectProperty>\n\n";
+			##print $output_file_handle "\t<rdf:type rdf:resource=\"&owl;FunctionalProperty\"/>\n" if (${$relationship{$_}}{"TODO"});
+			##print $output_file_handle "\t<rdf:type rdf:resource=\"&owl;InverseFunctionalProperty\"/>\n" if (${$relationship{$_}}{"TODO"});
+			##print $output_file_handle "\t<owl:inverseOf rdf:resource=\"#has_authors\"/>\n" if (${$relationship{$_}}{"TODO"});
+			print $output_file_handle "</owl:ObjectProperty>\n\n";
 			
 			#
 			# replaced_by
 			#
 			foreach my $replaced_by ($relationship_type->replaced_by()->get_set()) {
-				print $file_handle "\t<oboInOwl:replacedBy rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($replaced_by), "\"/>\n";
+				print $output_file_handle "\t<oboInOwl:replacedBy rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($replaced_by), "\"/>\n";
 			}
 			
 			#
 			# consider
 			#
 			foreach my $consider ($relationship_type->consider()->get_set()) {
-				print $file_handle "\t<oboInOwl:consider rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($consider), "\"/>\n";
+				print $output_file_handle "\t<oboInOwl:consider rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($consider), "\"/>\n";
 			}
 		}
 #				
@@ -2934,39 +3017,39 @@ sub export {
 #		#
 #
 #		# autoGeneratedBy
-#		#print $file_handle "<owl:DatatypeProperty rdf:ID=\"autoGeneratedBy\">\n";
-#		#print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-#		#print $file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
-#		#print $file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "The program that generated this ontology.", "</rdfs:comment>\n";
-#		#print $file_handle "</owl:DatatypeProperty>\n\n";
+#		#print $output_file_handle "<owl:DatatypeProperty rdf:ID=\"autoGeneratedBy\">\n";
+#		#print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
+#		#print $output_file_handle "\t<rdfs:range rdf:resource=\"http://www.w3.org/2001/XMLSchema#string\"/>\n";
+#		#print $output_file_handle "\t<rdfs:comment rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">", "The program that generated this ontology.", "</rdfs:comment>\n";
+#		#print $output_file_handle "</owl:DatatypeProperty>\n\n";
 #		
 #		# is_anti_symmetric
-#		print $file_handle "<owl:DatatypeProperty rdf:ID=\"is_anti_symmetric\">\n";
-#		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-#		print $file_handle "</owl:DatatypeProperty>\n\n";
+#		print $output_file_handle "<owl:DatatypeProperty rdf:ID=\"is_anti_symmetric\">\n";
+#		print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
+#		print $output_file_handle "</owl:DatatypeProperty>\n\n";
 #		
 #		# is_reflexive
-#		print $file_handle "<owl:DatatypeProperty rdf:ID=\"is_reflexive\">\n";
-#		print $file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
-#		print $file_handle "</owl:DatatypeProperty>\n\n";
+#		print $output_file_handle "<owl:DatatypeProperty rdf:ID=\"is_reflexive\">\n";
+#		print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n";
+#		print $output_file_handle "</owl:DatatypeProperty>\n\n";
 		
 		#
 		# EOF:
 		#
-		print $file_handle "</rdf:RDF>\n\n";
-		print $file_handle "<!--\nGenerated with ONTO-PERL ($VERSION): ".$0.", ".__date()."\n-->";
+		print $output_file_handle "</rdf:RDF>\n\n";
+		print $output_file_handle "<!--\nGenerated with ONTO-PERL ($VERSION): ".$0.", ".__date()."\n-->";
 		
 	} elsif ($format eq 'dot') {
 		#
 		# begin DOT format
 		#
-		print $file_handle 'digraph Ontology {';
-		print $file_handle "\n\tpage=\"11,17\";";
-		#print $file_handle "\n\tratio=auto;";
+		print $output_file_handle 'digraph Ontology {';
+		print $output_file_handle "\n\tpage=\"11,17\";";
+		#print $output_file_handle "\n\tratio=auto;";
     	
 		# terms
 		my @all_terms = @{$self->get_terms_sorted_by_id()};
-		print $file_handle "\n\tedge [label=\"is a\"];";
+		print $output_file_handle "\n\tedge [label=\"is a\"];";
 		foreach my $term (@all_terms) {
 	    	
 			my $term_id = $term->id();
@@ -2985,7 +3068,7 @@ sub export {
 						warn 'Warning: The term with id: ', $head->id(), ' has no name!' ;
 					} else {
 						# TODO Write down the name() instead of the id()
-						print $file_handle "\n\t", obo_id2owl_id($term_id), ' -> ', obo_id2owl_id($head->id()), ';';
+						print $output_file_handle "\n\t", obo_id2owl_id($term_id), ' -> ', obo_id2owl_id($head->id()), ';';
 					}
 				}
 			}	    	
@@ -2995,7 +3078,7 @@ sub export {
 			foreach $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
 				if ($rt->name() ne 'is_a') { # is_a is printed above
 					my @heads = @{$self->get_head_by_relationship_type($term, $rt)};
-					print $file_handle "\n\tedge [label=\"", $rt->name(), "\"];" if (@heads);
+					print $output_file_handle "\n\tedge [label=\"", $rt->name(), "\"];" if (@heads);
 					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @heads);
 					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
@@ -3004,7 +3087,7 @@ sub export {
 				    	} elsif (!defined $head->name()) {
 				    		warn 'Warning: The term with id: ', $head->id(), ' has no name!' ;
 				    	} else {	
-							print $file_handle "\n\t", obo_id2owl_id($term_id), ' -> ', obo_id2owl_id($head->id()), ';';
+							print $output_file_handle "\n\t", obo_id2owl_id($term_id), ' -> ', obo_id2owl_id($head->id()), ';';
 						}
 					}
 				}
@@ -3014,18 +3097,18 @@ sub export {
 		#
 		# end DOT format
 		#
-		print $file_handle "\n}";
+		print $output_file_handle "\n}";
 	} elsif ($format eq 'gml') {
 		#
 		# begin GML format
 		#
-		print $file_handle "Creator \"ONTO-PERL, $VERSION\"\n";
-		print $file_handle "Version	1.0\n";
-		print $file_handle "graph [\n";
-		#print $file_handle "\tVendor \"ONTO-PERL\"\n";
-		#print $file_handle "\tdirected 1\n";
-		#print $file_handle "\tcomment 1"
-		#print $file_handle "\tlabel 1"
+		print $output_file_handle "Creator \"ONTO-PERL, $VERSION\"\n";
+		print $output_file_handle "Version	1.0\n";
+		print $output_file_handle "graph [\n";
+		#print $output_file_handle "\tVendor \"ONTO-PERL\"\n";
+		#print $output_file_handle "\tdirected 1\n";
+		#print $output_file_handle "\tcomment 1"
+		#print $output_file_handle "\tlabel 1"
     	
 		my %id = ('C'=>1, 'P'=>2, 'F'=>3, 'R'=>4, 'T'=>5, 'I'=>6, 'B'=>7, 'U'=>8, 'G'=>9, 'X'=>4);
 		my %color_id = ('C'=>'fff5f5', 'P'=>'b7ffd4', 'F'=>'d7ffe7', 'R'=>'ceffe1', 'T'=>'ffeaea', 'I'=>'f4fff8', 'B'=>'f0fff6', 'G'=>'f0fee6', 'U'=>'e0ffec', 'X'=>'ffcccc', 'Y'=>'fecccc');
@@ -3038,27 +3121,27 @@ sub export {
 			#
 			# Class name
 			#
-			print $file_handle "\tnode [\n";
+			print $output_file_handle "\tnode [\n";
 			my $term_sns = $term->subnamespace();
 			$term_sns    = 'X' if !$term_sns;
 			my $id = $id{$term_sns};
 			$gml_id{$term_id} = 100000000 * (defined($id)?$id:1) + $term->code();
 			#$id{$term->id()} = $gml_id;
-			print $file_handle "\t\troot_index	-", $gml_id{$term_id}, "\n";
-			print $file_handle "\t\tid			-", $gml_id{$term_id}, "\n";
-			print $file_handle "\t\tgraphics	[\n";
-			#print $file_handle "\t\t\tx	1656.0\n";
-			#print $file_handle "\t\t\ty	255.0\n";
-			print $file_handle "\t\t\tw	40.0\n";
-			print $file_handle "\t\t\th	40.0\n";
-			print $file_handle "\t\t\tfill	\"#".$color_id{$term_sns}."\"\n" if $color_id{$term_sns};
-			print $file_handle "\t\t\toutline	\"#000000\"\n";
-			print $file_handle "\t\t\toutline_width	1.0\n";
-			print $file_handle "\t\t]\n";
-			print $file_handle "\t\tlabel		\"", $term_id, "\"\n";
-			print $file_handle "\t\tname		\"", $term->name(), "\"\n";
-			print $file_handle "\t\tcomment		\"", $term->def()->text(), "\"\n" if (defined $term->def()->text());
-			print $file_handle "\t]\n";
+			print $output_file_handle "\t\troot_index	-", $gml_id{$term_id}, "\n";
+			print $output_file_handle "\t\tid			-", $gml_id{$term_id}, "\n";
+			print $output_file_handle "\t\tgraphics	[\n";
+			#print $output_file_handle "\t\t\tx	1656.0\n";
+			#print $output_file_handle "\t\t\ty	255.0\n";
+			print $output_file_handle "\t\t\tw	40.0\n";
+			print $output_file_handle "\t\t\th	40.0\n";
+			print $output_file_handle "\t\t\tfill	\"#".$color_id{$term_sns}."\"\n" if $color_id{$term_sns};
+			print $output_file_handle "\t\t\toutline	\"#000000\"\n";
+			print $output_file_handle "\t\t\toutline_width	1.0\n";
+			print $output_file_handle "\t\t]\n";
+			print $output_file_handle "\t\tlabel		\"", $term_id, "\"\n";
+			print $output_file_handle "\t\tname		\"", $term->name(), "\"\n";
+			print $output_file_handle "\t\tcomment		\"", $term->def()->text(), "\"\n" if (defined $term->def()->text());
+			print $output_file_handle "\t]\n";
 			
 	    	#
 	    	# relationships: terms1 -> term2
@@ -3072,13 +3155,13 @@ sub export {
 				   	} elsif (!defined $head->name()) {
 				   		die 'The term with id: ', $head->id(), ' has no name!' ;
 				   	} else {
-			    		print $file_handle "\tedge [\n";
-			    		print $file_handle "\t\troot_index	-", $gml_id{$term_id}, "\n";
-		    			print $file_handle "\t\tsource		-", $gml_id{$term_id}, "\n";
+			    		print $output_file_handle "\tedge [\n";
+			    		print $output_file_handle "\t\troot_index	-", $gml_id{$term_id}, "\n";
+		    			print $output_file_handle "\t\tsource		-", $gml_id{$term_id}, "\n";
 		    			$gml_id{$head->id()} = 100000000 * (defined($id{$head->subnamespace()})?$id{$head->subnamespace()}:1) + $head->code();
-		    			print $file_handle "\t\ttarget		-", $gml_id{$head->id()}, "\n";
-		    			print $file_handle "\t\tlabel		\"", $rt->name(),"\"\n";
-		    			print $file_handle "\t]\n";
+		    			print $output_file_handle "\t\ttarget		-", $gml_id{$head->id()}, "\n";
+		    			print $output_file_handle "\t\tlabel		\"", $rt->name(),"\"\n";
+		    			print $output_file_handle "\t]\n";
 					}
 				}
 			}
@@ -3087,19 +3170,19 @@ sub export {
 		#
 		# end GML format
 		#
-    		print $file_handle "\n]";
+    		print $output_file_handle "\n]";
 	} elsif ($format eq 'xgmml') {
 		warn 'Not implemented yet';
 	} elsif ($format eq 'sbml') {
 		warn 'Not implemented yet';
 	} elsif ($format eq 'vis') {
-		print $file_handle "<?xml version=\"1.0\" ?>\n";
+		print $output_file_handle "<?xml version=\"1.0\" ?>\n";
 		my $nodecount = $self->get_number_of_terms();
-		print $file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" db_online=\"true\" fineArt=\"false\" double_click=\"gcard\" layout=\"scramble\">\n";
+		print $output_file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" db_online=\"true\" fineArt=\"false\" double_click=\"gcard\" layout=\"scramble\">\n";
 		
-		print $file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"C\" visible=\"true\" color=\"232,14,133\"/>";
+		print $output_file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"C\" visible=\"true\" color=\"232,14,133\"/>";
 		# Terms
-		print $file_handle "<Nodes>\n";
+		print $output_file_handle "<Nodes>\n";
 		my @all_terms = @{$self->get_terms_sorted_by_id()};
 		my $i = 1;
 		my %sn;
@@ -3140,20 +3223,20 @@ sub export {
 			$RGB = '190 190 190' if ($entity_type =~ /U/); # grey
 			$RGB = '210 105 30' if ($entity_type =~ /R/); # chocolate
 
-			print $file_handle "<VNodes x=\"1\" y=\"1\" counter=\"$counter\" w=\"15\" h=\"15\" ncc=\"", $RGB, "\" labelOn=\"false\" linkLoaded=\"true\" extend=\"false\">\n";
-			$alias_buffer = ($alias_buffer)?"alias=\""._get_name_without_whitespaces($alias_buffer)."\"":"";
-			print $file_handle "<data name=\"", _get_name_without_whitespaces($term->name()), "\" index=\"$int_id\" type=\"100\" $alias_buffer>\n";
+			print $output_file_handle "<VNodes x=\"1\" y=\"1\" counter=\"$counter\" w=\"15\" h=\"15\" ncc=\"", $RGB, "\" labelOn=\"false\" linkLoaded=\"true\" extend=\"false\">\n";
+			$alias_buffer = ($alias_buffer)?"alias=\""._get_name_without_whitespaces($alias_buffer).'"':'';
+			print $output_file_handle "<data name=\"", _get_name_without_whitespaces($term->name()), "\" index=\"$int_id\" type=\"100\" $alias_buffer>\n";
 			# def
 			my $term_def_text = $term->def()->text();
 			if ($term_def_text) { 
-				print $file_handle "<desc>\n";
-				print $file_handle &char_hex_http($term_def_text), "\n";
-				print $file_handle "</desc>\n";
+				print $output_file_handle "<desc>\n";
+				print $output_file_handle &char_hex_http($term_def_text), "\n";
+				print $output_file_handle "</desc>\n";
 			}
 			# xrefs
 			my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $term->xref_set_as_string());
 			foreach my $xref (@sorted_xrefs) {
-				print $file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
+				print $output_file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
 			}
 			# relationships
 			foreach my $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
@@ -3161,22 +3244,22 @@ sub export {
 				my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 				foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
 					my $rt_id = $rt->id();
-     				print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
-					print $file_handle "<desc>\n";
-					print $file_handle $rt_id, "\n";
-					print $file_handle "</desc>\n";
-					print $file_handle "</link>\n";
+     				print $output_file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
+					print $output_file_handle "<desc>\n";
+					print $output_file_handle $rt_id, "\n";
+					print $output_file_handle "</desc>\n";
+					print $output_file_handle "</link>\n";
 				}
 			}
 
-			print $file_handle "</data>\n";
-			print $file_handle "</VNodes>\n\n";
+			print $output_file_handle "</data>\n";
+			print $output_file_handle "</VNodes>\n\n";
 		}
-		print $file_handle "</Nodes>\n\n";
+		print $output_file_handle "</Nodes>\n\n";
 
 		# Relationships
 #		my ($tail, $head, $relationship_type);
-#		print $file_handle "<Edges>\n";
+#		print $output_file_handle "<Edges>\n";
 #		foreach my $term (@sorted_terms) {
 #			my $term_id = $term->id();
 #			my $int_id = $sn{$2}.$3 if ($term_id =~ /(.*):([A-Z])?(\d+)/);
@@ -3186,8 +3269,8 @@ sub export {
 #                                foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 #					my $head_id = $head->id();
 #					my $int_head_id = $sn{$2}.$3 if ($head_id =~ /(.*):([A-Z])?(\d+)/);
-##					print $file_handle "<VEdge from=\"", $int_id, "\" to=\"", $int_head_id, "\" elabel=\"is_a\" la=\"T\"/>\n";
-#					print $file_handle "<VEdge from=\"", $term->name(), "\" to=\"", $head->name(), "\" elabel=\"is_a\" la=\"T\"/>\n";
+##					print $output_file_handle "<VEdge from=\"", $int_id, "\" to=\"", $int_head_id, "\" elabel=\"is_a\" la=\"T\"/>\n";
+#					print $output_file_handle "<VEdge from=\"", $term->name(), "\" to=\"", $head->name(), "\" elabel=\"is_a\" la=\"T\"/>\n";
 #				}
 #			}
 #
@@ -3197,24 +3280,24 @@ sub export {
 #					foreach my $head (sort {lc($a->id()) cmp lc($b->id())} @heads) {
 #						my $head_id = $head->id();
 #						my $int_head_id = $sn{$2}.$3 if ($head_id =~ /(.*):([A-Z])?(\d+)/);
-##						print $file_handle "<VEdge from=\"", $int_id, "\" to=\"", $int_head_id, "\" elabel=\"", $rt->id(), "\" la=\"T\"/>\n";
-#						print $file_handle "<VEdge from=\"", $term->name(), "\" to=\"", $head->name(), "\" elabel=\"", $rt->id(), "\" la=\"T\"/>\n";
+##						print $output_file_handle "<VEdge from=\"", $int_id, "\" to=\"", $int_head_id, "\" elabel=\"", $rt->id(), "\" la=\"T\"/>\n";
+#						print $output_file_handle "<VEdge from=\"", $term->name(), "\" to=\"", $head->name(), "\" elabel=\"", $rt->id(), "\" la=\"T\"/>\n";
 #					}
 #				}
 #			}
 #		}
-#		print $file_handle "</Edges>\n";
-		print $file_handle "</VisAnt>\n";
+#		print $output_file_handle "</Edges>\n";
+		print $output_file_handle "</VisAnt>\n";
 	} elsif ($format eq 'vis2') { # interaction centric model
-		print $file_handle "<?xml version=\"1.0\" ?>\n";
+		print $output_file_handle "<?xml version=\"1.0\" ?>\n";
 		my @interactions = @{$self->get_terms_sorted_by_id("CCO:I.*")}; # get all the interactions
 		my @proteins     = @{$self->get_terms_sorted_by_id("CCO:B.*")}; # get all the proteins (and modified protein term)
 		my $nodecount    = $#interactions + $#proteins + 2;
-		print $file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" fineArt=\"false\" layout=\"scramble\">\n";
+		print $output_file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" fineArt=\"false\" layout=\"scramble\">\n";
                 
-		print $file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";
+		print $output_file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";
 		# Terms
-		print $file_handle "\n<Nodes>\n";
+		print $output_file_handle "\n<Nodes>\n";
 		my $i = 1;
 		my %sn;
 		for my $letter ('A'..'Z') {
@@ -3226,9 +3309,9 @@ sub export {
 			my $term_id = $term->id();
 			my $int_id = $sn{$2}.$3 if ($term_id =~ /(.*):([A-Z])?(\d+)/);
 
-			print $file_handle "<VNodes x=\"245\" y=\"322\" counter=\"1\" w=\"28\" h=\"18\" labelOn=\"true\" labelSize=\"10\" linkDisplayed=\"true\" mid=\"M7000\" childVisible=\"false\" ncc=\"126 133 181\">\n";
-			print $file_handle "<vlabel>$int_id</vlabel>\n";
-			print $file_handle "<children>";
+			print $output_file_handle "<VNodes x=\"245\" y=\"322\" counter=\"1\" w=\"28\" h=\"18\" labelOn=\"true\" labelSize=\"10\" linkDisplayed=\"true\" mid=\"M7000\" childVisible=\"false\" ncc=\"126 133 181\">\n";
+			print $output_file_handle "<vlabel>$int_id</vlabel>\n";
+			print $output_file_handle "<children>";
 			my $rt = $self->get_relationship_type_by_id("has_participant");
 			if (defined $rt)  {
 				my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
@@ -3236,26 +3319,26 @@ sub export {
 				foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
 					my $head_id = $head->id();
 					my $int_head_id = $sn{$2}.$3 if ($head_id =~ /(.*):([A-Z])?(\d+)/);
-					print $file_handle $head->name(), ",";
+					print $output_file_handle $head->name(), ",";
 					$interaction_group{$head_id} .= $int_id.",";
 				}
 			}
-			print $file_handle "</children>\n";
-			print $file_handle "<data name=\"", $term->name(), "\" index=\"$int_id\" type=\"4\">\n";
-			print $file_handle "<desc>";
-			print $file_handle $term->comment();
-			print $file_handle "</desc>\n";
-			print $file_handle "</data>\n";
-			print $file_handle "</VNodes>\n\n";
+			print $output_file_handle "</children>\n";
+			print $output_file_handle "<data name=\"", $term->name(), "\" index=\"$int_id\" type=\"4\">\n";
+			print $output_file_handle "<desc>";
+			print $output_file_handle $term->comment();
+			print $output_file_handle "</desc>\n";
+			print $output_file_handle "</data>\n";
+			print $output_file_handle "</VNodes>\n\n";
 		}
 		# Proteins
 		foreach my $term (@proteins) {
 			my $term_id = $term->id();
                        my $int_id = $sn{$2}.$3 if ($term_id =~ /(.*):([A-Z])?(\d+)/);
 			my $group_buffer = ($interaction_group{$term_id})?$interaction_group{$term_id}:"";
-			my $first_group = (split(/,/, $group_buffer))[0];
+			my $first_group = (split(',', $group_buffer))[0];
 			my $g = ($first_group)?"group=\"$first_group\"":"";
-                        print $file_handle "<VNodes x=\"276\" y=\"322\" counter=\"-1\" w=\"0\" h=\"0\" $g>\n";
+                        print $output_file_handle "<VNodes x=\"276\" y=\"322\" counter=\"-1\" w=\"0\" h=\"0\" $g>\n";
 			# synonyms
 			my @sorted_synonyms = map { $_->[0] }                # restore original values
 							sort { $a->[1] cmp $b->[1] }         # sort
@@ -3270,49 +3353,49 @@ sub export {
 				}
 			}
 			my $alias = ($alias_buffer)?"alias=\"$alias_buffer\"":"";
-			print $file_handle "<data name=\"", $term->name(), "\" index=\"$int_id\" type=\"0\" $alias>\n";
+			print $output_file_handle "<data name=\"", $term->name(), "\" index=\"$int_id\" type=\"0\" $alias>\n";
 			# def
 			my $term_def_text = $term->def()->text();
 			if ($term_def_text) { 
-				print $file_handle "<desc>\n";
-				print $file_handle &char_hex_http($term_def_text), "\n";
-				print $file_handle "</desc>\n";
+				print $output_file_handle "<desc>\n";
+				print $output_file_handle &char_hex_http($term_def_text), "\n";
+				print $output_file_handle "</desc>\n";
 			}
 			# xrefs
 			my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $term->xref_set_as_string());
 			foreach my $xref (@sorted_xrefs) {
-				print $file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
+				print $output_file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
 			}
 			# relationships
 			foreach my $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
 				my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 				my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 				foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
-					print $file_handle "<link to=\"", $head->name(), "\" method=\"M7000\" toType=\"2\">\n";
-					print $file_handle "<desc>\n";
-					print $file_handle $rt->id(), "\n";
-					print $file_handle "</desc>\n";
-					print $file_handle "</link>\n";
+					print $output_file_handle "<link to=\"", $head->name(), "\" method=\"M7000\" toType=\"2\">\n";
+					print $output_file_handle "<desc>\n";
+					print $output_file_handle $rt->id(), "\n";
+					print $output_file_handle "</desc>\n";
+					print $output_file_handle "</link>\n";
 				}
 			}
 			# group
 			chop($group_buffer);
-			print $file_handle "<group name=\"common\" value=\"$group_buffer\"/>\n" if ($group_buffer);
-			print $file_handle "</data>\n";
-			print $file_handle "</VNodes>\n\n";
+			print $output_file_handle "<group name=\"common\" value=\"$group_buffer\"/>\n" if ($group_buffer);
+			print $output_file_handle "</data>\n";
+			print $output_file_handle "</VNodes>\n\n";
 		}
-		print $file_handle "</Nodes>\n\n";
-		print $file_handle "</VisAnt>\n";
+		print $output_file_handle "</Nodes>\n\n";
+		print $output_file_handle "</VisAnt>\n";
 	} elsif ($format eq 'vis3') { # protein centric model
-		print $file_handle "<?xml version=\"1.0\" ?>\n";
+		print $output_file_handle "<?xml version=\"1.0\" ?>\n";
 		my @interactions = @{$self->get_terms("CCO:I.*")}; # get all the interactions
 		my @proteins     = @{$self->get_terms("CCO:B.*")}; # get all the B's
 		my $nodecount    = $#interactions + $#proteins + 2;
-		print $file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" fineArt=\"false\" layout=\"scramble\">\n";
+		print $output_file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" fineArt=\"false\" layout=\"scramble\">\n";
                 
-		print $file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";	
+		print $output_file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";	
 		# Terms
-		print $file_handle "\n<Nodes>\n";
+		print $output_file_handle "\n<Nodes>\n";
 		my @all_terms = (@proteins, @interactions);
                 my $i = 1;
                 my %sn;
@@ -3344,61 +3427,61 @@ sub export {
                                 }
                         }
 
-                        print $file_handle "<VNodes x=\"1\" y=\"1\" counter=\"2\" w=\"30\" h=\"30\" ncc=\"", $R, " ", $G, " ", $B, "\" labelOn=\"true\" linkDisplayed=\"true\" linkLoaded=\"true\" extend=\"false\" labelPos=\"0\" labelSize=\"10\" esymbol=\"false\">\n";
-						print $file_handle "<vlabel>", _get_name_without_whitespaces($term_name), "</vlabel>";
-                        print $file_handle "<data name=\"", _get_name_without_whitespaces($term_name), "\" index=\"$int_id\" type=\"0\" alias=\"$alias_buffer\">\n";
+                        print $output_file_handle "<VNodes x=\"1\" y=\"1\" counter=\"2\" w=\"30\" h=\"30\" ncc=\"", $R, " ", $G, " ", $B, "\" labelOn=\"true\" linkDisplayed=\"true\" linkLoaded=\"true\" extend=\"false\" labelPos=\"0\" labelSize=\"10\" esymbol=\"false\">\n";
+						print $output_file_handle "<vlabel>", _get_name_without_whitespaces($term_name), "</vlabel>";
+                        print $output_file_handle "<data name=\"", _get_name_without_whitespaces($term_name), "\" index=\"$int_id\" type=\"0\" alias=\"$alias_buffer\">\n";
                         # def
                         my $term_def_text = $term->def()->text();
                         if ($term_def_text) { 
-                                print $file_handle "<desc>\n";
-                                print $file_handle &char_hex_http($term_def_text), "\n";
-                                print $file_handle "</desc>\n";
+                                print $output_file_handle "<desc>\n";
+                                print $output_file_handle &char_hex_http($term_def_text), "\n";
+                                print $output_file_handle "</desc>\n";
                         }
                         # xrefs
                         my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $term->xref_set_as_string());
                         foreach my $xref (@sorted_xrefs) {
-                                print $file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
+                                print $output_file_handle "<id name=\"", $xref->db(), "\" value=\"", $xref->acc(), "\"/>\n";
                         }
                         # relationships
                         foreach my $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
                                 my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
                                 my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
                                 foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
-                                        print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
-                                        print $file_handle "<desc>\n";
-                                        print $file_handle $rt->id(), "\n";
-                                        print $file_handle "</desc>\n";
-                                        print $file_handle "</link>\n";
+                                        print $output_file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
+                                        print $output_file_handle "<desc>\n";
+                                        print $output_file_handle $rt->id(), "\n";
+                                        print $output_file_handle "</desc>\n";
+                                        print $output_file_handle "</link>\n";
                                 }
                         }
 
-                        print $file_handle "</data>\n";	
-                        print $file_handle "</VNodes>\n\n";
+                        print $output_file_handle "</data>\n";	
+                        print $output_file_handle "</VNodes>\n\n";
 			} # end term B
 			elsif ($2 eq 'I') { # Is it an interaction?
 				my $R = 0;
 				my $G = 0;    
 				my $B = 255;
-				print $file_handle "<VNodes x=\"333\" y=\"28\" counter=\"1\" w=\"14\" h=\"14\" linkLoaded=\"true\">\n";
-				print $file_handle "<data name=\"", _get_name_without_whitespaces($term_name), "\" index=\"$int_id\" type=\"0\">\n";
+				print $output_file_handle "<VNodes x=\"333\" y=\"28\" counter=\"1\" w=\"14\" h=\"14\" linkLoaded=\"true\">\n";
+				print $output_file_handle "<data name=\"", _get_name_without_whitespaces($term_name), "\" index=\"$int_id\" type=\"0\">\n";
 				# relationships
 				foreach my $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
 					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
-						print $file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
-						print $file_handle "<desc>\n";
-						print $file_handle $rt->id(), "\n";
-						print $file_handle "</desc>\n";
-						print $file_handle "</link>\n";
+						print $output_file_handle "<link to=\"", _get_name_without_whitespaces($head->name()), "\" method=\"M7000\" toType=\"2\">\n";
+						print $output_file_handle "<desc>\n";
+						print $output_file_handle $rt->id(), "\n";
+						print $output_file_handle "</desc>\n";
+						print $output_file_handle "</link>\n";
 					}
 				}
-				print $file_handle "</data>\n";
-				print $file_handle "</VNodes>\n";
+				print $output_file_handle "</data>\n";
+				print $output_file_handle "</VNodes>\n";
 			}
                 }
-		print $file_handle "</Nodes>\n\n";
-		print $file_handle "</VisAnt>\n";
+		print $output_file_handle "</Nodes>\n\n";
+		print $output_file_handle "</VisAnt>\n";
 	}
     
     return 0;
@@ -3454,9 +3537,10 @@ sub get_subontology_from {
 		$self->has_term($root_term) || die "The term '", $root_term,"' does not belong to this ontology";
 
 		$result->data_version($self->data_version());
+		$result->id($self->id());
 		$result->imports($self->imports()->get_set());
 		$result->idspaces($self->idspaces()->get_set());
-		$result->subset_def_set($self->subset_def_set()->get_set()); # add (by default) all the subset_def_set's
+		$result->subset_def_map($self->subset_def_map()); # add (by default) all the subset_def_map's
 		$result->synonym_type_def_set($self->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 		$result->default_namespace($self->default_namespace());
 		$result->remarks($self->remarks()->get_set());
@@ -3488,27 +3572,30 @@ sub get_subontology_from {
 =cut
 
 sub get_terms_idspace {
-	# TODO Find an efficient way to get it...
-	#my $is = (values(%{$self->{TERMS}}))[0]->idspace(); 
-	# TODO Find a better way to get the local_idspace, maybe using the self->{ID} field?
 	my ($self) = @_;
-	my $IS = undef;
-	my @all_terms = values(%{$self->{TERMS}});
-	foreach my $term (@all_terms) {
-		$IS = $term->idspace();
-		last if(defined $IS);
+	if ($self->id()) {
+		return $self->id();
+	} else {
+		# TODO Find an efficient way to get it...
+		#my $is = (values(%{$self->{TERMS}}))[0]->idspace();
+		my $IS = undef;
+		my @all_terms = values(%{$self->{TERMS}});
+		foreach my $term (@all_terms) {
+			$IS = $term->idspace();
+			last if(defined $IS);
+		}
+		return ($IS)?$IS:'NN';
 	}
-	return ($IS)?$IS:'NN';
 }
 	
 sub print_hasDbXref_for_owl {
-	my ($file_handle, $set, $oboContentUrl, $tab_times) = @_;
+	my ($output_file_handle, $set, $oboContentUrl, $tab_times) = @_;
 	my $tab0 = "\t"x$tab_times;
 	my $tab1 = "\t"x($tab_times + 1);
 	my $tab2 = "\t"x($tab_times + 2);
 	for my $ref ($set->get_set()) {
-		print $file_handle $tab0."<oboInOwl:hasDbXref>\n";
-		print $file_handle $tab1."<oboInOwl:DbXref>\n";
+		print $output_file_handle $tab0."<oboInOwl:hasDbXref>\n";
+		print $output_file_handle $tab1."<oboInOwl:DbXref>\n";
 		my $db = $ref->db();
 		my $acc = $ref->acc();
 
@@ -3517,14 +3604,14 @@ sub print_hasDbXref_for_owl {
 		# <oboInOwl:hasURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http%3A%2F%2Fwww2.merriam-webster.com%2Fcgi-bin%2Fmwmednlm%3Fbook%3DMedical%26va%3Dforebrain</oboInOwl:hasURI>
 		if ($db eq 'http') {
 			my $http_location = &char_hex_http($acc);
-			print $file_handle $tab2."<rdfs:label>URL:http%3A%2F%2F", $http_location, "</rdfs:label>\n";
-			print $file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$http_location,"</oboInOwl:hasURI>\n";	
+			print $output_file_handle $tab2."<rdfs:label>URL:http%3A%2F%2F", $http_location, "</rdfs:label>\n";
+			print $output_file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$http_location,"</oboInOwl:hasURI>\n";	
 		} else {
-			print $file_handle $tab2."<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
-			print $file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,'#',$db,'_',$acc,"</oboInOwl:hasURI>\n";
+			print $output_file_handle $tab2."<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
+			print $output_file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,'#',$db,'_',$acc,"</oboInOwl:hasURI>\n";
 		}
-		print $file_handle $tab1."</oboInOwl:DbXref>\n";
-		print $file_handle $tab0."</oboInOwl:hasDbXref>\n";
+		print $output_file_handle $tab1."</oboInOwl:DbXref>\n";
+		print $output_file_handle $tab0."</oboInOwl:hasDbXref>\n";
 	}
 }
 
@@ -3691,8 +3778,8 @@ sub get_ancestor_terms_by_relationship_type {
 
   Usage    - $ontology->create_rel->($tail, $type, $head)
   Returns  - the OBO::Core::Ontology object
-  Args     - an OBO::Core::(Term|Relationship) object, a relationship type string, and an OBO::Core::(Term|Relationship) object, 
-  Function - creates and adds a new relationship to the ontology
+  Args     - an OBO::Core::(Term|Relationship) object, a relationship type string (e.g. is_a), and an OBO::Core::(Term|Relationship) object, 
+  Function - creates and adds a new relationship to this ontology
   
 =cut
 
@@ -4090,6 +4177,73 @@ sub get_paths_term_terms_same_rel () {
 	return @result;
 }
 
+=head2 obo_id2owl_id
+
+  Usage    - $ontology->obo_id2owl_id($term)
+  Returns  - the ID for OWL representation.
+  Args     - the OBO-type ID.
+  Function - Transform an OBO-type ID into an OWL-type one. E.g. CCO:I1234567 -> CCO_I1234567
+  
+=cut
+
+sub obo_id2owl_id {
+	$_[0] =~ tr/:/_/;
+	return $_[0];
+}
+
+=head2 owl_id2obo_id
+
+  Usage    - $ontology->owl_id2obo_id($term)
+  Returns  - the ID for OBO representation.
+  Args     - the OWL-type ID.
+  Function - Transform an OWL-type ID into an OBO-type one. E.g. CCO_I1234567 -> CCO:I1234567
+  
+=cut
+
+sub owl_id2obo_id {
+	$_[0] =~ tr/_/:/;
+	return $_[0];
+}
+
+=head2 char_hex_http
+
+  Usage    - $ontology->char_hex_http($seq)
+  Returns  - the sequence with the numeric HTML representation for the given special character
+  Args     - the sequence of characters
+  Function - Transforms a character into its equivalent HTML number, e.g. : -> &#58;
+  
+=cut
+
+sub char_hex_http { 
+	
+	$_[0] =~ s/:/&#58;/g;  # colon
+	$_[0] =~ s/;/&#59;/g;  # semicolon
+	$_[0] =~ s/</&#60;/g;  # less than sign
+	$_[0] =~ s/=/&#61;/g;  # equal sign
+	$_[0] =~ s/>/&#62;/g;  # greater than sign
+	$_[0] =~ s/\?/&#63;/g; # question mark
+	$_[0] =~ s/\//&#47;/g; # slash
+	$_[0] =~ s/&/&#38;/g;  # ampersand
+	$_[0] =~ s/"/&#34;/g;  # double quotes
+	$_[0] =~ s/�/&#177;/g; # plus-or-minus sign
+	
+#	$_[0] =~ s/:/%3A/g;
+#	$_[0] =~ s/;/%3B/g;
+#	$_[0] =~ s/</%3C/g;
+#	$_[0] =~ s/=/%3D/g;
+#	$_[0] =~ s/>/%3E/g;
+#	$_[0] =~ s/\?/%3F/g;
+#	$_[0] =~ s/#/%23/g;
+#	$_[0] =~ s/$/%24/g;
+#	$_[0] =~ s/%/%25/g;
+#	$_[0] =~ s/\//%2F/g;
+#	$_[0] =~ s/&/%26/g;
+#	$_[0] =~ s/"/%22/g;
+#	$_[0] =~ s/�/%B1/g;
+
+	return $_[0];
+}
+
 sub _dfs () {
 	my ($self, $onto, $v) = @_;
 	
@@ -4196,74 +4350,6 @@ sub __sort_by {
 				@input;
 }
 
-=head2 obo_id2owl_id
-
-  Usage    - $ontology->obo_id2owl_id($term)
-  Returns  - the ID for OWL representation.
-  Args     - the OBO-type ID.
-  Function - Transform an OBO-type ID into an OWL-type one. E.g. CCO:I1234567 -> CCO_I1234567
-  
-=cut
-
-sub obo_id2owl_id {
-	$_[0] =~ tr/:/_/;
-	return $_[0];
-}
-
-=head2 owl_id2obo_id
-
-  Usage    - $ontology->owl_id2obo_id($term)
-  Returns  - the ID for OBO representation.
-  Args     - the OWL-type ID.
-  Function - Transform an OWL-type ID into an OBO-type one. E.g. CCO_I1234567 -> CCO:I1234567
-  
-=cut
-
-
-sub owl_id2obo_id {
-	$_[0] =~ tr/_/:/;
-	return $_[0];
-}
-
-=head2 char_hex_http
-
-  Usage    - $ontology->char_hex_http($seq)
-  Returns  - the sequence with the numeric HTML representation for the given special character
-  Args     - the sequence of characters
-  Function - Transforms a character into its equivalent HTML number, e.g. : -> &#58;
-  
-=cut
-
-sub char_hex_http { 
-	
-	$_[0] =~ s/:/&#58;/g;  # colon
-	$_[0] =~ s/;/&#59;/g;  # semicolon
-	$_[0] =~ s/</&#60;/g;  # less than sign
-	$_[0] =~ s/=/&#61;/g;  # equal sign
-	$_[0] =~ s/>/&#62;/g;  # greater than sign
-	$_[0] =~ s/\?/&#63;/g; # question mark
-	$_[0] =~ s/\//&#47;/g; # slash
-	$_[0] =~ s/&/&#38;/g;  # ampersand
-	$_[0] =~ s/"/&#34;/g;  # double quotes
-	$_[0] =~ s/�/&#177;/g; # plus-or-minus sign
-	
-#	$_[0] =~ s/:/%3A/g;
-#	$_[0] =~ s/;/%3B/g;
-#	$_[0] =~ s/</%3C/g;
-#	$_[0] =~ s/=/%3D/g;
-#	$_[0] =~ s/>/%3E/g;
-#	$_[0] =~ s/\?/%3F/g;
-#	$_[0] =~ s/#/%23/g;
-#	$_[0] =~ s/$/%24/g;
-#	$_[0] =~ s/%/%25/g;
-#	$_[0] =~ s/\//%2F/g;
-#	$_[0] =~ s/&/%26/g;
-#	$_[0] =~ s/"/%22/g;
-#	$_[0] =~ s/�/%B1/g;
-
-	return $_[0];
-}
-# TODO Implement 'get_relationships_type_by_name()' in a similar way to 'get_terms_by_name' (using RelationshipSet)
 1;
 
 __END__
@@ -4368,7 +4454,7 @@ $onto->add_term($n4);
 
 my $new_term = $onto->add_term_as_string("CCO:P0000005", "Five");
 
-$new_term->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+$new_term->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
 
 my $n5 = $new_term; 
 

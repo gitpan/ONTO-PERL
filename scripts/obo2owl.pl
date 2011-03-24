@@ -25,7 +25,7 @@ my $my_parser   = OBO::Parser::OBOParser->new();
 my $ontology    = $my_parser->work(shift);
 my $url         = shift;
 my $oboinowlurl = shift;
-$ontology->export(\*STDOUT, "owl", $url, $oboinowlurl);
+$ontology->export('owl', \*STDOUT, $url, $oboinowlurl);
 
 exit 0;
 

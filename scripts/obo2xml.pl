@@ -22,9 +22,11 @@ use OBO::Parser::OBOParser;
 
 my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
-$ontology->export(\*STDOUT, "xml");
+$ontology->export('xml');
 
 exit 0;
+
+__END__
 
 =head1 NAME
 

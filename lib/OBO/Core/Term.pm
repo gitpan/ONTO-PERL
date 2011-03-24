@@ -54,6 +54,7 @@ sub new {
   Function - gets/sets the ID of this term
   
 =cut
+
 sub id {
 	my ($self, $id) = @_;
 	if ($id) { $self->{ID} = $id }
@@ -68,6 +69,7 @@ sub id {
   Function - gets the idspace of this term # TODO Does this method still makes sense?
   
 =cut
+
 sub idspace {
 	my $self = shift;
 	$self->{ID} =~ /([A-Za-z_]+):/ if ($self->{ID});
@@ -82,6 +84,7 @@ sub idspace {
   Function - gets the subnamespace of this term
   
 =cut
+
 sub subnamespace {
 	my $self = shift;
 	$self->{ID} =~ /:([A-Z][a-z]?)/ if ($self->{ID});
@@ -96,12 +99,12 @@ sub subnamespace {
   Function - gets the code of this term
   
 =cut
+
 sub code {
 	my $self = shift;
 	$self->{ID} =~ /:[A-Z]?[a-z]?(.*)/ if ($self->{ID});	
 	return $1 || '0000000';
 }
-
 
 =head2 name
 
@@ -111,6 +114,7 @@ sub code {
   Function - gets/sets the name of this term
   
 =cut
+
 sub name {
 	my ($self, $name) = @_;
 	if ($name) { $self->{NAME} = $name }
@@ -125,6 +129,7 @@ sub name {
   Function - tells whether this term is anonymous or not.
   
 =cut
+
 sub is_anonymous {
 	my $self = shift;
     if (@_) { $self->{IS_ANONYMOUS} = shift }
@@ -139,6 +144,7 @@ sub is_anonymous {
   Function - gets/sets the alternate id(s) of this term
   
 =cut
+
 sub alt_id {
 	my $self = shift;
 	if (scalar(@_) > 1) {
@@ -157,6 +163,7 @@ sub alt_id {
   Function - gets/sets the definition of the term
   
 =cut
+
 sub def {
 	my ($self, $def) = @_;
 	$self->{DEF} = $def if ($def);
@@ -171,12 +178,12 @@ sub def {
   Function - gets/sets the definition of this term
   
 =cut
+
 sub def_as_string {
 	my ($self, $text, $dbxref_as_string) = @_;
 	if (defined $text && defined $dbxref_as_string) {
 		my $def = $self->{DEF};
 		$def->text($text);
-		my $dbxref_set = OBO::Util::DbxrefSet->new();
 		
 		$dbxref_as_string =~ s/^\[//;
 		$dbxref_as_string =~ s/\]$//;		
@@ -190,31 +197,26 @@ sub def_as_string {
 			$dbxref_as_string =~ s/\Q$cp\E/$l/;
 		}
 		
-		my @dbxrefs = split (",", $dbxref_as_string);
+		my @dbxrefs = split (',', $dbxref_as_string);
 		
+		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
+		
+		my $dbxref_set = OBO::Util::DbxrefSet->new();
 		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
+			my ($match, $db, $acc, $desc, $mod) = undef;
 			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
+			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3);
+				$mod   = _unescape($4) if ($4);
+			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3) if ($3);
+				$mod   = _unescape($4) if ($4);
 			} else {
 				die "The references of the definition of the term with ID: '", $self->id(), "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
 			}
@@ -240,9 +242,9 @@ sub def_as_string {
 	}
 	my $d = $self->{DEF}->text();
 	if (defined $d) {
-		return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+		return '"'.$self->{DEF}->text().'"'.' ['.join(', ', @result).']';
 	} else {
-		return "\"\" [".join(', ', @result)."]";
+		return '"" ['.join(', ', @result).']';
 	}
 }
 
@@ -254,6 +256,7 @@ sub def_as_string {
   Function - gets/sets the namespace(s) to which this term belongs
   
 =cut
+
 sub namespace {
 	my $self = shift;
 	if (scalar(@_) > 1) {
@@ -272,6 +275,7 @@ sub namespace {
   Function - gets/sets the comment of this term
   
 =cut
+
 sub comment {
 	my ($self, $comment) = @_;
 	if ($comment) { $self->{COMMENT} = $comment }
@@ -286,6 +290,7 @@ sub comment {
   Function - gets/sets the subset name(s) to which this term belongs
   
 =cut
+
 sub subset {
 	my $self = shift;
 	if (scalar(@_) > 1) {
@@ -304,24 +309,44 @@ sub subset {
   Function - gets/sets the synonym(s) of this term
   
 =cut
+
 sub synonym_set {
 	my $self = shift;
 	foreach my $synonym (@_) {
-		die 'The name of this term (', $self->id(), ') is undefined.' if (!defined($self->name()));
+		my $s_name = $self->name();
+		if (!defined($s_name)) {
+			die 'The name of this term (', $self->id(), ') is undefined. Add it before adding its synonyms.';
+		}
+		
+		my $syn_found = 0;
+		# update the scope of a synonym
+		foreach my $s_text ($self->{SYNONYM_SET}->get_set()) {
+			if ($s_text->def()->text() eq $synonym->def()->text()) {     # if that SYNONYM is already in the set
+				$s_text->def()->dbxref_set($synonym->def()->dbxref_set); # then update its DBXREFs!
+				$s_text->scope($synonym->scope);                         # then update its SCOPE!
+				$s_text->synonym_type_name($synonym->synonym_type_name); # and update its SYNONYM_TYPE_NAME!
+				$syn_found = 1;
+				last;
+			}
+		}
+		
 		# do not add 'EXACT' synonyms with the same 'name':
-		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->scope() eq 'EXACT' && $synonym->def()->text() eq $self->name()));
+		if (!$syn_found && !($synonym->scope() eq 'EXACT' && $synonym->def()->text() eq $s_name)) {
+			$self->{SYNONYM_SET}->add($synonym) 
+		}
    	}
 	return $self->{SYNONYM_SET}->get_set();
 }
 
 =head2 synonym_as_string
 
-  Usage    - print $term->synonym_as_string() or $term->synonym_as_string("this is a synonym text", "[CCO:ea]", "EXACT")
+  Usage    - print $term->synonym_as_string() or $term->synonym_as_string('this is a synonym text', '[CCO:ea]', 'EXACT', 'UK_SPELLING')
   Returns  - an array with the synonym(s) of this term
   Args     - the synonym text (string), the dbxrefs (string), synonym scope (string) of this term, and optionally the synonym type name (string)
   Function - gets/sets the synonym(s) of this term
   
 =cut
+
 sub synonym_as_string {
 	my ($self, $synonym_text, $dbxrefs, $scope, $synonym_type_name) = @_;
 	if ($synonym_text && $dbxrefs && $scope) {
@@ -330,17 +355,30 @@ sub synonym_as_string {
 		$synonym->scope($scope);
 		$synonym->synonym_type_name($synonym_type_name); # optional argument
 		$self->synonym_set($synonym);
-		return; # set operation
 	}
 	
 	my @sorted_syns = map { $_->[0] }                       # restore original values
 					sort { $a->[1] cmp $b->[1] }            # sort
 					map  { [$_, lc($_->def_as_string())] }  # transform: value, sortkey
 					$self->{SYNONYM_SET}->get_set();
-						
+
 	my @result;
+	my $s_as_string;
 	foreach my $synonym (@sorted_syns) {
-		push @result, $synonym->def_as_string();
+		my $syn_scope = $synonym->scope();
+		if ($syn_scope) {
+			my $syn_type_name = $synonym->synonym_type_name();
+			if ($syn_type_name) {
+				$s_as_string = ' '.$syn_scope.' '.$syn_type_name;
+			} else {
+				$s_as_string = ' '.$syn_scope;
+			}
+		} else {
+			# This case should never happen since the SCOPE is mandatory!
+			warn "The scope of this synonym is not defined: ", $synonym->def()->text();
+		}
+		
+		push @result, $synonym->def_as_string().$s_as_string;
    	}
 	return @result;
 }
@@ -353,6 +391,7 @@ sub synonym_as_string {
   Function - gets/sets the analogous xref(s) set of this term in another vocabulary
   
 =cut
+
 sub xref_set {
 	my ($self, $xref_set) = @_;
 	$self->{XREF_SET} = $xref_set if ($xref_set);
@@ -367,6 +406,7 @@ sub xref_set {
   Function - gets/sets the dbxref set with the analogous xref(s) of this term
   
 =cut
+
 sub xref_set_as_string {
 	my ($self, $xref_as_string) = @_;
 	if ($xref_as_string) {
@@ -383,31 +423,25 @@ sub xref_set_as_string {
 			$xref_as_string =~ s/\Q$cp\E/$l/;
 		}
 		
-		my @dbxrefs = split (",", $xref_as_string);
+		my @dbxrefs = split (',', $xref_as_string);
+		
+		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
 		
 		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
+			my ($match, $db, $acc, $desc, $mod) = undef;
 			my $xref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
+			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3);
+				$mod   = _unescape($4) if ($4);
+			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3) if ($3);
+				$mod   = _unescape($4) if ($4);
 			} else {
 				die "The references of the term with ID: '", $self->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
 			}
@@ -431,6 +465,7 @@ sub xref_set_as_string {
   Function - gets/sets the set of terms/relatonships defining this term
         
 =cut
+
 sub intersection_of {
 	my $self = shift;
 	if (scalar(@_) > 1) {
@@ -448,7 +483,8 @@ sub intersection_of {
   Args     - a set (strings) of terms/relations which define this term
   Function - gets/sets the set of terms/relatonships defining this term
         
-=cut    
+=cut   
+ 
 sub union_of {
 	my $self = shift;
 	if (scalar(@_) > 1) {
@@ -467,6 +503,7 @@ sub union_of {
   Function - gets/sets the disjoint term(s) from this one
   
 =cut
+
 sub disjoint_from {
 	my $self = shift;
 	if (scalar(@_) > 1) {
@@ -485,6 +522,7 @@ sub disjoint_from {
   Function - gets/sets the name of the creator of the term
   
 =cut
+
 sub created_by {
 	my ($self, $created_by) = @_;
 	$self->{CREATED_BY} = $created_by if ($created_by);
@@ -499,6 +537,7 @@ sub created_by {
   Function - gets/sets the date of creation of the term
   
 =cut
+
 sub creation_date {
 	my ($self, $creation_date) = @_;
 	$self->{CREATION_DATE} = $creation_date if ($creation_date);
@@ -513,6 +552,7 @@ sub creation_date {
   Function - gets/sets the name of the modificator of the term
   
 =cut
+
 sub modified_by {
 	my ($self, $modified_by) = @_;
 	$self->{MODIFIED_BY} = $modified_by if ($modified_by);
@@ -527,6 +567,7 @@ sub modified_by {
   Function - gets/sets the date of modification of the term
   
 =cut
+
 sub modification_date {
 	my ($self, $modification_date) = @_;
 	$self->{MODIFICATION_DATE} = $modification_date if ($modification_date);
@@ -541,6 +582,7 @@ sub modification_date {
   Function - tells whether the term is obsolete or not. 'false' by default.
   
 =cut
+
 sub is_obsolete {
 	my $self = shift;
 	if (@_) { $self->{IS_OBSOLETE} = shift }
@@ -555,6 +597,7 @@ sub is_obsolete {
   Function - gets/sets the the id(s) of the replacing term(s)
   
 =cut
+
 sub replaced_by {
 	my $self = shift;
 	if (scalar(@_) > 1) {
@@ -573,6 +616,7 @@ sub replaced_by {
   Function - gets/sets the appropiate substitute(s) for this obsolete term
   
 =cut
+
 sub consider {
 	my $self = shift;
 	if (scalar(@_) > 1) {
@@ -591,6 +635,7 @@ sub consider {
   Function - gets/sets the value indicating whether this term is builtin to the OBO format
   
 =cut
+
 sub builtin {
 	my $self = shift;
 	if (@_) { $self->{BUILTIN} = shift }
@@ -605,9 +650,14 @@ sub builtin {
   Function - tells whether this term is equal to the parameter
   
 =cut
+
 sub equals {
 	my ($self, $target) = @_;
-	return (defined $target && $self->{'ID'} eq $target->{'ID'})?1:0;
+	if ($target && eval { $target->isa('OBO::Core::Term') }) {
+		return (defined $target && $self->{'ID'} eq $target->{'ID'})?1:0;
+	} else {
+		die "An unrecognized object type (not a OBO::Core::Term) was found: '", $target, "'";
+	}
 }
 
 sub _unescape {
@@ -815,7 +865,7 @@ $n2->def($def);
 
 # def as string
 
-$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"] {opt=first}");
+$n2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"] {opt=first}');
 
 my @refs_n2 = $n2->def()->dbxref_set()->get_set();
 

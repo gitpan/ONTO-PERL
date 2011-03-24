@@ -1,7 +1,7 @@
 # $Id: SubsetDef.pm 2010-12-22 erick.antezana $
 #
 # Module  : SubsetDef.pm
-# Purpose : A synonym type definition.
+# Purpose : A subset definition.
 # License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
@@ -67,7 +67,7 @@ sub as_string {
 		$self->{NAME}        = $name;
 		$self->{DESCRIPTION} = $desc;
 	}
-	return $self->{NAME}." \"".$self->{DESCRIPTION}."\"";
+	return $self->{NAME}.' "'.$self->{DESCRIPTION}.'"';
 }
 
 =head2 equals
@@ -82,15 +82,17 @@ sub as_string {
 sub equals {
 	my ($self, $target) = @_;
 	my $result = 0;
-	if ($target) {
+	if ($target && eval { $target->isa('OBO::Core::SubsetDef') }) {
+			
+		die 'The name of this subset definition is undefined.' if (!defined($self->{NAME}));
+		die 'The name of the target subset definition is undefined.' if (!defined($target->{NAME}));
 		
-		die 'The subset def name of this subset def definition is undefined.' if (!defined($self->{NAME}));
-		die 'The subset def name of the target subset def definition is undefined.' if (!defined($self->{NAME}));
-		
-		die 'The description of the this subset def definition is undefined.' if (!defined($target->{DESCRIPTION}));
-		die 'The description of the target subset def definition is undefined.' if (!defined($target->{DESCRIPTION}));
+		die 'The description of the this subset definition is undefined.' if (!defined($self->{DESCRIPTION}));
+		die 'The description of the target subset definition is undefined.' if (!defined($target->{DESCRIPTION}));
 		
 		$result = ($self->{NAME} eq $target->{NAME}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION});
+	} else {
+		die "An unrecognized object type (not a OBO::Core::SubsetDef) was found: '", $target, "'";
 	}
 	return $result;
 }

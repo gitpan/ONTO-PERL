@@ -2,11 +2,10 @@
 #
 # Module  : GoaAssociationSet.pm
 # Purpose : GOA association set.
-# License : Copyright (c) 2006, 2007, 2008 Vladimir Mironov. All rights reserved.
+# License : Copyright (c) 2006, 2007, 2008 ONTO-perl. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-# Contact : Vladimir Mironov <vlmir@psb.ugent.be>
-#
+
 package OBO::CCO::GoaAssociationSet;
 our @ISA = qw(OBO::Util::Set); # TODO change inheritence
 
@@ -71,13 +70,9 @@ $my_set2->clear();
 
 A set (OBO::Util::Set) of goa_association records.
 
-=head1 AUTHOR
-
-Vladimir Mironov, E<lt>vlmir@psb.ugent.beE<gt>
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by Erick Antezana
+Copyright (C) 2006 by ONTO-perl
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

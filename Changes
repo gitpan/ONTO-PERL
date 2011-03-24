@@ -92,3 +92,5 @@ Revision history for ONTO-PERL
 1.30 Code cleaning. Code optimisation, minor bug fixes.
 
 1.31 Croak fixes. CCO modules clean-up.
+
+1.32 Code clean up. Better regexp's. A few new sub's and tests. A few bug fixes.

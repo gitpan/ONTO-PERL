@@ -19,9 +19,9 @@ sub new {
 	my $class                   = shift;
 	my $self                    = {};
 
-	$self->{SCOPE}              = undef; # required: exact_synonym, broad_synonym, narrow_synonym, related_synonym
+	$self->{SCOPE}              = undef;                 # required: {exact_synonym, broad_synonym, narrow_synonym, related_synonym}
 	$self->{DEF}                = OBO::Core::Def->new(); # required
-	$self->{SYNONYM_TYPE_NAME}  = undef; # optional
+	$self->{SYNONYM_TYPE_NAME}  = undef;                 # optional
 
 	bless ($self, $class);
 	return $self;
@@ -77,7 +77,7 @@ sub def {
 
 sub synonym_type_name {
 	my ($self, $synonym_type_name) = @_;
-	$self->{SYNONYM_TYPE_NAME} = $synonym_type_name if ($synonym_type_name);
+	$self->{SYNONYM_TYPE_NAME}     = $synonym_type_name if ($synonym_type_name);
 	return $self->{SYNONYM_TYPE_NAME};
 }
 
@@ -108,31 +108,25 @@ sub def_as_string {
 			$dbxref_as_string =~ s/\Q$cp\E/$l/;
 		}
 		
-		my @dbxrefs = split (/,/, $dbxref_as_string);
+		my @dbxrefs = split (',', $dbxref_as_string);
+		
+		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
 		
 		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
+			my ($match, $db, $acc, $desc, $mod) = undef;
 			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
+			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3);
+				$mod   = _unescape($4) if ($4);
+			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3) if ($3);
+				$mod   = _unescape($4) if ($4);
 			} else {
 				die "The references of this synonym: '", $text, "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
 			}
@@ -141,7 +135,7 @@ sub def_as_string {
 			$dbxref->name($db.':'.$acc);
 			$dbxref->description($desc) if (defined $desc);
 			$dbxref->modifier($mod) if (defined $mod);
-			$def->{DBXREF_SET}->add($dbxref);
+			$def->dbxref_set->add($dbxref);
 		}
 		$self->{DEF} = $def;
 	}
@@ -156,16 +150,16 @@ sub def_as_string {
 	foreach my $dbxref (@sorted_dbxrefs) {	
 		push @result, $dbxref->as_string();
 	}
-	# output: "synonym text" [dbxref's]
-	# modify here to have: "synonym text" synonym_type [dbxref's]
-	return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+	# min  output: "synonym text" [dbxref's] 
+	# full output: "synonym text" synonym_scope SYNONYM_TYPE_NAME [dbxref's] <-- to get this use 'OBO::Core::Term::synonym_as_string()'
+	return '"'.$self->{DEF}->text().'"'.' ['.join(', ', @result).']';
 }
 
 =head2 equals
 
   Usage    - print $synonym->equals($another_synonym)
   Returns  - either 1 (true) or 0 (false)
-  Args     - the synonym to compare with
+  Args     - the synonym (OBO::Core::Synonym) to compare with
   Function - tells whether this synonym is equal to the parameter
   
 =cut
@@ -173,13 +167,15 @@ sub def_as_string {
 sub equals {
 	my ($self, $target) = @_;
 	my $result = 0;
-	if ($target) {
-		
+	if ($target && eval { $target->isa('OBO::Core::Synonym') }) {
+
 		die 'The scope of this synonym is undefined.' if (!defined($self->{SCOPE}));
 		die 'The scope of the target synonym is undefined.' if (!defined($target->{SCOPE}));
 		
 		$result = (($self->{SCOPE} eq $target->{SCOPE}) && ($self->{DEF}->equals($target->{DEF})));
 		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
+	} else {
+		die "An unrecognized object type (not a OBO::Core::Synonym) was found: '", $target, "'";
 	}
 	return $result;
 }
@@ -305,7 +301,7 @@ $syn4->def($def4);
 
 # def as string
 
-$syn3->def_as_string("This is a dummy synonym", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+$syn3->def_as_string("This is a dummy synonym", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
 
 my @refs_syn3 = $syn3->def()->dbxref_set()->get_set();
 
@@ -321,7 +317,7 @@ foreach my $ref_syn3 (@refs_syn3) {
 =head1 DESCRIPTION
 
 A synonym for a term held by the ontology. This synonym must have a type 
-and definition (OBO::Core::Def) describing the origins of the synonym, and may 
+and a definition (OBO::Core::Def) describing the origins of the synonym, and may 
 indicate a synonym category or scope information.
 
 The synonym scope may be one of four values: EXACT, BROAD, NARROW, RELATED. 

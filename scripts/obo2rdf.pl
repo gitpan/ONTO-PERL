@@ -23,7 +23,7 @@ use OBO::Parser::OBOParser;
 my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology  = $my_parser->work(shift);
 my $url       = shift;
-$ontology->export(\*STDOUT, "rdf", $url);
+$ontology->export('rdf', \*STDOUT, $url);
 
 exit 0;
 

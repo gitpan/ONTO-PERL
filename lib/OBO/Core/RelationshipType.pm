@@ -171,31 +171,25 @@ sub def_as_string {
 			$dbxref_as_string =~ s/\Q$cp\E/$l/;
 		}
 		
-		my @dbxrefs = split (",", $dbxref_as_string);
+		my @dbxrefs = split (',', $dbxref_as_string);
+		
+		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
 		
 		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
+			my ($match, $db, $acc, $desc, $mod) = undef;
 			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
+			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3);
+				$mod   = _unescape($4) if ($4);
+			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3) if ($3);
+				$mod   = _unescape($4) if ($4);
 			} else {
 				die "The references of the relationship type with ID: '", $self->id(), "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
 			}
@@ -215,9 +209,9 @@ sub def_as_string {
 	}
 	my $d = $self->{DEF}->text();
 	if (defined $d) {
-		return "\"".$self->{DEF}->text()."\""." [".join(', ', @result)."]";
+		return '"'.$self->{DEF}->text().'"'.' ['.join(', ', @result).']';
 	} else {
-		return "\"\" [".join(', ', @result)."]";
+		return '"" ['.join(', ', @result).']';
 	}
 }
 
@@ -284,10 +278,28 @@ sub subset {
 
 sub synonym_set {
 	my $self = shift;
-	foreach my $synonym (@_) {		
-		die 'The name of this relationship type (', $self->id(), ') is undefined.' if (!defined($self->name()));
+	foreach my $synonym (@_) {
+		my $s_name = $self->name();
+		if (!defined($s_name)) {
+			die 'The name of this relationship type (', $self->id(), ') is undefined. Add it before adding its synonyms.';
+		}
+		
+		my $syn_found = 0;
+		# update the scope of a synonym
+		foreach my $s_text ($self->{SYNONYM_SET}->get_set()) {
+			if ($s_text->def()->text() eq $synonym->def()->text()) {     # if that SYNONYM is already in the set
+				$s_text->def()->dbxref_set($synonym->def()->dbxref_set); # then update its DBXREFs!
+				$s_text->scope($synonym->scope);                         # then update its SCOPE!
+				$s_text->synonym_type_name($synonym->synonym_type_name); # and update its SYNONYM_TYPE_NAME!
+				$syn_found = 1;
+				last;
+			}
+		}
+		
 		# do not add 'EXACT' synonyms with the same 'name':
-		$self->{SYNONYM_SET}->add($synonym) if (!($synonym->scope() eq 'EXACT' && $synonym->def()->text() eq $self->name()));
+		if (!$syn_found && !($synonym->scope() eq 'EXACT' && $synonym->def()->text() eq $s_name)) {
+			$self->{SYNONYM_SET}->add($synonym) 
+		}
    	}
 	return $self->{SYNONYM_SET}->get_set();
 }
@@ -304,7 +316,6 @@ sub synonym_set {
 sub synonym_as_string {
 	my ($self, $synonym_text, $dbxrefs, $scope, $synonym_type_name) = @_;
 	if ($synonym_text && $dbxrefs && $scope) {
-
 		my $synonym = OBO::Core::Synonym->new();
 		$synonym->def_as_string($synonym_text, $dbxrefs);
 		$synonym->scope($scope);
@@ -312,9 +323,28 @@ sub synonym_as_string {
 		$self->synonym_set($synonym);
 	}
 	
+	my @sorted_syns = map { $_->[0] }                       # restore original values
+					sort { $a->[1] cmp $b->[1] }            # sort
+					map  { [$_, lc($_->def_as_string())] }  # transform: value, sortkey
+					$self->{SYNONYM_SET}->get_set();
+	
 	my @result;
-	foreach my $synonym ($self->{SYNONYM_SET}->get_set()) {
-		push @result, $synonym->def_as_string();
+	my $s_as_string;
+	foreach my $synonym (@sorted_syns) {
+		my $syn_scope = $synonym->scope();
+		if ($syn_scope) {
+			my $syn_type_name = $synonym->synonym_type_name();
+			if ($syn_type_name) {
+				$s_as_string = ' '.$syn_scope.' '.$syn_type_name;
+			} else {
+				$s_as_string = ' '.$syn_scope;
+			}
+		} else {
+			# This case should never happen since the SCOPE is mandatory!
+			warn "The scope of this synonym is not defined: ", $synonym->def()->text();
+		}
+		
+		push @result, $synonym->def_as_string().$s_as_string;
    	}
 	return @result;
 }
@@ -362,31 +392,25 @@ sub xref_set_as_string {
 		
 		my $xref_set = $self->{XREF_SET};
 		
-		my @dbxrefs = split (/,/, $xref_as_string);
+		my @dbxrefs = split (',', $xref_as_string);
+		
+		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
 		
 		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = ('', '', '', '', '');
+			my ($match, $db, $acc, $desc, $mod) = undef;
 			my $xref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\"\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-				$mod   = _unescape($5);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+(\{[\w ]+=[\w ]+\}))/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$mod   = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)\s+\"([^\"]*)\")/) {
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
-				$desc  = _unescape($4);
-			} elsif ($entry =~ m/(([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*))/) { # skip: , y "
-				$match = _unescape($1);
-				$db    = _unescape($2);
-				$acc   = _unescape($3);
+			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3);
+				$mod   = _unescape($4) if ($4);
+			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+				$db    = _unescape($1);
+				$acc   = _unescape($2);
+				$desc  = _unescape($3) if ($3);
+				$mod   = _unescape($4) if ($4);
 			} else {
 				die "The references of the relationship type with ID: '", $self->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
 			}
@@ -454,7 +478,7 @@ sub inverse_of {
     if ($rel) {
 		$self->{INVERSE_OF} = $rel;
 		$rel->{INVERSE_OF}  = $self;
-		# TODO: test what would happend when we delete any of those two relationships.
+		# TODO Test what would happen if we delete any of those two relationships.
 	}
     return $self->{INVERSE_OF};
 }
@@ -579,7 +603,7 @@ sub transitive_over {
 
 sub holds_over_chain {
 	my $self = shift;
-	my $composition_symbol = "&&";
+	my $composition_symbol = '&&';
 	if (scalar(@_) == 2) {
 		my $key = $_[0].$composition_symbol.$_[1]; # R<-R1&&R2
 		$self->{HOLDS_OVER_CHAIN}->put($key, \@_);
@@ -807,12 +831,17 @@ sub builtin {
 sub equals  {
 	my ($self, $target) = @_;
 	my $result = 0;
-	if ($target) {
-		my $self_id = $self->{'ID'};
+
+   	if ($target && eval { $target->isa('OBO::Core::RelationshipType') }) {
+		my $self_id   = $self->{'ID'};
 		my $target_id = $target->{'ID'};
+		
 		die 'The ID of this relationship type is not defined.' if (!defined($self_id));
 		die 'The ID of the target relationship type is not defined.' if (!defined($target_id));
+		
 		$result = ($self_id eq $target_id);
+	} else {
+		die "An unrecognized object type (not a OBO::Core::RelationshipType) was found: '", $target, "'";
 	}
 	return $result;
 }
@@ -883,7 +912,7 @@ $r3_inv->inverse_of($r3);
 
 # def as string
 
-$r2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+$r2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
 
 my @refs_r2 = $r2->def()->dbxref_set()->get_set();
 

@@ -614,7 +614,7 @@ ok($go_go->get_number_of_relationships() >= 16);
 # transitive closure test
 #
 open (FH, ">./t/data/go.obo") || die "Run as root the tests: ", $!;
-$go->export(\*FH);
+$go->export('obo', \*FH);
 close FH;
 
 #
@@ -660,7 +660,7 @@ ok ($cc ==  2);
 #
 my $go_transitive_closure = $ome1->transitive_closure($go);
 open (FH, ">./t/data/go_transitive_closure.obo") || die "Run as root the tests: ", $!;
-$go_transitive_closure->export(\*FH);
+$go_transitive_closure->export('obo', \*FH);
 close FH;
 
 ok(1);

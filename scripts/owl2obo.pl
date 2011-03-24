@@ -23,7 +23,7 @@ use OBO::Parser::OWLParser;
 
 my $my_parser = OBO::Parser::OWLParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
-$ontology->export(\*STDOUT, "obo");
+$ontology->export('obo');
 
 exit 0;
 

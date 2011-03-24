@@ -93,7 +93,7 @@ sub as_string {
 
   Usage    - print $synonym_type_def->equals($another_synonym_type_def)
   Returns  - either 1 (true) or 0 (false)
-  Args     - the synonym type definition to compare with
+  Args     - the synonym type definition (OBO::Core::SynonymTypeDef) to compare with
   Function - tells whether this synonym type definition is equal to the given argument (another synonym type definition)
   
 =cut
@@ -101,16 +101,18 @@ sub as_string {
 sub equals {
 	my ($self, $target) = @_;
 	my $result = 0;
-	if ($target) {
-		
-		die 'The synonym type name of this synonym type definition is undefined.' if (!defined($self->{NAME}));
-		die 'The synonym type name of the target synonym type definition is undefined.' if (!defined($self->{NAME}));
+	if ($target && eval { $target->isa('OBO::Core::SynonymTypeDef') }) {
+
+		die 'The name of this synonym type definition is undefined.' if (!defined($self->{NAME}));
+		die 'The name of the target synonym type definition is undefined.' if (!defined($self->{NAME}));
 		
 		die 'The description of the this synonym type definition is undefined.' if (!defined($target->{DESCRIPTION}));
 		die 'The description of the target synonym type definition is undefined.' if (!defined($target->{DESCRIPTION}));
 		
 		$result = ($self->{NAME} eq $target->{NAME}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION});
 		$result = $result && ($self->{SCOPE} eq $target->{SCOPE}) if (defined $self->{SCOPE} && defined $target->{SCOPE}); # TODO Future improvement, consider case: scope_1 undefined and scope_2 defined!
+	} else {
+		die "An unrecognized object type (not a OBO::Core::SynonymTypeDef) was found: '", $target, "'";
 	}
 	return $result;
 }

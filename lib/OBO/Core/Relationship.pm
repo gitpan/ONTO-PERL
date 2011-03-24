@@ -70,11 +70,17 @@ sub equals  {
 	my $result = 0;
 	if (@_) {
      	my $target    = shift;
-		my $self_id   = $self->{'ID'};
-		my $target_id = $target->{'ID'};
-		die 'The ID of this relationship is not defined.' if (!defined($self_id));
-		die 'The ID of the target relationship is not defined.' if (!defined($target_id));
-		$result = ($self_id eq $target_id);
+     	if ($target && eval { $target->isa('OBO::Core::Relationship') }) {
+			my $self_id   = $self->{'ID'};
+			my $target_id = $target->{'ID'};
+			
+			die 'The ID of this relationship is not defined.' if (!defined($self_id));
+			die 'The ID of the target relationship is not defined.' if (!defined($target_id));
+			
+			$result = ($self_id eq $target_id);
+		} else {
+			die "An unrecognized object type (not a OBO::Core::Relationship) was found: '", $target, "'";
+		}
 	}
 	return $result;
 }

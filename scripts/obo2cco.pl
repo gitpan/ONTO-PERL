@@ -13,7 +13,7 @@
 # Usage:
 #           obo2cco.pl input_file.obo cco_z.ids Z MI:0190 > output_file.obo
 #
-# License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
+# License : Copyright (C) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #
@@ -68,7 +68,7 @@ foreach my $entry (sort {$a->id() cmp $b->id()} @{$onto->get_terms()}){
 	$entry->alt_id()->clear() if (defined $entry->alt_id()); # erase the alt_id(s) from this 'entry'
 }
 $cco_id_map->write_map(); 
-$onto->export(\*STDOUT, 'obo');
+$onto->export('obo');
 select((select(STDOUT), $|=1)[0]);
 
 exit 0;
@@ -94,7 +94,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -30,7 +30,7 @@ SKIP:
 	
 	# export to OBO
 	open (FH, ">./t/data/test_ulo_cco2.obo") || die "Run as root the tests: ", $!;
-	$onto->export(\*FH, 'obo');
+	$onto->export('obo', \*FH);
 	close FH;
 	                     
 	ok(1);

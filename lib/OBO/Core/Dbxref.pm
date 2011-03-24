@@ -136,8 +136,8 @@ sub as_string {
 	my ($self) = @_;
 	die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
 	my $result = $self->{DB}.':'.$self->{ACC};
-	$result   .= " \"".$self->{DESCRIPTION}."\"" if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne '');
-	$result   .= ' '.$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne "");
+	$result   .= ' "'.$self->{DESCRIPTION}.'"' if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne '');
+	$result   .= ' '.$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne '');
 	return $result;
 }
 
@@ -152,13 +152,17 @@ sub as_string {
 
 sub equals {
 	my ($self, $target) = @_;
-	if ($target) {
+	
+	if ($target && eval { $target->isa('OBO::Core::Dbxref') }) {
+		
 		die 'The name of this dbxref is undefined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
 		die 'The name of the target dbxref is undefined.' if (!defined($target->{DB}) || !defined($target->{ACC}));
 		return (($self->{DB}          eq $target->{DB})          &&
 				($self->{ACC}         eq $target->{ACC})         &&
 				($self->{DESCRIPTION} eq $target->{DESCRIPTION}) &&
 				($self->{MODIFIER}    eq $target->{MODIFIER}));
+	} else {
+		die "An unrecognized object type (not a OBO::Core::Dbxref) was found: '", $target, "'";
 	}
 	return 0;
 }

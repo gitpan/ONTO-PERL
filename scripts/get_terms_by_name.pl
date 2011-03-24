@@ -7,7 +7,7 @@
 #
 # Usage   : get_terms_by_name.pl my_ontology.obo name_string > ids_and_terms.txt
 #
-# License : Copyright (c) 2010 Erick Antezana. All rights reserved.
+# License : Copyright (C) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #
@@ -51,7 +51,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -245,10 +245,10 @@ sub work {
 	
 	# Write the new ontology and map to disk
 	open (FH, ">".$new_OBO_file) || die "Cannot write OBO file: ", $!;
-	$ontology->export(\*FH);
+	$ontology->export('obo', \*FH);
 	close FH;
-	$short_map -> write_map(); 
-	$long_map -> write_map(); 
+	$short_map->write_map(); 
+	$long_map->write_map(); 
 	return $ontology;
 }
 
@@ -357,15 +357,14 @@ sub add_go_assocs {
            $ontology->create_rel($protein,     $participates_in, $go_term);
            $ontology->create_rel($go_term, $has_participant, $protein); # inverse of 'participates_in'
        }
-       else {carp "An illigal aspect in the GOA file $goa_assoc_file\n"}
+       else {carp "An illegal aspect in the GOA file $goa_assoc_file\n"}
    }
 
    # Write the new ontology to disk
    open (FH, ">".$out_obo_file) || die "Cannot write OBO file: ", $!;
-   $ontology->export(\*FH);
+   $ontology->export('obo', \*FH);
    select( ( select($FH), $| = 1 )[0] );
    close FH;
    return $ontology;
 }
-
 1;

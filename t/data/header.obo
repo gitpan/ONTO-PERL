@@ -1,20 +1,22 @@
-format-version: 1.0
-date: 28:03:2007 13:57
+format-version: 1.4
+data-version:3.2
+ontology:CCO
+date: 28:03:2011 13:57
 saved-by: easr
-auto-generated-by: easr
+auto-generated-by: ONTO-PERL 1.32
 import: ulo.obo
-subsetdef: Rice "Term used for rice"
-subsetdef: Maize "Term used for maize"
-subsetdef: Tomato "Term used for tomato"
-subsetdef: Citrus "Term used for citrus"
 subsetdef: Arabidopsis "Term used for Arabidopsis"
+subsetdef: Citrus "Term used for citrus"
+subsetdef: Maize "Term used for maize"
 subsetdef: Poaceae "Term used for grasses"
 subsetdef: reference "reference plant structure term"
+subsetdef: Rice "Term used for rice"
+subsetdef: Tomato "Term used for tomato"
 synonymtypedef: acronym "acronym" BROAD
 synonymtypedef: common_name "common name" EXACT
+synonymtypedef: equivalent_name "equivalent name" EXACT
 synonymtypedef: scientific_name "scientific name" EXACT
 synonymtypedef: synonym "synonym" RELATED
-synonymtypedef: equivalent_name "equivalent name" EXACT
 synonymtypedef: systematic_synonym "Systematic synonym" EXACT
 idspace: CCO http://www.cellcycleontology.org/ontology/CCO "cell cycle ontology terms"
 default-namespace: cco
@@ -24,41 +26,63 @@ remark: <p>This file holds some fake terms.</p>
 id: CCO:F0000000
 name: uno
 def: "uno" [FO:ea]
-synonym: "one" EXACT [FO:ea]
-synonym: "blood vessel formation from pre-existing blood vessels" EXACT systematic_synonym []
-subset: Rice
 subset: Citrus
+subset: Rice
+synonym: "blood vessel formation from pre-existing blood vessels" EXACT systematic_synonym []
+synonym: "one" EXACT [FO:ea]
 
 [Term]
 id: CCO:F0000001
 name: uno punto uno
 def: "one dot one" [FO:15892874]
+subset: Tomato
 synonym: "one period one" EXACT common_name [FO:15892874]
 synonym: "thing" BROAD [FO:12345]
 is_a: CCO:F0000000 ! uno
-subset: Tomato
 
 [Term]
 id: CCO:F0000002
 name: dos
 def: "two" [FO:15892874]
 synonym: "twee" EXACT [FO:15892874]
-disjoint_from: CCO:F0000001
+disjoint_from: CCO:F0000001 ! uno punto uno
 
 [Term]
 id: CCO:F0000003
+is_anonymous: true
 name: dos punto uno
 def: "two point two" [FO:ea]
 synonym: "two period two" EXACT [FO:ea]
 is_a: CCO:F0000002 ! dos
+
+[Term]
+id: CCO:F0000004
+is_anonymous: true ! verdadero
+name: dos punto dos
+def: "two point three" [FO:ea]
+subset: Tomato
+synonym: "two period three" EXACT [FO:ea]
+is_a: CCO:F0000002 ! dos
+
+[Instance]
+id: erick
+name: Erick Antezana
+instance_of: man
+property_value: married_to Cecilia
+property_value: shoe_size "8" xsd:positiveInteger
+
+[Typedef]
+id: contained_in
+name: contained in
 
 [Typedef]
 id: is_a
 name: is_a
 builtin: true
 def: "A number is another number if this last one has the same integer part" [FO:15892874]
+subset: Tomato
 exact_synonym: "is_subtype_of" []
 xref_analog: owl:subClassOf
-is_reflexive: true
 is_anti_symmetric: true
+is_reflexive: true
 is_transitive: true

@@ -2,11 +2,10 @@
 #
 # Module  : GoaAssociation.pm
 # Purpose : GOA associaton entry structure.
-# License : Copyright (c) 2006 Vladimir Mironov. All rights reserved.
+# License : Copyright (c) 2006 ONTO-perl. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-# Contact : Vladimir Mironov <vlmir@psb.ugent.be>
-#
+
 package OBO::CCO::GoaAssociation;
 
 =head1 NAME
@@ -40,13 +39,10 @@ $goa_association5->description("this is a description");
 
 A goa_association object encapsulates the structure of a GOA association record.
 
-=head1 AUTHOR
-
-Vladimir Mironov, E<lt>vlmir@psb.ugent.beE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by vlmir
+Copyright (C) 2006 by ONTO-perl
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

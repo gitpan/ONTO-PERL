@@ -34,8 +34,9 @@ lib/OBO/Util/Map.pm
 lib/OBO/Util/ObjectIdSet.pm
 lib/OBO/Util/ObjectSet.pm
 lib/OBO/Util/Ontolome.pm
+lib/OBO/Util/RelationshipTypeSet.pm
 lib/OBO/Util/Set.pm
-lib/OBO/Util/SubsetDefSet.pm
+lib/OBO/Util/SubsetDefMap.pm
 lib/OBO/Util/SynonymSet.pm
 lib/OBO/Util/SynonymTypeDefSet.pm
 lib/OBO/Util/TermSet.pm
@@ -144,8 +145,10 @@ t/Ontolome.t
 t/OWLParser.t
 t/Relationship.t
 t/RelationshipType.t
+t/RelationshipTypeSet.t
 t/Set.t
 t/SubsetDef.t
+t/SubsetDefMap.t
 t/Synonym.t
 t/SynonymSet.t
 t/SynonymTypeDef.t

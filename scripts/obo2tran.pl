@@ -7,7 +7,7 @@
 #
 # Usage   : obo2tran.pl my_ontology.obo > my_ontology.rdf
 #
-# License : Copyright (c) 2008, 2009, 2010 Erick Antezana. All rights reserved.
+# License : Copyright (C) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #
@@ -28,7 +28,7 @@ my $ome       = OBO::Util::Ontolome->new();
 my $go_transitive_closure = $ome->transitive_closure($ontology);
 
 my $url = shift || "http://www.mydomain.com/ontology/rdf/";
-$go_transitive_closure->export(\*STDOUT, "rdf", $url, 1, 2);
+$go_transitive_closure->export('rdf', \*STDOUT, $url, 1, 2);
 
 exit 0;
 
@@ -48,7 +48,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

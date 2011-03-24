@@ -22,14 +22,9 @@ roles this proteins have in the interactions (prey, bait, neutral
 component). It deletes any interaction in OBO that it is not present 
 in IntAct, for sync.
 
-=head1 AUTHOR
-
-Vladimir Mironov
-vlmir@psb.ugent.be
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by Vladimir Mironov
+Copyright (C) 2006 by ONTO-perl
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -222,8 +217,8 @@ sub work {
 
 	
 	# Write the new ontology and map to disk
-	open( FH, ">" . $new_OBO_file ) || die "Cannot write OBO file: ", $!;
-	$ontology->export( \*FH );
+	open(FH, ">" . $new_OBO_file) || die "Cannot write OBO file: ", $!;
+	$ontology->export('obo', \*FH);
 	close FH;
 	$short_b_map->write_map();
 	$long_b_map->write_map();
