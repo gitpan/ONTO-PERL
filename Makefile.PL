@@ -98,5 +98,5 @@ WriteMakefile(
 					'DIST_DEFAULT' => 'all tardist',
 					'COMPRESS'     => "gzip -9f" 
 				},
-	clean      => {FILES => "t/data/add_goa_assocs.out t/data/goa.rdf t/data/go.obo t/data/go_transitive_closure.obo t/data/ncbi.rdf t/data/out_int_cco.obo t/data/pre_cco_taxa.obo t/data/test0.obo t/data/test1.obo t/data/test1.rdf t/data/test1.xml t/data/test2.dot t/data/test2.obo t/data/test2.owl t/data/test2.rdf t/data/test2.xml t/data/test_ulo_cco2.obo t/data/test_ulo_cco.dot t/data/test_ulo_cco.owl"},
+	clean      => {FILES => "t/data/human.2.map t/data/add_goa_assocs.out t/data/goa.rdf t/data/go.obo t/data/go_transitive_closure.obo t/data/ncbi.rdf t/data/pre_cco_taxa.obo t/data/test0.obo t/data/test1.obo t/data/test1.rdf t/data/test1.xml t/data/test2.dot t/data/test2.obo t/data/test2.owl t/data/test2.rdf t/data/test2.xml t/data/test_ulo_cco2.obo t/data/test_ulo_cco.dot t/data/test_ulo_cco.owl"},
 );

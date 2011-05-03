@@ -1,30 +1,30 @@
 # Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl Term.t'
+# `make test'. After `make install' it should work as `perl Instance.t'
 
 #########################
 
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 97;
+    plan tests => 83;
 }
 
 #########################
 
-use OBO::Core::Term;
+use OBO::Core::Instance;
 use OBO::Core::Def;
 use OBO::Core::Dbxref;
-use OBO::Core::Instance;
 use OBO::Core::Synonym;
+use OBO::Core::Term;
 use OBO::Util::DbxrefSet;
 
 use strict;
 
-# three new terms
-my $n1 = OBO::Core::Term->new();
-my $n2 = OBO::Core::Term->new();
-my $n3 = OBO::Core::Term->new();
-my $n4 = OBO::Core::Term->new();
+# three new instances
+my $n1 = OBO::Core::Instance->new();
+my $n2 = OBO::Core::Instance->new();
+my $n3 = OBO::Core::Instance->new();
+my $n4 = OBO::Core::Instance->new();
 
 # name, subnamespace, code
 ok($n1->idspace() eq 'NN');
@@ -44,13 +44,13 @@ ok($n1->idspace() eq 'CCO');
 ok($n1->subnamespace() eq 'Pa');
 ok($n1->code() eq '0000001');
 
-# term creator + date
+# instance creator + date
 $n1->created_by('erick_antezana');
 ok($n1->created_by() eq 'erick_antezana');
 $n1->creation_date('2009-04-13T01:32:36Z ');
 ok($n1->creation_date() eq '2009-04-13T01:32:36Z ');
 
-# term modificator + date
+# instance modificator + date
 $n1->modified_by('erick_antezana');
 ok($n1->modified_by() eq 'erick_antezana');
 $n1->modification_date('2010-04-13T01:32:36Z ');
@@ -202,41 +202,6 @@ ok($xr_n2{'YCCO:vm'} eq 'YCCO:vm');
 ok($xr_n2{'YCCO:ls'} eq 'YCCO:ls');
 ok($xr_n2{'YCCO:ea'} eq 'YCCO:ea');
 
-# def
-my $def = OBO::Core::Def->new();
-$def->text('Hola mundo');
-my $ref1 = OBO::Core::Dbxref->new();
-my $ref2 = OBO::Core::Dbxref->new();
-my $ref3 = OBO::Core::Dbxref->new();
-
-$ref1->name('CCO:vm');
-$ref2->name('CCO:ls');
-$ref3->name('CCO:ea');
-
-my $refs_set = OBO::Util::DbxrefSet->new();
-$refs_set->add_all($ref1,$ref2,$ref3);
-$def->dbxref_set($refs_set);
-$n1->def($def);
-ok($n1->def()->text() eq 'Hola mundo');
-ok($n1->def()->dbxref_set()->size == 3);
-$n2->def($def);
-
-# def as string
-ok($n2->def_as_string() eq '"Hola mundo" [CCO:ea, CCO:ls, CCO:vm]');
-$n2->def_as_string('This is a dummy definition', '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}, http://mydomain.com/key1=value1&key2=value2]');
-ok($n2->def()->text() eq 'This is a dummy definition');
-my @refs_n2 = $n2->def()->dbxref_set()->get_set();
-my %r_n2;
-foreach my $ref_n2 (@refs_n2) {
-	$r_n2{$ref_n2->name()} = $ref_n2->name();
-}
-ok($n2->def()->dbxref_set()->size == 4);
-ok($r_n2{'CCO:vm'} eq 'CCO:vm');
-ok($r_n2{'CCO:ls'} eq 'CCO:ls');
-ok($r_n2{'CCO:ea'} eq 'CCO:ea');
-ok($r_n2{"http://mydomain.com/key1=value1&key2=value2"} eq "http://mydomain.com/key1=value1&key2=value2");
-ok($n2->def_as_string() eq '"This is a dummy definition" [CCO:ea "Erick Antezana" {opt=first}, CCO:ls, CCO:vm, http://mydomain.com/key1=value1&key2=value2]');
-
 # disjoint_from:
 $n2->disjoint_from($n1->id(), $n3->id());
 my @dis = sort {$a cmp $b} $n2->disjoint_from();
@@ -244,50 +209,51 @@ ok($#dis == 1);
 ok($dis[0] eq $n3->id());
 ok($dis[1] eq $n1->id());
 
-# empty def, empty dbxref
-$n4->def_as_string('', '');
-ok($n4->def_as_string() eq '"" []');
+# instance_of
+my $C1 = OBO::Core::Term->new();
+my $C2 = OBO::Core::Term->new();
+my $C3 = OBO::Core::Term->new();
+$C1->id('MYO:0000001'); $C1->name('class1');
+$C2->id('MYO:0000002'); $C2->name('class2');
+$C3->id('MYO:0000003'); $C3->name('class3');
 
-# empty def, empty dbxref
-$n4->def_as_string('', '[CCO:ea, CCO:ls, CCO:vm]');
-ok($n4->def_as_string() eq '"" [CCO:ea, CCO:ls, CCO:vm]');
+my $i1 = OBO::Core::Instance->new();
+my $i2 = OBO::Core::Instance->new();
+my $i3 = OBO::Core::Instance->new();
+my $i4 = OBO::Core::Instance->new();
 
-# class_of
-my $C  = OBO::Core::Term->new();
-my $ia = OBO::Core::Instance->new();
-my $ib = OBO::Core::Instance->new();
-my $ic = OBO::Core::Instance->new();
-my $id = OBO::Core::Instance->new();
-$C->id('MYO:0000001'); $C->name('class');
-$ia->id('MYO:K0000001');
-$ib->id('MYO:K0000002');
-$ic->id('MYO:K0000003');
-$id->id('MYO:K0000004');
+$i1->id('MYO:K0000001');
+$i2->id('MYO:K0000002');
+$i3->id('MYO:K0000003');
+$i4->id('MYO:K0000004');
 
-# is_class_of
-ok(!$C->is_class_of($ia));
-ok(!$C->is_class_of($ib));
-ok(!$C->is_class_of($ic));
-ok(!$C->is_class_of($id));
+# is_instance_of
+ok(!$i1->is_instance_of($C1));
+ok(!$i2->is_instance_of($C2));
+ok(!$i3->is_instance_of($C3));
+ok(!$i4->is_instance_of($C3));
 
-$C->class_of($ia, $ib, $ic, $id);
+$i1->instance_of($C1);
+$i2->instance_of($C2);
+$i3->instance_of($C3);
+$i4->instance_of($C3);
 
-my @instances = sort {$a->id() cmp $b->id()} $C->class_of()->get_set();
-my $i = 1;
+# is_instance_of
+ok($i1->is_instance_of($C1));
+ok($i2->is_instance_of($C2));
+ok($i3->is_instance_of($C3));
+ok($i4->is_instance_of($C3));
+
+ok($i1->instance_of()->id() eq $C1->id());
+ok($i2->instance_of()->id() eq $C2->id());
+ok($i3->instance_of()->id() eq $C3->id());
+ok($i4->instance_of()->id() eq $C3->id());
+
+# class_of (terms are aware of their instances!)
+my @instances = sort {$a->id() cmp $b->id()} $C3->class_of()->get_set();
+my $i = 3;
 foreach my $in (@instances) {
 	ok($in->id() eq 'MYO:K000000'.$i++);
 }
-
-# is_class_of
-ok($C->is_class_of($ia));
-ok($C->is_class_of($ib));
-ok($C->is_class_of($ic));
-ok($C->is_class_of($id));
-
-# is_instance_of
-ok($ia->is_instance_of($C));
-ok($ib->is_instance_of($C));
-ok($ic->is_instance_of($C));
-ok($id->is_instance_of($C));
 
 ok(1);

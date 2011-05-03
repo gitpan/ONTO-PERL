@@ -22,9 +22,9 @@ and a set of test files for ensuring the implementation quality.
 
 Citing ONTO-PERL:
 
- If you use ONTO-PERL in your work, you are kindly requested to cite:
+  If you use ONTO-PERL in your work, you are kindly requested to cite:
  
-	ONTO-PERL: An API supporting the development and analysis of bio-ontologies
+    ONTO-PERL: An API supporting the development and analysis of bio-ontologies
     E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
     Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
@@ -37,15 +37,15 @@ See also:
 
 Files in 'ONTO-PERL':
 
-  README						Readme file
+  README                        Readme file
 
-  INSTALL						How to install ONTO-PERL (requirements)
+  INSTALL                       How to install ONTO-PERL (requirements)
 
-  LICENSE						ONTO-PERL's license
+  LICENSE                       ONTO-PERL's license
 
-  ONTO-PERL-x.y.tar.gz			ONTO-PERL API: version x.y
+  ONTO-PERL-x.y.tar.gz          ONTO-PERL API: version x.y
 
-  Changes						Description about the changes in 'ONTO-PERL'
+  Changes                       Description about the changes in 'ONTO-PERL'
 
 
 Remark:

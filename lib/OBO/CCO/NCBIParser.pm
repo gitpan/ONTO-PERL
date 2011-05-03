@@ -50,9 +50,6 @@ use OBO::Core::RelationshipType;
 use OBO::Core::Dbxref;
 use OBO::Core::Term;
 
-BEGIN {
-push @INC, '..';
-}
 use OBO::CCO::CCO_ID_Term_Map;
 
 use strict;

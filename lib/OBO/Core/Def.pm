@@ -1,4 +1,4 @@
-# $Id: Def.pm 2010-10-29 erick.antezana $
+# $Id: Def.pm 2011-04-29 erick.antezana $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.
@@ -60,6 +60,7 @@ sub dbxref_set {
   Returns  - the dbxref set (string) of this definition; [] if the set is empty
   Args     - the dbxref set (string) describing the source(s) of this definition
   Function - gets/sets the dbxref set of this definition. The set operation actually *adds* the new dbxrefs to the existing set
+  Remark   - make sure that colons (,) are scaped (\,) when necessary
   
 =cut
 
@@ -130,8 +131,12 @@ sub equals {
 	my $result = 0;
 	if ($target && eval { $target->isa('OBO::Core::Def') }) {
 
-		die 'The text of this definition is undefined.' if (!defined($self->{TEXT}));
-		die 'The text of the target definition is undefined.' if (!defined($target->{TEXT}));
+		if (!defined($self->{TEXT})) {
+			die 'The text of this definition is undefined.';
+		}
+		if (!defined($target->{TEXT})) {
+			die 'The text of the target definition is undefined.';
+		}
 
 		$result = (($self->{TEXT} eq $target->{TEXT}) && ($self->{DBXREF_SET}->equals($target->{DBXREF_SET})));
 	} else {

@@ -1,10 +1,10 @@
 format-version: 1.0
 date: 11:05:2007 12:52
 saved-by: easr
-synonymtypedef: IUPAC_NAME "IUPAC NAME"
 synonymtypedef: FORMULA "FORMULA" RELATED
-synonymtypedef: SMILES "SMILES"
 synonymtypedef: InChI "InChI"
+synonymtypedef: IUPAC_NAME "IUPAC NAME"
+synonymtypedef: SMILES "SMILES"
 synonymtypedef: systematic_synonym "Systematic synonym" EXACT
 idspace: CCO http://www.cellcycleontology.org/ontology/CCO "cell cycle ontology terms"
 idspace: GO urn:lsid:bioontology.org:GO: "gene ontology terms"
@@ -102,11 +102,11 @@ relationship: part_of MYO:0000005 ! F
 id: MYO:0000557
 name: granulocyte monocyte progenitor cell
 def: "A progenitor cell committed to the granulocyte and monocyte lineages." [http://www.copewithcytokines.de, ISBN:0721601464, PMID:15684376, PMID:15867096]
+broad_synonym: "CFU-C , Colony forming unit in culture" [http://www.copewithcytokines.de]
 exact_synonym: "CFU-GM" [PMID:15867096, ISBN:0721601464, PMID:15684376]
 exact_synonym: "colony forming unit granulocyte macrophage" [PMID:15867096, ISBN:0721601464, PMID:15684376]
 exact_synonym: "GMP" [PMID:15867096, ISBN:0721601464, PMID:15684376]
 exact_synonym: "granulocyte-macrophage progenitor" [PMID:15867096, ISBN:0721601464, PMID:15684376]
-broad_synonym: "CFU-C , Colony forming unit in culture" [http://www.copewithcytokines.de]
 
 [Term]
 id: MYO:0000050
@@ -117,6 +117,29 @@ synonym: "aln_name2" [TEST:]
 xref_unknown: RO:jt
 
 [Term]
+id: MYO:0000330
+name: conserved_region
+def: "Region of sequence similarity by descent from a common ancestor." [MYO:ke]
+synonym: "conserved region" EXACT []
+xref: http://en.wikipedia.org/wiki/Conserved_region "wiki"
+
+[Term]
+id: MYO:0000853
+name: homologous_region
+def: "A region that is homologous to another region." [MYO:ke]
+synonym: "homolog" EXACT []
+synonym: "homologous region" EXACT []
+synonym: "homologue" EXACT []
+xref: http://en.wikipedia.org/wiki/Homology_(biology) "wiki"
+intersection_of: MYO:0000330 ! conserved_region
+intersection_of: has_quality MYO:0000857 ! homologous
+
+[Term]
+id: MYO:0000857
+name: homologous
+def: "Similarity due to common ancestry." [MYO:ke]
+
+[Term]
 id: MYO:33820
 name: iduronate
 synonym: "C6H9O7" RELATED FORMULA [ChEBI:]
@@ -124,14 +147,37 @@ synonym: "C6H9O7" RELATED IUPAC_NAME [ChEBI:]
 created_by: erick_antezana
 creation_date: 2010-04-13T01:32:36Z
 
+[Term]
+id: MYO:1000006
+name: country
+namespace: geographical_location
+xref: http://es.wikipedia.org/wiki/Pais\,_Bolivia
+xref: http://en.wikipedia.org/wiki/Country
+
+[Instance]
+id: MYO:1000007
+name: Belgium
+namespace: geographical_location
+synonym: "BE" EXACT [MYO:erick]
+xref: http://en.wikipedia.org/wiki/Belgium
+instance_of: MYO:1000006 ! country
+
+[Instance]
+id: MYO:fred
+name: fred flintstone
+instance_of: MYO:caveman
+property_value: married_to MYO:wilma
+property_value: shoe_size "12" xsd:positiveInteger
+
 [Typedef]
-id: part_of
-name: part_of
-created_by: erick_antezana
-creation_date: 2008-04-13T01:32:36Z
-modified_by: erick_antezana
-modification_date: 2010-04-13T01:32:36Z
-!TODO This is a TODO
+id: has_quality
+name: has_quality
+comment: The relationship between a feature and an attribute.
+disjoint_from: does_not_have_quality
+
+[Typedef]
+id: is_a
+name: is_a
 
 [Typedef]
 id: located_in
@@ -146,3 +192,13 @@ holds_over_chain: located_in part_of
 holds_over_chain: part_of located_in
 holds_over_chain: located_in contained_in
 holds_over_chain: contained_in located_in
+
+[Typedef]
+id: part_of
+name: part_of
+created_by: erick_antezana
+creation_date: 2008-04-13T01:32:36Z
+modified_by: erick_antezana
+modification_date: 2010-04-13T01:32:36Z
+is_class_level: true
+!TODO This is a TODO

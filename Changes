@@ -93,4 +93,6 @@ Revision history for ONTO-PERL
 
 1.31 Croak fixes. CCO modules clean-up.
 
-1.32 Code clean up. Better regexp's. A few new sub's and tests. A few bug fixes.
+1.32 Code clean up. Better regexp's. A few new sub's and tests. A few bug fixes. OBO::Core::Ontology->subset_def_set() became OBO::Core::Ontology->subset_def_map()
+
+1.33 CCO modules updated. Minor improvements (e.g. get_relationships_by_(source|target)_term). New modules for instances. Relationship types are added while adding relationship.

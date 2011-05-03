@@ -1,4 +1,4 @@
-# $Id: Dbxref.pm 2010-10-29 erick.antezana $
+# $Id: Dbxref.pm 2011-03-29 erick.antezana $
 #
 # Module  : Dbxref.pm
 # Purpose : Reference structure.
@@ -37,11 +37,16 @@ sub new {
 sub name {
 	my ($self, $name) = @_;
 	if ($name) {
-		($self->{DB} = $1, $self->{ACC} = $2) if ($name =~ /([\*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/ || $name =~ /(http):\/\/(.*)/);
-	} else { # get-mode
-		die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
+		if ($name =~ /([\*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/ || 
+			$name =~ /(http):\/\/(.*)/) {
+			$self->{DB}  = $1;
+			$self->{ACC} = $2;
+		}
+	} elsif (!defined($self->{DB}) || !defined($self->{ACC})) {
+		die 'The name of this dbxref is not defined.';
+	} else {  # get-mode
+		return $self->{DB}.':'.$self->{ACC};
 	}
-	return $self->{DB}.':'.$self->{ACC};
 }
 
 # Alias
@@ -60,10 +65,11 @@ sub db {
 	my ($self, $db) = @_;
 	if ($db) {
 		$self->{DB} = $db;
+	} elsif (!defined($self->{DB})) {
+		die "The database (db) of this 'dbxref' is not defined.";
 	} else { # get-mode
-		die "The database (db) of this 'dbxref' is not defined." if (!defined($self->{DB}));
+		return $self->{DB};
 	}
-	return $self->{DB};
 }
 
 =head2 acc
@@ -79,10 +85,11 @@ sub acc {
 	my ($self, $acc) = @_;
 	if ($acc) {
 		$self->{ACC} = $acc;
+	} elsif (!defined($self->{ACC})) {
+		die 'The accession number (acc) of this dbxref is not defined.';
 	} else { # get-mode
-		die 'The accession number (acc) of this dbxref is not defined.' if (!defined($self->{ACC}));
+		return $self->{ACC};
 	}
-	return $self->{ACC};
 }
 
 =head2 description
@@ -98,10 +105,11 @@ sub description {
 	my ($self, $description) = @_;
 	if ($description) { 
 		$self->{DESCRIPTION} = $description;
+	} elsif (!defined($self->{DB}) || !defined($self->{ACC})) {
+		die 'The name of this dbxref is not defined.';
 	} else { # get-mode
-		die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
+		return $self->{DESCRIPTION};
 	}
-	return $self->{DESCRIPTION};
 }
 
 =head2 modifier
@@ -117,10 +125,11 @@ sub modifier {
 	my ($self, $modifier) = @_;
 	if ($modifier) { 
 		$self->{MODIFIER} = $modifier;
+	} elsif (!defined($self->{DB}) || !defined($self->{ACC})) {
+		die 'The name of this dbxref is not defined.';
 	} else { # get-mode
-		die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
+		return $self->{MODIFIER};
 	}
-	return $self->{MODIFIER};
 }
 
 =head2 as_string
@@ -155,8 +164,12 @@ sub equals {
 	
 	if ($target && eval { $target->isa('OBO::Core::Dbxref') }) {
 		
-		die 'The name of this dbxref is undefined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
-		die 'The name of the target dbxref is undefined.' if (!defined($target->{DB}) || !defined($target->{ACC}));
+		if (!defined($self->{DB}) || !defined($self->{ACC})) {
+			die 'The name of this dbxref is undefined.';
+		} 
+		if (!defined($target->{DB}) || !defined($target->{ACC})) {
+			die 'The name of the target dbxref is undefined.';
+		}
 		return (($self->{DB}          eq $target->{DB})          &&
 				($self->{ACC}         eq $target->{ACC})         &&
 				($self->{DESCRIPTION} eq $target->{DESCRIPTION}) &&

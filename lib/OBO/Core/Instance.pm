@@ -1,19 +1,19 @@
-# $Id: Term.pm 2010-12-22 erick.antezana $
+# $Id: Instance.pm 2011-13-04 erick.antezana $
 #
-# Module  : Term.pm
-# Purpose : Term of an Ontology.
+# Module  : Instance.pm
+# Purpose : Capture instances in an Ontology.
 # License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
-package OBO::Core::Term;
+package OBO::Core::Instance;
 
-use OBO::Util::InstanceSet;
+use OBO::Core::Relationship;
 use OBO::Core::Synonym;
 use OBO::Util::SynonymSet;
+
 use strict;
-use warnings;
 
 sub new {
 	my $class                   = shift;
@@ -25,12 +25,11 @@ sub new {
 	$self->{NAMESPACE_SET}      = OBO::Util::Set->new();        # set (0..N)
 	$self->{ALT_ID}             = OBO::Util::Set->new();        # set (0..N)
 	$self->{BUILTIN}            = undef;                        # [1|0], 0 by default
-	$self->{DEF}                = OBO::Core::Def->new();        # (0..1)
 	$self->{COMMENT}            = undef;                        # scalar (0..1)
 	$self->{SUBSET_SET}         = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
 	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
-	$self->{CLASS_OF}           = OBO::Util::InstanceSet->new();# set of instances (0..N)
+	$self->{INSTANCE_OF}        = undef;                        # OBO::Core::Term (0..1)
 	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N)
 	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N)
 	$self->{DISJOINT_FROM}      = OBO::Util::Set->new();        # (0..N)
@@ -48,10 +47,10 @@ sub new {
 
 =head2 id
 
-  Usage    - print $term->id() or $term->id($id) 
-  Returns  - the term ID (string)
-  Args     - the term ID (string)
-  Function - gets/sets the ID of this term
+  Usage    - print $instance->id() or $instance->id($id) 
+  Returns  - the instance ID (string)
+  Args     - the instance ID (string)
+  Function - gets/sets the ID of this instance
   
 =cut
 
@@ -63,10 +62,10 @@ sub id {
 
 =head2 idspace
 
-  Usage    - print $term->idspace() 
-  Returns  - the idspace of this term; otherwise, 'NN'
+  Usage    - print $instance->idspace() 
+  Returns  - the idspace of this instance; otherwise, 'NN'
   Args     - none
-  Function - gets the idspace of this term # TODO Does this method still makes sense?
+  Function - gets the idspace of this instance # TODO Does this method still makes sense?
   
 =cut
 
@@ -78,40 +77,40 @@ sub idspace {
 
 =head2 subnamespace
 
-  Usage    - print $term->subnamespace() 
-  Returns  - the subnamespace of this term (character); otherwise, 'X'
+  Usage    - print $instance->subnamespace() 
+  Returns  - the subnamespace of this instance (character); otherwise, 'X'
   Args     - none
-  Function - gets the subnamespace of this term
+  Function - gets the subnamespace of this instance
   
 =cut
 
 sub subnamespace {
-	my ($self) = @_;
+	my $self = shift;
 	$self->{ID} =~ /:([A-Z][a-z]?)/ if ($self->{ID});
 	return $1 || 'X';
 }
 
 =head2 code
 
-  Usage    - print $term->code() 
-  Returns  - the code of this term (character); otherwise, '0000000'
+  Usage    - print $instance->code() 
+  Returns  - the code of this instance (character); otherwise, '0000000'
   Args     - none
-  Function - gets the code of this term
+  Function - gets the code of this instance
   
 =cut
 
 sub code {
-	my ($self) = @_;
+	my $self = shift;
 	$self->{ID} =~ /:[A-Z]?[a-z]?(.*)/ if ($self->{ID});	
 	return $1 || '0000000';
 }
 
 =head2 name
 
-  Usage    - print $term->name() or $term->name($name)
-  Returns  - the name (string) of this term
-  Args     - the name (string) of this term
-  Function - gets/sets the name of this term
+  Usage    - print $instance->name() or $instance->name($name)
+  Returns  - the name (string) of this instance
+  Args     - the name (string) of this instance
+  Function - gets/sets the name of this instance
   
 =cut
 
@@ -123,10 +122,10 @@ sub name {
 
 =head2 is_anonymous
 
-  Usage    - print $term->is_anonymous() or $term->is_anonymous("1")
+  Usage    - print $instance->is_anonymous() or $instance->is_anonymous("1")
   Returns  - either 1 (true) or 0 (false)
   Args     - either 1 (true) or 0 (false)
-  Function - tells whether this term is anonymous or not.
+  Function - tells whether this instance is anonymous or not.
   
 =cut
 
@@ -138,10 +137,10 @@ sub is_anonymous {
 
 =head2 alt_id
 
-  Usage    - $term->alt_id() or $term->alt_id($id1, $id2, $id3, ...)
-  Returns  - a set (OBO::Util::Set) with the alternate id(s) of this term
-  Args     - the alternate id(s) (string) of this term
-  Function - gets/sets the alternate id(s) of this term
+  Usage    - $instance->alt_id() or $instance->alt_id($id1, $id2, $id3, ...)
+  Returns  - a set (OBO::Util::Set) with the alternate id(s) of this instance
+  Args     - the alternate id(s) (string) of this instance
+  Function - gets/sets the alternate id(s) of this instance
   
 =cut
 
@@ -155,106 +154,12 @@ sub alt_id {
 	return $self->{ALT_ID};
 }
 
-=head2 def
-
-  Usage    - $term->def() or $term->def($def)
-  Returns  - the definition (OBO::Core::Def) of this term
-  Args     - the definition (OBO::Core::Def) of this term
-  Function - gets/sets the definition of the term
-  
-=cut
-
-sub def {
-	my ($self, $def) = @_;
-	$self->{DEF} = $def if ($def);
-    return $self->{DEF};
-}
-
-=head2 def_as_string
-
-  Usage    - $term->def_as_string() or $term->def_as_string("During meiosis, the synthesis of DNA proceeding from the broken 3' single-strand DNA end that uses the homologous intact duplex as the template.", "[GOC:elh, PMID:9334324]")
-  Returns  - the definition (string) of this term
-  Args     - the definition (string) of this term plus the dbxref list (string) describing the source of this definition
-  Function - gets/sets the definition of this term
-  Remark   - make sure that colons (,) are scaped (\,) when necessary
-  
-=cut
-
-sub def_as_string {
-	my ($self, $text, $dbxref_as_string) = @_;
-	if (defined $text && defined $dbxref_as_string) {
-		my $def = $self->{DEF};
-		$def->text($text);
-		
-		$dbxref_as_string =~ s/^\[//;
-		$dbxref_as_string =~ s/\]$//;		
-		$dbxref_as_string =~ s/\\,/;;;;/g; # trick to keep the comma's
-		$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
-		
-		my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
-		foreach my $l (@lineas) {
-			my $cp = $l;
-			$l =~ s/,/;;;;/g; # trick to keep the comma's
-			$dbxref_as_string =~ s/\Q$cp\E/$l/;
-		}
-		
-		my @dbxrefs = split (',', $dbxref_as_string);
-		
-		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
-		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
-		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
-		
-		my $dbxref_set = OBO::Util::DbxrefSet->new();
-		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = undef;
-			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3);
-				$mod   = _unescape($4) if ($4);
-			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3) if ($3);
-				$mod   = _unescape($4) if ($4);
-			} else {
-				die "The references of the definition of the term with ID: '", $self->id(), "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
-			}
-			
-			# set the dbxref:
-			$dbxref->name($db.':'.$acc);
-			$dbxref->description($desc) if (defined $desc);
-			$dbxref->modifier($mod) if (defined $mod);
-			$dbxref_set->add($dbxref);
-		}
-		$def->dbxref_set($dbxref_set);
-		$self->{DEF} = $def;
-	}
-	
-	my @sorted_dbxrefs = map { $_->[0] }             # restore original values
-						sort { $a->[1] cmp $b->[1] } # sort
-						map  { [$_, lc($_->id())] }  # transform: value, sortkey
-						$self->{DEF}->dbxref_set()->get_set();
-
-	my @result = (); # a Set?
-	foreach my $dbxref (@sorted_dbxrefs) {
-		push @result, $dbxref->as_string();
-	}
-	my $d = $self->{DEF}->text();
-	if (defined $d) {
-		return '"'.$self->{DEF}->text().'"'.' ['.join(', ', @result).']';
-	} else {
-		return '"" ['.join(', ', @result).']';
-	}
-}
-
 =head2 namespace
 
-  Usage    - $term->namespace() or $term->namespace($ns1, $ns2, $ns3, ...)
-  Returns  - an array with the namespace(s) to which this term belongs
-  Args     - the namespace(s) to which this term belongs
-  Function - gets/sets the namespace(s) to which this term belongs
+  Usage    - $instance->namespace() or $instance->namespace($ns1, $ns2, $ns3, ...)
+  Returns  - an array with the namespace(s) to which this instance belongs
+  Args     - the namespace(s) to which this instance belongs
+  Function - gets/sets the namespace(s) to which this instance belongs
   
 =cut
 
@@ -270,10 +175,10 @@ sub namespace {
 
 =head2 comment
 
-  Usage    - print $term->comment() or $term->comment("This is a comment")
-  Returns  - the comment (string) of this term
-  Args     - the comment (string) of this term
-  Function - gets/sets the comment of this term
+  Usage    - print $instance->comment() or $instance->comment("This is a comment")
+  Returns  - the comment (string) of this instance
+  Args     - the comment (string) of this instance
+  Function - gets/sets the comment of this instance
   
 =cut
 
@@ -285,10 +190,10 @@ sub comment {
 
 =head2 subset
 
-  Usage    - $term->subset() or $term->subset($ss_name1, $ss_name2, $ss_name3, ...)
-  Returns  - an array with the subset name(s) to which this term belongs
-  Args     - the subset name(s) (string) to which this term belongs
-  Function - gets/sets the subset name(s) to which this term belongs
+  Usage    - $instance->subset() or $instance->subset($ss_name1, $ss_name2, $ss_name3, ...)
+  Returns  - an array with the subset name(s) to which this instance belongs
+  Args     - the subset name(s) (string) to which this instance belongs
+  Function - gets/sets the subset name(s) to which this instance belongs
   
 =cut
 
@@ -304,10 +209,10 @@ sub subset {
 
 =head2 synonym_set
 
-  Usage    - $term->synonym_set() or $term->synonym_set($synonym1, $synonym2, $synonym3, ...)
-  Returns  - an array with the synonym(s) of this term
-  Args     - the synonym(s) (OBO::Core::Synonym) of this term
-  Function - gets/sets the synonym(s) of this term
+  Usage    - $instance->synonym_set() or $instance->synonym_set($synonym1, $synonym2, $synonym3, ...)
+  Returns  - an array with the synonym(s) of this instance
+  Args     - the synonym(s) (OBO::Core::Synonym) of this instance
+  Function - gets/sets the synonym(s) of this instance
   
 =cut
 
@@ -316,7 +221,7 @@ sub synonym_set {
 	foreach my $synonym (@_) {
 		my $s_name = $self->name();
 		if (!defined($s_name)) {
-			die 'The name of this term (', $self->id(), ') is undefined. Add it before adding its synonyms.';
+			die 'The name of this instance (', $self->id(), ') is undefined. Add it before adding its synonyms.';
 		}
 		
 		my $syn_found = 0;
@@ -341,10 +246,10 @@ sub synonym_set {
 
 =head2 synonym_as_string
 
-  Usage    - print $term->synonym_as_string() or $term->synonym_as_string('this is a synonym text', '[CCO:ea]', 'EXACT', 'UK_SPELLING')
-  Returns  - an array with the synonym(s) of this term
-  Args     - the synonym text (string), the dbxrefs (string), synonym scope (string) of this term, and optionally the synonym type name (string)
-  Function - gets/sets the synonym(s) of this term
+  Usage    - print $instance->synonym_as_string() or $instance->synonym_as_string('this is a synonym text', '[CCO:ea]', 'EXACT', 'UK_SPELLING')
+  Returns  - an array with the synonym(s) of this instance
+  Args     - the synonym text (string), the dbxrefs (string), synonym scope (string) of this instance, and optionally the synonym type name (string)
+  Function - gets/sets the synonym(s) of this instance
   
 =cut
 
@@ -386,10 +291,10 @@ sub synonym_as_string {
 
 =head2 xref_set
 
-  Usage    - $term->xref_set() or $term->xref_set($dbxref_set)
-  Returns  - a Dbxref set (OBO::Util::DbxrefSet) with the analogous xref(s) of this term in another vocabulary
-  Args     - a set of analogous xref(s) (OBO::Util::DbxrefSet) of this term in another vocabulary
-  Function - gets/sets the analogous xref(s) set of this term in another vocabulary
+  Usage    - $instance->xref_set() or $instance->xref_set($dbxref_set)
+  Returns  - a Dbxref set (OBO::Util::DbxrefSet) with the analogous xref(s) of this instance in another vocabulary
+  Args     - a set of analogous xref(s) (OBO::Util::DbxrefSet) of this instance in another vocabulary
+  Function - gets/sets the analogous xref(s) set of this instance in another vocabulary
   
 =cut
 
@@ -401,10 +306,10 @@ sub xref_set {
 
 =head2 xref_set_as_string
 
-  Usage    - $term->xref_set_as_string() or $term->xref_set_as_string("[Reactome:20610, EC:2.3.2.12]")
-  Returns  - the dbxref set with the analogous xref(s) of this term; [] if the set is empty
-  Args     - the dbxref set with the analogous xref(s) of this term
-  Function - gets/sets the dbxref set with the analogous xref(s) of this term
+  Usage    - $instance->xref_set_as_string() or $instance->xref_set_as_string("[Reactome:20610, EC:2.3.2.12]")
+  Returns  - the dbxref set with the analogous xref(s) of this instance; [] if the set is empty
+  Args     - the dbxref set with the analogous xref(s) of this instance
+  Function - gets/sets the dbxref set with the analogous xref(s) of this instance
   Remark   - make sure that colons (,) are scaped (\,) when necessary
   
 =cut
@@ -417,6 +322,7 @@ sub xref_set_as_string {
 		$xref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
 		$xref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
 		my $xref_set = $self->{XREF_SET};
+		
 		my @lineas = $xref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
 		foreach my $l (@lineas) {
 			my $cp = $l;
@@ -444,7 +350,7 @@ sub xref_set_as_string {
 				$desc  = _unescape($3) if ($3);
 				$mod   = _unescape($4) if ($4);
 			} else {
-				die "The references of the term with ID: '", $self->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
+				die "The references of the instance with ID: '", $self->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
 			}
 			
 			# set the dbxref:
@@ -458,45 +364,55 @@ sub xref_set_as_string {
 	my @result = $self->xref_set()->get_set();
 }
 
-=head2 class_of
+=head2 instance_of
 
-  Usage    - $term->class_of() or $term->class_of($instance1, $instance2, $instance3, ...)
-  Returns  - an array with the instance(s) of this term
-  Args     - the instance(s) (OBO::Core::Instance) of this term
-  Function - gets/sets the instance(s) of this term
+  Usage    - $instance->instance_of() or $instance->instance_of($term)
+  Returns  - a term (OBO::Core::Term) of which this object is instance of
+  Args     - a term (OBO::Core::Term) of which this object is instance of
+  Function - gets/sets the term (class) of this instance
   
 =cut
 
-sub class_of {
-	my ($self, @co) = @_;
-	
-	foreach my $i (@co) {
-		$self->{CLASS_OF}->add($i);
-		$i->instance_of($self); # make the instance aware of its class (term)
+sub instance_of {
+	my ($self, $term) = @_;
+	if ($term) {
+		my $r   = OBO::Core::Relationship->new();
+		my $tid = $term->id();
+		my $rt  = 'instance_of';
+		my $iid = $self->id();
+		my $id  = $iid.'_'.$rt.'_'.$tid;
+
+		$r->id($id);
+		$r->type($rt);
+		$r->link($self, $term);
+		$self->{INSTANCE_OF} = $r; # only one term (class) per instance 
+		
+		# make the term aware of its instance
+		$term->class_of()->add($self);
 	}
-	return $self->{CLASS_OF};
+	return $self->{INSTANCE_OF}->head();
 }
 
-=head2 is_class_of
+=head2 is_instance_of
 
-  Usage    - $term->is_class_of($instance)
+  Usage    - $instance->is_instance_of($term)
   Returns  - either 1 (true) or 0 (false)
-  Args     - an instance (OBO::Core::Instance) of which this object might be class of
-  Function - tells whether this object is a class of $instance
+  Args     - a term (OBO::Core::Term) of which this object might be instance of
+  Function - tells whether this object is instance of $term
   
 =cut
 
-sub is_class_of {
-	my ($self, $instance) = @_;
-	return (defined $instance && $self->{CLASS_OF}->contains($instance));
+sub is_instance_of {
+	my ($self, $term) = @_;
+	return ($term && $self->{INSTANCE_OF} && $term->id() eq $self->{INSTANCE_OF}->head()->id());
 }
 
 =head2 intersection_of
         
-  Usage    - $term->intersection_of() or $term->intersection_of($t1, $t2, $r1, ...)
-  Returns  - an array with the terms/relations which define this term
-  Args     - a set (strings) of terms/relations which define this term
-  Function - gets/sets the set of terms/relatonships defining this term
+  Usage    - $instance->intersection_of() or $instance->intersection_of($t1, $t2, $r1, ...)
+  Returns  - an array with the instances/relations which define this instance
+  Args     - a set (strings) of instances/relations which define this instance
+  Function - gets/sets the set of instances/relatonships defining this instance
         
 =cut
 
@@ -512,10 +428,10 @@ sub intersection_of {
 
 =head2 union_of
         
-  Usage    - $term->union_of() or $term->union_of($t1, $t2, $r1, ...)
-  Returns  - an array with the terms/relations which define this term
-  Args     - a set (strings) of terms/relations which define this term
-  Function - gets/sets the set of terms/relatonships defining this term
+  Usage    - $instance->union_of() or $instance->union_of($t1, $t2, $r1, ...)
+  Returns  - an array with the instances/relations which define this instance
+  Args     - a set (strings) of instances/relations which define this instance
+  Function - gets/sets the set of instances/relatonships defining this instance
         
 =cut   
  
@@ -531,10 +447,10 @@ sub union_of {
 
 =head2 disjoint_from
 
-  Usage    - $term->disjoint_from() or $term->disjoint_from($disjoint_term_id1, $disjoint_term_id2, $disjoint_term_id3, ...)
-  Returns  - the disjoint term id(s) (string(s)) from this one
-  Args     - the term id(s) (string) that is (are) disjoint from this one
-  Function - gets/sets the disjoint term(s) from this one
+  Usage    - $instance->disjoint_from() or $instance->disjoint_from($disjoint_instance_id1, $disjoint_instance_id2, $disjoint_instance_id3, ...)
+  Returns  - the disjoint instance id(s) (string(s)) from this one
+  Args     - the instance id(s) (string) that is (are) disjoint from this one
+  Function - gets/sets the disjoint instance(s) from this one
   
 =cut
 
@@ -550,10 +466,10 @@ sub disjoint_from {
 
 =head2 created_by
 
-  Usage    - print $term->created_by() or $term->created_by("erick_antezana")
-  Returns  - name (string) of the creator of the term, may be a short username, initials or ID
-  Args     - name (string) of the creator of the term, may be a short username, initials or ID
-  Function - gets/sets the name of the creator of the term
+  Usage    - print $instance->created_by() or $instance->created_by("erick_antezana")
+  Returns  - name (string) of the creator of the instance, may be a short username, initials or ID
+  Args     - name (string) of the creator of the instance, may be a short username, initials or ID
+  Function - gets/sets the name of the creator of the instance
   
 =cut
 
@@ -565,10 +481,10 @@ sub created_by {
 
 =head2 creation_date
 
-  Usage    - print $term->creation_date() or $term->creation_date("2010-04-13T01:32:36Z")
-  Returns  - date (string) of creation of the term specified in ISO 8601 format
-  Args     - date (string) of creation of the term specified in ISO 8601 format
-  Function - gets/sets the date of creation of the term
+  Usage    - print $instance->creation_date() or $instance->creation_date("2010-04-13T01:32:36Z")
+  Returns  - date (string) of creation of the instance specified in ISO 8601 format
+  Args     - date (string) of creation of the instance specified in ISO 8601 format
+  Function - gets/sets the date of creation of the instance
   
 =cut
 
@@ -580,10 +496,10 @@ sub creation_date {
 
 =head2 modified_by
 
-  Usage    - print $term->modified_by() or $term->modified_by("erick_antezana")
-  Returns  - name (string) of the modificator of the term, may be a short username, initials or ID
-  Args     - name (string) of the modificator of the term, may be a short username, initials or ID
-  Function - gets/sets the name of the modificator of the term
+  Usage    - print $instance->modified_by() or $instance->modified_by("erick_antezana")
+  Returns  - name (string) of the modificator of the instance, may be a short username, initials or ID
+  Args     - name (string) of the modificator of the instance, may be a short username, initials or ID
+  Function - gets/sets the name of the modificator of the instance
   
 =cut
 
@@ -595,10 +511,10 @@ sub modified_by {
 
 =head2 modification_date
 
-  Usage    - print $term->modification_date() or $term->modification_date("2010-04-13T01:32:36Z")
-  Returns  - date (string) of modification of the term specified in ISO 8601 format
-  Args     - date (string) of modification of the term specified in ISO 8601 format
-  Function - gets/sets the date of modification of the term
+  Usage    - print $instance->modification_date() or $instance->modification_date("2010-04-13T01:32:36Z")
+  Returns  - date (string) of modification of the instance specified in ISO 8601 format
+  Args     - date (string) of modification of the instance specified in ISO 8601 format
+  Function - gets/sets the date of modification of the instance
   
 =cut
 
@@ -610,10 +526,10 @@ sub modification_date {
 
 =head2 is_obsolete
 
-  Usage    - print $term->is_obsolete()
+  Usage    - print $instance->is_obsolete()
   Returns  - either 1 (true) or 0 (false)
   Args     - either 1 (true) or 0 (false)
-  Function - tells whether the term is obsolete or not. 'false' by default.
+  Function - tells whether the instance is obsolete or not. 'false' by default.
   
 =cut
 
@@ -625,10 +541,10 @@ sub is_obsolete {
 
 =head2 replaced_by
 
-  Usage    - $term->replaced_by() or $term->replaced_by($id1, $id2, $id3, ...)
-  Returns  - a set (OBO::Util::Set) with the id(s) of the replacing term(s)
-  Args     - the the id(s) of the replacing term(s) (string)
-  Function - gets/sets the the id(s) of the replacing term(s)
+  Usage    - $instance->replaced_by() or $instance->replaced_by($id1, $id2, $id3, ...)
+  Returns  - a set (OBO::Util::Set) with the id(s) of the replacing instance(s)
+  Args     - the the id(s) of the replacing instance(s) (string)
+  Function - gets/sets the the id(s) of the replacing instance(s)
   
 =cut
 
@@ -644,10 +560,10 @@ sub replaced_by {
 
 =head2 consider
 
-  Usage    - $term->consider() or $term->consider($id1, $id2, $id3, ...)
-  Returns  - a set (OBO::Util::Set) with the appropiate substitute(s) for an obsolete term
-  Args     - the appropiate substitute(s) for an obsolete term (string)
-  Function - gets/sets the appropiate substitute(s) for this obsolete term
+  Usage    - $instance->consider() or $instance->consider($id1, $id2, $id3, ...)
+  Returns  - a set (OBO::Util::Set) with the appropiate substitute(s) for an obsolete instance
+  Args     - the appropiate substitute(s) for an obsolete instance (string)
+  Function - gets/sets the appropiate substitute(s) for this obsolete instance
   
 =cut
 
@@ -663,10 +579,10 @@ sub consider {
 
 =head2 builtin
 
-  Usage    - $term->builtin() or $term->builtin(1) or $term->builtin(0)
-  Returns  - tells if this term is builtin to the OBO format; false by default
+  Usage    - $instance->builtin() or $instance->builtin(1) or $instance->builtin(0)
+  Returns  - tells if this instance is builtin to the OBO format; false by default
   Args     - 1 (true) or 0 (false)
-  Function - gets/sets the value indicating whether this term is builtin to the OBO format
+  Function - gets/sets the value indicating whether this instance is builtin to the OBO format
   
 =cut
 
@@ -678,19 +594,19 @@ sub builtin {
 
 =head2 equals
 
-  Usage    - print $term->equals($another_term)
+  Usage    - print $instance->equals($another_instance)
   Returns  - either 1 (true) or 0 (false)
-  Args     - the term (OBO::Core::Term) to compare with
-  Function - tells whether this term is equal to the parameter
+  Args     - the instance (OBO::Core::Instance) to compare with
+  Function - tells whether this instance is equal to the parameter
   
 =cut
 
 sub equals {
 	my ($self, $target) = @_;
-	if ($target && eval { $target->isa('OBO::Core::Term') }) {
+	if ($target && eval { $target->isa('OBO::Core::Instance') }) {
 		return (defined $target && $self->{'ID'} eq $target->{'ID'})?1:0;
 	} else {
-		die "An unrecognized object type (not a OBO::Core::Term) was found: '", $target, "'";
+		die "An unrecognized object type (not a OBO::Core::Instance) was found: '", $target, "'";
 	}
 }
 
@@ -708,11 +624,11 @@ __END__
 
 =head1 NAME
 
-OBO::Core::Term  - A universal/term/class/concept in an ontology.
+OBO::Core::Instance  - An instance in an ontology.
     
 =head1 SYNOPSIS
 
-use OBO::Core::Term;
+use OBO::Core::Instance;
 
 use OBO::Core::Def;
 
@@ -725,13 +641,13 @@ use OBO::Core::Synonym;
 use strict;
 
 
-# three new terms
+# three new instances
 
-my $n1 = OBO::Core::Term->new();
+my $n1 = OBO::Core::Instance->new();
 
-my $n2 = OBO::Core::Term->new();
+my $n2 = OBO::Core::Instance->new();
 
-my $n3 = OBO::Core::Term->new();
+my $n3 = OBO::Core::Instance->new();
 
 
 # id's
@@ -868,55 +784,9 @@ $n1->xref("Uj");
 my $xref_length = $n1->xref()->size();
 
 
-my $def = OBO::Core::Def->new();
-
-$def->text("Hola mundo");
-
-my $ref1 = OBO::Core::Dbxref->new();
-
-my $ref2 = OBO::Core::Dbxref->new();
-
-my $ref3 = OBO::Core::Dbxref->new();
-
-
-$ref1->name("CCO:vm");
-
-$ref2->name("CCO:ls");
-
-$ref3->name("CCO:ea");
-
-
-my $refs_set = OBO::Util::DbxrefSet->new();
-
-$refs_set->add_all($ref1,$ref2,$ref3);
-
-$def->dbxref_set($refs_set);
-
-$n1->def($def);
-
-$n2->def($def);
-
-
-# def as string
-
-$n2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"] {opt=first}');
-
-my @refs_n2 = $n2->def()->dbxref_set()->get_set();
-
-my %r_n2;
-
-foreach my $ref_n2 (@refs_n2) {
-	
-	$r_n2{$ref_n2->name()} = $ref_n2->name();
-	
-}
-
-
 =head1 DESCRIPTION
 
-A Term in the ontology. c.f. OBO flat file specification.
-
-Recommended: http://ontology.buffalo.edu/bfo/Terminology_for_Ontologies.pdf
+A Instance in the ontology. c.f. OBO flat file specification.
 
 =head1 AUTHOR
 

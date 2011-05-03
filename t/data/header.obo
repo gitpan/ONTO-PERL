@@ -21,6 +21,8 @@ synonymtypedef: systematic_synonym "Systematic synonym" EXACT
 idspace: CCO http://www.cellcycleontology.org/ontology/CCO "cell cycle ontology terms"
 default-namespace: cco
 remark: <p>This file holds some fake terms.</p>
+treat-xrefs-as-equivalent: TEST
+treat-xrefs-as-equivalent: EQUI
 
 [Term]
 id: CCO:F0000000
@@ -38,6 +40,7 @@ def: "one dot one" [FO:15892874]
 subset: Tomato
 synonym: "one period one" EXACT common_name [FO:15892874]
 synonym: "thing" BROAD [FO:12345]
+xref: TEST:T0000001
 is_a: CCO:F0000000 ! uno
 
 [Term]
@@ -53,6 +56,8 @@ is_anonymous: true
 name: dos punto uno
 def: "two point two" [FO:ea]
 synonym: "two period two" EXACT [FO:ea]
+xref: TEST:T0000003
+xref: EQUI:T0000003
 is_a: CCO:F0000002 ! dos
 
 [Term]
@@ -65,10 +70,10 @@ synonym: "two period three" EXACT [FO:ea]
 is_a: CCO:F0000002 ! dos
 
 [Instance]
-id: erick
+id: CCO:erick
 name: Erick Antezana
-instance_of: man
-property_value: married_to Cecilia
+instance_of: CCO:man
+property_value: married_to CCO:cecilia
 property_value: shoe_size "8" xsd:positiveInteger
 
 [Typedef]

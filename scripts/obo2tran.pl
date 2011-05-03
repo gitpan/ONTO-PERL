@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
-# $Id: obo2tran.pl 2010-09-29 erick.antezana $
+# $Id: obo2tran.pl 2011-09-29 erick.antezana $
 #
 # Script  : obo2tran.pl
 #
-# Purpose : Converts a file from OBO to RDF.
+# Purpose : Converts a file from OBO to an RDF version with transitive closure relationship (e.g. is_a, part_of).
 #
-# Usage   : obo2tran.pl my_ontology.obo > my_ontology.rdf
+# Usage   : obo2tran.pl my_ontology.obo [my_url] > my_ontology.rdf
 #
 # License : Copyright (C) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -36,11 +36,11 @@ __END__
 
 =head1 NAME
 
-obo2tran.pl - OBOF into RDF translator. The resulting file has (full) transitive closure. 
+obo2tran.pl - OBOF into RDF translator. The resulting file has (full) transitive closures over 'is_a' and 'part_of'. 
 
 =head1 DESCRIPTION
 
-OBOF into RDF translator. The resulting file has (full) transitive closure.
+OBOF into RDF translator. The resulting file has (full) transitive closures ('is_a' and 'part_of').
 
 =head1 AUTHOR
 

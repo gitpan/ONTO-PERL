@@ -1,4 +1,4 @@
-# $Id: Relationship.pm 2010-21-22 erick.antezana $
+# $Id: Relationship.pm 2011-21-22 erick.antezana $
 #
 # Module  : Relationship.pm
 # Purpose : Relationship in the Ontology.
@@ -19,8 +19,10 @@ sub new {
         $self->{ID}    = undef; # required, string (1)
         $self->{TYPE}  = undef; # required, string (1)
         
-        $self->{HEAD}  = undef; # required, string (1)
-        $self->{TAIL}  = undef; # required, string (1)
+        $self->{HEAD}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Term (1)
+                                #                  ^^                 ^^                            ^^
+                                #                  ||                 ||                            ||
+        $self->{TAIL}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Instance (1)
         
         bless ($self, $class);
         return $self;
@@ -47,6 +49,7 @@ sub id {
   Returns  - the type of the relationship (string)
   Args     - the type of the relationship (string)
   Function - gets/sets the type of the relationship
+  Remark   - this field corresponds to the relationship type ID (c.f. OBO::Core::RelationshipType::id())
   
 =cut
 

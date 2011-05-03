@@ -12,10 +12,8 @@ package OBO::Core::RelationshipType;
 use strict;
 use warnings;
 
-use OBO::Core::Dbxref;
 use OBO::Core::Def;
 use OBO::Util::Map;
-use OBO::Util::Set;
 use OBO::Util::SynonymSet;
 
 sub new {
@@ -60,6 +58,7 @@ sub new {
 	$self->{REPLACED_BY}        = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{CONSIDER}           = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{IS_METADATA_TAG}    = undef;                        # [1|0], 0 by default
+	$self->{IS_CLASS_LEVEL}     = undef;                        # [1|0], 0 by default
 
 	bless ($self, $class);
 	return $self;
@@ -149,6 +148,7 @@ sub def {
   Returns  - the definition (string) of the relationship type
   Args     - the definition (string) of the relationship type plus the dbxref list describing the source of this definition
   Function - gets/sets the definition of the relationship type
+  Remark   - make sure that colons (,) are scaped (\,) when necessary
   
 =cut
 
@@ -372,6 +372,7 @@ sub xref_set {
   Returns  - the dbxref set with the analogous xref(s) of this relationship type; [] if the set is empty
   Args     - the dbxref set with the analogous xref(s) of this relationship type
   Function - gets/sets the dbxref set with the analogous xref(s) of this relationship type
+  Remark   - make sure that colons (,) are scaped (\,) when necessary
   
 =cut
 
@@ -394,7 +395,7 @@ sub xref_set_as_string {
 		
 		my @dbxrefs = split (',', $xref_as_string);
 		
-		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_,-]*)/o;
 		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
 		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
 		
@@ -571,6 +572,21 @@ sub is_metadata_tag {
 	my ($self, $rel) = @_;
     $self->{IS_METADATA_TAG} = $rel if ($rel);
     return (defined($self->{IS_METADATA_TAG}) && $self->{IS_METADATA_TAG} == 1)?1:0;
+}
+
+=head2 is_class_level
+
+  Usage    - $relationship_type->is_class_level()
+  Returns  - 1 (true) or 0 (false)
+  Args     - 1 (true) or 0 (false)
+  Function - tells whether this relationship type is a class-level relation or not.
+  
+=cut
+
+sub is_class_level {
+	my ($self, $rel) = @_;
+    $self->{IS_CLASS_LEVEL} = $rel if ($rel);
+    return (defined($self->{IS_CLASS_LEVEL}) && $self->{IS_CLASS_LEVEL} == 1)?1:0;
 }
 
 =head2 transitive_over

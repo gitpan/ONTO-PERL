@@ -37,6 +37,7 @@ sub union () {
 	my $default_namespace;
 	foreach my $ontology (@ontos) {
 		$result->remarks($ontology->remarks()->get_set());    # add all the remark's of the ontologies
+		$result->treat_xrefs_as_equivalent($ontology->treat_xrefs_as_equivalent->get_set()); # treat-xrefs-as-equivalent
 		$result->idspaces($ontology->idspaces()->get_set());  # assuming the same idspace
 		$result->subset_def_map($ontology->subset_def_map()); # add all subset_def_map's by default
 		$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
@@ -207,6 +208,8 @@ sub union () {
 				
 				$rel_type->is_metadata_tag($onto_rela_type->is_metadata_tag());
 				
+				$rel_type->is_class_level($onto_rela_type->is_class_level());
+				
 			} else {
 				# TODO Why do we have this case?
 			}
@@ -290,6 +293,7 @@ sub union () {
 					$current_relationship_type->consider($_);
 				}
 				$current_relationship_type->is_metadata_tag($relationship_type->is_metadata_tag());
+				$current_relationship_type->is_class_level($relationship_type->is_class_level());
 			} else {
 				my $new_relationship_type = OBO::Core::RelationshipType->new();
 				$new_relationship_type->id($relationship_type_id);
@@ -297,6 +301,14 @@ sub union () {
 				$result->add_relationship_type($new_relationship_type);
 				push @relationship_types, $relationship_type; # trick to visit again the just added relationship_type which wasn't treated yet
 			}
+		}
+		
+		#
+		# Add instances
+		#
+		my @instances = @{$ontology->get_instances()};
+		foreach my $term (@instances){
+		#TODO
 		}
 	}
 	$result->default_namespace($default_namespace) if (defined $default_namespace);
@@ -323,6 +335,19 @@ sub intersection () {
 	$result->default_namespace($onto1->default_namespace()); # use the default_namespace of the first argument
 	$result->remarks('Intersection of ontologies');
 	
+	#
+	# treat_xrefs_as_equivalent
+	#
+	my @txae1 = $onto1->treat_xrefs_as_equivalent->get_set();
+	my @txae2 = $onto2->treat_xrefs_as_equivalent->get_set();
+	if ($#txae1 > 0 && $#txae2 > 0) {
+		my %inter = ();
+		foreach my $ids_xref (@txae1, @txae2) {
+			$inter{$ids_xref}++;
+		}
+		$result->treat_xrefs_as_equivalent(keys %inter);
+	}
+	
 	# the IDspace's of both ontologies are added to the intersection ontology
 	$result->idspaces($onto1->idspaces()->get_set());
 	$result->idspaces($onto2->idspaces()->get_set());
@@ -333,6 +358,9 @@ sub intersection () {
 		my $current_term = $onto2->get_term_by_id($term->id()); ### could also be $result->get_term_by_name_or_synonym()
 		if (defined $current_term) {  # term intersection
 			$result->add_term($term); # added the term from onto2
+			foreach my $ins ($term->class_of()->get_set()) {
+				$result->add_instance($ins); # add its instances
+			}
 		}
 	}
 	my $onto1_number_relationships  = $onto1->get_number_of_relationships();
@@ -468,9 +496,9 @@ sub intersection () {
 
 =head2 transitive_closure
 
-  Usage    - $ome->transitive_closure($o)
+  Usage    - $ome->transitive_closure($o, @transitive_relationship_types)
   Return   - an ontology (OBO::Core::Ontology) with the transitive closure
-  Args     - an ontology (OBO::Core::Ontology) to be expanded
+  Args     - an ontology (OBO::Core::Ontology) to be expanded and optionally an array with the transitive relationship types (by default: 'is_a' and 'part_of')
   Function - expands all the transitive relationships (e.g. is_a, part_of) along the
   			 hierarchy and generates a new ontology holding all possible paths.
   Remark   - Performance issues with huge ontologies.
@@ -478,13 +506,19 @@ sub intersection () {
 =cut
 
 sub transitive_closure () {
-my ($self, $ontology) = @_;
+	my ($self, $ontology, @trans_rts) = @_;
+	my @default_trans_rts = ('is_a', 'part_of');
+	if (scalar @trans_rts > 0) {
+		@default_trans_rts = @trans_rts;
+	}
+	
 	my $result = OBO::Core::Ontology->new();
 	$result->idspaces($ontology->idspaces()->get_set());
 	$result->default_namespace($ontology->default_namespace());
 	$result->remarks('Ontology with transitive closures');
-	$result->subset_def_map($ontology->subset_def_map()); # add all subset_def_map's by default
-	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
+	$result->treat_xrefs_as_equivalent($ontology->treat_xrefs_as_equivalent->get_set()); # treat-xrefs-as-equivalent
+	$result->subset_def_map($ontology->subset_def_map());                                # add all subset_def_map's by default
+	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set());         # add all synonym_type_def_set by default
 	
 	my @terms = @{$ontology->get_terms()};
 	foreach my $term (@terms){
@@ -537,6 +571,9 @@ my ($self, $ontology) = @_;
 				my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
 				if (!defined $tail) {
 					$result->add_term($cola);            # add $cola if it is not present!
+					foreach my $ins ($cola->class_of()->get_set()) {
+						$result->add_instance($ins); # add its instances
+					}
 					$tail = $result->get_term_by_id($tail_id);
 					
 					my @more_rels = @{$ontology->get_relationships_by_target_term($cola)};
@@ -556,6 +593,9 @@ my ($self, $ontology) = @_;
 			}
 		} else {
 			$result->add_term($term);
+			foreach my $ins ($term->class_of()->get_set()) {
+				$result->add_instance($ins); # add its instances
+			}
 			push @terms, $term; # trick to 'recursively' visit the just added term
 		}
 	}
@@ -575,9 +615,9 @@ my ($self, $ontology) = @_;
 	foreach my $term (@terms) {
 		my $term_id = $term->id();
 		# path of references:
-		foreach my $type_of_rel ('is_a', 'part_of') {
-			#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one relflexive relationship)
-	
+		foreach my $type_of_rel (@default_trans_rts) {
+			#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one reflexive relationship)
+
 			# take the paths from the original ontology
 			my @ref_paths = $ontology->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
 

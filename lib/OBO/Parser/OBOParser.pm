@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 2010-11-29 erick.antezana $
+# $Id: OBOParser.pm 2011-11-29 erick.antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO-formatted files.
@@ -14,6 +14,7 @@ use warnings;
 
 #use Date::Manip::Date; # TODO Consider to use this module to manipulate dates
 
+use OBO::Core::Instance;
 use OBO::Core::Term;
 use OBO::Core::Ontology;
 use OBO::Core::Dbxref;
@@ -43,10 +44,10 @@ sub new {
 sub work {
 	my $self = shift;
 	$self->{OBO_FILE} = shift if (@_);
-	my $result = OBO::Core::Ontology->new();
 	
 	open (OBO_FILE, $self->{OBO_FILE}) || die 'The OBO file cannot be opened: ', $!;
-	$/ = "\n\n";
+	
+	$/ = ""; # one paragraph at the time
 	chomp(my @chunks = <OBO_FILE>);
 	chomp(@chunks);
 	close OBO_FILE;
@@ -56,21 +57,81 @@ sub work {
 	#
 	my $file_line_number = 0;
 	if (defined $chunks[0] && $chunks[0] =~ /^format-version:\s*(.*)/) {
-		my @header                       = split (/\n/, $chunks[0]);
-		$file_line_number                = $#header + 2; # amount of lines in the header
-		my $format_version               = $1 if ($chunks[0] =~ /format-version:\s*(.*)\n/); # required tag
-		my $data_version                 = $1 if ($chunks[0] =~ /data-version:\s*(.*)\n/);
-		my $ontology_id_space            = $1 if ($chunks[0] =~ /ontology:\s*(.*)\n/); # as of OBO spec 1.4
-		my $date = $1 if ($chunks[0]     =~ /date:\s*(.*)\n/);
-		my $saved_by = $1 if ($chunks[0] =~ /saved-by:\s*(.*)\n/);
-		my $auto_generated_by = $1 if ($chunks[0] =~ /auto-generated-by:\s*(.*\n)/);
+
+		my @header        = split (/\n/, $chunks[0]);
+		$file_line_number = $#header + 2; # amount of lines in the header
+		@header           = sort @header;
+		$chunks[0]        = join("\n", @header);
+	
+		#
+		# format-version
+		#
+		my $format_version;
+		if ($chunks[0] =~ /(^format-version:\s*(.*)\n?)/m) { # required tag
+			$format_version = $2;
+			$chunks[0]      =~ s/$1//;
+		}
+
+		#
+		# data_version
+		#
+		my $data_version;
+		if ($chunks[0] =~ /(^data-version:\s*(.*)\n?)/m) {
+			$data_version = $2;
+			$chunks[0]    =~ s/$1//;
+		}
+		
+		#
+		# ontology
+		#
+		my $ontology_id_space;
+		if ($chunks[0] =~ /(^ontology:\s*(.*)\n?)/m) { # as of OBO spec 1.4
+			$ontology_id_space = $2;
+			$chunks[0]         =~ s/$1//;
+		}
+		
+		#
+		# date
+		#
+		my $date;
+		if ($chunks[0] =~ /(^date:\s*(.*)\n?)/m) {
+			$date      = $2;
+			$chunks[0] =~ s/$1//;
+		}
+		
+		
+		#
+		# saved_by
+		#
+		my $saved_by;
+		if ($chunks[0] =~ /(^saved-by:\s*(.*)\n?)/m) {
+			$saved_by  = $2;
+			$chunks[0] =~ s/$1//;
+		}
+		
+		#
+		# auto_generated_by
+		#
+		my $auto_generated_by;
+		if ($chunks[0] =~ /(^auto-generated-by:\s*(.*)\n?)/m) {
+			$auto_generated_by = $2;
+			$chunks[0]         =~ s/$1//;
+		}
+		
+		#
+		# imports
+		#
 		my $imports = OBO::Util::Set->new();
-		while ($chunks[0] =~ /(import:\s*(.*)\n)/) {
+		while ($chunks[0] =~ /(^import:\s*(.*)\n?)/m) {
 			$imports->add($2);
 			$chunks[0] =~ s/$1//;
 		}
+
+		#
+		# subsetdef
+		#
 		my $subset_def_map = OBO::Util::SubsetDefMap->new();
-		while ($chunks[0] =~ /(subsetdef:\s*(\S+)\s+\"(.*)\")/) {
+		while ($chunks[0] =~ /(^subsetdef:\s*(\S+)\s+\"(.*)\"\n?)/m) {
 			my $line = quotemeta($1);
 			my $ssd  = OBO::Core::SubsetDef->new();
 			$ssd->name($2);
@@ -78,8 +139,12 @@ sub work {
 			$subset_def_map->put($2, $ssd);
 			$chunks[0] =~ s/${line}//;
 		}
+		
+		#
+		# synonymtypedef
+		#
 		my $synonym_type_def_set = OBO::Util::SynonymTypeDefSet->new();
-		while ($chunks[0] =~ /(synonymtypedef:\s*(\S+)\s+\"(.*)\"(.*)?)/) {
+		while ($chunks[0] =~ /(^synonymtypedef:\s*(\S+)\s+\"(.*)\"(.*)?\n?)/m) {
 			my $line = quotemeta($1);
 			my $std  = OBO::Core::SynonymTypeDef->new();
 			$std->name($2);
@@ -89,8 +154,12 @@ sub work {
 			$synonym_type_def_set->add($std);
 			$chunks[0] =~ s/${line}//;
 		}
+		
+		#
+		# idspace
+		#
 		my $idspaces = OBO::Util::IDspaceSet->new();
-		while ($chunks[0] =~ /(idspace:\s*(\S+)\s*(\S+)\s+(\"(.*)\")?)/) {
+		while ($chunks[0] =~ /(^idspace:\s*(\S+)\s*(\S+)\s+(\"(.*)\")?\n?)/m) {
 			my $line        = quotemeta($1);
 			my $new_idspace = OBO::Core::IDspace->new();
 			$new_idspace->local_idspace($2);
@@ -100,15 +169,43 @@ sub work {
 			$idspaces->add($new_idspace);
 			$chunks[0] =~ s/${line}//;
 		}
-		my $default_namespace = $1 if ($chunks[0] =~ /default-namespace:\s*(.*)(\n)?/);
+		
+		#
+		# default-namespace
+		#
+		my $default_namespace;
+		if ($chunks[0] =~ /(^default-namespace:\s*(.*)\n?)/m) {
+			$default_namespace = $2;
+			$chunks[0] =~ s/$1//;
+		}
+		
+		#
+		# remark
+		#
 		my $remarks = OBO::Util::Set->new();
-		while ($chunks[0] =~ /(remark:\s*(.*)(\n)?)/) {
+		while ($chunks[0] =~ /(^remark:\s*(.*)\n?)/m) {
 			my $line = quotemeta($1);
 			$remarks->add($2);
 			$chunks[0] =~ s/${line}//;
 		}
-	
-		die "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it." if (!defined $format_version);
+
+		if (!defined $format_version) {
+			die "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
+		}
+		
+		#
+		# treat-xrefs-as-equivalent
+		#
+		my $treat_xrefs_as_equivalent = OBO::Util::Set->new();
+		while ($chunks[0] =~ /(^treat-xrefs-as-equivalent:\s*(.*)\n?)/m) {
+			$treat_xrefs_as_equivalent->add($2);
+			$chunks[0] =~ s/$1//;
+		}
+		
+		#
+		# store the values in header tags
+		#
+		my $result = OBO::Core::Ontology->new();
 		
 		$result->data_version($data_version) if ($data_version);
 		$result->id($ontology_id_space) if ($ontology_id_space);
@@ -121,23 +218,43 @@ sub work {
 		$result->idspaces($idspaces->get_set());
 		$result->default_namespace($default_namespace) if ($default_namespace);
 		$result->remarks($remarks->get_set());
+		$result->treat_xrefs_as_equivalent($treat_xrefs_as_equivalent->get_set());
 
+		if ($chunks[0]) {
+			print STDERR "The following has been ignored from the header:\n", $chunks[0], "\n";
+		}
+		
+		
+		#
 		# Regexps
-		my $r_db_acc     = qr/\s*(\w+:\w+)/o;
+		#
+		#my $r_db_acc     = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_,-]*)/o;
+		my $r_db_acc     = qr/\s+(\w+:\w+)/o;
 		my $r_dbxref     = qr/\s+(\[.*\])/o;
 		my $syn_scope    = qr/(\s+(EXACT|BROAD|NARROW|RELATED))?/o;
 		my $r_true_false = qr/\s*(true|false)/o; 
 		my $r_comments   = qr/\s*(\!\s*(.*))?/o;
 		
+		my $intersection_of_counter = 0;
+		
 		foreach my $chunk (@chunks) {
-			my @entry = split (/\n/, $chunk);
+			my @entry  = split (/\n/, $chunk);
 			my $stanza = shift @entry;
 					
 			if ($stanza && $stanza =~ /\[Term\]/) { # treat [Term]'s
+				
 				my $term;
+				
+				#
+				# to check we have at least two intersection_of tags
+				#
+				$intersection_of_counter = 0;
+				
 				$file_line_number++;
+				
 				my $only_one_id_tag_per_entry   = 0;
 				my $only_one_name_tag_per_entry = 0;
+				
 				foreach my $line (@entry) {
 					$file_line_number++;
 					if ($line =~ /^id:\s*(\S+)/) { # get the term id
@@ -210,7 +327,7 @@ sub work {
 						my $rel = OBO::Core::Relationship->new();
 						$rel->id($term->id().'_is_a_'.$1);
 						$rel->type('is_a');
-						my $target = $result->get_term_by_id($1); # does this term is already in the ontology?
+						my $target = $result->get_term_by_id($1); # Is this term already in the ontology?
 						if (!defined $target) {
 							$target = OBO::Core::Term->new(); # if not, create a new term
 							$target->id($1);
@@ -218,8 +335,23 @@ sub work {
 						}
 						$rel->link($term, $target);
 						$result->add_relationship($rel);
-					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.4 be released
+					} elsif ($line =~ /^intersection_of:\s*([\w\/]+)?$r_db_acc$r_comments/) {
+						# TODO Improve the 'intersection_of' treatment
+						my $rel = OBO::Core::Relationship->new();
+						my $r   = $1 || 'nil';
+						my $id  = $term->id().'_'.$r.'_'.$2; 
+						$id     =~ s/\s+/_/g;
+						$rel->id($id);
+						$rel->type($r);
+						my $target = $result->get_term_by_id($2); # Is this term already in the ontology?
+						if (!defined $target) {
+							$target = OBO::Core::Term->new(); # if not, create a new term
+							$target->id($2);
+							$result->add_term($target);
+						}
+						$rel->head($target);
+						$term->intersection_of($rel);
+						$intersection_of_counter++;
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
 						# TODO wait until the OBO spec 1.4 be released
 						# Distinguish between terms and relations?
@@ -229,11 +361,11 @@ sub work {
 						$term->disjoint_from($1); # We are assuming that the other term exists or will exist; otherwise , we have to create it like in the is_a section.
 					} elsif ($line =~ /^relationship:\s*([\w\/]+)$r_db_acc$r_comments/) {
 						my $rel = OBO::Core::Relationship->new();
-						my $id = $term->id().'_'.$1.'_'.$2; 
-						$id =~ s/\s+/_/g;
+						my $id  = $term->id().'_'.$1.'_'.$2; 
+						$id     =~ s/\s+/_/g;
 						$rel->id($id);
 						$rel->type($1);
-						my $target = $result->get_term_by_id($2); # does this term is already in the ontology?
+						my $target = $result->get_term_by_id($2); # Is this term already in the ontology?
 						if (!defined $target) {
 							$target = OBO::Core::Term->new(); # if not, create a new term
 							$target->id($2);
@@ -269,15 +401,24 @@ sub work {
 				}
 				# Check for required fields: id
 				if (defined $term && !defined $term->id()) {
-					die "There is no id for the term:\n", $chunk;
+					die "No ID found in term:\n", $chunk;
 				}
-				$file_line_number ++;				
+				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
+					die "Missing 'intersection_of' tag in term:\n", $chunk;
+				}				
+				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Typedef\]/) { # treat [Typedef]
 				my $type;
 				my $only_one_name_tag_per_entry = 0;
+				
+				#
+				# to check we have at least two intersection_of tags
+				#
+				$intersection_of_counter = 0;
+				
 				foreach my $line (@entry) {
 					if ($line =~ /^id:\s*(.*)/) { # get the type id
-						$type = $result->get_relationship_type_by_id($1); # does this relationship type is already in the ontology?
+						$type = $result->get_relationship_type_by_id($1); # Is this relationship type already in the ontology?
 						if (!defined $type){
 							$type = OBO::Core::RelationshipType->new();  # if not, create a new type
 							$type->id($1);
@@ -334,7 +475,7 @@ sub work {
 						my $rel = OBO::Core::Relationship->new();
 						$rel->id($type->id().'_is_a_'.$r);
 						$rel->type('is_a');
-						my $target = $result->get_relationship_type_by_id($r); # does this relationship type is already in the ontology?
+						my $target = $result->get_relationship_type_by_id($r); # Is this relationship type already in the ontology?
 						if (!defined $target) {
 							$target = OBO::Core::RelationshipType->new(); # if not, create a new relationship type
 							$target->id($r);
@@ -344,6 +485,8 @@ sub work {
 						$result->add_relationship($rel);
 					} elsif ($line =~ /^is_metadata_tag:$r_true_false/) {
 						$type->is_metadata_tag(($1 eq 'true')?1:0);
+					} elsif ($line =~ /^is_class_level:$r_true_false/) {
+						$type->is_class_level(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"$r_dbxref/) {
 						$type->synonym_as_string($2, $3, uc($1));
 					} elsif ($line =~ /^synonym:\s*\"(.*)\"$syn_scope(\s+(\w+))?$r_dbxref/) {
@@ -366,9 +509,23 @@ sub work {
 						$type->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
 						$type->xref_set_as_string($1);
-					} elsif ($line =~ /^intersection_of:\s*(.*)/) {
-						# TODO wait until the OBO spec 1.4 be released
-						$type->intersection_of($1);
+					} elsif ($line =~ /^intersection_of:\s*([\w\/]+)?$r_db_acc$r_comments/) {
+						# TODO Improve the 'intersection_of' treatment
+						my $rel = OBO::Core::Relationship->new();
+						my $r   = $1 || 'nil';
+						my $id  = $type->id().'_'.$r.'_'.$2; 
+						$id     =~ s/\s+/_/g;
+						$rel->id($id);
+						$rel->type($r);
+						my $target = $result->get_term_by_id($2); # Is this term already in the ontology?
+						if (!defined $target) {
+							$target = OBO::Core::Term->new(); # if not, create a new term
+							$target->id($2);
+							$result->add_term($target);
+						}
+						$rel->head($target);
+						$type->intersection_of($rel);
+						$intersection_of_counter++;
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
 						# TODO wait until the OBO spec 1.4 be released
 						# Distinguish between terms and relations?
@@ -378,7 +535,7 @@ sub work {
 						$type->disjoint_from($1); # We are assuming that the other relation type exists or will exist; otherwise , we have to create it like in the is_a section.
 					} elsif ($line =~ /^inverse_of:\s*([:\w]+)$r_comments/) { # e.g. inverse_of: has_participant ! has participant
 						my $inv_id   = $1;
-						my $inv_type = $result->get_relationship_type_by_id($inv_id); # does this INVERSE relationship type is already in the ontology?
+						my $inv_type = $result->get_relationship_type_by_id($inv_id); # Is this INVERSE relationship type already in the ontology?
 						if (!defined $inv_type){
 							$inv_type = OBO::Core::RelationshipType->new();  # if not, create a new type
 							$inv_type->id($inv_id);
@@ -391,13 +548,13 @@ sub work {
 					} elsif ($line =~ /^holds_over_chain:\s*([:\w]+)\s*([:\w]+)$r_comments/) { # R <- R1.R2 
 						my $r1_id   = $1;
 						my $r2_id   = $2;
-						my $r1_type = $result->get_relationship_type_by_id($r1_id); # does this relationship type is already in the ontology?
+						my $r1_type = $result->get_relationship_type_by_id($r1_id); # Is this relationship type already in the ontology?
 						if (!defined $r1_type){
 							$r1_type = OBO::Core::RelationshipType->new();  # if not, create a new type
 							$r1_type->id($r1_id);
 							$result->add_relationship_type($r1_type);       # add it to the ontology
 						}
-						my $r2_type = $result->get_relationship_type_by_id($r2_id); # does this relationship type is already in the ontology?
+						my $r2_type = $result->get_relationship_type_by_id($r2_id); # Is this relationship type already in the ontology?
 						if (!defined $r2_type){
 							$r2_type = OBO::Core::RelationshipType->new();  # if not, create a new type
 							$r2_type->id($r2_id);
@@ -434,19 +591,202 @@ sub work {
 						warn "A format problem has been detected (and ignored) in the following entry:\n\n\t", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'\n";
 					}	
 				}
-				# Check for required fields: id and name
+				# Check for required fields: id
 				if (!defined $type->id()) {
-					die "There is no id for the type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
+					die "No ID found in type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
+				}
+				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
+					die "Missing 'intersection_of' tag in relationship type:\n", $chunk;
 				}
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Instance\]/) { # treat [Instance]
-				# TODO "Intances are ignored by ONTO-PERL (they will be supported in the future).";
+				my $instance;
+				
+				#
+				# to check we have at least two intersection_of tags
+				#
+				# TODO do INSTANCES have this tag?
+				$intersection_of_counter = 0;
+				
+				$file_line_number++;
+				
+				my $only_one_id_tag_per_entry   = 0;
+				my $only_one_name_tag_per_entry = 0;
+				
+				foreach my $line (@entry) {
+					$file_line_number++;
+					if ($line =~ /^id:\s*(\S+)/) { # get the instance id
+						if ($line =~ /^id:$r_db_acc/) { # Does it follow the "convention"?
+							die "The instance with id '", $1, "' has a duplicated 'id' tag in the file '", $self->{OBO_FILE} if ($only_one_id_tag_per_entry);
+							$instance = $result->get_instance_by_id($1); # does this instance is already in the ontology?
+							if (!defined $instance){
+								$instance = OBO::Core::Instance->new();  # if not, create a new instance
+								$instance->id($1);
+								$result->add_instance($instance);        # add it to the ontology
+								$only_one_id_tag_per_entry = 1;
+							} elsif (defined $instance->def()->text() && $instance->def()->text() ne '') {
+								# The instance is already in the ontology since it has a definition! (maybe empty?)
+								die "The instance with id '", $1, "' is duplicated in the OBO file.";
+							}
+						} else {
+							die "The instance with id '", $1, "' does NOT follow the ID convention: 'IDSPACE:UNIQUE_IDENTIFIER', e.g. GO:1234567";
+						}						
+					} elsif ($line =~ /^is_anonymous:$r_true_false/) {
+						$instance->is_anonymous(($1 eq 'true')?1:0);
+					} elsif ($line =~ /^name:\s*(.*)/) {
+						die "The instance with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
+						if (!defined $1) {
+							warn "The instance with id '", $instance->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
+						} else {
+							$instance->name($1);
+							$only_one_name_tag_per_entry = 1;
+						}
+					} elsif ($line =~ /^namespace:\s*(.*)/) {
+						$instance->namespace($1); # it is a Set
+					} elsif ($line =~ /^alt_id:$r_db_acc/) {
+						# TODO do INSTANCES have this tag?
+						$instance->alt_id($1);
+					} elsif ($line =~ /^def:\s*\"(.*)\"$r_dbxref/) { # fill the definition
+						my $def = OBO::Core::Def->new();
+						$def->text($1);
+						$def->dbxref_set_as_string($2);
+						$instance->def($def);
+					} elsif ($line =~ /^comment:\s*(.*)/) {
+						$instance->comment($1);
+					} elsif ($line =~ /^subset:\s*(\S+)/) {
+						my $ss = $1;
+						if ($result->subset_def_map()->contains_key($ss)) {
+							$instance->subset($ss); # it is a Set (i.e. added to a Set)
+						} else {
+							die "The subset '", $ss, "' is not defined in the header! Check your OBO file line '", $file_line_number, "'";
+						}
+					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"$r_dbxref/) { # OBO spec 1.1
+						$instance->synonym_as_string($2, $3, uc($1));
+					} elsif ($line =~ /^synonym:\s*\"(.*)\"$syn_scope(\s+([-\w]+))?$r_dbxref/) {
+						my $scope = (defined $3)?$3:'RELATED';
+						# As of OBO flat file spec v1.2, we use:
+						# synonym: "endomitosis" EXACT []
+						if (defined $5) {
+							my $found = 0; # check that the 'synonym type name' was defined in the header!
+							foreach my $st ($result->synonym_type_def_set()->get_set()) {
+								# Adapt the scope if necessary to the one defined in the header!
+								if ($st->name() eq $5) {
+									$found = 1;
+									my $default_scope = $st->scope();
+									$scope = $default_scope if (defined $default_scope);
+									last;
+								}
+							}
+							die 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+						}
+						$instance->synonym_as_string($1, $6, $scope, $5);
+					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unknown:\s*(.*)/) {
+						$instance->xref_set_as_string($1);
+					} elsif ($line =~ /^instance_of:$r_db_acc$r_comments/) { # The comment is ignored here but retrieved later internally
+						my $t = $result->get_term_by_id($1); # Is this instance already in the ontology?
+						if (!defined $t) {
+							$t = OBO::Core::Term->new(); # if not, create a new Term
+							$t->id($1);
+							$result->add_term($t);
+						}
+						$instance->instance_of($t);
+					} elsif ($line =~ /^intersection_of:\s*([\w\/]+)?$r_db_acc$r_comments/) {
+						# TODO Improve the 'intersection_of' treatment
+						# TODO do INSTANCES have this tag?
+						my $rel = OBO::Core::Relationship->new();
+						my $r   = $1 || 'nil';
+						my $id  = $instance->id().'_'.$r.'_'.$2; 
+						$id     =~ s/\s+/_/g;
+						$rel->id($id);
+						$rel->type($r);
+						my $target = $result->get_instance_by_id($2); # Is this instance already in the ontology?
+						if (!defined $target) {
+							$target = OBO::Core::Instance->new(); # if not, create a new instance
+							$target->id($2);
+							$result->add_instance($target);
+						}
+						$rel->head($target);
+						$instance->intersection_of($rel);
+						$intersection_of_counter++;
+					} elsif ($line =~ /^union_of:\s*(.*)/) {
+						# TODO wait until the OBO spec 1.4 be released
+						# Distinguish between instances and relations?
+						# Check there are at least 2 elements in the 'union_of' set
+						# TODO do INSTANCES have this tag?
+						$instance->union_of($1);
+					} elsif ($line =~ /^disjoint_from:$r_db_acc$r_comments/) {
+						# TODO do INSTANCES have this tag?
+						$instance->disjoint_from($1); # We are assuming that the other instance exists or will exist; otherwise , we have to create it like in the is_a section.
+					} elsif ($line =~ /^relationship:\s*([\w\/]+)$r_db_acc$r_comments/) {
+						# TODO do INSTANCES have this tag?
+						my $rel = OBO::Core::Relationship->new();
+						my $id  = $instance->id().'_'.$1.'_'.$2; 
+						$id     =~ s/\s+/_/g;
+						$rel->id($id);
+						$rel->type($1);
+						my $target = $result->get_instance_by_id($2); # Is this instance already in the ontology?
+						if (!defined $target) {
+							$target = OBO::Core::Instance->new(); # if not, create a new instance
+							$target->id($2);
+							$result->add_instance($target);
+						}
+						$rel->link($instance, $target);
+						$result->add_relationship($rel);
+					} elsif ($line =~ /^created_by:\s*(.*)/) {
+						$instance->created_by($1);
+					} elsif ($line =~ /^creation_date:\s*(.*)/) {
+						$instance->creation_date($1);     # TODO Check that the date follows the ISO 8601 format
+					} elsif ($line =~ /^modified_by:\s*(.*)/) {
+						$instance->modified_by($1);
+					} elsif ($line =~ /^modification_date:\s*(.*)/) {
+						$instance->modification_date($1); # TODO Check that the date follows the ISO 8601 format
+					} elsif ($line =~ /^is_obsolete:$r_true_false/) {
+						$instance->is_obsolete(($1 eq 'true')?1:0);
+					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
+						$instance->replaced_by($1);
+					} elsif ($line =~ /^consider:\s*(.*)/) {
+						$instance->consider($1);
+					} elsif ($line =~ /^builtin:$r_true_false/) {
+						# TODO do INSTANCES have this tag?
+						$instance->builtin(($1 eq 'true')?1:0);
+					} elsif ($line =~ /^property_value:\s*(.*)/) {
+						# TODO implement this once the OBO spec is more mature...
+						#my $rel = OBO::Core::Relationship->new();
+						#my $id  = $instance->id().'_'.$1.'_'.$2; 
+						#$id     =~ s/\s+/_/g;
+						#$rel->id($id);
+						#$rel->type($1);
+						#my $target = $result->get_instance_by_id($2); # Is this instance already in the ontology?
+						#if (!defined $target) {
+						#	$target = OBO::Core::Instance->new(); # if not, create a new instance
+						#	$target->id($2);
+						#	$result->add_instance($target);
+						#}
+						#$rel->link($instance, $target);
+						#$result->add_relationship($rel);
+					} elsif ($line =~ /^!/) {
+						# skip line
+					} else {					
+						warn 'A format problem has been detected (and ignored) in line: ', $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
+					}
+				}
+				# Check for required fields: id
+				if (defined $instance && !defined $instance->id()) {
+					die "No ID found in instance:\n", $chunk;
+				}
+				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2)
+					 # TODO do INSTANCES have this tag?
+					die "Missing 'intersection_of' tag in instance:\n", $chunk;
+				}		
+				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Annotation\]/) { # treat [Annotation]
-				# TODO "Annotations are ignored by ONTO-PERL (they will be supported in the future).";
+				# TODO "Annotations are ignored by ONTO-PERL (they might be supported in the future).";
 			}
 		}
 		
+		#
 		# Work-around for some ontologies like GO: Explicitly add the implicit 'is_a' if missing
+		#
 		if (!$result->has_relationship_type_id('is_a')){
 			my $type = OBO::Core::RelationshipType->new();  # if not, create a new type
 			$type->id('is_a');
@@ -455,11 +795,11 @@ sub work {
 		}
 		
 		$/ = "\n";
-		
+
+		return $result;
 	} else { # if no header (chunk[0])
 		die "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
 	}
-	return $result;
 }
 
 1;

@@ -14,35 +14,39 @@ use OBO::Util::IDspaceSet;
 use OBO::Util::SubsetDefMap;
 use OBO::Util::SynonymTypeDefSet;
 use OBO::Util::TermSet;
+use OBO::Util::InstanceSet;
 use OBO::Util::RelationshipTypeSet;
 
 use strict;
 use warnings;
 
-our $VERSION = '1.32';
+our $VERSION = '1.33';
 
 sub new {
-	my $class                      = shift;
-	my $self                       = {};
+	my $class  = shift;
+	my $self   = {};
         
-	$self->{ID}                    = undef;                          # not required, (1)
-	$self->{NAME}                  = undef;                          # not required, (0..1)
-	$self->{IMPORTS}               = OBO::Util::Set->new();          # set (0..N)
-	$self->{IDSPACES_SET}          = OBO::Util::IDspaceSet->new();   # string (0..N)
-	$self->{DEFAULT_NAMESPACE}     = undef;                          # string (0..1)
-	$self->{DATA_VERSION}          = undef;                          # string (0..1)
-	$self->{DATE}                  = undef;                          # (1) The current date in dd:MM:yyyy HH:mm format
-	$self->{SAVED_BY}              = undef;                          # string (0..1)
-	$self->{REMARKS}               = OBO::Util::Set->new();          # set (0..N)
-	$self->{SUBSETDEF_MAP}         = OBO::Util::SubsetDefMap->new(); # map of SubsetDef's (0..N); A subset is a view over an ontology
-	$self->{SYNONYM_TYPE_DEF_SET}  = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
+	$self->{ID}                        = undef;                          # not required, (1)
+	$self->{NAME}                      = undef;                          # not required, (0..1)
+	$self->{IMPORTS}                   = OBO::Util::Set->new();          # set (0..N)
+	$self->{TREAT_XREFS_AS_EQUIVALENT} = OBO::Util::Set->new();          # set (0..N)
+	$self->{IDSPACES_SET}              = OBO::Util::IDspaceSet->new();   # string (0..N)
+	$self->{DEFAULT_NAMESPACE}         = undef;                          # string (0..1)
+	$self->{DATA_VERSION}              = undef;                          # string (0..1)
+	$self->{DATE}                      = undef;                          # (1) The current date in dd:MM:yyyy HH:mm format
+	$self->{SAVED_BY}                  = undef;                          # string (0..1)
+	$self->{REMARKS}                   = OBO::Util::Set->new();          # set (0..N)
+	$self->{SUBSETDEF_MAP}             = OBO::Util::SubsetDefMap->new(); # map of SubsetDef's (0..N); A subset is a view over an ontology
+	$self->{SYNONYM_TYPE_DEF_SET}      = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
         
-	$self->{TERMS}                 = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..N)
-	$self->{RELATIONSHIP_TYPES}    = {}; # map: relationship_type_id(string) vs. relationship_type(OBO::Core::RelationshipType) (0..N)
-	$self->{RELATIONSHIPS}         = {}; # (0..N)
+	$self->{TERMS}                     = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..N)
+	$self->{INSTANCES}                 = {}; # map: instance_id(string) vs. instance(OBO::Core::Instance)  (0..N)
+	$self->{RELATIONSHIP_TYPES}        = {}; # map: relationship_type_id(string) vs. relationship_type(OBO::Core::RelationshipType) (0..N)
+	$self->{RELATIONSHIPS}             = {}; # (0..N)
 	
-	#$self->{TERMS_SET}             = OBO::Util::TermSet->new(); # Terms (0..n) # TODO enable the terms_set
-	#$self->{RELATIONSHIP_SET}      = OBO::Util::RelationshipSet->new();# TODO Implement RELATIONSHIP_SET
+	#$self->{TERMS_SET}                 = OBO::Util::TermSet->new();          # Terms (0..n) # TODO enable the terms_set
+	#$self->{INSTANCES_SET}             = OBO::Util::TermSet->new();          # Instances (0..n) # TODO enable the instances_set
+	#$self->{RELATIONSHIP_SET}          = OBO::Util::RelationshipSet->new();  # TODO Implement RELATIONSHIP_SET
 		
 	$self->{TARGET_RELATIONSHIPS}        = {}; # (0..N)
 	$self->{SOURCE_RELATIONSHIPS}        = {}; # (0..N)
@@ -99,6 +103,25 @@ sub imports {
 		$self->{IMPORTS}->add($_[0]);
 	}
 	return $self->{IMPORTS};
+}
+
+=head2 treat_xrefs_as_equivalent
+
+  Usage    - $onto->treat_xrefs_as_equivalent() or $onto->treat_xrefs_as_equivalent($xref1, $xref2, $xref3, ...)
+  Returns  - a set (OBO::Util::Set) of ontology id spaces
+  Args     - an ontology ID space(s) (string) 
+  Function - gets/sets the id spaces(s) of the ontologies that their xrefs are treated as equivalent
+  
+=cut
+
+sub treat_xrefs_as_equivalent {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{TREAT_XREFS_AS_EQUIVALENT}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{TREAT_XREFS_AS_EQUIVALENT}->add($_[0]);
+	}
+	return $self->{TREAT_XREFS_AS_EQUIVALENT};
 }
 
 =head2 date
@@ -266,6 +289,7 @@ sub synonym_type_def_set {
   Returns  - the just added term (OBO::Core::Term)
   Args     - the term (OBO::Core::Term) to be added. The ID of the term to be added must have already been defined.
   Function - adds a term to this ontology
+  Remark   - adding a term to an ontology does not mean adding its instances
   
 =cut
 
@@ -282,6 +306,31 @@ sub add_term {
 		}
 	} else {
     	die 'Missing term.';
+    }
+}
+
+=head2 add_instance
+
+  Usage    - $ontology->add_instance($instance)
+  Returns  - the just added instance (OBO::Core::Instance)
+  Args     - the instance (OBO::Core::Instance) to be added. The ID of the instance to be added must have already been defined.
+  Function - adds a instance to this ontology
+  
+=cut
+
+sub add_instance {
+	my ($self, $instance) = @_;
+	if ($instance) {
+		my $instance_id = $instance->id();
+		if ($instance_id) {
+			$self->{INSTANCES}->{$instance_id} = $instance;
+			#$self->{INSTANCES_SET}->add($instance);
+			return $instance;
+		} else {
+			die 'A instance to be added to this ontology must have an ID.';
+		}
+	} else {
+    	die 'Missing instance.';
     }
 }
 
@@ -311,6 +360,35 @@ sub add_term_as_string {
 		}
     } else {
     	die 'To add a term, you need to provide both a term ID and a term name.';
+    }
+}
+
+=head2 add_instance_as_string
+
+  Usage    - $ontology->add_instance_as_string($instance_id, $instance_name)
+  Returns  - the just added instance (OBO::Core::Instance)
+  Args     - the instance id (string) and the instance name (string) of instance to be added
+  Function - adds a instance to this ontology
+  
+=cut
+
+sub add_instance_as_string {
+    my $self = shift;
+    if (@_) {
+		my $instance_id = shift;
+		if (!$self->has_instance_id($instance_id)){
+			my $instance_name = shift;
+			$instance_id || die 'A instance to be added to this ontology must have an ID.';
+			my $new_instance = OBO::Core::Instance->new();
+			$new_instance->id($instance_id);
+			$new_instance->name($instance_name);
+			$self->add_instance($new_instance);
+			return $new_instance;
+		} else {
+			warn "The instance you tried to add ($instance_id) is already in the ontology.\n";
+		}
+    } else {
+    	die 'To add a instance, you need to provide both a instance ID and a instance name.';
     }
 }
 
@@ -349,12 +427,12 @@ sub add_relationship_type_as_string {
     my $self = shift;
     if (@_) {
 		my $relationship_type_id = shift;
+		
+		$relationship_type_id || die 'A relationship type to be added to this ontology must have an ID';
+		
 		if (!$self->has_relationship_type_id($relationship_type_id)){
 			my $relationship_type_name = shift;
-	    
-			$relationship_type_id   || die 'A relationship type to be added to this ontology must have an ID';
-	
-			my $new_relationship_type = OBO::Core::RelationshipType->new();
+			my $new_relationship_type  = OBO::Core::RelationshipType->new();
 			$new_relationship_type->id($relationship_type_id);
 			$new_relationship_type->name($relationship_type_name);
 			$self->add_relationship_type($new_relationship_type);
@@ -390,6 +468,29 @@ sub delete_term {
     }
 }
 
+=head2 delete_instance
+
+  Usage    - $ontology->delete_instance($instance)
+  Returns  - none
+  Args     - the instance (OBO::Core::Instance) to be deleted
+  Function - deletes a instance from this ontology
+  
+=cut
+
+sub delete_instance {
+    my ($self, $instance) = @_;
+    if ($instance) {    
+		$instance->id || die 'The instance to be deleted from this ontology does not have an ID.';
+    
+		my $id = $instance->id;
+		if (defined($id) && defined($self->{INSTANCES}->{$id})) {
+			delete $self->{INSTANCES}->{$id};
+			#$self->{INSTANCES_SET}->remove($instance);
+		}
+		# TODO Delete the relationships: to its parents and children!
+    }
+}
+
 =head2 has_term
 
   Usage    - print $ontology->has_term($term)
@@ -406,6 +507,22 @@ sub has_term {
 	#$result = 1 if (defined($id) && defined($self->{TERMS}->{$id}) && $self->{TERMS_SET}->contains($term));
 }
 
+=head2 has_instance
+
+  Usage    - print $ontology->has_instance($instance)
+  Returns  - true or false
+  Args     - the instance (OBO::Core::Instance) to be tested
+  Function - checks if the given instance belongs to this ontology
+  
+=cut
+
+sub has_instance {
+	my ($self, $instance) = @_;
+	return (defined $instance && defined($self->{INSTANCES}->{$instance->id()}));
+	# TODO Check the INSTANCES_SET
+	#$result = 1 if (defined($id) && defined($self->{INSTANCES}->{$id}) && $self->{INSTANCES_SET}->contains($instance));
+}
+
 =head2 has_term_id
 
   Usage    - print $ontology->has_term_id($term_id)
@@ -420,6 +537,22 @@ sub has_term_id {
 	return (defined $term_id && defined($self->{TERMS}->{$term_id}));
 	# TODO Check the TERMS_SET
 	#return (defined $term_id && defined($self->{TERMS}->{$term_id}) && $self->{TERMS_SET}->contains($self->get_term_by_id($term_id)));
+}
+
+=head2 has_instance_id
+
+  Usage    - print $ontology->has_instance_id($instance_id)
+  Returns  - true or false
+  Args     - the instance id (string) to be tested
+  Function - checks if the given instance id corresponds to a instance held by this ontology
+  
+=cut
+
+sub has_instance_id {
+	my ($self, $instance_id) = @_;
+	return (defined $instance_id && defined($self->{INSTANCES}->{$instance_id}));
+	# TODO Check the INSTANCES_SET
+	#return (defined $instance_id && defined($self->{INSTANCES}->{$instance_id}) && $self->{INSTANCES_SET}->contains($self->get_instance_by_id($instance_id)));
 }
 
 =head2 has_relationship_type
@@ -506,6 +639,29 @@ sub get_terms {
     return \@terms;
 }
 
+=head2 get_instances
+
+  Usage    - $ontology->get_instances() or $ontology->get_instances("CCO:K.*")
+  Returns  - the instances held by this ontology as a reference to an array of OBO::Core::Instance's
+  Args     - none or the regular expression for filtering the instances by id's
+  Function - returns the instances held by this ontology
+  
+=cut
+
+sub get_instances {
+    my $self = shift;
+    my @instances;
+    if (@_) {
+		foreach my $instance (values(%{$self->{INSTANCES}})) {
+			push @instances, $instance if ($instance->id() =~ /$_[0]/);
+		}
+    } else {
+		@instances = values(%{$self->{INSTANCES}});
+		#@instances = $self->{INSTANCES_SET}->get_set(); # TODO This INSTANCES_SET was giving wrong results....
+    }
+    return \@instances;
+}
+
 =head2 get_terms_sorted_by_id
 
   Usage    - $ontology->get_terms_sorted_by_id() or $ontology->get_terms_sorted_by_id("CCO:I.*")
@@ -519,6 +675,21 @@ sub get_terms_sorted_by_id {
 	my $self = shift;
     my @sorted_terms = __sort_by_id(sub {shift}, @{$self->get_terms(@_)}); 
 	return \@sorted_terms;
+}
+
+=head2 get_instances_sorted_by_id
+
+  Usage    - $ontology->get_instances_sorted_by_id() or $ontology->get_instances_sorted_by_id("CCO:K.*")
+  Returns  - the instances held by this ontology as a reference to a sorted (by ID) array of OBO::Core::Instance's
+  Args     - none or the regular expression for filtering the instances by id's
+  Function - returns the instances held by this ontology, the instances are sorted by ID (using the Schwartzian Transform)
+  
+=cut
+
+sub get_instances_sorted_by_id {
+	my $self = shift;
+    my @sorted_instances = __sort_by_id(sub {shift}, @{$self->get_instances(@_)}); 
+	return \@sorted_instances;
 }
 
 =head2 get_terms_by_subnamespace
@@ -544,6 +715,29 @@ sub get_terms_by_subnamespace {
 	return $terms;
 }
 
+=head2 get_instances_by_subnamespace
+
+  Usage    - $ontology->get_instances_by_subnamespace() or $ontology->get_instances_by_subnamespace("K") or or $ontology->get_instances_by_subnamespace("Ka")
+  Returns  - the instances held by this ontology corresponding to the requested subnamespace as a reference to an array of OBO::Core::Instance's
+  Args     - none or the subnamespace: 'K', 'L', 'Ka', 'La' and so on.
+  Function - returns the instances held by this ontology corresponding to the requested subnamespace
+  
+=cut
+
+sub get_instances_by_subnamespace {
+	my $self = shift;
+	my $instances;
+	if (@_) {
+		my $is = $self->get_instances_idspace();
+		if (!defined $is) {
+			die 'The local ID space is not defined for this ontology.';
+		} else {
+			$instances = $self->get_instances($is.':'.$_[0]);
+		}
+	}
+	return $instances;
+}
+
 =head2 get_terms_by_subset
 
   Usage    - $ontology->get_terms_by_subset("GO_SLIM")
@@ -562,6 +756,26 @@ sub get_terms_by_subset {
 		}
 	}
 	return \@terms;
+}
+
+=head2 get_instances_by_subset
+
+  Usage    - $ontology->get_instances_by_subset("INSTANCES_SLIM")
+  Returns  - the instances held by this ontology belonging to the given subset as a reference to an array of OBO::Core::Instance's
+  Args     - a subset name
+  Function - returns the instances held by this ontology belonging to the requested subset
+  
+=cut
+
+sub get_instances_by_subset {
+	my ($self, $subset) = @_;
+	my @instances;
+	foreach my $instance (values(%{$self->{INSTANCES}})) {
+		foreach my $ss ($instance->subset()) {
+			push @instances, $instance if ($ss =~ /$subset/);
+		}
+	}
+	return \@instances;
 }
 
 =head2 get_relationships
@@ -597,9 +811,9 @@ sub get_relationship_types {
 =head2 get_relationship_types_sorted_by_id
 
   Usage    - $ontology->get_relationship_types_sorted_by_id()
-  Returns  - the terms held by this ontology as a reference to a sorted (by ID) array of OBO::Core::Term's
+  Returns  - the relationship types held by this ontology as a reference to a sorted (by ID) array of OBO::Core::Term's
   Args     - none or the regular expression for filtering the terms by id's
-  Function - returns the terms held by this ontology, the terms are sorted by ID (using the Schwartzian Transform)
+  Function - returns the relationship types held by this ontology, the relationship types are sorted by ID (using the Schwartzian Transform)
   
 =cut
 
@@ -611,9 +825,9 @@ sub get_relationship_types_sorted_by_id {
 
 =head2 get_relationships_by_source_term
 
-  Usage    - $ontology->get_relationships_by_source_term($source_term)
+  Usage    - $ontology->get_relationships_by_source_term($source_term, $rel_type)
   Returns  - a reference to an array with the relationship (OBO::Core::Relationship) connecting this term to its children
-  Args     - the term (OBO::Core::Term) for which its relationships will be found out
+  Args     - the term (OBO::Core::Term) for which its relationships will be found out; and optionally the relationship type name (e.g. 'participates_in') to filter out those types of relationships
   Function - returns the relationships associated to the given source term
   
 =cut
@@ -643,9 +857,9 @@ sub get_relationships_by_source_term {
 
 =head2 get_relationships_by_target_term
 
-  Usage    - $ontology->get_relationships_by_target_term($target_term)
+  Usage    - $ontology->get_relationships_by_target_term($target_term, $rel_type)
   Returns  - a reference to an array with the relationship (OBO::Core::Relationship) connecting this term to its parents
-  Args     - the term (OBO::Core::Term) for which its relationships will be found out
+  Args     - the term (OBO::Core::Term) for which its relationships will be found out; and optionally the relationship type name (e.g. 'participates_in') to filter out those types of relationships
   Function - returns the relationships associated to the given target term
   
 =cut
@@ -687,6 +901,20 @@ sub get_term_by_id {
 	return $self->{TERMS}->{$id};
 }
 
+=head2 get_instance_by_id
+
+  Usage    - $ontology->get_instance_by_id($id)
+  Returns  - the instance (OBO::Core::Instance) associated to the given ID
+  Args     - the instance's ID (string)
+  Function - returns the instance associated to the given ID
+  
+=cut
+
+sub get_instance_by_id {
+	my ($self, $id) = @_;
+	return $self->{INSTANCES}->{$id};
+}
+
 =head2 set_term_id
 
   Usage    - $ontology->set_term_id($term, $new_id)
@@ -712,6 +940,35 @@ sub set_term_id {
     		}
     	} else {
     		die 'The term for which you want to modify its ID (', $new_term_id, ') is not in the ontology';
+    	}
+    }
+}
+
+=head2 set_instance_id
+
+  Usage    - $ontology->set_instance_id($instance, $new_id)
+  Returns  - the instance (OBO::Core::Instance) with its new ID
+  Args     - the instance (OBO::Core::Instance) and its new instance's ID (string)
+  Function - sets a new instance ID for the given instance 
+  
+=cut
+
+sub set_instance_id {
+    my ($self, $instance, $new_instance_id) = @_;
+    if ($instance && $new_instance_id) {
+    	if ($self->has_instance($instance)) {
+    		if (!$self->has_instance_id($new_instance_id)) {
+				my $old_id = $instance->id();
+				$instance->id($new_instance_id);
+				$self->{INSTANCES}->{$new_instance_id} = $self->{INSTANCES}->{$old_id};
+				delete $self->{INSTANCES}->{$old_id};
+				# TODO Adapt the subtype relationship this instance: CCO:K0000001_is_a_CCO:P0000001  => CCO:K0000011_is_a_CCO:P0000001
+				return $self->{INSTANCES}->{$new_instance_id};
+    		} else {
+    			die 'The given new ID (', $new_instance_id, ') is already used by: ', $self->get_instance_by_id($new_instance_id)->name();
+    		}
+    	} else {
+    		die 'The instance for which you want to modify its ID (', $new_instance_id, ') is not in the ontology';
     	}
     }
 }
@@ -751,6 +1008,27 @@ sub get_term_by_name {
     return $result;
 }
 
+=head2 get_instance_by_name
+
+  Usage    - $ontology->get_instance_by_name($name)
+  Returns  - the instance (OBO::Core::Instance) associated to the given name
+  Args     - the instance's name (string)
+  Function - returns the instance associated to the given name
+  Remark   - the argument (string) is case sensitive
+  
+=cut
+
+sub get_instance_by_name {
+    my ($self, $name) = ($_[0], $_[1]);
+    my $result;
+    if ($name) {		
+		foreach my $instance (@{$self->get_instances()}) { # return the exact occurrence
+			$result = $instance, last if (defined ($instance->name()) && ($instance->name() eq $name)); 
+		}
+    }
+    return $result;
+}
+
 =head2 get_term_by_name_or_synonym
 
   Usage    - $ontology->get_term_by_name_or_synonym($name, $scope)
@@ -785,6 +1063,40 @@ sub get_term_by_name_or_synonym {
     }
 }
 
+=head2 get_instance_by_name_or_synonym
+
+  Usage    - $ontology->get_instance_by_name_or_synonym($name, $scope)
+  Returns  - the instance (OBO::Core::Instance) associated to the given name or synonym (given its scope, EXACT by default)
+  Args     - the instance's name or synonym (string) and optionally the scope of the synonym (EXACT by default)
+  Function - returns the instance associated to the given name or synonym (given its scope, EXACT by default)
+  Remark   - this function should be carefully used since among ontologies there may be homonyms at the level of the synonyms (e.g. locations)
+  Remark   - the argument (string) is case sensitive
+  
+=cut
+
+sub get_instance_by_name_or_synonym {
+    my ($self, $name_or_synonym, $scope) = ($_[0], $_[1], $_[2]);
+    my $result;
+    if ($name_or_synonym) {
+    	$scope = $scope || "EXACT";
+		foreach my $instance (@{$self->get_instances()}) { # return the exact occurrence
+			# Look up for the 'name'
+			my $t_name = $instance->name();
+			if (defined ($t_name) && (lc($t_name) eq $name_or_synonym)) {
+				return $instance;
+			}
+			# Look up for its synonyms (and optinal scope)
+			foreach my $syn ($instance->synonym_set()){
+				my $s_text = $syn->def()->text();
+				if (($scope eq "ANY"  && $s_text eq $name_or_synonym) || 
+					($syn->scope() eq $scope && $s_text eq $name_or_synonym)) {
+					return $instance;
+				}
+			}
+		}
+    }
+}
+
 =head2 get_terms_by_name
 
   Usage    - $ontology->get_terms_by_name($name)
@@ -807,6 +1119,33 @@ sub get_terms_by_name {
 
 		foreach my $term (@terms) { # return the all the occurrences
 			$result->add($term) if (defined ($term->name()) && lc($term->name()) =~ /$name/); 
+		}
+	}
+	return $result;
+}
+
+=head2 get_instances_by_name
+
+  Usage    - $ontology->get_instances_by_name($name)
+  Returns  - the instance set (OBO::Util::InstanceSet) with all the instances (OBO::Core::Instance) having $name in their names 
+  Args     - the instance name (string)
+  Function - returns the instances having $name in their names 
+  
+=cut
+
+sub get_instances_by_name {
+	my ($self, $name) = ($_[0], lc($_[1]));
+	my $result;
+	if ($name) {
+		$result   = OBO::Util::InstanceSet->new();
+		my @instances = @{$self->get_instances()};
+		
+		# NB. the following two lines are equivalent to the 'for' loop
+		#my @found_instances = grep {lc($_->name()) =~ /$name/} @instances;
+		#$result->add_all(@found_instances);
+
+		foreach my $instance (@instances) { # return the all the occurrences
+			$result->add($instance) if (defined ($instance->name()) && lc($instance->name()) =~ /$name/); 
 		}
 	}
 	return $result;
@@ -864,30 +1203,45 @@ sub get_relationship_type_by_name {
   Usage    - $ontology->add_relationship($relationship)
   Returns  - none
   Args     - the relationship (OBO::Core::Relationship) to be added between two existing terms or two relationship types
-  Function - adds a relationship between either two terms or two relationship types. If the terms or relationship types bound by this relationship are not yet in the ontology, they will be added
+  Function - adds a relationship between either two terms or two relationship types.
+  Remark   - If the terms or relationship types bound by this relationship are not yet in the ontology, they will be added
   
 =cut
 
 sub add_relationship {
 	my ($self, $relationship) = @_;
 
-	my $id = $relationship->id();
-	$id || die 'The relationship to be added to this ontology does not have an ID';
-	$self->{RELATIONSHIPS}->{$id} = $relationship;
+	my $rel_id   = $relationship->id();
+	my $rel_type = $relationship->type();
+	
+	$rel_id   || die 'The relationship to be added to this ontology does not have an ID';
+	$rel_type || die 'The relationship to be added to this ontology does not have an TYPE';
+	
+	$self->{RELATIONSHIPS}->{$rel_id} = $relationship;
     
 	#
 	# Are the target and source elements (term or relationship type) connected by $relationship already in this ontology? if not, add them.
 	#
-	my $target_element = $self->{RELATIONSHIPS}->{$id}->head();
-	my $source_element = $self->{RELATIONSHIPS}->{$id}->tail();
+	my $r              = $self->{RELATIONSHIPS}->{$rel_id};
+	my $target_element = $r->head();
+	my $source_element = $r->tail();
 	if (eval { $target_element->isa('OBO::Core::Term') } && eval { $source_element->isa('OBO::Core::Term') }) {
-		$self->has_term($target_element) || $self->add_term($target_element);	
-		$self->has_term($source_element) || $self->add_term($source_element);	
+		$self->has_term($target_element)              || $self->add_term($target_element);
+		$self->has_term($source_element)              || $self->add_term($source_element);
 	} elsif (eval { $target_element->isa('OBO::Core::RelationshipType') } && eval { $source_element->isa('OBO::Core::RelationshipType') }) {
 		$self->has_relationship_type($target_element) || $self->add_relationship_type($target_element);
 		$self->has_relationship_type($source_element) || $self->add_relationship_type($source_element);
 	} else {
-		die "An unrecognized object type (nor a Term, nor a RelationshipType) was found as part of the relationship with ID: '", $id, "'";
+		die "An unrecognized object type (nor a Term, nor a RelationshipType) was found as part of the relationship with ID: '", $rel_id, "'";
+	}
+	
+	#
+	# add the relationship type
+	#
+	if (!$self->has_relationship_type_id($rel_type) ){
+		my $new_rel_type = OBO::Core::RelationshipType->new();
+		$new_rel_type->id($rel_type);
+		$self->{RELATIONSHIP_TYPES}->{$rel_type} = $new_rel_type;
 	}
     
 	# for getting children and parents
@@ -908,6 +1262,41 @@ sub add_relationship {
 sub get_relationship_by_id {
 	my ($self, $id) = @_;
 	return $self->{RELATIONSHIPS}->{$id};
+}
+
+=head2 create_rel
+
+  Usage    - $ontology->create_rel->($tail, $type, $head)
+  Returns  - the OBO::Core::Ontology object
+  Args     - an OBO::Core::(Term|Relationship) object, a relationship type string (e.g. 'is_a'), and an OBO::Core::(Term|Relationship) object, 
+  Function - creates and adds a new relationship to this ontology
+  
+=cut
+
+sub create_rel (){
+	my $self = shift;
+	my($tail, $type, $head) = @_;
+	die "Not a valid relationship type: '", $type, "'" unless($self->{RELATIONSHIP_TYPES}->{$type});
+	if ($tail && $head) {
+		my $id = $tail->id().'_'.$type.'_'.$head->id();
+		if ($self->has_relationship_id($id)) {
+			#cluck 'The following rel ID already exists in the ontology: ', $id; # Implement a RelationshipSet?
+			
+			my $relationship = $self->get_relationship_by_id($id);
+			$self->{TARGET_RELATIONSHIPS}->{$head}->{$type}->{$tail}        = $relationship;
+			$self->{SOURCE_RELATIONSHIPS}->{$tail}->{$type}->{$head}        = $relationship;
+			$self->{TARGET_SOURCE_RELATIONSHIPS}->{$tail}->{$head}->{$type} = $relationship;
+		} else {
+			my $rel = OBO::Core::Relationship->new(); 
+			$rel->type($type);
+			$rel->link($tail, $head);
+			$rel->id($id);
+			$self->add_relationship($rel);
+		}
+	} else {
+		die 'To create a relationship, you must provide both a tail and a head object!';
+	}
+	return $self;
 }
 
 =head2 get_child_terms
@@ -1089,6 +1478,20 @@ sub get_number_of_terms {
 	return scalar values(%{$self->{TERMS}});
 }
 
+=head2 get_number_of_instances
+
+  Usage    - $ontology->get_number_of_instances()
+  Returns  - the number of instances held by this ontology
+  Args     - none
+  Function - returns the number of instances held by this ontology
+  
+=cut
+
+sub get_number_of_instances {
+	my $self = shift;
+	return scalar values(%{$self->{INSTANCES}});
+}
+
 =head2 get_number_of_relationships
 
   Usage    - $ontology->get_number_of_relationships()
@@ -1125,7 +1528,8 @@ sub get_number_of_relationship_types {
            - the output file handle (STDOUT by default), and
            - the error file handle (STDERR by default)
   Function - exports this ontology
-  Remark   - warning and errors are printed in STDERR
+  Remark   - warning and errors are printed to the STDERR
+  Remark   - you may use this method to check your OBO file syntax and/or to clean it up
   
 =cut
 
@@ -1142,9 +1546,12 @@ sub export {
 	}
     
 	if ($format eq 'obo') {
+		
+		#######################################################################
 		#
 		# preambule: OBO header tags
 		#
+		#######################################################################
 		print $output_file_handle "format-version: 1.4\n";
 		my $data_version = $self->data_version();
 		print $output_file_handle 'data-version:', $data_version, "\n" if ($data_version);
@@ -1185,7 +1592,16 @@ sub export {
 			print $output_file_handle 'remark: ', $remark, "\n";
 		}
 		
+		# treat-xrefs-as-equivalent
+		foreach my $id_space_xref_eq (sort {lc($a) cmp lc($b)} $self->treat_xrefs_as_equivalent()->get_set()) {
+			print $output_file_handle 'treat-xrefs-as-equivalent: ', $id_space_xref_eq, "\n";
+		}
+		
+		#######################################################################
+		#
 		# terms
+		#
+		#######################################################################
 		my @all_terms = @{$self->get_terms_sorted_by_id()};
 		foreach my $term (@all_terms) {
 			#
@@ -1253,7 +1669,7 @@ sub export {
 				if ($self->subset_def_map()->contains_key($sset_name)) {
 					print $output_file_handle "\nsubset: ", $sset_name;
 				} else {
-					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.\n";
 				}
 			}
 
@@ -1300,7 +1716,14 @@ sub export {
 			# intersection_of (at least 2 entries)
 			#
 			foreach my $tr ($term->intersection_of()) {
-				print $output_file_handle "\nintersection_of: ", $tr;
+				my $tr_head = $tr->head();
+				my $tr_type = $tr->type();
+				my $intersection_of_name = $tr_head->name();
+				my $intersection_of_txt  = "\nintersection_of: ";
+				$intersection_of_txt    .= $tr_type.' ' if ($tr_type ne 'nil');
+				$intersection_of_txt    .= $tr_head->id();
+				$intersection_of_txt    .= ' ! '.$intersection_of_name if (defined $intersection_of_name);
+				print $output_file_handle $intersection_of_txt;
 			}
 
 			#
@@ -1326,7 +1749,7 @@ sub export {
 			#
 			my %saw1;
 			my @sorted_rel_types = @{$self->get_relationship_types_sorted_by_id()};
-			foreach $rt (grep (!$saw1{$_}++, @sorted_rel_types)) { # use this foreach-line if there are duplicated rel's
+			foreach my $rt (grep (!$saw1{$_}++, @sorted_rel_types)) { # use this foreach-line if there are duplicated rel's
 				my $rt_id = $rt->id();
 				if ($rt_id ne 'is_a') { # is_a is printed above
 					my %saw2;
@@ -1384,7 +1807,207 @@ sub export {
 			#
 			print $output_file_handle "\n";
 		}
+
+		#######################################################################
+		#
+		# instances
+		#
+		#######################################################################
+		my @all_instances = @{$self->get_instances_sorted_by_id()};
+		foreach my $instance (@all_instances) {
+			#
+			# [Instance]
+			#
+			print $output_file_handle "\n[Instance]";
+	    	
+			#
+			# id
+			#
+			print $output_file_handle "\nid: ", $instance->id();
+	    	
+			#
+			# is_anonymous
+			#
+			print $output_file_handle "\nis_anonymous: true" if ($instance->is_anonymous());
+
+			#
+			# name
+			#
+			if (defined $instance->name()) { # from OBO 1.4, the name is not mandatory anymore
+				print $output_file_handle "\nname: ", $instance->name();
+			}
+
+			#
+			# namespace
+			#
+			foreach my $ns ($instance->namespace()) {
+				print $output_file_handle "\nnamespace: ", $ns;
+			}
+	    	
+			#
+			# alt_id
+			#
+			foreach my $alt_id ($instance->alt_id()->get_set()) {
+				print $output_file_handle "\nalt_id: ", $alt_id;
+			}
+	    	
+			#
+			# builtin
+			#
+			print $output_file_handle "\nbuiltin: true" if ($instance->builtin());
+
+			#
+			# comment
+			#
+			print $output_file_handle "\ncomment: ", $instance->comment() if (defined $instance->comment());
+		
+			#
+			# subset
+			#
+			foreach my $sset_name ($instance->subset()) {
+				if ($self->subset_def_map()->contains_key($sset_name)) {
+					print $output_file_handle "\nsubset: ", $sset_name;
+				} else {
+					print $error_file_handle "\nThe instance ", $instance->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.\n";
+				}
+			}
+
+			#
+			# synonym
+			#
+			my @sorted_defs = map { $_->[0] }        # restore original values
+				sort { $a->[1] cmp $b->[1] }         # sort
+				map  { [$_, lc($_->def()->text())] } # transform: value, sortkey
+				$instance->synonym_set();
+			foreach my $synonym (@sorted_defs) {
+				my $stn = $synonym->synonym_type_name();
+				if (defined $stn) {
+					print $output_file_handle "\nsynonym: \"".$synonym->def()->text().'" '.$synonym->scope().' '.$stn.' '.$synonym->def()->dbxref_set_as_string();
+				} else {
+					print $output_file_handle "\nsynonym: \"".$synonym->def()->text().'" '.$synonym->scope().' '.$synonym->def()->dbxref_set_as_string();
+				}
+			}
+	    	
+			#
+			# xref
+			#
+			my @sorted_xrefs = __sort_by(sub {lc(shift)}, sub { OBO::Core::Dbxref::as_string(shift) }, $instance->xref_set_as_string());
+			foreach my $xref (@sorted_xrefs) {
+				print $output_file_handle "\nxref: ", $xref->as_string();
+			}
+	    	
+			#
+			# instance_of
+			#
+			my $class = $instance->instance_of();
+			if ($class) {
+				my $instance_of_txt = "\ninstance_of: ".$class->id();
+				my $class_name      = $class->name();
+				$instance_of_txt   .= ' ! '.$class_name if (defined $class_name);
+				print $output_file_handle $instance_of_txt;
+			}
+
+			#
+			# intersection_of (at least 2 entries)
+			#
+			foreach my $tr ($instance->intersection_of()) {
+				my $tr_head = $tr->head();
+				my $tr_type = $tr->type();
+				my $intersection_of_name = $tr_head->name();
+				my $intersection_of_txt  = "\nintersection_of: ";
+				$intersection_of_txt    .= $tr_type.' ' if ($tr_type ne 'nil');
+				$intersection_of_txt    .= $tr_head->id();
+				$intersection_of_txt    .= ' ! '.$intersection_of_name if (defined $intersection_of_name);
+				print $output_file_handle $intersection_of_txt;
+			}
+
+			#
+			# union_of (at least 2 entries)
+			#
+			foreach my $tr ($instance->union_of()) {
+				print $output_file_handle "\nunion_of: ", $tr;
+			}		
+	    	
+			#
+			# disjoint_from
+			#
+			foreach my $disjoint_instance_id ($instance->disjoint_from()) {
+				my $disjoint_from_txt = "\ndisjoint_from: ".$disjoint_instance_id;
+				my $dt                = $self->get_instance_by_id($disjoint_instance_id);
+				my $dt_name           = $dt->name() if (defined $dt);
+				$disjoint_from_txt   .= ' ! '.$dt_name if (defined $dt_name);
+				print $output_file_handle $disjoint_from_txt;
+			}
+			
+			#
+			# relationship
+			#
+			my %saw1;
+			my @sorted_rel_types = @{$self->get_relationship_types_sorted_by_id()};
+			foreach my $rt (grep (!$saw1{$_}++, @sorted_rel_types)) { # use this foreach-line if there are duplicated rel's
+				my $rt_id = $rt->id();
+				if ($rt_id ne 'is_a') { # is_a is printed above
+					my %saw2;
+					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($instance, $rt)});
+					foreach my $head (grep (!$saw2{$_}++, @sorted_heads)) { # use this foreach-line if there are duplicated rel's
+						my $relationship_txt  = "\nrelationship: ".$rt_id.' '.$head->id();
+						my $relationship_name = $head->name();
+						$relationship_txt    .= ' ! '.$relationship_name if (defined $relationship_name);
+						print $output_file_handle $relationship_txt;
+					}
+				}
+			}
+
+			#
+			# created_by
+			#
+			print $output_file_handle "\ncreated_by: ", $instance->created_by() if (defined $instance->created_by());
+
+			#
+			# creation_date
+			#
+			print $output_file_handle "\ncreation_date: ", $instance->creation_date() if (defined $instance->creation_date());
+			
+			#
+			# modified_by
+			#
+			print $output_file_handle "\nmodified_by: ", $instance->modified_by() if (defined $instance->modified_by());
+
+			#
+			# modification_date
+			#
+			print $output_file_handle "\nmodification_date: ", $instance->modification_date() if (defined $instance->modification_date());
+			
+			#
+			# is_obsolete
+			#
+			print $output_file_handle "\nis_obsolete: true" if ($instance->is_obsolete());
+
+			#
+			# replaced_by
+			#
+			foreach my $replaced_by ($instance->replaced_by()->get_set()) {
+				print $output_file_handle "\nreplaced_by: ", $replaced_by;
+			}
+			
+			#
+			# consider
+			#
+			foreach my $consider ($instance->consider()->get_set()) {
+				print $output_file_handle "\nconsider: ", $consider;
+			}
+			
+			#
+			# end
+			#
+			print $output_file_handle "\n";
+		}
+
+		#######################################################################
+		#
 		# relationship types
+		#
+		#######################################################################
 		foreach my $relationship_type ( @{$self->get_relationship_types_sorted_by_id()} ) {
 			
 			print $output_file_handle "\n[Typedef]";
@@ -1443,7 +2066,7 @@ sub export {
 				if ($self->subset_def_map()->contains_key($sset_name)) {
 					print $output_file_handle "\nsubset: ", $sset_name;
 				} else {
-					print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+					print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.\n";
 				}
 			}
 			
@@ -1483,7 +2106,7 @@ sub export {
 			print $output_file_handle "\nis_transitive: true" if ($relationship_type->is_transitive() == 1);
 	    	
 			#
-			# is_a: TODO missing function to retieve the rel types
+			# is_a: TODO missing function to retrieve the rel types
 			#
 			my $rt = $self->get_relationship_type_by_id('is_a');
 			if (defined $rt)  {
@@ -1497,6 +2120,38 @@ sub export {
 					}
 					
 				}
+			}
+			
+			#
+			# intersection_of (at least 2 entries)
+			#
+			foreach my $tr ($relationship_type->intersection_of()) {
+				my $tr_head = $tr->head();
+				my $tr_type = $tr->type();
+				my $intersection_of_name = $tr_head->name();
+				my $intersection_of_txt  = "\nintersection_of: ";
+				$intersection_of_txt    .= $tr_type.' ' if ($tr_type ne 'nil');
+				$intersection_of_txt    .= $tr_head->id();
+				$intersection_of_txt    .= ' ! '.$intersection_of_name if (defined $intersection_of_name);
+				print $output_file_handle $intersection_of_txt;
+			}
+			
+			#
+			# union_of (at least 2 entries)
+			#
+			foreach my $tr ($relationship_type->union_of()) {
+				print $output_file_handle "\nunion_of: ", $tr;
+			}
+			
+			#
+			# disjoint_from
+			#
+			foreach my $disjoint_relationship_type_id ($relationship_type->disjoint_from()) {
+				my $disjoint_from_txt = "\ndisjoint_from: ".$disjoint_relationship_type_id;
+				my $dt                = $self->get_relationship_type_by_id($disjoint_relationship_type_id);
+				my $dt_name           = $dt->name() if (defined $dt);
+				$disjoint_from_txt   .= ' ! '.$dt_name if (defined $dt_name);
+				print $output_file_handle $disjoint_from_txt;
 			}
 	    	    	
 	    	#
@@ -1585,6 +2240,11 @@ sub export {
 			print $output_file_handle "\nis_metadata_tag: true" if ($relationship_type->is_metadata_tag() == 1);
 			
 			#
+	    	# is_class_level
+	    	#
+			print $output_file_handle "\nis_class_level: true" if ($relationship_type->is_class_level() == 1);
+			
+			#
 			# the end...
 			#
 			print $output_file_handle "\n";
@@ -1626,9 +2286,11 @@ sub export {
 		print $output_file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
 		print $output_file_handle "\txmlns:".$ns."=\"".$default_URL.$IS."#\">\n";
 
+		#######################################################################
 		#
 		# Terms
 		#
+		#######################################################################
 		my @all_terms = @{$self->get_terms_sorted_by_id()};
 		foreach my $term (@all_terms) {
 
@@ -1713,11 +2375,6 @@ sub export {
 				print $output_file_handle "\t\t\t</rdf:Description>\n";
 				print $output_file_handle "\t\t</",$ns,":Definition>\n";
 			}
-
-			foreach my $disjoint_term_id ($term->disjoint_from()) {
-				$disjoint_term_id =~ tr/:/_/;
-				print $output_file_handle "\t\t<",$ns,":disjoint_from rdf:resource=\"#", $disjoint_term_id, "\"/>\n";
-			}
 			
 			#
 			# comment
@@ -1733,40 +2390,7 @@ sub export {
 				if ($self->subset_def_map()->contains_key($sset_name)) {
 					print $output_file_handle "\t\t<",$ns,":subset>",$sset_name,"</",$ns,":subset>\n";
 				} else {
-					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
-				}
-			}
-
-			#
-			# is_a
-			#
-			my $rt = $self->get_relationship_type_by_id('is_a');
-			if (defined $rt)  {
-				print $output_file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc); # workaround for the rdf_tc!!!
-				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
-				my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
-				foreach my $head (grep (!$saw_is_a{$_}++, @sorted_heads)) {
-					my $head_id = $head->id();
-					$head_id =~ tr/:/_/;
-					print $output_file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
-				}
-			}
-			
-			#
-			# relationship
-			#
-			foreach $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
-				my $rt_name = $rt->name();
-				if ($rt_name && $rt_name ne 'is_a') { # is_a is printed above
-					my $rt_name_clean = _get_name_without_whitespaces($rt_name);
-					print $output_file_handle "\t\t<",$ns,":", $rt_name_clean, " rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc && $rt_name_clean eq 'part_of');  # workaround for the rdf_tc!!!
-					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
-					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
-					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
-						my $head_id = $head->id();
-						$head_id =~ tr/:/_/;
-						print $output_file_handle "\t\t<",$ns,":", $rt_name_clean," rdf:resource=\"#", $head_id, "\"/>\n";
-					}
+					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.\n";
 				}
 			}
 
@@ -1806,7 +2430,72 @@ sub export {
 				print $output_file_handle "\t\t\t</rdf:Description>\n";
 				print $output_file_handle "\t\t</",$ns,":xref>\n";
 			}
+
+			#
+			# is_a
+			#
+			my $rt = $self->get_relationship_type_by_id('is_a');
+			if (defined $rt)  {
+				print $output_file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc); # workaround for the rdf_tc!!!
+				my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
+				my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
+				foreach my $head (grep (!$saw_is_a{$_}++, @sorted_heads)) {
+					my $head_id = $head->id();
+					$head_id =~ tr/:/_/;
+					print $output_file_handle "\t\t<",$ns,":is_a rdf:resource=\"#", $head_id, "\"/>\n";
+				}
+			}
 			
+			#
+			# intersection_of (at least 2 entries)
+			#
+			foreach my $tr ($term->intersection_of()) {
+				# TODO Improve this export
+				my $tr_head = $tr->head();
+				my $tr_type = $tr->type();
+				my $tr_head_id = $tr_head->id();
+				$tr_head_id =~ tr/:/_/;
+
+				my $intersection_of_txt  = "";
+				$intersection_of_txt    .= $tr_type.' ' if ($tr_type ne 'nil');
+				$intersection_of_txt    .= $tr_head_id;
+				print $output_file_handle "\t\t<",$ns,":intersection_of rdf:resource=\"#", $intersection_of_txt, "\"/>\n";
+			}
+			
+			#
+			# union_of (at least 2 entries)
+			#
+			foreach my $union_of_term_id ($term->union_of()) {
+				$union_of_term_id =~ tr/:/_/;
+				print $output_file_handle "\t\t<",$ns,":union_of rdf:resource=\"#", $union_of_term_id, "\"/>\n";
+			}
+			
+			#
+			# disjoint_from
+			#
+			foreach my $disjoint_term_id ($term->disjoint_from()) {
+				$disjoint_term_id =~ tr/:/_/;
+				print $output_file_handle "\t\t<",$ns,":disjoint_from rdf:resource=\"#", $disjoint_term_id, "\"/>\n";
+			}
+
+			#
+			# relationship
+			#
+			foreach my $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
+				my $rt_name = $rt->name();
+				if ($rt_name && $rt_name ne 'is_a') { # is_a is printed above
+					my $rt_name_clean = _get_name_without_whitespaces($rt_name);
+					print $output_file_handle "\t\t<",$ns,":", $rt_name_clean, " rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc && $rt_name_clean eq 'part_of');  # workaround for the rdf_tc!!!
+					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
+					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
+						my $head_id = $head->id();
+						$head_id =~ tr/:/_/;
+						print $output_file_handle "\t\t<",$ns,":", $rt_name_clean," rdf:resource=\"#", $head_id, "\"/>\n";
+					}
+				}
+			}
+					
 			#
 			# created_by
 			#
@@ -1852,9 +2541,21 @@ sub export {
 			print $output_file_handle "\t</",$ns,":".$rdf_subnamespace.">\n";
 		}
 
+		#######################################################################
+		#
+		# instances
+		#
+		#######################################################################
+		my @all_instances = @{$self->get_instances_sorted_by_id()};
+		foreach my $instance (@all_instances) {
+			# TODO export instances
+		}
+		
+		#######################################################################
 		#
 		# relationship types
 		#
+		#######################################################################
 		unless ($skip) { # for integration processes and using biometarel for example.
 			my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
 			foreach my $relationship_type (@all_relationship_types) {
@@ -1892,7 +2593,6 @@ sub export {
 				if (defined $relationship_type->name()) {
 					print $output_file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($relationship_type->name())."</rdfs:label>\n";
 				} else {
-					warn "The relationship type with id: '", $relationship_type->id(), "' has no name!";
 					print $output_file_handle "\t</",$ns,":rel_type>\n"; # close the relationship type tag! (skipping the rest of the data, contact those guys)
 					next;
 				}
@@ -1931,7 +2631,7 @@ sub export {
 					if ($self->subset_def_map()->contains_key($sset_name)) {
 						print $output_file_handle "\t\t<",$ns,":subset>",$sset_name,"</",$ns,":subset>\n";
 					} else {
-						print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+						print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.\n";
 					}
 				}
 							
@@ -2005,11 +2705,42 @@ sub export {
 				}
 		    	
 		    	#
+				# intersection_of (at least 2 entries)
+				#
+				foreach my $tr ($relationship_type->intersection_of()) {
+					# TODO Improve this export
+					my $tr_head = $tr->head();
+					my $tr_type = $tr->type();
+					my $tr_head_id = $tr_head->id();
+					$tr_head_id =~ tr/:/_/;
+	
+					my $intersection_of_txt  = "";
+					$intersection_of_txt    .= $tr_type.' ' if ($tr_type ne 'nil');
+					$intersection_of_txt    .= $tr_head_id;
+					print $output_file_handle "\t\t<",$ns,":intersection_of rdf:resource=\"#", $intersection_of_txt, "\"/>\n";
+				}
+				
+		    	#
+				# union_of (at least 2 entries)
+				#
+				foreach my $union_of_rt_id ($relationship_type->union_of()) {
+					$union_of_rt_id =~ tr/:/_/;
+					print $output_file_handle "\t\t<",$ns,":union_of rdf:resource=\"#", $union_of_rt_id, "\"/>\n";
+				}
+			
+		    	#
+				# disjoint_from
+				#
+				foreach my $df ($relationship_type->disjoint_from()) {
+					print $output_file_handle "\t\t<",$ns,":disjoint_from rdf:resource=\"#", $df, "\"/>\n";
+				}
+
+		    	#
 				# inverse_of
 				#
 				my $ir = $relationship_type->inverse_of();
 				if (defined $ir) {
-					print $output_file_handle "\t\t<",$ns,':inverse_of>', $ir->id(), '</',$ns,":inverse_of>\n";
+					print $output_file_handle "\t\t<",$ns,":inverse_of rdf:resource=\"#", $ir->id(), "\"/>\n";
 				}
 				
 		    	#
@@ -2082,6 +2813,11 @@ sub export {
 	    		# is_metadata_tag
 	    		#
 		    	print $output_file_handle "\t\t<",$ns,':is_metadata_tag>true</',$ns,":is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
+		    	
+		    	#
+	    		# is_class_level
+	    		#
+		    	print $output_file_handle "\t\t<",$ns,':is_class_level>true</',$ns,":is_class_level>\n" if ($relationship_type->is_class_level() == 1);
 		    	
 				# 
 				# end of relationship type
@@ -2159,8 +2895,18 @@ sub export {
 			print $output_file_handle "\t\t<remark>", $remark, "</remark>\n";
 		}
 		
+		# treat-xrefs-as-equivalent
+		foreach my $id_space_xref_eq (sort {lc($a) cmp lc($b)} $self->treat_xrefs_as_equivalent()->get_set()) {
+			print $output_file_handle '\t\t<treat-xrefs-as-equivalent>', $id_space_xref_eq, "</treat-xrefs-as-equivalent>\n";
+		}
+		
 		print $output_file_handle "\t</header>\n\n";
 		
+		#######################################################################
+		#
+		# terms
+		#
+		#######################################################################
 		foreach my $term (@all_terms) {
 			#
 			# [Term]
@@ -2230,7 +2976,7 @@ sub export {
 				if ($self->subset_def_map()->contains_key($sset_name)) {
 					print $output_file_handle "\t\t<subset>", $sset_name, "</subset>\n";
 				} else {
-					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.\n";
 				}
 			}
 
@@ -2259,13 +3005,6 @@ sub export {
 			}
 						
 			#
-			# disjoint_from:
-			#
-			foreach my $disjoint_term_id ($term->disjoint_from()) {
-				print $output_file_handle "\t\t<disjoint_from>", $disjoint_term_id, "</disjoint_from>\n";
-			}
-			
-			#
 			# is_a
 			#
 			my $rt = $self->get_relationship_type_by_id('is_a');
@@ -2279,6 +3018,36 @@ sub export {
 				}
 			}
 			
+			#
+			# intersection_of (at least 2 entries)
+			#
+			foreach my $tr ($term->intersection_of()) {
+				# TODO Improve this export
+				my $tr_head = $tr->head();
+				my $tr_type = $tr->type();
+				my $tr_head_id = $tr_head->id();
+				$tr_head_id =~ tr/:/_/;
+					my $intersection_of_txt  = "";
+				$intersection_of_txt    .= $tr_type.' ' if ($tr_type ne 'nil');
+				$intersection_of_txt    .= $tr_head_id;
+				print $output_file_handle "\t\t<intersection_of>", $intersection_of_txt, "</intersection_of>\n";
+			}
+
+			#
+			# union_of (at least 2 entries)
+			#
+			foreach my $union_of_term_id ($term->union_of()) {
+				$union_of_term_id =~ tr/:/_/;
+				print $output_file_handle "\t\t<union_of>", $union_of_term_id, "</union_of>\n";
+			}
+				
+			#
+			# disjoint_from:
+			#
+			foreach my $disjoint_term_id ($term->disjoint_from()) {
+				print $output_file_handle "\t\t<disjoint_from>", $disjoint_term_id, "</disjoint_from>\n";
+			}
+						
 			#
 			# relationship
 			#
@@ -2340,7 +3109,21 @@ sub export {
 			print $output_file_handle "\t</term>\n\n";
 		}
 		
+		#######################################################################
+		#
+		# instances
+		#
+		#######################################################################
+		my @all_instances = @{$self->get_instances_sorted_by_id()};
+		foreach my $instance (@all_instances) {
+			# TODO export instances
+		}
+		
+		#######################################################################
+		#
 		# relationship types
+		#
+		#######################################################################
 		foreach my $relationship_type ( @{$self->get_relationship_types_sorted_by_id()} ) {
 			print $output_file_handle "\t<typedef>\n";
 			
@@ -2408,7 +3191,7 @@ sub export {
 				if ($self->subset_def_map()->contains_key($sset_name)) {
 					print $output_file_handle "\t\t<subset>",$sset_name,"</subset>\n";
 				} else {
-					print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+					print $error_file_handle "\nThe relationship type ", $relationship_type->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.\n";
 				}
 			}
 						
@@ -2465,6 +3248,37 @@ sub export {
 				foreach my $head (@heads) {
 					print $output_file_handle "\t\t<is_a>", $head->id(), "</is_a>\n";
 				}
+			}
+			
+			#
+			# intersection_of (at least 2 entries)
+			#
+			foreach my $tr ($relationship_type->intersection_of()) {
+				# TODO Improve this export
+				my $tr_head = $tr->head();
+				my $tr_type = $tr->type();
+				my $tr_head_id = $tr_head->id();
+				$tr_head_id =~ tr/:/_/;
+					my $intersection_of_txt  = "";
+				$intersection_of_txt    .= $tr_type.' ' if ($tr_type ne 'nil');
+				$intersection_of_txt    .= $tr_head_id;
+				print $output_file_handle "\t\t<intersection_of>", $intersection_of_txt, "</intersection_of>\n";
+			}
+			
+			#
+			# union_of (at least 2 entries)
+			#
+			foreach my $union_of_rt_id ($relationship_type->union_of()) {
+				$union_of_rt_id =~ tr/:/_/;
+				print $output_file_handle "\t\t<union_of>", $union_of_rt_id, "</union_of>\n";
+			}
+				
+			#
+			# disjoint_from
+			#
+			my $df = $relationship_type->disjoint_from();
+			if (defined $df) {
+				print $output_file_handle "\t\t<disjoint_from>", $df, "</disjoint_from>\n";
 			}
 			
 			#
@@ -2537,6 +3351,11 @@ sub export {
 			print $output_file_handle "\t\t<is_metadata_tag>true</is_metadata_tag>\n" if ($relationship_type->is_metadata_tag() == 1);
 			
 			#
+	    	# is_class_level
+	    	#
+			print $output_file_handle "\t\t<is_class_level>true</is_class_level>\n" if ($relationship_type->is_class_level() == 1);
+			
+			#
 			# end typedef
 			#
 			print $output_file_handle "\t</typedef>\n\n";
@@ -2599,6 +3418,11 @@ sub export {
 			print $output_file_handle "\t<rdfs:comment>", $remark, "</rdfs:comment>\n";
 		}
 		
+		# treat-xrefs-as-equivalent
+		foreach my $id_space_xref_eq (sort {lc($a) cmp lc($b)} $self->treat_xrefs_as_equivalent()->get_set()) {
+			print $output_file_handle '\t\t<oboInOwl:treat-xrefs-as-equivalent>', $id_space_xref_eq, "</oboInOwl:treat-xrefs-as-equivalent>\n";
+		}
+		
 		# subsetdef
 		foreach my $subsetdef (sort {lc($a->name()) cmp lc($b->name())} $self->subset_def_map()->values()) {
 			print $output_file_handle "\t<oboInOwl:hasSubset>\n";
@@ -2641,9 +3465,11 @@ sub export {
 		# Ontology end tag
 		print $output_file_handle "</owl:Ontology>\n\n";
 		
+		#######################################################################
 		#
 		# term
 		#
+		#######################################################################
 		my @all_terms = @{$self->get_terms_sorted_by_id()};
 		# visit the terms
 		foreach my $term (@all_terms){
@@ -2674,7 +3500,7 @@ sub export {
 				if ($self->subset_def_map()->contains_key($sset_name)) {
 					print $output_file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, &_get_name_without_whitespaces($sset_name), "\"/>\n";
 				} else {
-					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.";
+					print $error_file_handle "\nThe term ", $term->id(), " belongs to a non-defined subset ($sset_name).\nYou should add the missing subset definition.\n";
 				}
 			}
 			
@@ -2770,39 +3596,6 @@ sub export {
 #				#		print $output_file_handle "\t<owl:disjointWith rdf:resource=\"#", $disjoint, "\"/>\n";
 #				#	}
 			}
-		
-			#	
-			# relationships:
-			#
-			foreach $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
-				if ($rt->name() ne 'is_a') { # is_a is printed above
-					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
-					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
-					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
-						print $output_file_handle "\t<rdfs:subClassOf>\n";
-						print $output_file_handle "\t\t<owl:Restriction>\n";
-						print $output_file_handle "\t\t\t<owl:onProperty>\n"; 
-						print $output_file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $rt->name(), "\"/>\n";
-						print $output_file_handle "\t\t\t</owl:onProperty>\n";
-						print $output_file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
-						print $output_file_handle "\t\t</owl:Restriction>\n";
-						print $output_file_handle "\t</rdfs:subClassOf>\n";
-					}
-				}
-			}
-
-			#
-			# disjoint_from:
-			#
-			foreach my $disjoint_term_id ($term->disjoint_from()) {
-				print $output_file_handle "\t<owl:disjointWith rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($disjoint_term_id), "\"/>\n";
-			}
-
-			#
-			# obsolete
-			#
-			print $output_file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboInOwlUrl, "ObsoleteClass\"/>\n" if ($term->is_obsolete());
-
 			#
 			# intersection_of
 			#
@@ -2834,7 +3627,7 @@ sub export {
 				print $output_file_handle "\t\t</owl:Class>\n";
 				print $output_file_handle "\t</owl:equivalentClass>\n";
 			}
-
+			
 			#
 			# union_of
 			#
@@ -2853,6 +3646,38 @@ sub export {
 				print $output_file_handle "\t</owl:equivalentClass>\n";
 			}
 			
+			#
+			# disjoint_from:
+			#
+			foreach my $disjoint_term_id ($term->disjoint_from()) {
+				print $output_file_handle "\t<owl:disjointWith rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($disjoint_term_id), "\"/>\n";
+			}
+					
+			#	
+			# relationships:
+			#
+			foreach $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
+				if ($rt->name() ne 'is_a') { # is_a is printed above
+					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
+					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
+					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
+						print $output_file_handle "\t<rdfs:subClassOf>\n";
+						print $output_file_handle "\t\t<owl:Restriction>\n";
+						print $output_file_handle "\t\t\t<owl:onProperty>\n"; 
+						print $output_file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $rt->name(), "\"/>\n";
+						print $output_file_handle "\t\t\t</owl:onProperty>\n";
+						print $output_file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
+						print $output_file_handle "\t\t</owl:Restriction>\n";
+						print $output_file_handle "\t</rdfs:subClassOf>\n";
+					}
+				}
+			}
+
+			#
+			# obsolete
+			#
+			print $output_file_handle "\t<rdfs:subClassOf rdf:resource=\"", $oboInOwlUrl, "ObsoleteClass\"/>\n" if ($term->is_obsolete());
+
 			#
 			# builtin:
 			#
@@ -2982,7 +3807,8 @@ sub export {
 			#
 			print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#TransitiveProperty\"/>\n" if ($relationship_type->is_transitive());
 			print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#SymmetricProperty\"/>\n" if ($relationship_type->is_symmetric()); # No cases so far
-			print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n"if ($relationship_type->is_metadata_tag());
+			print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n" if ($relationship_type->is_metadata_tag());
+			print $output_file_handle "\t<rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#AnnotationProperty\"/>\n" if ($relationship_type->is_class_level());
 			#print $output_file_handle "\t<is_reflexive rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">true</is_reflexive>\n" if ($relationship_type->is_reflexive());
 			#print $output_file_handle "\t<is_anti_symmetric rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">true</is_anti_symmetric>\n" if ($relationship_type->is_anti_symmetric()); # anti-symmetric <> not symmetric
 			
@@ -3498,9 +4324,9 @@ sub _get_name_without_whitespaces() {
   Returns  - a subontology with the given terms from this ontology 
   Args     - the terms (OBO::Util::TermSet) that will be included in the subontology
   Function - creates a subontology based on the given terms from this ontology
+  Remark   - instances of terms (classes) are added to the resulting ontology
   
 =cut
-
 
 sub subontology_by_terms {
 	my ($self, $term_set) = @_;
@@ -3508,14 +4334,34 @@ sub subontology_by_terms {
 	# Future improvement: performance of this algorithm
 	my $result = OBO::Core::Ontology->new();
 	foreach my $term ($term_set->get_set()) {
-		$result->has_term($term) || $result->add_term($term);
+		#
+		# add term
+		#
+		if (!$result->has_term($term)) {
+			$result->add_term($term);              # add term
+			foreach my $ins ($term->class_of()->get_set()) {
+				$result->add_instance($ins);       # add its instances
+			}
+		}
+		
+		#
+		# add descendents
+		#
+		foreach my $descendent (@{$self->get_descendent_terms($term)}) {
+			if (!$result->has_term($descendent)) {
+				$result->add_term($descendent);              # add descendent
+				foreach my $ins ($descendent->class_of()->get_set()) {
+					$result->add_instance($ins);             # add its instances
+				}
+			}
+		}
+		#
+		# rel's
+		#
 		foreach my $rel (@{$self->get_relationships_by_target_term($term)}){
 			$result->add_relationship($rel);
 			my $rel_type = $self->get_relationship_type_by_id($rel->type());
 			$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
-		}
-		foreach my $descendent (@{$self->get_descendent_terms($term)}) {
-			$result->has_term($descendent) || $result->add_term($descendent);
 		}
 	}
 	return $result;
@@ -3544,6 +4390,7 @@ sub get_subontology_from {
 		$result->synonym_type_def_set($self->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 		$result->default_namespace($self->default_namespace());
 		$result->remarks($self->remarks()->get_set());
+		$result->treat_xrefs_as_equivalent($self->treat_xrefs_as_equivalent->get_set());
 
 		my @queue = ($root_term);
 		while (scalar(@queue) > 0) {
@@ -3582,6 +4429,33 @@ sub get_terms_idspace {
 		my @all_terms = values(%{$self->{TERMS}});
 		foreach my $term (@all_terms) {
 			$IS = $term->idspace();
+			last if(defined $IS);
+		}
+		return ($IS)?$IS:'NN';
+	}
+}
+
+=head2 get_instances_idspace
+
+  Usage    - $ontology->get_instances_idspace()
+  Returns  - the idspace (e.g. GO) of the instances held by this ontology (or 'NN' is there is no idspace)
+  Args     - none
+  Function - look for the idspace of the instances held by this ontology
+  Remark   - it is assumed that most of the instances share the same idspace (e.g. GO)
+  
+=cut
+
+sub get_instances_idspace {
+	my ($self) = @_;
+	if ($self->id()) {
+		return $self->id();
+	} else {
+		# TODO Find an efficient way to get it...
+		#my $is = (values(%{$self->{INSTANCES}}))[0]->idspace();
+		my $IS = undef;
+		my @all_instances = values(%{$self->{INSTANCES}});
+		foreach my $instance (@all_instances) {
+			$IS = $instance->idspace();
 			last if(defined $IS);
 		}
 		return ($IS)?$IS:'NN';
@@ -3773,42 +4647,6 @@ sub get_ancestor_terms_by_relationship_type {
 	return \@arr;
 }
 
-
-=head2 create_rel
-
-  Usage    - $ontology->create_rel->($tail, $type, $head)
-  Returns  - the OBO::Core::Ontology object
-  Args     - an OBO::Core::(Term|Relationship) object, a relationship type string (e.g. is_a), and an OBO::Core::(Term|Relationship) object, 
-  Function - creates and adds a new relationship to this ontology
-  
-=cut
-
-sub create_rel (){
-	my $self = shift;
-	my($tail, $type, $head) = @_;
-	die "Not a valid relationship type: '", $type, "'" unless($self->{RELATIONSHIP_TYPES}->{$type});
-	if ($tail && $head) {
-		my $id = $tail->id().'_'.$type.'_'.$head->id();
-		if ($self->has_relationship_id($id)) {
-			#cluck 'The following rel ID already exists in the ontology: ', $id; # Implement a RelationshipSet?
-			
-			my $relationship = $self->get_relationship_by_id($id);
-			$self->{TARGET_RELATIONSHIPS}->{$head}->{$type}->{$tail}        = $relationship;
-			$self->{SOURCE_RELATIONSHIPS}->{$tail}->{$type}->{$head}        = $relationship;
-			$self->{TARGET_SOURCE_RELATIONSHIPS}->{$tail}->{$head}->{$type} = $relationship;
-		} else {
-			my $rel = OBO::Core::Relationship->new(); 
-			$rel->type($type);
-			$rel->link($tail, $head);
-			$rel->id($id);
-			$self->add_relationship($rel);
-		}
-	} else {
-		die 'To create a relationship, you must provide both a tail and a head object!';
-	}
-	return $self;
-}
-
 =head2 get_term_by_xref
 
   Usage    - $ontology->get_term_by_xref($db, $acc)
@@ -3825,6 +4663,29 @@ sub get_term_by_xref {
 		foreach my $term (@{$self->get_terms()}) { # return the exact occurrence
 			$result = $term; 
 			foreach my $xref ($term->xref_set_as_string()) {
+				return $result if (($xref->db() eq $db) && ($xref->acc() eq $acc));
+			}
+		}
+	}
+	return undef;
+}
+
+=head2 get_instance_by_xref
+
+  Usage    - $ontology->get_instance_by_xref($db, $acc)
+  Returns  - the instance (OBO::Core::Instance) associated with the given external database ID. 'undef' is returned if there is no instance for the given arguments.	
+  Args     - the name of the external database and the ID (strings)
+  Function - returns the instance associated with the given external database ID
+  
+=cut
+
+sub get_instance_by_xref {
+	my ($self, $db, $acc) = @_;
+	my $result;
+	if ($db && $acc) {		
+		foreach my $instance (@{$self->get_instances()}) { # return the exact occurrence
+			$result = $instance; 
+			foreach my $xref ($instance->xref_set_as_string()) {
 				return $result if (($xref->db() eq $db) && ($xref->acc() eq $acc));
 			}
 		}
@@ -4356,7 +5217,7 @@ __END__
 
 =head1 NAME
 
-OBO::Core::Ontology  - An ontology holding terms and their relationships.
+OBO::Core::Ontology  - An ontology holding terms, instances and relationships.
  
 =head1 SYNOPSIS
 
