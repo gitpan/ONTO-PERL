@@ -38,9 +38,8 @@ sub new {
 =cut
 
 sub id {
-	my $self = shift;
-	$self->{ID} = shift if (@_);
-	return $self->{ID};
+	$_[0]->{ID} = $_[1] if ($_[1]);
+	return $_[0]->{ID};
 }
 
 =head2 type
@@ -54,9 +53,8 @@ sub id {
 =cut
 
 sub type {
-	my $self = shift;
-	$self->{TYPE} = shift if (@_);
-    return $self->{TYPE};
+	$_[0]->{TYPE} = $_[1] if ($_[1]);
+    return $_[0]->{TYPE};
 }
 
 =head2 equals
@@ -69,20 +67,18 @@ sub type {
 =cut
 
 sub equals  {
-	my $self = shift;
 	my $result = 0;
-	if (@_) {
-     	my $target    = shift;
-     	if ($target && eval { $target->isa('OBO::Core::Relationship') }) {
-			my $self_id   = $self->{'ID'};
-			my $target_id = $target->{'ID'};
+	if ($_[1]) {
+     	if ($_[1] && eval { $_[1]->isa('OBO::Core::Relationship') }) {
+			my $self_id   = $_[0]->{'ID'};
+			my $target_id = $_[1]->{'ID'};
 			
 			die 'The ID of this relationship is not defined.' if (!defined($self_id));
 			die 'The ID of the target relationship is not defined.' if (!defined($target_id));
 			
 			$result = ($self_id eq $target_id);
 		} else {
-			die "An unrecognized object type (not a OBO::Core::Relationship) was found: '", $target, "'";
+			die "An unrecognized object type (not a OBO::Core::Relationship) was found: '", $_[1], "'";
 		}
 	}
 	return $result;
@@ -98,9 +94,8 @@ sub equals  {
 =cut
 
 sub head {
-	my $self = shift;
-	$self->{HEAD} = shift if (@_);
-    return $self->{HEAD};
+	$_[0]->{HEAD} = $_[1] if ($_[1]);
+    return $_[0]->{HEAD};
 }
 
 =head2 tail
@@ -113,9 +108,8 @@ sub head {
 =cut
 
 sub tail {
-	my $self = shift;
-	$self->{TAIL} = shift if (@_);
-    return $self->{TAIL};
+	$_[0]->{TAIL} = $_[1] if ($_[1]);
+    return $_[0]->{TAIL};
 }
 
 =head2 link
@@ -128,9 +122,8 @@ sub tail {
 =cut
 
 sub link {
-	my ($self, $tail, $head) = @_;
-	($self->{TAIL}, $self->{HEAD}) = ($tail, $head) if ($tail && $head);
-    return ($self->{TAIL}, $self->{HEAD});
+	($_[0]->{TAIL}, $_[0]->{HEAD}) = ($_[1], $_[2]) if ($_[1] && $_[2]);
+    return ($_[0]->{TAIL}, $_[0]->{HEAD});
 }
 
 1;

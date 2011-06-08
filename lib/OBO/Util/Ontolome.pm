@@ -324,8 +324,8 @@ sub union () {
              are added to the resulting ontology. This method provides a way of comparing two
              ontologies. The resulting ontology gives hints about the missing and identical
              terms (comparison done by term ID). A closer analysis should be done to identify
-             the differences.
-  Remark   - Performance issues with huge ontologies.
+             the differences
+  Remark   - Performance issues with huge ontologies
   
 =cut
 
@@ -446,21 +446,19 @@ sub intersection () {
 		delete $cand{$_} if ($cand{$_} < 2);
 	}
 	
-	# candidatos simplificado	
+	# candidates simplified	
 	my %cola;
 	foreach (keys (%cand)) {
 		my $f = $1, my $r = $2, my $l = $3 if ($_ =~ /(.*)->(.*)->(.*)/);
 		$cola{$f} .= $l.' ';  # hold the candidates
 	}	
 	
-	# transistive reduction
+	# transitive reduction
 	while ( my ($k, $v) = each(%cola)) {
-	
-		my $V= OBO::Util::Set->new();
+		my $V = OBO::Util::Set->new();
 		$V->add($v);
 		
-		my @T = split (' ', $v);
-		
+		my @T      = split (' ', $v);
 		my %target = ();
 		my $r_type = $r_cand{$k.'->'.$T[$#T]}; # check
 		
@@ -498,9 +496,10 @@ sub intersection () {
 
   Usage    - $ome->transitive_closure($o, @transitive_relationship_types)
   Return   - an ontology (OBO::Core::Ontology) with the transitive closure
-  Args     - an ontology (OBO::Core::Ontology) to be expanded and optionally an array with the transitive relationship types (by default: 'is_a' and 'part_of')
+  Args     - an ontology (OBO::Core::Ontology) to be expanded 
+  			 and optionally an array with the transitive relationship types (by default: 'is_a' and 'part_of') to be considered
   Function - expands all the transitive relationships (e.g. is_a, part_of) along the
-  			 hierarchy and generates a new ontology holding all possible paths.
+  			 hierarchy and generates a new ontology holding all possible paths
   Remark   - Performance issues with huge ontologies.
   
 =cut
@@ -564,23 +563,23 @@ sub transitive_closure () {
 			my @rels = @{$ontology->get_relationships_by_target_term($term)}; 
 			foreach my $r (@rels) {
 				my $cola    = $r->tail();
-				my $tail_id = $cola->id();
+				my $cola_id = $cola->id();
 				
 				#die 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
 				
-				my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
+				my $tail = $result->get_term_by_id($cola_id); # Is $cola already present in the growing ontology?					
 				if (!defined $tail) {
 					$result->add_term($cola);            # add $cola if it is not present!
 					foreach my $ins ($cola->class_of()->get_set()) {
 						$result->add_instance($ins); # add its instances
 					}
-					$tail = $result->get_term_by_id($tail_id);
+					$tail = $result->get_term_by_id($cola_id);
 					
 					my @more_rels = @{$ontology->get_relationships_by_target_term($cola)};
 					@rels = (@rels, @more_rels); # trick to 'recursively' visit the just added rel
 				}
 				my $r_type = $r->type();
-				$r->id($tail_id.'_'.$r_type.'_'.$current_term->id());
+				$r->id($cola_id.'_'.$r_type.'_'.$current_term->id());
 				$r->link($tail, $current_term);
 				
 				$result->add_relationship($r);
@@ -599,7 +598,7 @@ sub transitive_closure () {
 			push @terms, $term; # trick to 'recursively' visit the just added term
 		}
 	}
-	foreach my $rel (@{$ontology->get_relationships()}){
+	foreach my $rel (@{$ontology->get_relationships()}) {
 		if (! $result->has_relationship_id($rel->id())) {
 			$result->add_relationship($rel);
 			my $rel_type = $ontology->get_relationship_type_by_id($rel->type());
@@ -624,7 +623,155 @@ sub transitive_closure () {
 			foreach my $ref_path (@ref_paths) {
 				my $f = @$ref_path[0]->tail();
 				my $l = @$ref_path[$#$ref_path]->head();
-				$result->create_rel($f, $type_of_rel, $l);
+				$result->create_rel($f, $type_of_rel, $l); # add the transitive closure relationship!
+			}
+		}	
+	}
+	return $result;
+}
+
+=head2 transitive_reduction
+
+  Usage    - $ome->transitive_reduction($o, @transitive_relationship_types)
+  Return   - an ontology (OBO::Core::Ontology) ensuring transitive reduction
+  Args     - an ontology (OBO::Core::Ontology) on which the transitive reduction algorithm will be applied 
+  			 and optionally an array with the transitive relationship types (by default: 'is_a' and 'part_of') to be considered
+  Function - reduces all the transitive relationships (e.g. is_a, part_of) along the
+  			 hierarchy and generates a new ontology holding the minimal paths (relationships)
+  Remark   - Performance issues with huge ontologies.
+  
+=cut
+
+sub transitive_reduction () {
+	my ($self, $ontology, @trans_rts) = @_;
+	my @default_trans_rts = ('is_a', 'part_of', 'located_in');
+	if (scalar @trans_rts > 0) {
+		@default_trans_rts = @trans_rts;
+	}
+	
+	my $result = OBO::Core::Ontology->new();
+	$result->idspaces($ontology->idspaces()->get_set());
+	$result->default_namespace($ontology->default_namespace());
+	$result->remarks('Ontology with transitive reduction');
+	$result->treat_xrefs_as_equivalent($ontology->treat_xrefs_as_equivalent->get_set()); # treat-xrefs-as-equivalent
+	$result->subset_def_map($ontology->subset_def_map());                                # add all subset_def_map's by default
+	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set());         # add all synonym_type_def_set by default
+	
+	my @terms = @{$ontology->get_terms()};
+	foreach my $term (@terms){
+		my $current_term =  $result->get_term_by_id($term->id());
+		if (defined $current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
+			$current_term->is_anonymous(1) if (!defined $current_term->is_anonymous() && $term->is_anonymous());
+			foreach ($term->alt_id()->get_set()) {
+				$current_term->alt_id($_);
+			}
+			$current_term->def($term->def()) if (!defined $current_term->def()->text() && $term->def()->text()); # TODO implement the case where the def xref's are not balanced!
+			foreach ($term->namespace()) {
+				$current_term->namespace($_);
+			}
+			$current_term->comment($term->comment()) if (!defined $current_term->comment() && $term->comment());
+			foreach ($term->subset()) { 
+				$current_term->subset($_);
+			}
+			foreach ($term->synonym_set()) {
+				$current_term->synonym_set($_);
+			}
+			foreach ($term->xref_set()->get_set()) {
+				$current_term->xref_set()->add($_);
+			}
+			foreach ($term->intersection_of()) {
+				$current_term->intersection_of($_);
+			}
+			foreach ($term->union_of()) {
+				$current_term->union_of($_);
+			}
+			foreach ($term->disjoint_from()) {
+				$current_term->disjoint_from($_);
+			}
+			$current_term->is_obsolete(1) if (!defined $current_term->is_obsolete() && $term->is_obsolete());
+			foreach ($term->replaced_by()->get_set()) {
+				$current_term->replaced_by($_);
+			}
+			foreach ($term->consider()->get_set()) {
+				$current_term->consider($_);
+			}
+			$current_term->builtin(1) if (!defined $current_term->builtin() && $term->builtin());
+			
+			# fix the rel's
+			my @rels = @{$ontology->get_relationships_by_target_term($term)}; 
+			foreach my $r (@rels) {
+				my $cola    = $r->tail();
+				my $cola_id = $cola->id();
+				
+				#die 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
+				
+				my $tail = $result->get_term_by_id($cola_id); # Is $cola already present in the growing ontology?					
+				if (!defined $tail) {
+					$result->add_term($cola);                 # add $cola if it is not present!
+					foreach my $ins ($cola->class_of()->get_set()) {
+						$result->add_instance($ins);          # add its instances
+					}
+					$tail = $result->get_term_by_id($cola_id);
+					
+					my @more_rels = @{$ontology->get_relationships_by_target_term($cola)};
+					@rels = (@rels, @more_rels); # trick to 'recursively' visit the just added rel
+				}
+				my $r_type = $r->type();
+				$r->id($cola_id.'_'.$r_type.'_'.$current_term->id());
+				$r->link($tail, $current_term);
+				
+				$result->add_relationship($r);
+				
+				#
+				# relationship type
+				#
+				my $rel_type = $ontology->get_relationship_type_by_id($r_type);
+				$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+			}
+		} else {
+			$result->add_term($term);
+			foreach my $ins ($term->class_of()->get_set()) {
+				$result->add_instance($ins); # add its instances
+			}
+			push @terms, $term; # trick to 'recursively' visit the just added term
+		}
+	}
+
+	#
+	# TODO This loop seems to be superflous!!
+	#
+	foreach my $rel (@{$ontology->get_relationships()}) {
+		if (!$result->has_relationship_id($rel->id())) {
+			$result->add_relationship($rel);
+			my $rel_type = $ontology->get_relationship_type_by_id($rel->type());
+			$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+		}
+	}
+
+	@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
+
+	my $stop = OBO::Util::Set->new();
+	map {$stop->add($_->id())} @terms;
+
+	# delete rel's
+	foreach my $term (@terms) {
+		my $term_id = $term->id();
+		# path of references:
+		foreach my $type_of_rel (@default_trans_rts) {
+			#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one reflexive relationship)
+
+			# take the paths from the original ontology
+			my @ref_paths = $ontology->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
+
+			foreach my $ref_path (@ref_paths) {
+				my $i = $#$ref_path;
+				my $f = @$ref_path[0]->tail();
+				my $l = @$ref_path[$i]->head();
+				my $v = $result->get_relationship_by_id($f->id().'_'.$type_of_rel.'_'.$l->id());
+
+				if ($v && ($i > 0)) {
+					$result->delete_relationship($v);
+				}
 			}
 		}	
 	}
@@ -676,7 +823,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007, 2008, 2009, 2010 by Erick Antezana
+Copyright (C) 2006-2011 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

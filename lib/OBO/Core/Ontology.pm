@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2010-12-02 erick.antezana $
+# $Id: Ontology.pm 2010-12-05 erick.antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -20,7 +20,7 @@ use OBO::Util::RelationshipTypeSet;
 use strict;
 use warnings;
 
-our $VERSION = '1.33';
+our $VERSION = '1.34';
 
 sub new {
 	my $class  = shift;
@@ -457,9 +457,9 @@ sub add_relationship_type_as_string {
 sub delete_term {
     my ($self, $term) = @_;
     if ($term) {    
-		$term->id || die 'The term to be deleted from this ontology does not have an ID.';
+		$term->id() || die 'The term to be deleted from this ontology does not have an ID.';
     
-		my $id = $term->id;
+		my $id = $term->id();
 		if (defined($id) && defined($self->{TERMS}->{$id})) {
 			delete $self->{TERMS}->{$id};
 			#$self->{TERMS_SET}->remove($term);
@@ -480,14 +480,44 @@ sub delete_term {
 sub delete_instance {
     my ($self, $instance) = @_;
     if ($instance) {    
-		$instance->id || die 'The instance to be deleted from this ontology does not have an ID.';
+		$instance->id() || die 'The instance to be deleted from this ontology does not have an ID.';
     
-		my $id = $instance->id;
+		my $id = $instance->id();
 		if (defined($id) && defined($self->{INSTANCES}->{$id})) {
 			delete $self->{INSTANCES}->{$id};
 			#$self->{INSTANCES_SET}->remove($instance);
 		}
-		# TODO Delete the relationships: to its parents and children!
+		# TODO Delete the relationships ($self->delete_relationship()): to its parents and children!
+    }
+}
+
+=head2 delete_relationship
+
+  Usage    - $ontology->delete_relationship($rel)
+  Returns  - none
+  Args     - the relationship (OBO::Core::Relationship) to be deleted
+  Function - deletes a relationship from this ontology
+  
+=cut
+
+sub delete_relationship {
+    my ($self, $relationship) = @_;
+    if ($relationship) {    
+		$relationship->id() || die 'The relationship to be deleted from this ontology does not have an ID.';
+    
+		my $id = $relationship->id();
+		if (defined($id) && defined($self->{RELATIONSHIPS}->{$id})) {
+			delete $self->{RELATIONSHIPS}->{$id};
+			
+			my $head = $relationship->head();
+			my $type = $relationship->type();
+			my $tail = $relationship->tail();
+			delete $self->{TARGET_RELATIONSHIPS}->{$head}->{$type}->{$tail};
+			delete $self->{SOURCE_RELATIONSHIPS}->{$tail}->{$type}->{$head};
+			delete $self->{TARGET_SOURCE_RELATIONSHIPS}->{$tail}->{$head}->{$type};
+
+			#$self->{RELATIONSHIPS_SET}->remove($term);
+		}
     }
 }
 
@@ -1245,9 +1275,12 @@ sub add_relationship {
 	}
     
 	# for getting children and parents
-	$self->{TARGET_RELATIONSHIPS}->{$relationship->head()}->{$relationship->type()}->{$relationship->tail()} = $relationship;
-	$self->{SOURCE_RELATIONSHIPS}->{$relationship->tail()}->{$relationship->type()}->{$relationship->head()} = $relationship;
-	$self->{TARGET_SOURCE_RELATIONSHIPS}->{$relationship->tail()}->{$relationship->head()}->{$relationship->type()} = $relationship;
+	my $head = $relationship->head();
+	my $type = $relationship->type();
+	my $tail = $relationship->tail();
+	$self->{TARGET_RELATIONSHIPS}->{$head}->{$type}->{$tail}        = $relationship;
+	$self->{SOURCE_RELATIONSHIPS}->{$tail}->{$type}->{$head}        = $relationship;
+	$self->{TARGET_SOURCE_RELATIONSHIPS}->{$tail}->{$head}->{$type} = $relationship;
 }
 
 =head2 get_relationship_by_id
@@ -1535,7 +1568,7 @@ sub get_number_of_relationship_types {
 
 sub export {
 	my $self               = shift;
-	my $format             = shift || 'obo';
+	my $format             = lc(shift) || 'obo';
 	my $output_file_handle = shift || \*STDOUT;
 	my $error_file_handle  = shift || \*STDERR;
     
@@ -4722,6 +4755,7 @@ sub get_paths_term1_term2 () {
 		my $n          = pop @nei; # neighbors
 		my $n_id       = $n->id();
 
+		next if (!defined $p_id);  # investigate cases where $p_id might not be defined
 		my $p          = $self->get_term_by_id($p_id);
 		 
 		my @ps         = @{$self->get_parent_terms($n)};
@@ -4798,10 +4832,7 @@ sub get_paths_term1_term2 () {
 		#
 		# clean banned using the back (unstacked)
 		#
-		foreach my $ele (@back) {
-			$banned{$ele} = 0;
-		}		
-		
+		map {$banned{$_} = 0} @back;		
 	} # while
 	
 	return @result;
@@ -4811,8 +4842,8 @@ sub get_paths_term1_term2 () {
 
   Usage    - $ontology->get_paths_term_terms($term, $set_of_terms)
   Returns  - an array of references to the paths between a given term ID and a given set of terms IDs 
-  Args     - the IDs of the terms for which a path (or paths) will be found
-  Function - returns the path(s) linking term and the given set of terms
+  Args     - the ID of the term (string) for which a path (or paths) will be found and a set of terms (OBO::Util::Set)
+  Function - returns the path(s) linking the given term and the given set of terms
   
 =cut
 sub get_paths_term_terms () {
@@ -4837,6 +4868,7 @@ sub get_paths_term_terms () {
 		my $n          = pop @nei; # neighbors
 		my $n_id       = $n->id();
 
+		next if (!defined $p_id);  # investigate cases where $p_id might not be defined
 		my $p          = $self->get_term_by_id($p_id);
 		 
 		my @ps         = @{$self->get_parent_terms($n)};
@@ -4860,7 +4892,7 @@ sub get_paths_term_terms () {
 		
 		if ($#ps == -1) { # leaf
 			my $sou = $p_id;		
-			$p_id = pop @bk;
+			$p_id   = pop @bk;
 			pop @ruta;
 			
 			#push @back, $p_id; # hold the un-stacked ones
@@ -4913,10 +4945,7 @@ sub get_paths_term_terms () {
 		#
 		# clean banned using the back (unstacked)
 		#
-		foreach my $ele (@back) {
-			$banned{$ele} = 0;
-		}		
-		
+		map {$banned{$_} = 0} @back;
 	} # while
 	
 	return @result;
@@ -4926,14 +4955,15 @@ sub get_paths_term_terms () {
 
   Usage    - $ontology->get_paths_term_terms_same_rel($term_id, $set_of_terms, $type_of_relationship)
   Returns  - an array of references to the paths between a given term ID and a given set of terms IDs 
-  Args     - the IDs of the terms for which a path (or paths) will be found and the ID of the relationship type 
-  Function - returns the path(s) linking term and the given set of terms along the same relationship (e.g. is_a)
+  Args     - the ID of the term (string) for which a path (or paths) will be found, a set of terms (OBO::Util::Set) and the ID of the relationship type 
+  Function - returns the path(s) linking the given term (term ID) and the given set of terms along the same relationship (e.g. is_a)
   
 =cut
 sub get_paths_term_terms_same_rel () {
 	my ($self, $v, $bstop, $rel) = @_;
 	
-	my @nei = @{$self->get_head_by_relationship_type($self->get_term_by_id($v), $self->get_relationship_type_by_id($rel))};
+	my $r_type = $self->get_relationship_type_by_id($rel);
+	my @nei    = @{$self->get_head_by_relationship_type($self->get_term_by_id($v), $r_type)};
 	
 	my $path = $v;
 	my @bk   = ($v);
@@ -4953,13 +4983,15 @@ sub get_paths_term_terms_same_rel () {
 		my $n          = pop @nei; # neighbors
 		my $n_id       = $n->id();
 
+		next if (!defined $p_id);  # investigate cases where $p_id might not be defined
 		my $p          = $self->get_term_by_id($p_id);
 
-		my @ps         = @{$self->get_head_by_relationship_type($n, $self->get_relationship_type_by_id($rel))};
-		my @hi         = @{$self->get_head_by_relationship_type($p, $self->get_relationship_type_by_id($rel))};
+		my @ps         = @{$self->get_head_by_relationship_type($n, $r_type)};
+		my @hi         = @{$self->get_head_by_relationship_type($p, $r_type)};
 
 		$hijos{$p_id}  = $#hi + 1;
 		$hijos{$n_id}  = $#ps + 1;
+		
 		push @bk, $n_id;
 		
 		# add the (candidate) relationship
@@ -4970,13 +5002,13 @@ sub get_paths_term_terms_same_rel () {
 			$path .= '->'.$n_id;
 			#warn 'PATH       : ', $path;
 			#warn 'BK         : ', map {$_.'->'} @bk;
-			#warn 'RUTA       : ', map {$_->id()} @ruta;
+			#warn 'RUTA       : ', map {$_->id().'->'} @ruta;
 			push @result, [@ruta];
 		}
 		
 		if ($#ps == -1) { # leaf
 			my $sou = $p_id;		
-			$p_id = pop @bk;
+			$p_id   = pop @bk;
 			pop @ruta;
 			
 			#push @back, $p_id; # hold the un-stacked ones
@@ -4992,14 +5024,14 @@ sub get_paths_term_terms_same_rel () {
 				$banned{$sou} = $hijos{$sou};
 			}
 			
-			$drop{$bk[$#bk]}++; # if (defined $drop{$bk[$#bk]}  && $drop{$bk[$#bk]} < $hijos{$p_id});
+			$drop{$bk[$#bk]}++; # if (defined $drop{$bk[$#bk]} && $drop{$bk[$#bk]} < $hijos{$p_id});
 			
 			my $w = $#bk;
 			while ( $w > -1 
 					&& 
-					(     ($hijos{$bk[$w]} == 1 )
-					   || (defined $drop{$bk[$w]}   && $hijos{$bk[$w]} == $drop{$bk[$w]})
-					   || (defined $banned{$bk[$w]} && $banned{$bk[$w]} == $hijos{$bk[$w]})
+					(     ( $hijos{$bk[$w]} == 1 )
+					   || ( defined $drop{$bk[$w]}   && $hijos{$bk[$w]}  == $drop{$bk[$w]} )
+					   || ( defined $banned{$bk[$w]} && $banned{$bk[$w]} == $hijos{$bk[$w]} )
 					)
 			      ) {
 				$p_id = pop @bk;
@@ -5015,10 +5047,9 @@ sub get_paths_term_terms_same_rel () {
 					$banned{$bk_w}++;
 					if (defined $banned{$bk_w} && $banned{$bk_w} > $hijos{$bk_w}) {
 						$banned{$bk_w} = $hijos{$bk_w};
-					}				
+					}
 				}
-				
-			}				
+			}
 		} else {
 			$p_id = $n_id;
 		}
@@ -5029,10 +5060,7 @@ sub get_paths_term_terms_same_rel () {
 		#
 		# clean banned using the back (unstacked)
 		#
-		foreach my $ele (@back) {
-			$banned{$ele} = 0;
-		}		
-		
+		map {$banned{$_} = 0} @back;
 	} # while
 	
 	return @result;

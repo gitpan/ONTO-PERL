@@ -32,9 +32,8 @@ sub new {
 =cut
 
 sub name {
-	my ($self, $name) = @_;
-	$self->{NAME}     = $name if ($name);
-	return $self->{NAME};
+	$_[0]->{NAME} = $_[1] if ($_[1]);
+	return $_[0]->{NAME};
 }
 
 =head2 description
@@ -47,9 +46,8 @@ sub name {
 =cut
 
 sub description {
-	my ($self, $desc)    = @_;
-	$self->{DESCRIPTION} = $desc if ($desc);
-	return $self->{DESCRIPTION};
+	$_[0]->{DESCRIPTION} = $_[1] if ($_[1]);
+	return $_[0]->{DESCRIPTION};
 }
 
 =head2 as_string
@@ -62,12 +60,11 @@ sub description {
 =cut
 
 sub as_string {
-	my ($self, $name, $desc) = @_;
-	if ($name && $desc){
-		$self->{NAME}        = $name;
-		$self->{DESCRIPTION} = $desc;
+	if ($_[1] && $_[2]){
+		$_[0]->{NAME}        = $_[1];
+		$_[0]->{DESCRIPTION} = $_[2];
 	}
-	return $self->{NAME}.' "'.$self->{DESCRIPTION}.'"';
+	return $_[0]->{NAME}.' "'.$_[0]->{DESCRIPTION}.'"';
 }
 
 =head2 equals
@@ -80,19 +77,18 @@ sub as_string {
 =cut
 
 sub equals {
-	my ($self, $target) = @_;
 	my $result = 0;
-	if ($target && eval { $target->isa('OBO::Core::SubsetDef') }) {
+	if ($_[1] && eval { $_[1]->isa('OBO::Core::SubsetDef') }) {
 			
-		die 'The name of this subset definition is undefined.' if (!defined($self->{NAME}));
-		die 'The name of the target subset definition is undefined.' if (!defined($target->{NAME}));
+		die 'The name of this subset definition is undefined.' if (!defined($_[0]->{NAME}));
+		die 'The name of the target subset definition is undefined.' if (!defined($_[1]->{NAME}));
 		
-		die 'The description of the this subset definition is undefined.' if (!defined($self->{DESCRIPTION}));
-		die 'The description of the target subset definition is undefined.' if (!defined($target->{DESCRIPTION}));
+		die 'The description of the this subset definition is undefined.' if (!defined($_[0]->{DESCRIPTION}));
+		die 'The description of the target subset definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
 		
-		$result = ($self->{NAME} eq $target->{NAME}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION});
+		$result = ($_[0]->{NAME} eq $_[1]->{NAME}) && ($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION});
 	} else {
-		die "An unrecognized object type (not a OBO::Core::SubsetDef) was found: '", $target, "'";
+		die "An unrecognized object type (not a OBO::Core::SubsetDef) was found: '", $_[1], "'";
 	}
 	return $result;
 }

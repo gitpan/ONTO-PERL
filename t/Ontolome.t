@@ -1,4 +1,4 @@
-# $Id: Ontolome.t 1642 2007-11-23 14:10:35Z easr $
+# $Id: Ontolome.t 1642 2011-02-05 14:10:35Z easr $
 #
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
@@ -10,14 +10,12 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 67;
+    plan tests => 118;
 }
 
 #########################
 
 use strict;
-
-#use Test::More 'no_plan';
 
 use OBO::Core::Ontology;
 use OBO::Util::Ontolome;
@@ -25,7 +23,6 @@ use OBO::Core::Term;
 use OBO::Core::Relationship;
 use OBO::Core::RelationshipType;
 use OBO::Parser::OBOParser;
-
 
 # new ontolome
 my $ome1   = OBO::Util::Ontolome->new();
@@ -40,19 +37,19 @@ ok($onto3->get_number_of_relationships() == 0);
 my $n1 = OBO::Core::Term->new();
 my $n2 = OBO::Core::Term->new();
 
-$n1->id("CCO:D0000001");
-$n2->id("CCO:D0000001"); # same ID!
+$n1->id('CCO:D0000001');
+$n2->id('CCO:D0000001'); # same ID!
 
-$n1->name("One");
-$n2->name("One");
+$n1->name('One');
+$n2->name('One');
 
-$n2->def_as_string("My definition.", "[CCO:ea]");
+$n2->def_as_string('My definition.', '[CCO:ea]');
 
 $onto1->add_term($n1);
 $onto2->add_term($n2);
 
-$n1->xref_set_as_string("[DO:0000001]");
-$n2->xref_set_as_string("[DO:0000002]");
+$n1->xref_set_as_string('[DO:0000001]');
+$n2->xref_set_as_string('[DO:0000002]');
 
 ok($onto1->get_number_of_terms() == 1);
 $onto3 = $ome1->union($onto1, $onto2);
@@ -60,18 +57,18 @@ ok($onto1->get_number_of_terms() == 1);
 ok($onto3->get_number_of_terms() == 1);
 ok($onto3->get_number_of_relationships() == 0);
 
-my $n = $onto3->get_term_by_id("CCO:D0000001");
-ok($n->name() eq "One");
+my $n = $onto3->get_term_by_id('CCO:D0000001');
+ok($n->name() eq 'One');
 ok($n->def_as_string() eq "\"My definition.\" [CCO:ea]");
 ok($n->xref_set()->get_set() == 2);
 
 # more terms in onto1
 my $n3 = OBO::Core::Term->new();
 my $n5 = OBO::Core::Term->new();
-$n3->id("CCO:D0000003");
-$n5->id("CCO:D0000005");
-$n3->name("Three");
-$n5->name("Five");
+$n3->id('CCO:D0000003');
+$n5->id('CCO:D0000005');
+$n3->name('Three');
+$n5->name('Five');
 
 $onto1->add_term($n3);
 $onto1->add_term($n5);
@@ -82,15 +79,15 @@ ok($onto1->get_number_of_terms() == 3);
 my $r51 = OBO::Core::Relationship->new();
 my $r31 = OBO::Core::Relationship->new();
 
-$r51->id("CCO:D0000005_is_a_CCO:D0000001");
-$r31->id("CCO:D0000003_part_of_CCO:D0000001");
-$r51->type("is_a");
-$r31->type("part_of");
+$r51->id('CCO:D0000005_is_a_CCO:D0000001');
+$r31->id('CCO:D0000003_part_of_CCO:D0000001');
+$r51->type('is_a');
+$r31->type('part_of');
 $r51->link($n5, $n1); 
 $r31->link($n3, $n1);
 
-$onto1->add_relationship_type_as_string("is_a", "is_a");
-$onto1->add_relationship_type_as_string("part_of", "part_of");
+$onto1->add_relationship_type_as_string('is_a', 'is_a');
+$onto1->add_relationship_type_as_string('part_of', 'part_of');
 
 $onto1->add_relationship($r51);
 $onto1->add_relationship($r31);
@@ -100,10 +97,10 @@ ok($onto1->get_number_of_terms() ==3);
 # more terms in onto2
 my $n4 = OBO::Core::Term->new();
 my $n6 = OBO::Core::Term->new();
-$n4->id("CCO:D0000004");
-$n6->id("CCO:D0000006");
-$n4->name("Four");
-$n6->name("Six");
+$n4->id('CCO:D0000004');
+$n6->id('CCO:D0000006');
+$n4->name('Four');
+$n6->name('Six');
 
 $onto2->add_term($n4);
 $onto2->add_term($n6);
@@ -112,15 +109,15 @@ $onto2->add_term($n6);
 my $r42 = OBO::Core::Relationship->new();
 my $r64 = OBO::Core::Relationship->new();
 
-$r42->id("CCO:D0000004_is_a_CCO:D0000001");
-$r64->id("CCO:D0000006_part_of_CCO:D0000004");
-$r42->type("is_a");
-$r64->type("part_of");
+$r42->id('CCO:D0000004_is_a_CCO:D0000001');
+$r64->id('CCO:D0000006_part_of_CCO:D0000004');
+$r42->type('is_a');
+$r64->type('part_of');
 $r42->link($n4, $n2); 
 $r64->link($n6, $n4);
 
-$onto2->add_relationship_type_as_string("is_a", "is_a");
-$onto2->add_relationship_type_as_string("part_of", "part_of");
+$onto2->add_relationship_type_as_string('is_a', 'is_a');
+$onto2->add_relationship_type_as_string('part_of', 'part_of');
 
 $onto2->add_relationship($r42);
 $onto2->add_relationship($r64);
@@ -133,37 +130,17 @@ ok($onto1->get_number_of_terms() == 3);
 ok($onto4->get_number_of_terms() == 5);
 ok($onto4->get_number_of_relationships() >= 4); # diff arch: '>='
 
-my $nn1 = $onto4->get_term_by_id("CCO:D0000001");
+my $nn1 = $onto4->get_term_by_id('CCO:D0000001');
 my @relatives1 = @{$onto4->get_descendent_terms($nn1)};
 ok(scalar(@relatives1) == 4);
 
-my $nn6 = $onto4->get_term_by_id("CCO:D0000006");
+my $nn6 = $onto4->get_term_by_id('CCO:D0000006');
 my @relatives2 = @{$onto4->get_ancestor_terms($nn6)};
 ok(scalar(@relatives2) == 2);
 
-my $nn5 = $onto4->get_term_by_id("CCO:D0000005");
+my $nn5 = $onto4->get_term_by_id('CCO:D0000005');
 my @relatives3 = @{$onto4->get_ancestor_terms($nn5)};
 ok(scalar(@relatives3) == 1);
-
-#my $my_parser = OBO::Parser::OBOParser->new();
-#my $mini_onto = $my_parser->work("./t/data/export/cco/obo/o1.obo");
-#
-#my $my_parser2 = OBO::Parser::OBOParser->new();
-#my $mini_onto2 = $my_parser2->work("./t/data/export/cco/obo/o2.obo");
-#
-#ok($mini_onto2->has_term_id("CCO:C0000948"));
-#
-#my $term = $mini_onto2->get_term_by_name("plasma membrane-derived thylakoid photosystem II");
-#
-#foreach my $r (@{$mini_onto2->get_relationships_by_target_term($term)}) {
-#	print "REL: ", $r->id();
-#}
-#
-#my $onto5 = $ome1->union($mini_onto, $mini_onto2);
-## export back to obo
-#open (FH, ">./t/data/export/cco/obo/u1.obo") || die "Check the tests: ", $!;
-#$onto5->export(\*FH);
-#close FH;
 
 ok($onto1->get_number_of_terms() == 3);
 my $inter_onto = $ome1->intersection($onto1, $onto2);
@@ -238,7 +215,7 @@ $onto22->create_rel($t12, 'is_a', $t9);
 my $onto22_reflex = $ome1->intersection($onto22, $onto22);
 ok($onto22_reflex->get_number_of_terms() == 12);
 ok($onto22_reflex->get_number_of_relationships() == 12);
-ok($onto22_reflex->has_relationship_id("CCO:T0000002_is_a_CCO:T0000001"));
+ok($onto22_reflex->has_relationship_id('CCO:T0000002_is_a_CCO:T0000001'));
 
 my $onto23 = OBO::Core::Ontology->new();
 my $tt0  = OBO::Core::Term->new();
@@ -281,14 +258,14 @@ $onto23->create_rel($tt5, 'is_a', $tt11);
 my $onto22_23 = $ome1->intersection($onto23, $onto22);
 ok($onto22_23->get_number_of_terms() == 7);
 ok($onto22_23->get_number_of_relationships() == 4);
-ok($onto22_23->has_relationship_id("CCO:T0000004_is_a_CCO:T0000001"));
-ok($onto22_23->has_relationship_id("CCO:T0000005_is_a_CCO:T0000001"));
-ok($onto22_23->has_relationship_id("CCO:T0000004_is_a_CCO:T0000006"));
-ok(!($onto22_23->has_relationship_id("CCO:T0000005_is_a_CCO:T0000006")));
-ok($onto22_23->has_relationship_id("CCO:T0000001_is_a_CCO:T0000008"));
-ok(!($onto22_23->has_relationship_id("CCO:T0000006_is_a_CCO:T0000008")));
-ok(!($onto22_23->has_relationship_id("CCO:T0000001_is_a_CCO:T0000009")));
-ok(!($onto22_23->has_relationship_id("CCO:T0000005_is_a_CCO:T0000011")));
+ok($onto22_23->has_relationship_id('CCO:T0000004_is_a_CCO:T0000001'));
+ok($onto22_23->has_relationship_id('CCO:T0000005_is_a_CCO:T0000001'));
+ok($onto22_23->has_relationship_id('CCO:T0000004_is_a_CCO:T0000006'));
+ok(!($onto22_23->has_relationship_id('CCO:T0000005_is_a_CCO:T0000006')));
+ok($onto22_23->has_relationship_id('CCO:T0000001_is_a_CCO:T0000008'));
+ok(!($onto22_23->has_relationship_id('CCO:T0000006_is_a_CCO:T0000008')));
+ok(!($onto22_23->has_relationship_id('CCO:T0000001_is_a_CCO:T0000009')));
+ok(!($onto22_23->has_relationship_id('CCO:T0000005_is_a_CCO:T0000011')));
 
 my $o1  = OBO::Core::Ontology->new();
 my $d5  = OBO::Core::Term->new();
@@ -310,43 +287,43 @@ my $d27  = OBO::Core::Term->new();
 my $d28  = OBO::Core::Term->new();
 my $d29  = OBO::Core::Term->new();
 
-$d5->id("5");
-$d2->id("2");
-$d6->id("6");
-$d1->id("1");
-$d7->id("7");
-$d8->id("8");
-$d10->id("10");
-$d11->id("11");
-$d20->id("20");
-$d21->id("21");
-$d32->id("32");
-$d23->id("23");
-$d24->id("24");
-$d25->id("25");
-$d26->id("26");
-$d27->id("27");
-$d28->id("28");
-$d29->id("29");
+$d5->id('5');
+$d2->id('2');
+$d6->id('6');
+$d1->id('1');
+$d7->id('7');
+$d8->id('8');
+$d10->id('10');
+$d11->id('11');
+$d20->id('20');
+$d21->id('21');
+$d32->id('32');
+$d23->id('23');
+$d24->id('24');
+$d25->id('25');
+$d26->id('26');
+$d27->id('27');
+$d28->id('28');
+$d29->id('29');
 
-$d5->name("5");
-$d2->name("2");
-$d6->name("6");
-$d1->name("1");
-$d7->name("7");
-$d8->name("8");
-$d10->name("10");
-$d11->name("11");
-$d20->name("20");
-$d21->name("21");
-$d32->name("32");
-$d23->name("23");
-$d24->name("24");
-$d25->name("25");
-$d26->name("26");
-$d27->name("27");
-$d28->name("28");
-$d29->name("29");
+$d5->name('5');
+$d2->name('2');
+$d6->name('6');
+$d1->name('1');
+$d7->name('7');
+$d8->name('8');
+$d10->name('10');
+$d11->name('11');
+$d20->name('20');
+$d21->name('21');
+$d32->name('32');
+$d23->name('23');
+$d24->name('24');
+$d25->name('25');
+$d26->name('26');
+$d27->name('27');
+$d28->name('28');
+$d29->name('29');
 
 my $r = 'is_a';
 $o1->add_relationship_type_as_string($r, $r);
@@ -413,28 +390,6 @@ $o2->create_rel($d5,$r,$d102);
 $ome1->intersection($o2, $o1);
 
 #
-# DFS
-#
-#$ome1->dfs($o, $d5->id());
-#$ome1->dfs($onto22, 'CCO:T0000005');
-
-
-#
-# Biger file
-#
-#my $p       = OBO::Parser::OBOParser->new();
-#my $h_onto  = $p->work("./t/data/pre_cco_taxa.obo");
-#my $h_onto  = $p->work("./t/data/cco_A_thaliana.obo");
-#my $h_inter = $ome1->intersection($h_onto, $h_onto);
-#ok($h_onto->get_number_of_terms() == $h_inter->get_number_of_terms());
-# export back to obo
-#open (FH, ">./t/data/inter2.obo") || die "Check the tests: ", $!;
-#$h_inter->export(\*FH);
-#close FH;
-
-#$ome1->dfs($onto22, 'CCO:T0000005');
-
-#
 # get_paths_term_terms
 #
 my $stop = OBO::Util::Set->new();
@@ -471,44 +426,43 @@ my $de27  = OBO::Core::Term->new();
 my $de28  = OBO::Core::Term->new();
 my $de29  = OBO::Core::Term->new();
 
-$de5->id("5");
-$de2->id("2");
-$de6->id("6");
-$de1->id("1");
-$de7->id("7");
-$de8->id("8");
-$de10->id("10");
-$de11->id("11");
-$de20->id("20");
-$de21->id("21");
-$de32->id("32");
-$de23->id("23");
-$de24->id("24");
-$de25->id("25");
-$de26->id("26");
-$de27->id("27");
-$de28->id("28");
-$de29->id("29");
+$de5->id('5');
+$de2->id('2');
+$de6->id('6');
+$de1->id('1');
+$de7->id('7');
+$de8->id('8');
+$de10->id('10');
+$de11->id('11');
+$de20->id('20');
+$de21->id('21');
+$de32->id('32');
+$de23->id('23');
+$de24->id('24');
+$de25->id('25');
+$de26->id('26');
+$de27->id('27');
+$de28->id('28');
+$de29->id('29');
 
-
-$de5->name("5");
-$de2->name("2");
-$de6->name("6");
-$de1->name("1");
-$de7->name("7");
-$de8->name("8");
-$de10->name("10");
-$de11->name("11");
-$de20->name("20");
-$de21->name("21");
-$de32->name("32");
-$de23->name("23");
-$de24->name("24");
-$de25->name("25");
-$de26->name("26");
-$de27->name("27");
-$de28->name("28");
-$de29->name("29");
+$de5->name('5');
+$de2->name('2');
+$de6->name('6');
+$de1->name('1');
+$de7->name('7');
+$de8->name('8');
+$de10->name('10');
+$de11->name('11');
+$de20->name('20');
+$de21->name('21');
+$de32->name('32');
+$de23->name('23');
+$de24->name('24');
+$de25->name('25');
+$de26->name('26');
+$de27->name('27');
+$de28->name('28');
+$de29->name('29');
 
 my $s = 'part_of';
 $o3->add_relationship_type_as_string($r, $r);
@@ -522,89 +476,90 @@ $o3->create_rel($de5,$r,$de24);
 $o3->create_rel($de24,$r,$de23);
 
 my $ontito = $ome1->intersection($o1, $o3);
-
 ok($ontito->get_number_of_terms() == 8);
 ok($ontito->get_number_of_relationships() == 6);
-ok($ontito->has_relationship_id("5_is_a_8"));
-ok($ontito->has_relationship_id("8_is_a_26"));
-ok(!($ontito->has_relationship_id("5_is_a_26")));
-ok($ontito->has_relationship_id("5_is_a_11"));
-ok($ontito->has_relationship_id("11_is_a_28"));
-ok(!($ontito->has_relationship_id("5_is_a_28")));
-ok(!($ontito->has_relationship_id("28_part_of_29")));
-ok(!($ontito->has_relationship_id("5_is_a_29")));
-ok(!($ontito->has_relationship_id("11_is_a_29")));
-ok($ontito->has_relationship_id("5_is_a_24"));
-ok($ontito->has_relationship_id("5_is_a_23"));
+ok($ontito->has_relationship_id('5_is_a_8'));
+ok($ontito->has_relationship_id('8_is_a_26'));
+ok(!($ontito->has_relationship_id('5_is_a_26')));
+ok($ontito->has_relationship_id('5_is_a_11'));
+ok($ontito->has_relationship_id('11_is_a_28'));
+ok(!($ontito->has_relationship_id('5_is_a_28')));
+ok(!($ontito->has_relationship_id('28_part_of_29')));
+ok(!($ontito->has_relationship_id('5_is_a_29')));
+ok(!($ontito->has_relationship_id('11_is_a_29')));
+ok($ontito->has_relationship_id('5_is_a_24'));
+ok($ontito->has_relationship_id('5_is_a_23'));
 
 #
 # from GO
 #
 my $go = OBO::Core::Ontology->new();
 my $id = OBO::Core::IDspace->new();
-$id->as_string("GO", "urn:lsid:bioontology.org:GO:", "gene ontology terms");
+$id->as_string('GO', 'urn:lsid:bioontology.org:GO:', 'gene ontology terms');
 $go->idspaces($id);
 
 my $g60  = OBO::Core::Term->new();
 my $g59  = OBO::Core::Term->new();
-my $g242  = OBO::Core::Term->new();
+my $g242 = OBO::Core::Term->new();
 my $g29  = OBO::Core::Term->new();
-my $g265  = OBO::Core::Term->new();
+my $g265 = OBO::Core::Term->new();
 my $g56  = OBO::Core::Term->new();
-my $g2 = OBO::Core::Term->new();
-my $g0 = OBO::Core::Term->new();
-my $g118  = OBO::Core::Term->new();
-my $g117  = OBO::Core::Term->new();
-my $g103  = OBO::Core::Term->new();
-my $g271  = OBO::Core::Term->new();
+my $g2   = OBO::Core::Term->new();
+my $g0   = OBO::Core::Term->new();
+my $g118 = OBO::Core::Term->new();
+my $g117 = OBO::Core::Term->new();
+my $g103 = OBO::Core::Term->new();
+my $g271 = OBO::Core::Term->new();
 my $g38  = OBO::Core::Term->new();
 
-$g60->id("60");
-$g59->id("59");
-$g242->id("242");
-$g29->id("29");
-$g265->id("265");
-$g56->id("56");
-$g2->id("2");
-$g0->id("10");
-$g118->id("118");
-$g117->id("117");
-$g103->id("103");
-$g271->id("271");
-$g38->id("38");
+$g60->id('60');
+$g59->id('59');
+$g242->id('242');
+$g29->id('29');
+$g265->id('265');
+$g56->id('56');
+$g2->id('2');
+$g0->id('10');
+$g118->id('118');
+$g117->id('117');
+$g103->id('103');
+$g271->id('271');
+$g38->id('38');
 
-$g60->name("60");
-$g59->name("59");
-$g242->name("242");
-$g29->name("29");
-$g265->name("265");
-$g56->name("56");
-$g2->name("2");
-$g0->name("10");
-$g118->name("118");
-$g117->name("117");
-$g103->name("103");
-$g271->name("271");
-$g38->name("38");
+$g60->name('60');
+$g59->name('59');
+$g242->name('242');
+$g29->name('29');
+$g265->name('265');
+$g56->name('56');
+$g2->name('2');
+$g0->name('10');
+$g118->name('118');
+$g117->name('117');
+$g103->name('103');
+$g271->name('271');
+$g38->name('38');
 
 $go->add_relationship_type_as_string($r, $r);
 $go->add_relationship_type_as_string($s, $s);
 
-$go->create_rel($g60,$r,$g59);
-$go->create_rel($g59,$r,$g242);
-$go->create_rel($g242,$r,$g29);
-$go->create_rel($g29,$s,$g265);
-$go->create_rel($g265,$r,$g56);
-$go->create_rel($g56,$r,$g2);
-$go->create_rel($g2,$r,$g0);
-$go->create_rel($g59,$s,$g117);
-$go->create_rel($g60,$s,$g118);
-$go->create_rel($g118,$s,$g117);
-$go->create_rel($g117,$r,$g103);
-$go->create_rel($g103,$s,$g271);
-$go->create_rel($g271,$r,$g38);
-$go->create_rel($g271,$s,$g265);
-$go->create_rel($g38,$s,$g56);
+$go->create_rel($g60,  $r, $g59);
+$go->create_rel($g59,  $r, $g242);
+$go->create_rel($g242, $r, $g29);
+$go->create_rel($g29,  $s, $g265);
+$go->create_rel($g265, $r, $g56);
+$go->create_rel($g56,  $r, $g2);
+$go->create_rel($g2,   $r, $g0);
+$go->create_rel($g59,  $s, $g117);
+$go->create_rel($g60,  $s, $g118);
+$go->create_rel($g118, $s, $g117);
+$go->create_rel($g117, $r, $g103);
+$go->create_rel($g103, $s, $g271);
+$go->create_rel($g271, $r, $g38);
+$go->create_rel($g271, $s, $g265);
+$go->create_rel($g38,  $s, $g56);
+
+ok($go->get_number_of_relationships() == 15);
 
 my $go_go = $ome1->intersection($go, $go);
 ok($go_go->get_number_of_terms() == 13);
@@ -625,7 +580,7 @@ $stop_set->add($g29->id());
 $stop_set->add($g271->id());
 $stop_set->add($g117->id());
 
-my @p1 = ("60_is_a_59", "59_is_a_242", "242_is_a_29");
+my @p1 = ('60_is_a_59', '59_is_a_242', '242_is_a_29');
 
 my @ref_paths1 = $go->get_paths_term_terms_same_rel($g60->id(), $stop_set, $r); # along is_a
 foreach my $ref_path (@ref_paths1) {
@@ -640,7 +595,7 @@ $cc = 0;
 map {map {$cc++} @$_} @ref_paths1;
 ok ($cc ==  3);
 
-my @p2 = ("60_part_of_118", "118_part_of_117");
+my @p2 = ('60_part_of_118', '118_part_of_117');
 
 my @ref_paths2 = $go->get_paths_term_terms_same_rel($g60->id(), $stop_set, $s); # along part_of
 foreach my $ref_path (@ref_paths2) {
@@ -659,8 +614,77 @@ ok ($cc ==  2);
 # get the transitive closure
 #
 my $go_transitive_closure = $ome1->transitive_closure($go);
-open (FH, ">./t/data/go_transitive_closure.obo") || die "Run as root the tests: ", $!;
-$go_transitive_closure->export('obo', \*FH);
-close FH;
+
+ok($go_transitive_closure->has_relationship_id('59_is_a_29'));
+ok($go_transitive_closure->has_relationship_id('103_part_of_265'));
+ok($go_transitive_closure->has_relationship_id('60_is_a_242'));
+ok($go_transitive_closure->has_relationship_id('60_is_a_29'));
+ok($go_transitive_closure->has_relationship_id('60_part_of_117'));
+ok($go_transitive_closure->has_relationship_id('265_is_a_2'));
+ok($go_transitive_closure->has_relationship_id('265_is_a_10'));
+ok($go_transitive_closure->has_relationship_id('56_is_a_10'));
+
+ok($go_transitive_closure->get_number_of_relationships() == 23);
+
+open (TC, ">./t/data/go_transitive_closure.obo") || die "Run as root the tests: ", $!;
+$go_transitive_closure->export('obo', \*TC);
+close TC;
+
+#
+# get the transitive reduction
+#
+my $go_transitive_reduction = $ome1->transitive_reduction($go);
+
+ok(!$go_transitive_reduction->has_relationship_id('59_is_a_29'));
+ok(!$go_transitive_reduction->has_relationship_id('103_part_of_265'));
+ok(!$go_transitive_reduction->has_relationship_id('60_is_a_242'));
+ok(!$go_transitive_reduction->has_relationship_id('60_is_a_29'));
+ok(!$go_transitive_reduction->has_relationship_id('60_part_of_117'));
+ok(!$go_transitive_reduction->has_relationship_id('265_is_a_2'));
+ok(!$go_transitive_reduction->has_relationship_id('265_is_a_10'));
+ok(!$go_transitive_reduction->has_relationship_id('56_is_a_10'));
+
+ok($go_transitive_reduction->has_relationship_id('60_is_a_59'));
+ok($go_transitive_reduction->has_relationship_id('59_is_a_242'));
+ok($go_transitive_reduction->has_relationship_id('242_is_a_29'));
+ok($go_transitive_reduction->has_relationship_id('29_part_of_265'));
+ok($go_transitive_reduction->has_relationship_id('265_is_a_56'));
+ok($go_transitive_reduction->has_relationship_id('56_is_a_2'));
+ok($go_transitive_reduction->has_relationship_id('2_is_a_10'));
+ok($go_transitive_reduction->has_relationship_id('59_part_of_117'));
+ok($go_transitive_reduction->has_relationship_id('60_part_of_118'));
+ok($go_transitive_reduction->has_relationship_id('118_part_of_117'));
+ok($go_transitive_reduction->has_relationship_id('117_is_a_103'));
+ok($go_transitive_reduction->has_relationship_id('103_part_of_271'));
+ok($go_transitive_reduction->has_relationship_id('271_is_a_38'));
+ok($go_transitive_reduction->has_relationship_id('271_part_of_265'));
+ok($go_transitive_reduction->has_relationship_id('38_part_of_56'));
+
+ok($go_transitive_reduction->get_number_of_relationships() == 15);
+
+ok($go_transitive_closure->has_relationship_id('59_is_a_29'));
+ok($go_transitive_closure->has_relationship_id('103_part_of_265'));
+ok($go_transitive_closure->has_relationship_id('60_is_a_242'));
+ok($go_transitive_closure->has_relationship_id('60_is_a_29'));
+ok($go_transitive_closure->has_relationship_id('60_part_of_117'));
+ok($go_transitive_closure->has_relationship_id('265_is_a_2'));
+ok($go_transitive_closure->has_relationship_id('265_is_a_10'));
+ok($go_transitive_closure->has_relationship_id('56_is_a_10'));
+
+$go_transitive_reduction = $ome1->transitive_reduction($go_transitive_closure);
+ok(!$go_transitive_reduction->has_relationship_id('59_is_a_29'));
+ok(!$go_transitive_reduction->has_relationship_id('103_part_of_265'));
+ok(!$go_transitive_reduction->has_relationship_id('60_is_a_242'));
+ok(!$go_transitive_reduction->has_relationship_id('60_is_a_29'));
+ok(!$go_transitive_reduction->has_relationship_id('60_part_of_117'));
+ok(!$go_transitive_reduction->has_relationship_id('265_is_a_2'));
+ok(!$go_transitive_reduction->has_relationship_id('265_is_a_10'));
+ok(!$go_transitive_reduction->has_relationship_id('56_is_a_10'));
+
+ok($go_transitive_reduction->get_number_of_relationships() == 15);
+
+open (TR, ">./t/data/go_transitive_reduction.obo") || die "Run as root the tests: ", $!;
+$go_transitive_reduction->export('obo', \*TR);
+close TR;
 
 ok(1);

@@ -1,4 +1,4 @@
-# $Id: Makefile.PL 1896 2010-02-14 14:49:23Z erick $
+# $Id: Makefile.PL 1896 2011-02-14 14:49:23Z erick $
 use 5.006;
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
@@ -85,6 +85,7 @@ WriteMakefile(
 								scripts/obo2tran.pl	
 								scripts/obo2xml.pl
 								scripts/obo_intersection.pl
+								scripts/obo_transitive_reduction.pl
 								scripts/obo_trimming.pl
 								scripts/obo_union.pl
 								scripts/owl2obo.pl
@@ -98,5 +99,5 @@ WriteMakefile(
 					'DIST_DEFAULT' => 'all tardist',
 					'COMPRESS'     => "gzip -9f" 
 				},
-	clean      => {FILES => "t/data/human.2.map t/data/add_goa_assocs.out t/data/goa.rdf t/data/go.obo t/data/go_transitive_closure.obo t/data/ncbi.rdf t/data/pre_cco_taxa.obo t/data/test0.obo t/data/test1.obo t/data/test1.rdf t/data/test1.xml t/data/test2.dot t/data/test2.obo t/data/test2.owl t/data/test2.rdf t/data/test2.xml t/data/test_ulo_cco2.obo t/data/test_ulo_cco.dot t/data/test_ulo_cco.owl"},
+	clean      => {FILES => "t/data/human.2.map t/data/add_goa_assocs.out t/data/goa.rdf t/data/go.obo t/data/go_transitive_closure.obo t/data/go_transitive_reduction.obo t/data/ncbi.rdf t/data/pre_cco_taxa.obo t/data/test0.obo t/data/test1.obo t/data/test1.rdf t/data/test1.xml t/data/test2.dot t/data/test2.obo t/data/test2.owl t/data/test2.rdf t/data/test2.xml t/data/test_ulo_cco2.obo t/data/test_ulo_cco.dot t/data/test_ulo_cco.owl"},
 );

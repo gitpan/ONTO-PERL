@@ -34,9 +34,8 @@ sub new {
 =cut
 
 sub text {
-	my ($self, $text) = @_;
-	if ($text) { $self->{TEXT} = $text }
-	return $self->{TEXT};
+	if ($_[1]) { $_[0]->{TEXT} = $_[1] }
+	return $_[0]->{TEXT};
 }
 
 =head2 dbxref_set
@@ -49,9 +48,8 @@ sub text {
 =cut
 
 sub dbxref_set {
-	my ($self, $dbxref_set) = @_;
-	$self->{DBXREF_SET} = $dbxref_set if ($dbxref_set);
-	return $self->{DBXREF_SET};
+	$_[0]->{DBXREF_SET} = $_[1] if ($_[1]);
+	return $_[0]->{DBXREF_SET};
 }
 
 =head2 dbxref_set_as_string
@@ -65,7 +63,7 @@ sub dbxref_set {
 =cut
 
 sub dbxref_set_as_string {
-	my ($self, $dbxref_as_string) = @_;
+	my $dbxref_as_string = $_[1];
 
 	if ($dbxref_as_string) {
 		$dbxref_as_string =~ s/^\[//;
@@ -100,18 +98,18 @@ sub dbxref_set_as_string {
 				$desc  = _unescape($3) if ($3);
 				$mod   = _unescape($4) if ($4);
 			} else {
-				Carp::confess "The references of this definition: '", $self->text(), "' were not properly defined. Check the 'dbxref' field (", $entry, ').';
+				Carp::confess "The references of this definition: '", $_[0]->text(), "' were not properly defined. Check the 'dbxref' field (", $entry, ').';
 			}
 			
 			# set the dbxref:
 			$dbxref->name($db.':'.$acc);
 			$dbxref->description($desc) if (defined $desc);
 			$dbxref->modifier($mod) if (defined $mod);
-			$self->{DBXREF_SET}->add($dbxref);
+			$_[0]->{DBXREF_SET}->add($dbxref);
 		}
 	}
 	my @result = (); # a Set?
-	foreach my $dbxref (sort {lc($b->as_string()) cmp lc($a->as_string())} $self->dbxref_set()->get_set()) {
+	foreach my $dbxref (sort {lc($b->as_string()) cmp lc($a->as_string())} $_[0]->dbxref_set()->get_set()) {
 		unshift @result, $dbxref->as_string();
 	}
 	return '['.join(', ', @result).']';

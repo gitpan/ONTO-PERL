@@ -55,9 +55,8 @@ sub new {
 =cut
 
 sub id {
-	my ($self, $id) = @_;
-	if ($id) { $self->{ID} = $id }
-	return $self->{ID};
+	if ($_[1]) { $_[0]->{ID} = $_[1] }
+	return $_[0]->{ID};
 }
 
 =head2 idspace
@@ -70,8 +69,7 @@ sub id {
 =cut
 
 sub idspace {
-	my ($self) = @_;
-	$self->{ID} =~ /([A-Za-z_]+):/ if ($self->{ID});
+	$_[0]->{ID} =~ /([A-Za-z_]+):/ if ($_[0]->{ID});
 	return $1 || 'NN';
 }
 
@@ -85,8 +83,7 @@ sub idspace {
 =cut
 
 sub subnamespace {
-	my $self = shift;
-	$self->{ID} =~ /:([A-Z][a-z]?)/ if ($self->{ID});
+	$_[0]->{ID} =~ /:([A-Z][a-z]?)/ if ($_[0]->{ID});
 	return $1 || 'X';
 }
 
@@ -100,8 +97,7 @@ sub subnamespace {
 =cut
 
 sub code {
-	my $self = shift;
-	$self->{ID} =~ /:[A-Z]?[a-z]?(.*)/ if ($self->{ID});	
+	$_[0]->{ID} =~ /:[A-Z]?[a-z]?(.*)/ if ($_[0]->{ID});	
 	return $1 || '0000000';
 }
 
@@ -115,9 +111,8 @@ sub code {
 =cut
 
 sub name {
-	my ($self, $name) = @_;
-	if ($name) { $self->{NAME} = $name }
-	return $self->{NAME};
+	if ($_[1]) { $_[0]->{NAME} = $_[1] }
+	return $_[0]->{NAME};
 }
 
 =head2 is_anonymous
@@ -130,9 +125,8 @@ sub name {
 =cut
 
 sub is_anonymous {
-	my $self = shift;
-    if (@_) { $self->{IS_ANONYMOUS} = shift }
-    return (defined($self->{IS_ANONYMOUS}) && $self->{IS_ANONYMOUS} == 1)?1:0;
+	if (defined $_[1] && ($_[1] == 1 || $_[1] == 0)) { $_[0]->{IS_ANONYMOUS} = $_[1] }
+    return ($_[0]->{IS_ANONYMOUS} && $_[0]->{IS_ANONYMOUS} == 1)?1:0;
 }
 
 =head2 alt_id
@@ -183,9 +177,8 @@ sub namespace {
 =cut
 
 sub comment {
-	my ($self, $comment) = @_;
-	if (defined $comment) { $self->{COMMENT} = $comment }
-	return $self->{COMMENT};
+	if (defined $_[1]) { $_[0]->{COMMENT} = $_[1] }
+	return $_[0]->{COMMENT};
 }
 
 =head2 subset
@@ -254,19 +247,18 @@ sub synonym_set {
 =cut
 
 sub synonym_as_string {
-	my ($self, $synonym_text, $dbxrefs, $scope, $synonym_type_name) = @_;
-	if ($synonym_text && $dbxrefs && $scope) {
+	if ($_[1] && $_[2] && $_[3]) {
 		my $synonym = OBO::Core::Synonym->new();
-		$synonym->def_as_string($synonym_text, $dbxrefs);
-		$synonym->scope($scope);
-		$synonym->synonym_type_name($synonym_type_name); # optional argument
-		$self->synonym_set($synonym);
+		$synonym->def_as_string($_[1], $_[2]);
+		$synonym->scope($_[3]);
+		$synonym->synonym_type_name($_[4]); # optional argument
+		$_[0]->synonym_set($synonym);
 	}
 	
 	my @sorted_syns = map { $_->[0] }                       # restore original values
 					sort { $a->[1] cmp $b->[1] }            # sort
 					map  { [$_, lc($_->def_as_string())] }  # transform: value, sortkey
-					$self->{SYNONYM_SET}->get_set();
+					$_[0]->{SYNONYM_SET}->get_set();
 
 	my @result;
 	my $s_as_string;
@@ -299,9 +291,8 @@ sub synonym_as_string {
 =cut
 
 sub xref_set {
-	my ($self, $xref_set) = @_;
-	$self->{XREF_SET} = $xref_set if ($xref_set);
-	return $self->{XREF_SET};
+	$_[0]->{XREF_SET} = $_[1] if ($_[1]);
+	return $_[0]->{XREF_SET};
 }
 
 =head2 xref_set_as_string
@@ -315,13 +306,13 @@ sub xref_set {
 =cut
 
 sub xref_set_as_string {
-	my ($self, $xref_as_string) = @_;
+	my $xref_as_string = $_[1];
 	if ($xref_as_string) {
 		$xref_as_string =~ s/^\[//;
 		$xref_as_string =~ s/\]$//;		
 		$xref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
 		$xref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
-		my $xref_set = $self->{XREF_SET};
+		my $xref_set = $_[0]->{XREF_SET};
 		
 		my @lineas = $xref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
 		foreach my $l (@lineas) {
@@ -350,7 +341,7 @@ sub xref_set_as_string {
 				$desc  = _unescape($3) if ($3);
 				$mod   = _unescape($4) if ($4);
 			} else {
-				die "The references of the instance with ID: '", $self->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
+				die "The references of the instance with ID: '", $_[0]->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
 			}
 			
 			# set the dbxref:
@@ -359,9 +350,9 @@ sub xref_set_as_string {
 			$xref->modifier($mod) if (defined $mod);
 			$xref_set->add($xref);
 		}
-		$self->{XREF_SET} = $xref_set; # We are overwriting the existing set; otherwise, add the new elements to the existing set!
+		$_[0]->{XREF_SET} = $xref_set; # We are overwriting the existing set; otherwise, add the new elements to the existing set!
 	}
-	my @result = $self->xref_set()->get_set();
+	my @result = $_[0]->xref_set()->get_set();
 }
 
 =head2 instance_of
@@ -374,23 +365,22 @@ sub xref_set_as_string {
 =cut
 
 sub instance_of {
-	my ($self, $term) = @_;
-	if ($term) {
+	if ($_[1]) {
 		my $r   = OBO::Core::Relationship->new();
-		my $tid = $term->id();
+		my $tid = $_[1]->id();
 		my $rt  = 'instance_of';
-		my $iid = $self->id();
+		my $iid = $_[0]->id();
 		my $id  = $iid.'_'.$rt.'_'.$tid;
 
 		$r->id($id);
 		$r->type($rt);
-		$r->link($self, $term);
-		$self->{INSTANCE_OF} = $r; # only one term (class) per instance 
+		$r->link($_[0], $_[1]);
+		$_[0]->{INSTANCE_OF} = $r; # only one term (class) per instance 
 		
 		# make the term aware of its instance
-		$term->class_of()->add($self);
+		$_[1]->class_of()->add($_[0]);
 	}
-	return $self->{INSTANCE_OF}->head();
+	return $_[0]->{INSTANCE_OF}->head();
 }
 
 =head2 is_instance_of
@@ -403,8 +393,7 @@ sub instance_of {
 =cut
 
 sub is_instance_of {
-	my ($self, $term) = @_;
-	return ($term && $self->{INSTANCE_OF} && $term->id() eq $self->{INSTANCE_OF}->head()->id());
+	return ($_[1] && $_[0]->{INSTANCE_OF} && $_[1]->id() eq $_[0]->{INSTANCE_OF}->head()->id());
 }
 
 =head2 intersection_of
@@ -474,9 +463,8 @@ sub disjoint_from {
 =cut
 
 sub created_by {
-	my ($self, $created_by) = @_;
-	$self->{CREATED_BY} = $created_by if ($created_by);
-	return $self->{CREATED_BY};
+	$_[0]->{CREATED_BY} = $_[1] if ($_[1]);
+	return $_[0]->{CREATED_BY};
 }
 
 =head2 creation_date
@@ -489,9 +477,8 @@ sub created_by {
 =cut
 
 sub creation_date {
-	my ($self, $creation_date) = @_;
-	$self->{CREATION_DATE} = $creation_date if ($creation_date);
-	return $self->{CREATION_DATE};
+	$_[0]->{CREATION_DATE} = $_[1] if ($_[1]);
+	return $_[0]->{CREATION_DATE};
 }
 
 =head2 modified_by
@@ -504,9 +491,8 @@ sub creation_date {
 =cut
 
 sub modified_by {
-	my ($self, $modified_by) = @_;
-	$self->{MODIFIED_BY} = $modified_by if ($modified_by);
-	return $self->{MODIFIED_BY};
+	$_[0]->{MODIFIED_BY} = $_[1] if ($_[1]);
+	return $_[0]->{MODIFIED_BY};
 }
 
 =head2 modification_date
@@ -519,9 +505,8 @@ sub modified_by {
 =cut
 
 sub modification_date {
-	my ($self, $modification_date) = @_;
-	$self->{MODIFICATION_DATE} = $modification_date if ($modification_date);
-	return $self->{MODIFICATION_DATE};
+	$_[0]->{MODIFICATION_DATE} = $_[1] if ($_[1]);
+	return $_[0]->{MODIFICATION_DATE};
 }
 
 =head2 is_obsolete
@@ -534,9 +519,8 @@ sub modification_date {
 =cut
 
 sub is_obsolete {
-	my $self = shift;
-	if (@_) { $self->{IS_OBSOLETE} = shift }
-	return (defined($self->{IS_OBSOLETE}) && $self->{IS_OBSOLETE} == 1)?1:0;
+	if (defined $_[1] && ($_[1] == 1 || $_[1] == 0)) { $_[0]->{IS_OBSOLETE} = $_[1] }
+    return ($_[0]->{IS_OBSOLETE} && $_[0]->{IS_OBSOLETE} == 1)?1:0;
 }
 
 =head2 replaced_by
@@ -587,9 +571,8 @@ sub consider {
 =cut
 
 sub builtin {
-	my $self = shift;
-	if (@_) { $self->{BUILTIN} = shift }
-	return (defined($self->{BUILTIN}) && $self->{BUILTIN} == 1)?1:0;
+	if (defined $_[1] && ($_[1] == 1 || $_[1] == 0)) { $_[0]->{BUILTIN} = $_[1] }
+    return ($_[0]->{BUILTIN} && $_[0]->{BUILTIN} == 1)?1:0;
 }
 
 =head2 equals
@@ -603,10 +586,10 @@ sub builtin {
 
 sub equals {
 	my ($self, $target) = @_;
-	if ($target && eval { $target->isa('OBO::Core::Instance') }) {
-		return (defined $target && $self->{'ID'} eq $target->{'ID'})?1:0;
+	if ($_[1] && eval { $_[1]->isa('OBO::Core::Instance') }) {
+		return (defined $_[1] && $_[0]->{'ID'} eq $_[1]->{'ID'})?1:0;
 	} else {
-		die "An unrecognized object type (not a OBO::Core::Instance) was found: '", $target, "'";
+		die "An unrecognized object type (not a OBO::Core::Instance) was found: '", $_[1], "'";
 	}
 }
 

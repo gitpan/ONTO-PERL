@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 358;
+    plan tests => 367;
 }
 
 #########################
@@ -414,6 +414,15 @@ $onto->add_relationship($r12);
 ok($onto->get_relationship_by_id('CCO:P0000001_is_a_CCO:P0000002')->head()->id() eq 'CCO:P0000002');
 ok($onto->has_relationship_id('CCO:P0000001_is_a_CCO:P0000002'));
 
+# delete a relationship
+$onto->delete_relationship($r12);
+ok(!$onto->has_relationship_id('CCO:P0000001_is_a_CCO:P0000002'));
+
+# add back the just deleted relationship
+$onto->add_relationship($r12);
+ok($onto->get_relationship_by_id('CCO:P0000001_is_a_CCO:P0000002')->head()->id() eq 'CCO:P0000002');
+ok($onto->has_relationship_id('CCO:P0000001_is_a_CCO:P0000002'));
+
 my @relas = @{$onto->get_relationships_by_target_term($onto->get_term_by_id('CCO:P0000002'))};
 ok($relas[0]->id()         eq 'CCO:P0000001_is_a_CCO:P0000002');
 ok($relas[0]->tail()->id() eq 'CCO:P0000001');
@@ -471,6 +480,15 @@ ok($hr{'CCO:P0000001_participates_in_CCO:P0000004'}->head()->equals($n4));
 
 # recover a previously stored relationship
 ok($onto->get_relationship_by_id('CCO:P0000001_participates_in_CCO:P0000003')->equals($r13));
+ok($onto->has_relationship_id('CCO:P0000001_participates_in_CCO:P0000003'));
+
+# delete a relationship
+$onto->delete_relationship($r13);
+ok(!$onto->has_relationship_id('CCO:P0000001_participates_in_CCO:P0000003'));
+
+# add back the just deleted relationship
+$onto->add_relationship($r13);
+ok($onto->get_relationship_by_id('CCO:P0000001_participates_in_CCO:P0000003')->head()->id() eq 'CCO:P0000003');
 ok($onto->has_relationship_id('CCO:P0000001_participates_in_CCO:P0000003'));
 
 # get children
@@ -931,7 +949,11 @@ $d28->name('28');
 $d29->name('29');
 
 my $r = 'is_a';
+my $p = 'part_of';
+
 $o1->add_relationship_type_as_string($r, $r);
+$o1->add_relationship_type_as_string($p, $p);
+
 $o1->create_rel($d5,$r,$d2);
 $o1->create_rel($d2,$r,$d6);
 $o1->create_rel($d2,$r,$d1);
@@ -954,8 +976,12 @@ $o1->create_rel($d20,$r,$d21);
 $o1->create_rel($d20,$r,$d32);
 $o1->create_rel($d21,$r,$d25);
 
+$o1->create_rel($d1,$p,$d20);
+$o1->create_rel($d20,$p,$d25);
+$o1->create_rel($d1,$p,$d25);
+
 my @ref_paths = $o1->get_paths_term1_term2($d5->id(), $d26->id());
-ok ($#ref_paths == 3);
+ok ($#ref_paths == 7);
 
 @ref_paths = $o1->get_paths_term1_term2($d5->id(), $d29->id());
 ok ($#ref_paths == 0);
@@ -968,8 +994,16 @@ foreach my $ref_path (@ref_paths) {
 	}
 }
 
-my $stop  = OBO::Util::Set->new();
+my $stop = OBO::Util::Set->new();
 map {$stop->add($_->id())} @{$o1->get_terms()};
 
 my @pref1 = $o1->get_paths_term_terms($d5->id(), $stop);
-ok ($#pref1 == 22);
+ok ($#pref1 == 33);
+
+my @pref2 = $o1->get_paths_term_terms_same_rel($d5->id(), $stop, $r);
+ok ($#pref2 == 22);
+
+my @pref3 = $o1->get_paths_term_terms_same_rel($d1->id(), $stop, $p);
+ok ($#pref3 == 2); # 1_part_of_25; 1_part_of_20; 1_part_of_20 --> 20_part_of_25
+
+ok (1);

@@ -37,18 +37,17 @@ sub new {
 =cut
 
 sub scope {
-	my ($self, $synonym_scope) = @_;
-	if ($synonym_scope) {
+	if ($_[1]) {
 		my $possible_scopes = OBO::Util::Set->new();
 		my @synonym_scopes  = ('EXACT', 'BROAD', 'NARROW', 'RELATED');
 		$possible_scopes->add_all(@synonym_scopes);
-		if ($possible_scopes->contains($synonym_scope)) {
-			$self->{SCOPE} = $synonym_scope;
+		if ($possible_scopes->contains($_[1])) {
+			$_[0]->{SCOPE} = $_[1];
 		} else {
 			die 'The synonym scope you provided must be one of the following: ', join (', ', @synonym_scopes);
 		}
 	}
-    return $self->{SCOPE};
+    return $_[0]->{SCOPE};
 }
 
 =head2 def
@@ -61,9 +60,8 @@ sub scope {
 =cut
 
 sub def {
-	my ($self, $def) = @_;
-	$self->{DEF} = $def if ($def);
-	return $self->{DEF};
+	$_[0]->{DEF} = $_[1] if ($_[1]);
+	return $_[0]->{DEF};
 }
 
 =head2 synonym_type_name
@@ -76,9 +74,8 @@ sub def {
 =cut
 
 sub synonym_type_name {
-	my ($self, $synonym_type_name) = @_;
-	$self->{SYNONYM_TYPE_NAME}     = $synonym_type_name if ($synonym_type_name);
-	return $self->{SYNONYM_TYPE_NAME};
+	$_[0]->{SYNONYM_TYPE_NAME} = $_[1] if ($_[1]);
+	return $_[0]->{SYNONYM_TYPE_NAME};
 }
 
 =head2 def_as_string
@@ -91,10 +88,10 @@ sub synonym_type_name {
 =cut
 
 sub def_as_string {
-	my ($self, $text, $dbxref_as_string) = @_;
-	if ($text && $dbxref_as_string){
+	my $dbxref_as_string = $_[2];
+	if ($_[1] && $dbxref_as_string){
 		my $def = OBO::Core::Def->new();
-		$def->text($text);
+		$def->text($_[1]);
 
 		$dbxref_as_string =~ s/^\[//;
 		$dbxref_as_string =~ s/\]$//;		
@@ -128,7 +125,7 @@ sub def_as_string {
 				$desc  = _unescape($3) if ($3);
 				$mod   = _unescape($4) if ($4);
 			} else {
-				die "The references of this synonym: '", $text, "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
+				die "The references of this synonym: '", $_[1], "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
 			}
 			
 			# set the dbxref:
@@ -137,22 +134,22 @@ sub def_as_string {
 			$dbxref->modifier($mod) if (defined $mod);
 			$def->dbxref_set->add($dbxref);
 		}
-		$self->{DEF} = $def;
+		$_[0]->{DEF} = $def;
 	}
 	
 	my @result  = (); # a Set?
-	my @dbxrefs = $self->{DEF}->dbxref_set()->get_set();
+	my @dbxrefs = $_[0]->{DEF}->dbxref_set()->get_set();
 	my @sorted_dbxrefs = map { $_->[0] }                 # restore original values
 						sort { $a->[1] cmp $b->[1] }     # sort
 						map  { [$_, lc($_->as_string)] } # transform: value, sortkey
-						$self->{DEF}->dbxref_set()->get_set();							
+						$_[0]->{DEF}->dbxref_set()->get_set();							
 	#foreach my $dbxref (sort {($a && $b)?(lc($a->as_string()) cmp lc($b->as_string())):0} @dbxrefs) {
 	foreach my $dbxref (@sorted_dbxrefs) {	
 		push @result, $dbxref->as_string();
 	}
 	# min  output: "synonym text" [dbxref's] 
 	# full output: "synonym text" synonym_scope SYNONYM_TYPE_NAME [dbxref's] <-- to get this use 'OBO::Core::Term::synonym_as_string()'
-	return '"'.$self->{DEF}->text().'"'.' ['.join(', ', @result).']';
+	return '"'.$_[0]->{DEF}->text().'"'.' ['.join(', ', @result).']';
 }
 
 =head2 equals
@@ -165,17 +162,16 @@ sub def_as_string {
 =cut
 
 sub equals {
-	my ($self, $target) = @_;
 	my $result = 0;
-	if ($target && eval { $target->isa('OBO::Core::Synonym') }) {
+	if ($_[1] && eval { $_[1]->isa('OBO::Core::Synonym') }) {
 
-		die 'The scope of this synonym is undefined.' if (!defined($self->{SCOPE}));
-		die 'The scope of the target synonym is undefined.' if (!defined($target->{SCOPE}));
+		die 'The scope of this synonym is undefined.' if (!defined($_[0]->{SCOPE}));
+		die 'The scope of the target synonym is undefined.' if (!defined($_[1]->{SCOPE}));
 		
-		$result = (($self->{SCOPE} eq $target->{SCOPE}) && ($self->{DEF}->equals($target->{DEF})));
-		$result = $result && ($self->{SYNONYM_TYPE_NAME} eq $target->{SYNONYM_TYPE_NAME}) if (defined $self->{SYNONYM_TYPE_NAME} && defined $target->{SYNONYM_TYPE_NAME});
+		$result = (($_[0]->{SCOPE} eq $_[1]->{SCOPE}) && ($_[0]->{DEF}->equals($_[1]->{DEF})));
+		$result = $result && ($_[0]->{SYNONYM_TYPE_NAME} eq $_[1]->{SYNONYM_TYPE_NAME}) if (defined $_[0]->{SYNONYM_TYPE_NAME} && defined $_[1]->{SYNONYM_TYPE_NAME});
 	} else {
-		die "An unrecognized object type (not a OBO::Core::Synonym) was found: '", $target, "'";
+		die "An unrecognized object type (not a OBO::Core::Synonym) was found: '", $_[1], "'";
 	}
 	return $result;
 }

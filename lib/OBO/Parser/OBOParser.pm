@@ -845,6 +845,8 @@ $ontology2->get_relationship_by_id("CCO:P0000274_part_of_CCO:P0000271")->type() 
 An OBOParser object parses an OBO-formatted file:
 
 	http://www.geneontology.org/GO.format.obo-1_4.shtml
+	
+	http://berkeleybop.org/~cjm/obo2owl/obo-syntax.html
 
 =head1 AUTHOR
 

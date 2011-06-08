@@ -33,9 +33,8 @@ sub new {
 =cut
 
 sub name {
-	my ($self, $name) = @_;
-	$self->{NAME} = $name if ($name);
-	return $self->{NAME};
+	$_[0]->{NAME} = $_[1] if ($_[1]);
+	return $_[0]->{NAME};
 }
 
 =head2 description
@@ -48,9 +47,8 @@ sub name {
 =cut
 
 sub description {
-	my ($self, $desc) = @_;
-	$self->{DESCRIPTION} = $desc if ($desc);
-	return $self->{DESCRIPTION};
+	$_[0]->{DESCRIPTION} = $_[1] if ($_[1]);
+	return $_[0]->{DESCRIPTION};
 }
 
 =head2 scope
@@ -63,9 +61,8 @@ sub description {
 =cut
 
 sub scope {
-	my ($self, $scope) = @_;
-	$self->{SCOPE} = $scope if ($scope);
-	return $self->{SCOPE};
+	$_[0]->{SCOPE} = $_[1] if ($_[1]);
+	return $_[0]->{SCOPE};
 }
 
 =head2 as_string
@@ -78,15 +75,14 @@ sub scope {
 =cut
 
 sub as_string {
-	my ($self, $name, $desc, $scope) = @_;
-	if ($name && $desc){
-		$self->{NAME}        = $name;
-		$self->{DESCRIPTION} = $desc;
-		$self->{SCOPE}       = $scope if ($scope);
+	if ($_[1] && $_[2]){
+		$_[0]->{NAME}        = $_[1];
+		$_[0]->{DESCRIPTION} = $_[2];
+		$_[0]->{SCOPE}       = $_[3] if ($_[3]);
 	}
-	my $result  = $self->{NAME}." \"".$self->{DESCRIPTION}."\"";
-	$scope      = $self->{SCOPE};
-	$result    .= (defined $scope)?" ".$scope:"";
+	my $result = $_[0]->{NAME}." \"".$_[0]->{DESCRIPTION}."\"";
+	my $scope  = $_[0]->{SCOPE};
+	$result   .= (defined $scope)?" ".$scope:"";
 }
 
 =head2 equals
@@ -99,20 +95,19 @@ sub as_string {
 =cut
 
 sub equals {
-	my ($self, $target) = @_;
 	my $result = 0;
-	if ($target && eval { $target->isa('OBO::Core::SynonymTypeDef') }) {
+	if ($_[1] && eval { $_[1]->isa('OBO::Core::SynonymTypeDef') }) {
 
-		die 'The name of this synonym type definition is undefined.' if (!defined($self->{NAME}));
-		die 'The name of the target synonym type definition is undefined.' if (!defined($self->{NAME}));
+		die 'The name of this synonym type definition is undefined.' if (!defined($_[0]->{NAME}));
+		die 'The name of the target synonym type definition is undefined.' if (!defined($_[0]->{NAME}));
 		
-		die 'The description of the this synonym type definition is undefined.' if (!defined($target->{DESCRIPTION}));
-		die 'The description of the target synonym type definition is undefined.' if (!defined($target->{DESCRIPTION}));
+		die 'The description of the this synonym type definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
+		die 'The description of the target synonym type definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
 		
-		$result = ($self->{NAME} eq $target->{NAME}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION});
-		$result = $result && ($self->{SCOPE} eq $target->{SCOPE}) if (defined $self->{SCOPE} && defined $target->{SCOPE}); # TODO Future improvement, consider case: scope_1 undefined and scope_2 defined!
+		$result = ($_[0]->{NAME} eq $_[1]->{NAME}) && ($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION});
+		$result = $result && ($_[0]->{SCOPE} eq $_[1]->{SCOPE}) if (defined $_[0]->{SCOPE} && defined $_[1]->{SCOPE}); # TODO Future improvement, consider case: scope_1 undefined and scope_2 defined!
 	} else {
-		die "An unrecognized object type (not a OBO::Core::SynonymTypeDef) was found: '", $target, "'";
+		die "An unrecognized object type (not a OBO::Core::SynonymTypeDef) was found: '", $_[1], "'";
 	}
 	return $result;
 }

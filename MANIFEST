@@ -88,6 +88,7 @@ scripts/obo2rdf.pl
 scripts/obo2tran.pl
 scripts/obo2xml.pl
 scripts/obo_intersection.pl
+scripts/obo_transitive_reduction.pl
 scripts/obo_trimming.pl
 scripts/obo_union.pl
 scripts/owl2obo.pl

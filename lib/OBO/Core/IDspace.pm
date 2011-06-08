@@ -1,4 +1,4 @@
-# $Id: IDspace.pm 1845 2010-09-29 erick.antezana $
+# $Id: IDspace.pm 2011-09-29 erick.antezana $
 #
 # Module  : IDspace.pm
 # Purpose : A mapping between a "local" ID space and a "global" ID space.
@@ -34,13 +34,12 @@ sub new {
 =cut
 
 sub local_idspace {
-	my ($self, $local_idspace) = @_;
-	if ($local_idspace) {
-		$self->{LOCAL_IDSPACE} = $local_idspace;
+	if ($_[1]) {
+		$_[0]->{LOCAL_IDSPACE} = $_[1];
 	} else { # get-mode
-		die 'The local ID space of this ID space is not defined.' if (!defined($self->{LOCAL_IDSPACE}));
+		die 'The local ID space of this ID space is not defined.' if (!defined($_[0]->{LOCAL_IDSPACE}));
 	}
-	return $self->{LOCAL_IDSPACE};
+	return $_[0]->{LOCAL_IDSPACE};
 }
 
 =head2 uri
@@ -53,13 +52,12 @@ sub local_idspace {
 =cut
 
 sub uri {
-	my ($self, $uri) = @_;
-	if ($uri) {
-		$self->{URI} = $uri;
+	if ($_[1]) {
+		$_[0]->{URI} = $_[1];
 	} else { # get-mode
-		die 'The URI of this ID space is not defined.' if (!defined($self->{URI}));
+		die 'The URI of this ID space is not defined.' if (!defined($_[0]->{URI}));
 	}
-	return $self->{URI};
+	return $_[0]->{URI};
 }
 
 =head2 description
@@ -72,13 +70,12 @@ sub uri {
 =cut
 
 sub description {
-	my ($self, $description) = @_;
-	if ($description) { 
-		$self->{DESCRIPTION} = $description;
+	if ($_[1]) { 
+		$_[0]->{DESCRIPTION} = $_[1];
 	} else { # get-mode
-		die 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
+		die 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
 	}
-	return $self->{DESCRIPTION};
+	return $_[0]->{DESCRIPTION};
 }
 
 =head2 as_string
@@ -91,16 +88,15 @@ sub description {
 =cut
 
 sub as_string {
-	my ($self, $local_idspace, $uri, $description) = @_;
-	if ($local_idspace && $uri){
-		$self->{LOCAL_IDSPACE} = $local_idspace;
-		$self->{URI}           = $uri;
-		$self->{DESCRIPTION}   = $description if ($description);
+	if ($_[1] && $_[2]){
+		$_[0]->{LOCAL_IDSPACE} = $_[1];
+		$_[0]->{URI}           = $_[2];
+		$_[0]->{DESCRIPTION}   = $_[3] if ($_[3]);
 		return; # set mode
 	} else {
-		die 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
-		my $result = $self->{LOCAL_IDSPACE}.' '.$self->{URI};
-		$result   .= ' "'.$self->{DESCRIPTION}.'"' if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne '');
+		die 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
+		my $result = $_[0]->{LOCAL_IDSPACE}.' '.$_[0]->{URI};
+		$result   .= ' "'.$_[0]->{DESCRIPTION}.'"' if (defined $_[0]->{DESCRIPTION} && $_[0]->{DESCRIPTION} ne '');
 		$result    = '' if ($result =~ /^\s*$/);
 		return $result;
 	}
@@ -116,16 +112,15 @@ sub as_string {
 =cut
 
 sub equals {
-	my ($self, $target) = @_;
-	if ($target && eval { $target->isa('OBO::Core::IDspace') }) {
+	if ($_[1] && eval { $_[1]->isa('OBO::Core::IDspace') }) {
 		
-		die 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($self->{LOCAL_IDSPACE}) || !defined($self->{URI}));
-		die 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($target->{LOCAL_IDSPACE}) || !defined($target->{URI}));
-		my $result = ((defined $self->{DESCRIPTION} && defined $target->{DESCRIPTION}) && ($self->{DESCRIPTION} eq $target->{DESCRIPTION}));
-		return $result && (($self->{LOCAL_IDSPACE} eq $target->{LOCAL_IDSPACE}) &&
-							($self->{URI} eq $target->{URI}));
+		die 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
+		die 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($_[1]->{LOCAL_IDSPACE}) || !defined($_[1]->{URI}));
+		my $result = ((defined $_[0]->{DESCRIPTION} && defined $_[1]->{DESCRIPTION}) && ($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION}));
+		return $result && (($_[0]->{LOCAL_IDSPACE} eq $_[1]->{LOCAL_IDSPACE}) &&
+							($_[0]->{URI} eq $_[1]->{URI}));
 	} else {
-		die "An unrecognized object type (not a OBO::Core::IDspace) was found: '", $target, "'";
+		die "An unrecognized object type (not a OBO::Core::IDspace) was found: '", $_[1], "'";
 	}
 	return 0;
 }

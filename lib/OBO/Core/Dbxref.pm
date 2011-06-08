@@ -35,17 +35,16 @@ sub new {
 =cut
 
 sub name {
-	my ($self, $name) = @_;
-	if ($name) {
-		if ($name =~ /([\*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/ || 
-			$name =~ /(http):\/\/(.*)/) {
-			$self->{DB}  = $1;
-			$self->{ACC} = $2;
+	if ($_[1]) {
+		if ($_[1] =~ /([\*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/ || 
+			$_[1] =~ /(http):\/\/(.*)/) {
+			$_[0]->{DB}  = $1;
+			$_[0]->{ACC} = $2;
 		}
-	} elsif (!defined($self->{DB}) || !defined($self->{ACC})) {
+	} elsif (!defined($_[0]->{DB}) || !defined($_[0]->{ACC})) {
 		die 'The name of this dbxref is not defined.';
 	} else {  # get-mode
-		return $self->{DB}.':'.$self->{ACC};
+		return $_[0]->{DB}.':'.$_[0]->{ACC};
 	}
 }
 
@@ -62,13 +61,12 @@ sub name {
 =cut
 
 sub db {
-	my ($self, $db) = @_;
-	if ($db) {
-		$self->{DB} = $db;
-	} elsif (!defined($self->{DB})) {
+	if ($_[1]) {
+		$_[0]->{DB} = $_[1];
+	} elsif (!defined($_[0]->{DB})) {
 		die "The database (db) of this 'dbxref' is not defined.";
 	} else { # get-mode
-		return $self->{DB};
+		return $_[0]->{DB};
 	}
 }
 
@@ -82,13 +80,12 @@ sub db {
 =cut
 
 sub acc {
-	my ($self, $acc) = @_;
-	if ($acc) {
-		$self->{ACC} = $acc;
-	} elsif (!defined($self->{ACC})) {
+	if ($_[1]) {
+		$_[0]->{ACC} = $_[1];
+	} elsif (!defined($_[0]->{ACC})) {
 		die 'The accession number (acc) of this dbxref is not defined.';
 	} else { # get-mode
-		return $self->{ACC};
+		return $_[0]->{ACC};
 	}
 }
 
@@ -102,13 +99,12 @@ sub acc {
 =cut
 
 sub description {
-	my ($self, $description) = @_;
-	if ($description) { 
-		$self->{DESCRIPTION} = $description;
-	} elsif (!defined($self->{DB}) || !defined($self->{ACC})) {
+	if ($_[1]) { 
+		$_[0]->{DESCRIPTION} = $_[1];
+	} elsif (!defined($_[0]->{DB}) || !defined($_[0]->{ACC})) {
 		die 'The name of this dbxref is not defined.';
 	} else { # get-mode
-		return $self->{DESCRIPTION};
+		return $_[0]->{DESCRIPTION};
 	}
 }
 
@@ -122,13 +118,12 @@ sub description {
 =cut
 
 sub modifier {
-	my ($self, $modifier) = @_;
-	if ($modifier) { 
-		$self->{MODIFIER} = $modifier;
-	} elsif (!defined($self->{DB}) || !defined($self->{ACC})) {
+	if ($_[1]) { 
+		$_[0]->{MODIFIER} = $_[1];
+	} elsif (!defined($_[0]->{DB}) || !defined($_[0]->{ACC})) {
 		die 'The name of this dbxref is not defined.';
 	} else { # get-mode
-		return $self->{MODIFIER};
+		return $_[0]->{MODIFIER};
 	}
 }
 
@@ -142,11 +137,10 @@ sub modifier {
 =cut
 
 sub as_string {
-	my ($self) = @_;
-	die 'The name of this dbxref is not defined.' if (!defined($self->{DB}) || !defined($self->{ACC}));
-	my $result = $self->{DB}.':'.$self->{ACC};
-	$result   .= ' "'.$self->{DESCRIPTION}.'"' if (defined $self->{DESCRIPTION} && $self->{DESCRIPTION} ne '');
-	$result   .= ' '.$self->{MODIFIER} if (defined $self->{MODIFIER} && $self->{MODIFIER} ne '');
+	die 'The name of this dbxref is not defined.' if (!defined($_[0]->{DB}) || !defined($_[0]->{ACC}));
+	my $result = $_[0]->{DB}.':'.$_[0]->{ACC};
+	$result   .= ' "'.$_[0]->{DESCRIPTION}.'"' if (defined $_[0]->{DESCRIPTION} && $_[0]->{DESCRIPTION} ne '');
+	$result   .= ' '.$_[0]->{MODIFIER} if (defined $_[0]->{MODIFIER} && $_[0]->{MODIFIER} ne '');
 	return $result;
 }
 
@@ -160,22 +154,20 @@ sub as_string {
 =cut
 
 sub equals {
-	my ($self, $target) = @_;
-	
-	if ($target && eval { $target->isa('OBO::Core::Dbxref') }) {
+	if ($_[1] && eval { $_[1]->isa('OBO::Core::Dbxref') }) {
 		
-		if (!defined($self->{DB}) || !defined($self->{ACC})) {
+		if (!defined($_[0]->{DB}) || !defined($_[0]->{ACC})) {
 			die 'The name of this dbxref is undefined.';
 		} 
-		if (!defined($target->{DB}) || !defined($target->{ACC})) {
+		if (!defined($_[1]->{DB}) || !defined($_[1]->{ACC})) {
 			die 'The name of the target dbxref is undefined.';
 		}
-		return (($self->{DB}          eq $target->{DB})          &&
-				($self->{ACC}         eq $target->{ACC})         &&
-				($self->{DESCRIPTION} eq $target->{DESCRIPTION}) &&
-				($self->{MODIFIER}    eq $target->{MODIFIER}));
+		return (($_[0]->{DB}          eq $_[1]->{DB})          &&
+				($_[0]->{ACC}         eq $_[1]->{ACC})         &&
+				($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION}) &&
+				($_[0]->{MODIFIER}    eq $_[1]->{MODIFIER}));
 	} else {
-		die "An unrecognized object type (not a OBO::Core::Dbxref) was found: '", $target, "'";
+		die "An unrecognized object type (not a OBO::Core::Dbxref) was found: '", $_[1], "'";
 	}
 	return 0;
 }
