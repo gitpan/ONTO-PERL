@@ -98,3 +98,5 @@ Revision history for ONTO-PERL
 1.33 CCO modules updated. Minor improvements (e.g. get_relationships_by_(source|target)_term). New modules for instances. Relationship types are added while adding relationship.
 
 1.34 Transitive reduction of ontologies implemented (OBO::Util::Ontolome). Minor performance enhancements. 
+
+1.35 Term and Relationship type synonyms can be updated (based on the same synonym type name if defined). Fixed bug in Synonym.pm. Improved PODs. Dates in 'creation_date' entries are checked. Stricter module versions.

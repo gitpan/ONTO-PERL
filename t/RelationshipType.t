@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 69;
+    plan tests => 86;
 }
 
 #########################
@@ -135,12 +135,35 @@ ok(($r2->synonym_set())[0]->equals(($r3->synonym_set())[0]));
 ok(($r2->synonym_as_string())[0] eq '"part_of" [REL:ls, REL:vm] BROAD');
 ok(scalar $r2->synonym_set() == 1);
 $r2->synonym_as_string('a_part_of', '[REL:vm2, REL:ls2]', 'EXACT');
+ok(scalar $r2->synonym_set() == 2);
 ok(($r2->synonym_as_string())[0] eq '"a_part_of" [REL:ls2, REL:vm2] EXACT');
 ok(($r2->synonym_as_string())[1] eq '"part_of" [REL:ls, REL:vm] BROAD');
+
+# updating the scope and dbxref's of a synonym
+$r2->synonym_as_string('a_part_of', '[REL:vm1, REL:ls2]', 'NARROW'); # update
 ok(scalar $r2->synonym_set() == 2);
-$r2->synonym_as_string('a_part_of', '[REL:vm2, REL:ls2]', 'NARROW');
-ok(($r2->synonym_as_string())[0] eq '"a_part_of" [REL:ls2, REL:vm2] NARROW');
+ok(($r2->synonym_as_string())[0] eq '"a_part_of" [REL:ls2, REL:vm1] NARROW');
 ok(($r2->synonym_as_string())[1] eq '"part_of" [REL:ls, REL:vm] BROAD');
+$r2->synonym_as_string('a_part_of', '[REL:vm1, REL:ls1]', 'BROAD'); # update
+ok(scalar $r2->synonym_set() == 2);
+ok(($r2->synonym_as_string())[0] eq '"a_part_of" [REL:ls1, REL:vm1] BROAD');
+ok(($r2->synonym_as_string())[1] eq '"part_of" [REL:ls, REL:vm] BROAD');
+$r2->synonym_as_string('a_part_of', '[REL:vm1, REL:ls1]', 'BROAD', 'UK_SPELLING'); # adding a new syn (due to different syn type name)
+ok(scalar $r2->synonym_set() == 3);
+ok(($r2->synonym_as_string())[0] eq '"a_part_of" [REL:ls1, REL:vm1] BROAD');
+ok(($r2->synonym_as_string())[1] eq '"a_part_of" [REL:ls1, REL:vm1] BROAD UK_SPELLING');
+ok(($r2->synonym_as_string())[2] eq '"part_of" [REL:ls, REL:vm] BROAD');
+$r2->synonym_as_string('a_part_of', '[REL:vm, REL:ls1]', 'EXACT', 'UK_SPELLING'); # update
+ok(scalar $r2->synonym_set() == 3);
+ok(($r2->synonym_as_string())[0] eq '"a_part_of" [REL:ls1, REL:vm1] BROAD');
+ok(($r2->synonym_as_string())[1] eq '"a_part_of" [REL:ls1, REL:vm] EXACT UK_SPELLING');
+ok(($r2->synonym_as_string())[2] eq '"part_of" [REL:ls, REL:vm] BROAD');
+$r2->synonym_as_string('a_part_of', '[REL:vm, REL:ls1]', 'EXACT', 'US_SPELLING'); # adding a new syn (due to different syn type name)
+ok(scalar $r2->synonym_set() == 4);
+ok(($r2->synonym_as_string())[0] eq '"a_part_of" [REL:ls1, REL:vm1] BROAD');
+ok(($r2->synonym_as_string())[1] eq '"a_part_of" [REL:ls1, REL:vm] EXACT UK_SPELLING');
+ok(($r2->synonym_as_string())[2] eq '"a_part_of" [REL:ls1, REL:vm] EXACT US_SPELLING');
+ok(($r2->synonym_as_string())[3] eq '"part_of" [REL:ls, REL:vm] BROAD');
 
 # xref
 my $xref1 = OBO::Core::Dbxref->new();

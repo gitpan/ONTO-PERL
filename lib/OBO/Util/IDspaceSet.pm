@@ -1,4 +1,4 @@
-# $Id: IDspaceSet.pm 2010-10-29 erick.antezana $
+# $Id: IDspaceSet.pm 2011-06-06 erick.antezana $
 #
 # Module  : IDspaceSet.pm
 # Purpose : A set of IDspaces.

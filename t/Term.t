@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 97;
+    plan tests => 111;
 }
 
 #########################
@@ -157,17 +157,31 @@ ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2] EXACT');
 ok(($n2->synonym_as_string())[1] eq '"Hola mundo2" [CCO:ls, CCO:vm] BROAD');
 ok(scalar $n2->synonym_set() == 2);
 
-# updating the scope ans synonym type name of a synonym
-$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls2]', 'RELATED');
+# updating the scope and dbxref's of a synonym
+$n2->synonym_as_string('Hello world2', '[CCO:vm3, CCO:ls3]', 'EXACT');
 ok(scalar $n2->synonym_set() == 2);
-ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2] RELATED');
-$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls2]', 'BROAD');
+$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls3]', 'RELATED');
 ok(scalar $n2->synonym_set() == 2);
-ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2] BROAD');
-$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls2]', 'NARROW', 'UK_SPELLING');
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls3, CCO:vm2] RELATED');
+$n2->synonym_as_string('Hello world2', '[CCO:vm3, CCO:ls2]', 'BROAD');
 ok(scalar $n2->synonym_set() == 2);
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm3] BROAD');
+$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls2]', 'NARROW', 'UK_SPELLING'); # add this new synonym due to the synonym type name
+ok(scalar $n2->synonym_set() == 3);
 ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2] NARROW UK_SPELLING');
-ok(($n2->synonym_as_string())[1] eq '"Hola mundo2" [CCO:ls, CCO:vm] BROAD');
+ok(($n2->synonym_as_string())[1] eq '"Hello world2" [CCO:ls2, CCO:vm3] BROAD');
+ok(($n2->synonym_as_string())[2] eq '"Hola mundo2" [CCO:ls, CCO:vm] BROAD');
+$n2->synonym_as_string('Hello world2', '[CCO:vm1, CCO:ls1]', 'BROAD', 'UK_SPELLING'); # update 'Hello world2'
+ok(scalar $n2->synonym_set() == 3);
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls1, CCO:vm1] BROAD UK_SPELLING');
+ok(($n2->synonym_as_string())[1] eq '"Hello world2" [CCO:ls2, CCO:vm3] BROAD');
+ok(($n2->synonym_as_string())[2] eq '"Hola mundo2" [CCO:ls, CCO:vm] BROAD');
+$n2->synonym_as_string('Hello world2', '[CCO:vm, CCO:ls]', 'NARROW', 'US_SPELLING');
+ok(scalar $n2->synonym_set() == 4);
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls, CCO:vm] NARROW US_SPELLING');
+ok(($n2->synonym_as_string())[1] eq '"Hello world2" [CCO:ls1, CCO:vm1] BROAD UK_SPELLING');
+ok(($n2->synonym_as_string())[2] eq '"Hello world2" [CCO:ls2, CCO:vm3] BROAD');
+ok(($n2->synonym_as_string())[3] eq '"Hola mundo2" [CCO:ls, CCO:vm] BROAD');
 
 # xref
 my $xref1 = OBO::Core::Dbxref->new();
@@ -201,6 +215,13 @@ foreach my $xref_n2 (@xrefs_n2) {
 ok($xr_n2{'YCCO:vm'} eq 'YCCO:vm');
 ok($xr_n2{'YCCO:ls'} eq 'YCCO:ls');
 ok($xr_n2{'YCCO:ea'} eq 'YCCO:ea');
+
+@empty_refs = $n3->xref_set_as_string();
+ok($#empty_refs == -1);
+$n3->xref_set_as_string("[http://en.wikipedia.org/wiki/5'_UTR \"wiki\"]"); # from SO.obo
+my @xrefs_n3 = $n3->xref_set()->get_set();
+ok($xrefs_n3[0]->name()        eq "http://en.wikipedia.org/wiki/5'_UTR");
+ok($xrefs_n3[0]->description() eq "wiki");
 
 # def
 my $def = OBO::Core::Def->new();

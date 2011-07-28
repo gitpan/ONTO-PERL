@@ -1,4 +1,4 @@
-# $Id: Instance.pm 2011-13-04 erick.antezana $
+# $Id: Instance.pm 2011-06-06 erick.antezana $
 #
 # Module  : Instance.pm
 # Purpose : Capture instances in an Ontology.
@@ -308,48 +308,10 @@ sub xref_set {
 sub xref_set_as_string {
 	my $xref_as_string = $_[1];
 	if ($xref_as_string) {
-		$xref_as_string =~ s/^\[//;
-		$xref_as_string =~ s/\]$//;		
-		$xref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
-		$xref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
 		my $xref_set = $_[0]->{XREF_SET};
 		
-		my @lineas = $xref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
-		foreach my $l (@lineas) {
-			my $cp = $l;
-			$l =~ s/,/;;;;/g; # trick to keep the comma's
-			$xref_as_string =~ s/\Q$cp\E/$l/;
-		}
+		__dbxref($xref_set, $xref_as_string);
 		
-		my @dbxrefs = split (',', $xref_as_string);
-		
-		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
-		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
-		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
-		
-		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = undef;
-			my $xref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3);
-				$mod   = _unescape($4) if ($4);
-			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3) if ($3);
-				$mod   = _unescape($4) if ($4);
-			} else {
-				die "The references of the instance with ID: '", $_[0]->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
-			}
-			
-			# set the dbxref:
-			$xref->name($db.':'.$acc);
-			$xref->description($desc) if (defined $desc);
-			$xref->modifier($mod) if (defined $mod);
-			$xref_set->add($xref);
-		}
 		$_[0]->{XREF_SET} = $xref_set; # We are overwriting the existing set; otherwise, add the new elements to the existing set!
 	}
 	my @result = $_[0]->xref_set()->get_set();
@@ -593,7 +555,60 @@ sub equals {
 	}
 }
 
-sub _unescape {
+sub __dbxref () {
+	caller eq __PACKAGE__ or die "You cannot call this (__dbxref) prived method!";
+	#
+	# $_[0] ==> set
+	# $_[1] ==> dbxref string
+	#
+	my $dbxref_set       = $_[0];
+	my $dbxref_as_string = $_[1];
+	
+	$dbxref_as_string =~ s/^\[//;
+	$dbxref_as_string =~ s/\]$//;
+	$dbxref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
+	$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
+	
+	my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
+	foreach my $l (@lineas) {
+		my $cp = $l;
+		$l =~ s/,/;;;;/g; # trick to keep the comma's
+		$dbxref_as_string =~ s/\Q$cp\E/$l/;
+	}
+	
+	my @dbxrefs = split (',', $dbxref_as_string);
+	
+	my $r_db_acc      = qr/([ \*\.\w-]*):([ '\#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+	my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+	my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
+	
+	foreach my $entry (@dbxrefs) {
+		my ($match, $db, $acc, $desc, $mod) = undef;
+		my $dbxref = OBO::Core::Dbxref->new();
+		if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+			$db    = __unescape($1);
+			$acc   = __unescape($2);
+			$desc  = __unescape($3);
+			$mod   = __unescape($4) if ($4);
+		} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+			$db    = __unescape($1);
+			$acc   = __unescape($2);
+			$desc  = __unescape($3) if ($3);
+			$mod   = __unescape($4) if ($4);
+		} else {
+			die "ERROR: Check the 'dbxref' field of '", $entry, "'.";
+		}
+		
+		# set the dbxref:
+		$dbxref->name($db.':'.$acc);
+		$dbxref->description($desc) if (defined $desc);
+		$dbxref->modifier($mod) if (defined $mod);
+		$dbxref_set->add($dbxref);
+	}
+}
+
+sub __unescape {
+	caller eq __PACKAGE__ or die;
 	my $match = $_[0];
 	$match =~ s/;;;;;/\\"/g;
 	$match =~ s/;;;;/\\,/g;

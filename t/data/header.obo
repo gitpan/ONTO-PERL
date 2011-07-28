@@ -58,7 +58,7 @@ def: "two point two" [FO:ea]
 synonym: "two period two" EXACT [FO:ea]
 xref: TEST:T0000003
 xref: EQUI:T0000003
-is_a: CCO:F0000002 ! dos
+is_a: CCO:F0000002 ! implied link automatically realized ! dos 
 
 [Term]
 id: CCO:F0000004

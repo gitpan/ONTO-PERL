@@ -1,4 +1,4 @@
-# $Id: OWLParser.pm 2010-09-29 erick.antezana $
+# $Id: OWLParser.pm 2011-02-02 erick.antezana $
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
@@ -19,8 +19,8 @@ use strict;
 use warnings;
 
 sub new {
-	my $class                   = shift;
-	my $self                    = {};
+	my $class = shift;
+	my $self  = {};
         
 	bless ($self, $class);
 	return $self;
@@ -91,33 +91,34 @@ use constant RELATED_SYNONYM_LABEL    => 'rdf:RDFowl:ClassoboInOwl:hasRelatedSyn
 use constant RELATED_SYNONYM          => 'rdf:RDFowl:ClassoboInOwl:hasRelatedSynonymoboInOwl:Synonym';
 use constant SYNONYM_DBXREF_LABEL     => 'SYNONYM_DBXREF_LABEL';
 use constant SYNONYM_DBXREF           => 'SYNONYM_DBXREF';
-#
-# Globals ;-)
-#
-my %data_current_tag;                # for gathering the chars stream
-my $result;                   # The ontology
-my $count = 0;                # count terms
-my $tag = '';                 # current tag
-my $parent_tag = '';          # parent tag
-my $grant_parent_tag = '';    # grant parent tag
-my $great_parent_tag = '';    # great parent tag
 
-my $current_term_id;                 # current term ID
+#
+# Global variables
+#
+my %data_current_tag;      # for gathering the chars stream
+my $result;                # The ontology
+my $count            = 0;  # count terms
+my $tag              = ''; # current tag
+my $parent_tag       = ''; # parent tag
+my $grant_parent_tag = ''; # grant parent tag
+my $great_parent_tag = ''; # great parent tag
+
+my $current_term_id;                   # current term ID
 my $relationship_type_id;
-my $def_char = 0;                    # defintion characters streamed
-my $current_relationship_type_id;    # current relationship ID
-my $attr = '';                       # current relationship
-my $current_line = 0;                # current line in the parsed file
-my $is_metadata = 0;                 # if the element is aprt of the metadata (e.g. oboInOwl:DbXref)
-my @dbxref = ();                     # current dbxrefs
-my $owl_ontology_tag = 0;            # inside the ontology data
-my $owl_class_tag = 0;               # Am I parsing a class?
-my $owl_object_property_tag = 0;     # Am I parsing a property?
-my $oboinowl_has_definition_tag = 0; # 
-my $oboinowl_definition_tag = 0;     # Am I parsing a definition chunk?
-my $oboinowl_synonym_tag = 0;        # Am I parsing a synonym chunk?
+my $def_char                      = 0; # defintion characters streamed
+my $current_relationship_type_id;      # current relationship ID
+my $attr                          = '';# current relationship
+my $current_line                  = 0; # current line in the parsed file
+my $is_metadata                   = 0; # if the element is aprt of the metadata (e.g. oboInOwl:DbXref)
+my @dbxref                        = ();# current dbxrefs
+my $owl_ontology_tag              = 0; # inside the ontology data
+my $owl_class_tag                 = 0; # Am I parsing a class?
+my $owl_object_property_tag       = 0; # Am I parsing a property?
+my $oboinowl_has_definition_tag   = 0; # 
+my $oboinowl_definition_tag       = 0; # Am I parsing a definition chunk?
+my $oboinowl_synonym_tag          = 0; # Am I parsing a synonym chunk?
 my $type_of_synonym;
-my $whitin_a_synonym = 0;
+my $whitin_a_synonym              = 0;
 
 =head2 work
 
@@ -128,6 +129,9 @@ my $whitin_a_synonym = 0;
   
 =cut
 sub work {
+	# TODO "This Parser needs to be updated (reworked) to coply with the latest OBO spec as well as the latest OBO2OWL mapping.\n";
+	# TODO "You are more than welcome to contribute to this module.\n";
+	
 	my $self = shift;
 	$self->{OWL_FILE} = shift if (@_);
 	$result = OBO::Core::Ontology->new();

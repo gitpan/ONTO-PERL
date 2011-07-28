@@ -1,4 +1,4 @@
-# $Id: Term.pm 2010-12-22 erick.antezana $
+# $Id: Term.pm 2011-06-06 erick.antezana $
 #
 # Module  : Term.pm
 # Purpose : Term of an Ontology.
@@ -178,51 +178,11 @@ sub def_as_string {
 	if (defined $_[1] && defined $dbxref_as_string) {
 		my $def = $_[0]->{DEF};
 		$def->text($_[1]);
+		my $dbxref_set = OBO::Util::DbxrefSet->new(); 
 		
-		$dbxref_as_string =~ s/^\[//;
-		$dbxref_as_string =~ s/\]$//;		
-		$dbxref_as_string =~ s/\\,/;;;;/g; # trick to keep the comma's
-		$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
+		__dbxref($dbxref_set, $dbxref_as_string);
 		
-		my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
-		foreach my $l (@lineas) {
-			my $cp = $l;
-			$l =~ s/,/;;;;/g; # trick to keep the comma's
-			$dbxref_as_string =~ s/\Q$cp\E/$l/;
-		}
-		
-		my @dbxrefs = split (',', $dbxref_as_string);
-		
-		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
-		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
-		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
-		
-		my $dbxref_set = OBO::Util::DbxrefSet->new();
-		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = undef;
-			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3);
-				$mod   = _unescape($4) if ($4);
-			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3) if ($3);
-				$mod   = _unescape($4) if ($4);
-			} else {
-				die "The references of the definition of the term with ID: '", $_[0]->id(), "' were not properly defined. Check the 'dbxref' field (", $entry, ").";
-			}
-			
-			# set the dbxref:
-			$dbxref->name($db.':'.$acc);
-			$dbxref->description($desc) if (defined $desc);
-			$dbxref->modifier($mod) if (defined $mod);
-			$dbxref_set->add($dbxref);
-		}
 		$def->dbxref_set($dbxref_set);
-		$_[0]->{DEF} = $def;
 	}
 	
 	my @sorted_dbxrefs = map { $_->[0] }             # restore original values
@@ -300,32 +260,51 @@ sub subset {
   Returns  - an array with the synonym(s) of this term
   Args     - the synonym(s) (OBO::Core::Synonym) of this term
   Function - gets/sets the synonym(s) of this term
+  Remark1  - if the synonym (text) is already in the set of synonyms of this term, its scope (and their dbxref's) will be updated (provided they have the same synonym type name)
+  Remark2  - a synonym text identical to the term name is not added to the set of synonyms of this term
   
 =cut
 
 sub synonym_set {
 	my $self = shift;
 	foreach my $synonym (@_) {
-		my $s_name = $self->name();
-		if (!defined($s_name)) {
+		my $term_name = $self->name();
+		if (!defined($term_name)) {
 			die 'The name of this term (', $self->id(), ') is undefined. Add it before adding its synonyms.';
 		}
 		
+		#
+		# update the scope (and dbxref's) of a synonym -- if the text and synonym type name are identical in both synonyms
+		#
 		my $syn_found = 0;
-		# update the scope of a synonym
-		foreach my $s_text ($self->{SYNONYM_SET}->get_set()) {
-			if ($s_text->def()->text() eq $synonym->def()->text()) {     # if that SYNONYM is already in the set
-				$s_text->def()->dbxref_set($synonym->def()->dbxref_set); # then update its DBXREFs!
-				$s_text->scope($synonym->scope);                         # then update its SCOPE!
-				$s_text->synonym_type_name($synonym->synonym_type_name); # and update its SYNONYM_TYPE_NAME!
-				$syn_found = 1;
-				last;
+		foreach my $s ($self->{SYNONYM_SET}->get_set()) {
+			
+			if ($s->def()->text() eq $synonym->def()->text()) {   # if that SYNONYM is already in the set
+			
+				my $synonym_type_name = $synonym->synonym_type_name();
+				my $s_type_name       = $s->synonym_type_name();
+				if ($synonym_type_name || $s_type_name) {       # if any of their STN's is defined
+					if ($s_type_name && $synonym_type_name && ($s_type_name eq $synonym_type_name)) {   # they should be identical
+					
+						$s->def()->dbxref_set($synonym->def()->dbxref_set);  # then update its DBXREFs!
+						$s->scope($synonym->scope);                          # then update its SCOPE!
+					
+						$syn_found = 1;
+						last;
+					}
+				} else {
+					$s->def()->dbxref_set($synonym->def()->dbxref_set);      # then update its DBXREFs!
+					$s->scope($synonym->scope);                              # then update its SCOPE!
+				
+					$syn_found = 1;
+					last;
+				}
 			}
 		}
 		
 		# do not add 'EXACT' synonyms with the same 'name':
-		if (!$syn_found && !($synonym->scope() eq 'EXACT' && $synonym->def()->text() eq $s_name)) {
-			$self->{SYNONYM_SET}->add($synonym) 
+		if (!$syn_found && !($synonym->scope() eq 'EXACT' && $synonym->def()->text() eq $term_name)) {
+			$self->{SYNONYM_SET}->add($synonym) || warn "ERROR: the synonym (", $synonym->def()->text(), ") was not added!!"; 
 		}
    	}
 	return $self->{SYNONYM_SET}->get_set();
@@ -337,6 +316,8 @@ sub synonym_set {
   Returns  - an array with the synonym(s) of this term
   Args     - the synonym text (string), the dbxrefs (string), synonym scope (string) of this term, and optionally the synonym type name (string)
   Function - gets/sets the synonym(s) of this term
+  Remark1  - if the synonym (text) is already in the set of synonyms of this term, its scope (and their dbxref's) will be updated (provided they have the same synonym type name)
+  Remark2  - a synonym text identical to the term name is not added to the set of synonyms of this term
   
 =cut
 
@@ -402,47 +383,10 @@ sub xref_set {
 sub xref_set_as_string {
 	my $xref_as_string = $_[1];
 	if ($xref_as_string) {
-		$xref_as_string =~ s/^\[//;
-		$xref_as_string =~ s/\]$//;		
-		$xref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
-		$xref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
 		my $xref_set = $_[0]->{XREF_SET};
-		my @lineas = $xref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
-		foreach my $l (@lineas) {
-			my $cp = $l;
-			$l =~ s/,/;;;;/g; # trick to keep the comma's
-			$xref_as_string =~ s/\Q$cp\E/$l/;
-		}
 		
-		my @dbxrefs = split (',', $xref_as_string);
-		
-		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
-		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
-		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
-		
-		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = undef;
-			my $xref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3);
-				$mod   = _unescape($4) if ($4);
-			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3) if ($3);
-				$mod   = _unescape($4) if ($4);
-			} else {
-				die "The references of the term with ID: '", $_[0]->id(), "' were not properly defined. Check the 'xref' field (", $entry, ").";
-			}
-			
-			# set the dbxref:
-			$xref->name($db.':'.$acc);
-			$xref->description($desc) if (defined $desc);
-			$xref->modifier($mod) if (defined $mod);
-			$xref_set->add($xref);
-		}
+		__dbxref($xref_set, $xref_as_string);
+
 		$_[0]->{XREF_SET} = $xref_set; # We are overwriting the existing set; otherwise, add the new elements to the existing set!
 	}
 	my @result = $_[0]->xref_set()->get_set();
@@ -676,7 +620,60 @@ sub equals {
 	}
 }
 
-sub _unescape {
+sub __dbxref () {
+	caller eq __PACKAGE__ or die "You cannot call this (__dbxref) prived method!";
+	#
+	# $_[0] ==> set
+	# $_[1] ==> dbxref string
+	#
+	my $dbxref_set       = $_[0];
+	my $dbxref_as_string = $_[1];
+	
+	$dbxref_as_string =~ s/^\[//;
+	$dbxref_as_string =~ s/\]$//;
+	$dbxref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
+	$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
+	
+	my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
+	foreach my $l (@lineas) {
+		my $cp = $l;
+		$l =~ s/,/;;;;/g; # trick to keep the comma's
+		$dbxref_as_string =~ s/\Q$cp\E/$l/;
+	}
+	
+	my @dbxrefs = split (',', $dbxref_as_string);
+	
+	my $r_db_acc      = qr/([ \*\.\w-]*):([ '\#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+	my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+	my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
+	
+	foreach my $entry (@dbxrefs) {
+		my ($match, $db, $acc, $desc, $mod) = undef;
+		my $dbxref = OBO::Core::Dbxref->new();
+		if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+			$db    = __unescape($1);
+			$acc   = __unescape($2);
+			$desc  = __unescape($3);
+			$mod   = __unescape($4) if ($4);
+		} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+			$db    = __unescape($1);
+			$acc   = __unescape($2);
+			$desc  = __unescape($3) if ($3);
+			$mod   = __unescape($4) if ($4);
+		} else {
+			die "ERROR: Check the 'dbxref' field of '", $entry, "'.";
+		}
+		
+		# set the dbxref:
+		$dbxref->name($db.':'.$acc);
+		$dbxref->description($desc) if (defined $desc);
+		$dbxref->modifier($mod) if (defined $mod);
+		$dbxref_set->add($dbxref);
+	}
+}
+
+sub __unescape {
+	caller eq __PACKAGE__ or die;
 	my $match = $_[0];
 	$match =~ s/;;;;;/\\"/g;
 	$match =~ s/;;;;/\\,/g;

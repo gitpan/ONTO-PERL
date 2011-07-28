@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 2011-11-29 erick.antezana $
+# $Id: OBOParser.pm 2011-06-06 erick.antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO-formatted files.
@@ -12,18 +12,19 @@ package OBO::Parser::OBOParser;
 use strict;
 use warnings;
 
-#use Date::Manip::Date; # TODO Consider to use this module to manipulate dates
 
-use OBO::Core::Instance;
-use OBO::Core::Term;
-use OBO::Core::Ontology;
 use OBO::Core::Dbxref;
+use OBO::Core::Instance;
+use OBO::Core::Ontology;
 use OBO::Core::Relationship;
 use OBO::Core::RelationshipType;
 use OBO::Core::SubsetDef;
 use OBO::Core::SynonymTypeDef;
+use OBO::Core::Term;
 use OBO::Util::IDspaceSet;
 use OBO::Util::Set;
+
+use Date::Manip qw(ParseDate UnixDate);
 
 sub new {
 	my $class = shift;
@@ -41,6 +42,7 @@ sub new {
   Function - parses an OBO file
   
 =cut
+
 sub work {
 	my $self = shift;
 	$self->{OBO_FILE} = shift if (@_);
@@ -60,9 +62,8 @@ sub work {
 
 		my @header        = split (/\n/, $chunks[0]);
 		$file_line_number = $#header + 2; # amount of lines in the header
-		@header           = sort @header;
 		$chunks[0]        = join("\n", @header);
-	
+
 		#
 		# format-version
 		#
@@ -98,7 +99,6 @@ sub work {
 			$date      = $2;
 			$chunks[0] =~ s/$1//;
 		}
-		
 		
 		#
 		# saved_by
@@ -228,7 +228,7 @@ sub work {
 		#
 		# Regexps
 		#
-		#my $r_db_acc     = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_,-]*)/o;
+		#my $r_db_acc     = qr/([ \*\.\w-]*):([ '\#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_,-]*)/o;
 		my $r_db_acc     = qr/\s+(\w+:\w+)/o;
 		my $r_dbxref     = qr/\s+(\[.*\])/o;
 		my $syn_scope    = qr/(\s+(EXACT|BROAD|NARROW|RELATED))?/o;
@@ -376,11 +376,24 @@ sub work {
 					} elsif ($line =~ /^created_by:\s*(.*)/) {
 						$term->created_by($1);
 					} elsif ($line =~ /^creation_date:\s*(.*)/) {
-						$term->creation_date($1);     # TODO Check that the date follows the ISO 8601 format
+						my $d = $1;
+						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
+						if (!$pd) {
+							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+#						} else {
+#							my ($year, $month, $day) = UnixDate($pd, "%Y", "%m", "%d");
+#							warn "Date was $month/$day/$year\n";
+						}
+						$term->creation_date($d);
 					} elsif ($line =~ /^modified_by:\s*(.*)/) {
 						$term->modified_by($1);
 					} elsif ($line =~ /^modification_date:\s*(.*)/) {
-						$term->modification_date($1); # TODO Check that the date follows the ISO 8601 format
+						my $d = $1;
+						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
+						if (!$pd) {
+							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+						}
+						$term->modification_date($d);
 					} elsif ($line =~ /^is_obsolete:$r_true_false/) {
 						$term->is_obsolete(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
@@ -404,7 +417,7 @@ sub work {
 					die "No ID found in term:\n", $chunk;
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
-					die "Missing 'intersection_of' tag in term:\n", $chunk;
+					die "Missing 'intersection_of' tag in term:\n\n", $chunk, "\n";
 				}				
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Typedef\]/) { # treat [Typedef]
@@ -572,11 +585,21 @@ sub work {
 					} elsif ($line =~ /^created_by:\s*(.*)/) {
 						$type->created_by($1);
 					} elsif ($line =~ /^creation_date:\s*(.*)/) {
-						$type->creation_date($1); # TODO Check that the date follows the ISO 8601 format
+						my $d = $1;
+						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
+						if (!$pd) {
+							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+						}
+						$type->creation_date($d);
 					} elsif ($line =~ /^modified_by:\s*(.*)/) {
 						$type->modified_by($1);
 					} elsif ($line =~ /^modification_date:\s*(.*)/) {
-						$type->modification_date($1); # TODO Check that the date follows the ISO 8601 format
+						my $d = $1;
+						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
+						if (!$pd) {
+							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+						}
+						$type->modification_date($d);
 					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
 						$type->is_obsolete(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
@@ -596,7 +619,7 @@ sub work {
 					die "No ID found in type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
-					die "Missing 'intersection_of' tag in relationship type:\n", $chunk;
+					die "Missing 'intersection_of' tag in relationship type:\n\n", $chunk, "\n";
 				}
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Instance\]/) { # treat [Instance]
@@ -735,11 +758,21 @@ sub work {
 					} elsif ($line =~ /^created_by:\s*(.*)/) {
 						$instance->created_by($1);
 					} elsif ($line =~ /^creation_date:\s*(.*)/) {
-						$instance->creation_date($1);     # TODO Check that the date follows the ISO 8601 format
+						my $d = $1;
+						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
+						if (!$pd) {
+							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+						}
+						$instance->creation_date($d);
 					} elsif ($line =~ /^modified_by:\s*(.*)/) {
 						$instance->modified_by($1);
 					} elsif ($line =~ /^modification_date:\s*(.*)/) {
-						$instance->modification_date($1); # TODO Check that the date follows the ISO 8601 format
+						my $d = $1;
+						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
+						if (!$pd) {
+							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+						}
+						$instance->modification_date($d);
 					} elsif ($line =~ /^is_obsolete:$r_true_false/) {
 						$instance->is_obsolete(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^replaced_by:\s*(.*)/) {
@@ -776,7 +809,7 @@ sub work {
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2)
 					 # TODO do INSTANCES have this tag?
-					die "Missing 'intersection_of' tag in instance:\n", $chunk;
+					die "Missing 'intersection_of' tag in instance:\n\n", $chunk, "\n";
 				}		
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Annotation\]/) { # treat [Annotation]

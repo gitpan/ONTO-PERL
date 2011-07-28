@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id: names.xsl 1847 2008-01-08 12:38:58Z easr $
+<!-- $Id: names.xsl 1847 2011-06-06 12:38:58Z erick.antezana $
 
  Module  : names.xsl
  Purpose : Get the term names from CCO (in XML) into HTML

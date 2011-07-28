@@ -1,4 +1,4 @@
-# $Id: DbxrefSet.pm 2010-09-29 erick.antezana $
+# $Id: DbxrefSet.pm 2011-06-06 erick.antezana $
 #
 # Module  : DbxrefSet.pm
 # Purpose : Reference structure set.

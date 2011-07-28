@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2010-12-05 erick.antezana $
+# $Id: Ontology.pm 2011-12-05 erick.antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -20,7 +20,7 @@ use OBO::Util::RelationshipTypeSet;
 use strict;
 use warnings;
 
-our $VERSION = '1.34';
+our $VERSION = '1.35';
 
 sub new {
 	my $class  = shift;
@@ -172,33 +172,6 @@ sub idspaces {
 	}
 	return $self->{IDSPACES_SET};
 } 
-
-sub _idspace_as_string {
-	my ($self, $local_id, $uri, $description) = @_;
-	if ($local_id && $uri) {
-		my $new_idspace = OBO::Core::IDspace->new();
-		$new_idspace->local_idspace($local_id);
-		$new_idspace->uri($uri);
-		$new_idspace->description($description) if (defined $description);
-		$self->idspaces($new_idspace);
-		return $new_idspace;
-	}
-	my @idspaces = $self->idspaces()->get_set();
-	my @idspaces_as_string = ();
-	foreach my $idspace (@idspaces) {
-		my $idspace_as_string          = $idspace->local_idspace();
-		$idspace_as_string            .= ' '.$idspace->uri();
-		my $idspace_description_string = $idspace->description();
-		$idspace_as_string            .= ' "'.$idspace_description_string.'"' if (defined $idspace_description_string);
-		
-		push @idspaces_as_string, $idspace_as_string;
-	}
-	if (!@idspaces_as_string) {
-		return ''; # empty string
-	} else {
-		return @idspaces_as_string
-	}
-}
 
 =head2 data_version
 
@@ -2517,7 +2490,7 @@ sub export {
 			foreach my $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
 				my $rt_name = $rt->name();
 				if ($rt_name && $rt_name ne 'is_a') { # is_a is printed above
-					my $rt_name_clean = _get_name_without_whitespaces($rt_name);
+					my $rt_name_clean = __get_name_without_whitespaces($rt_name);
 					print $output_file_handle "\t\t<",$ns,":", $rt_name_clean, " rdf:resource=\"#", $term_id, "\"/>\n" if ($rdf_tc && $rt_name_clean eq 'part_of');  # workaround for the rdf_tc!!!
 					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
@@ -3411,7 +3384,8 @@ sub export {
 		print $output_file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";
 		print $output_file_handle "\txmlns:oboInOwl=\"".$oboInOwlUrl."\"\n";
 		print $output_file_handle "\txmlns:oboContent=\"".$oboContentUrl."\"\n";
-		print $output_file_handle "\txml:base=\"".$oboContentUrl."CCO\"\n";
+		my $ontology_id_space = $self->id() || $self->get_terms_idspace();
+		print $output_file_handle "\txml:base=\"".$oboContentUrl.$ontology_id_space."\"\n";
 
 		#print $output_file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
 		#print $output_file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
@@ -3690,14 +3664,14 @@ sub export {
 			# relationships:
 			#
 			foreach $rt ( @{$self->get_relationship_types_sorted_by_id()} ) {
-				if ($rt->name() ne 'is_a') { # is_a is printed above
+				if ($rt->id() ne 'is_a') { # is_a is printed above
 					my %saw_rel; # avoid duplicated arrows (RelationshipSet?)
 					my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 					foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
 						print $output_file_handle "\t<rdfs:subClassOf>\n";
 						print $output_file_handle "\t\t<owl:Restriction>\n";
 						print $output_file_handle "\t\t\t<owl:onProperty>\n"; 
-						print $output_file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $rt->name(), "\"/>\n";
+						print $output_file_handle "\t\t\t\t<owl:ObjectProperty rdf:about=\"", $oboContentUrl, $local_idspace, "#", $rt->id(), "\"/>\n";
 						print $output_file_handle "\t\t\t</owl:onProperty>\n";
 						print $output_file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($head->id()), "\"/>\n"; # head->name() not used
 						print $output_file_handle "\t\t</owl:Restriction>\n";
@@ -4344,11 +4318,6 @@ sub export {
 	}
     
     return 0;
-}
-
-sub _get_name_without_whitespaces() {
-	$_[0] =~ s/\s+/_/g;
-	return $_[0];
 }
 
 =head2 subontology_by_terms
@@ -5114,7 +5083,7 @@ sub char_hex_http {
 	$_[0] =~ s/\//&#47;/g; # slash
 	$_[0] =~ s/&/&#38;/g;  # ampersand
 	$_[0] =~ s/"/&#34;/g;  # double quotes
-	$_[0] =~ s/ï¿½/&#177;/g; # plus-or-minus sign
+	$_[0] =~ s/±/&#177;/g; # plus-or-minus sign
 	
 #	$_[0] =~ s/:/%3A/g;
 #	$_[0] =~ s/;/%3B/g;
@@ -5128,12 +5097,19 @@ sub char_hex_http {
 #	$_[0] =~ s/\//%2F/g;
 #	$_[0] =~ s/&/%26/g;
 #	$_[0] =~ s/"/%22/g;
-#	$_[0] =~ s/ï¿½/%B1/g;
+#	$_[0] =~ s/±/%B1/g;
 
 	return $_[0];
 }
 
-sub _dfs () {
+sub __date {
+	caller eq __PACKAGE__ or die;
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	my $result = sprintf "%02d:%02d:%4d %02d:%02d", $mday,$mon+1,$year+1900,$hour,$min; # e.g. 11:05:2008 12:52
+}
+
+sub __dfs () {
+	caller eq __PACKAGE__ or die;
 	my ($self, $onto, $v) = @_;
 	
 	my $blist = OBO::Util::Set->new();
@@ -5218,24 +5194,55 @@ sub _dfs () {
 	}
 }
 
-sub __date {
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	my $result = sprintf "%02d:%02d:%4d %02d:%02d", $mday,$mon+1,$year+1900,$hour,$min; # e.g. 11:05:2008 12:52
+sub __get_name_without_whitespaces() {
+	caller eq __PACKAGE__ or die;
+	$_[0] =~ s/\s+/_/g;
+	return $_[0];
 }
 
-sub __sort_by_id {
-	my ($subRef, @input) = @_;
-	my @result = map { $_->[0] }                           # restore original values
-				sort { $a->[1] cmp $b->[1] }               # sort
-				map  { [$_, &$subRef($_->id())] }          # transform: value, sortkey
-				@input;
+sub __idspace_as_string {
+	caller eq __PACKAGE__ or die;
+	my ($self, $local_id, $uri, $description) = @_;
+	if ($local_id && $uri) {
+		my $new_idspace = OBO::Core::IDspace->new();
+		$new_idspace->local_idspace($local_id);
+		$new_idspace->uri($uri);
+		$new_idspace->description($description) if (defined $description);
+		$self->idspaces($new_idspace);
+		return $new_idspace;
+	}
+	my @idspaces = $self->idspaces()->get_set();
+	my @idspaces_as_string = ();
+	foreach my $idspace (@idspaces) {
+		my $idspace_as_string          = $idspace->local_idspace();
+		$idspace_as_string            .= ' '.$idspace->uri();
+		my $idspace_description_string = $idspace->description();
+		$idspace_as_string            .= ' "'.$idspace_description_string.'"' if (defined $idspace_description_string);
+		
+		push @idspaces_as_string, $idspace_as_string;
+	}
+	if (!@idspaces_as_string) {
+		return ''; # empty string
+	} else {
+		return @idspaces_as_string
+	}
 }
 
 sub __sort_by {
+	caller eq __PACKAGE__ or die;
 	my ($subRef1, $subRef2, @input) = @_;
 	my @result = map { $_->[0] }                           # restore original values
 				sort { $a->[1] cmp $b->[1] }               # sort
 				map  { [$_, &$subRef1($_->$subRef2())] }   # transform: value, sortkey
+				@input;
+}
+
+sub __sort_by_id {
+	caller eq __PACKAGE__ or die;
+	my ($subRef, @input) = @_;
+	my @result = map { $_->[0] }                           # restore original values
+				sort { $a->[1] cmp $b->[1] }               # sort
+				map  { [$_, &$subRef($_->id())] }          # transform: value, sortkey
 				@input;
 }
 

@@ -1,4 +1,4 @@
-# $Id: SynonymTypeDef.pm 2010-12-22 erick.antezana $
+# $Id: SynonymTypeDef.pm 2011-06-06 erick.antezana $
 #
 # Module  : SynonymTypeDef.pm
 # Purpose : A synonym type definition.

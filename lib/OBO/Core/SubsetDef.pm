@@ -1,4 +1,4 @@
-# $Id: SubsetDef.pm 2010-12-22 erick.antezana $
+# $Id: SubsetDef.pm 2011-06-06 erick.antezana $
 #
 # Module  : SubsetDef.pm
 # Purpose : A subset definition.

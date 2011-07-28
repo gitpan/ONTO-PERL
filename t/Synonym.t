@@ -48,7 +48,7 @@ $ref3->name('CCO:ea');
 $ref4->name('CCO:ea');
 
 my $refs_set1 = OBO::Util::DbxrefSet->new();
-$refs_set1->add_all($ref1,$ref2,$ref3,$ref4);
+$refs_set1->add_all($ref1, $ref2, $ref3, $ref4);
 $def1->dbxref_set($refs_set1);
 $syn1->def($def1);
 ok($syn1->def()->text() eq 'Hola mundo1');
@@ -112,5 +112,4 @@ ok($syn3->def_as_string() eq '"This is a dummy synonym" [CCO:ea "Erick Antezana"
 
 # synonym_type_name
 $syn1->synonym_type_name('UK_SPELLING');
-
 ok(1);

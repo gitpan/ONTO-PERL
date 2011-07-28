@@ -1,4 +1,4 @@
-# $Id: Def.pm 2011-04-29 erick.antezana $
+# $Id: Def.pm 2011-06-06 erick.antezana $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.
@@ -64,49 +64,12 @@ sub dbxref_set {
 
 sub dbxref_set_as_string {
 	my $dbxref_as_string = $_[1];
-
 	if ($dbxref_as_string) {
-		$dbxref_as_string =~ s/^\[//;
-		$dbxref_as_string =~ s/\]$//;		
-		$dbxref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
-		$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
+		my $xref_set = $_[0]->{DBXREF_SET};
+		
+		__dbxref($xref_set, $dbxref_as_string);
 
-		my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
-		foreach my $l (@lineas) {
-			my $cp = $l;
-			$l     =~ s/,/;;;;/g; # trick to keep the comma's
-			$dbxref_as_string =~ s/\Q$cp\E/$l/;
-		}
-		
-		my @dbxrefs = split (',', $dbxref_as_string);
-		
-		my $r_db_acc      = qr/([ \*\.\w-]*):([ \#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
-		my $r_desc        = qr/\s+\"([^\"]*)\"/o;
-		my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
-		
-		foreach my $entry (@dbxrefs) {
-			my ($match, $db, $acc, $desc, $mod) = undef;
-			my $dbxref = OBO::Core::Dbxref->new();
-			if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3);
-				$mod   = _unescape($4) if ($4);
-			} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
-				$db    = _unescape($1);
-				$acc   = _unescape($2);
-				$desc  = _unescape($3) if ($3);
-				$mod   = _unescape($4) if ($4);
-			} else {
-				Carp::confess "The references of this definition: '", $_[0]->text(), "' were not properly defined. Check the 'dbxref' field (", $entry, ').';
-			}
-			
-			# set the dbxref:
-			$dbxref->name($db.':'.$acc);
-			$dbxref->description($desc) if (defined $desc);
-			$dbxref->modifier($mod) if (defined $mod);
-			$_[0]->{DBXREF_SET}->add($dbxref);
-		}
+		$_[0]->{DBXREF_SET} = $xref_set; # We are overwriting the existing set; otherwise, add the new elements to the existing set!
 	}
 	my @result = (); # a Set?
 	foreach my $dbxref (sort {lc($b->as_string()) cmp lc($a->as_string())} $_[0]->dbxref_set()->get_set()) {
@@ -143,7 +106,60 @@ sub equals {
 	return $result;
 }
 
-sub _unescape {
+sub __dbxref () {
+	caller eq __PACKAGE__ or die "You cannot call this (__dbxref) prived method!";
+	#
+	# $_[0] ==> set
+	# $_[1] ==> dbxref string
+	#
+	my $dbxref_set       = $_[0];
+	my $dbxref_as_string = $_[1];
+	
+	$dbxref_as_string =~ s/^\[//;
+	$dbxref_as_string =~ s/\]$//;
+	$dbxref_as_string =~ s/\\,/;;;;/g;  # trick to keep the comma's
+	$dbxref_as_string =~ s/\\"/;;;;;/g; # trick to keep the double quote's
+	
+	my @lineas = $dbxref_as_string =~ /\"([^\"]*)\"/g; # get the double-quoted pieces
+	foreach my $l (@lineas) {
+		my $cp = $l;
+		$l =~ s/,/;;;;/g; # trick to keep the comma's
+		$dbxref_as_string =~ s/\Q$cp\E/$l/;
+	}
+	
+	my @dbxrefs = split (',', $dbxref_as_string);
+	
+	my $r_db_acc      = qr/([ \*\.\w-]*):([ '\#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+	my $r_desc        = qr/\s+\"([^\"]*)\"/o;
+	my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
+	
+	foreach my $entry (@dbxrefs) {
+		my ($match, $db, $acc, $desc, $mod) = undef;
+		my $dbxref = OBO::Core::Dbxref->new();
+		if ($entry =~ m/$r_db_acc$r_desc$r_mod?/) {
+			$db    = __unescape($1);
+			$acc   = __unescape($2);
+			$desc  = __unescape($3);
+			$mod   = __unescape($4) if ($4);
+		} elsif ($entry =~ m/$r_db_acc$r_desc?$r_mod?/) {
+			$db    = __unescape($1);
+			$acc   = __unescape($2);
+			$desc  = __unescape($3) if ($3);
+			$mod   = __unescape($4) if ($4);
+		} else {
+			die "ERROR: Check the 'dbxref' field of '", $entry, "'.";
+		}
+		
+		# set the dbxref:
+		$dbxref->name($db.':'.$acc);
+		$dbxref->description($desc) if (defined $desc);
+		$dbxref->modifier($mod) if (defined $mod);
+		$dbxref_set->add($dbxref);
+	}
+}
+
+sub __unescape {
+	caller eq __PACKAGE__ or die;
 	my $match = $_[0];
 	$match =~ s/;;;;;/\\"/g;
 	$match =~ s/;;;;/\\,/g;
@@ -156,7 +172,7 @@ __END__
 
 =head1 NAME
 
-OBO::Core::Def  - A definition structure of the current term. A term should 
+OBO::Core::Def  - A definition structure of a term. A term should 
 have zero or one instance of this type per term description.
     
 =head1 SYNOPSIS

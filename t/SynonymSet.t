@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 33;
+    plan tests => 47;
 }
 
 #########################
@@ -63,19 +63,14 @@ $sn4->scope('EXACT');
 $sn5->scope('EXACT');
 $sn6->scope('EXACT');
 
-$sn4->def_as_string("This is a dummy synonym4", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
-$sn5->def_as_string("This is a dummy synonym5", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
-$sn6->def_as_string("This is a dummy synonym1", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]"); # repeated !!!
+$sn4->def_as_string('This is a dummy synonym4', "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+$sn5->def_as_string('This is a dummy synonym5', "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+$sn6->def_as_string('This is a dummy synonym1', "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]"); # repeated !!!
 
 $my_set->add_all($sn4, $sn5);
 my $false = $my_set->add($sn6);
 ok($false == 0);
 ok($my_set->contains($sn4) && $my_set->contains($sn5) && $my_set->contains($sn6));
-
-### get versions ###
-#foreach ($my_set->get_set()) {
-#	print $_, "\n";
-#}
 
 $my_set->add_all($sn4, $sn5, $sn6);
 ok($my_set->size() == 5);
@@ -102,7 +97,8 @@ $add_all_check = $my_set2->add_all($sn7, $sn8, $sn9, $sn1, $sn2, $sn3);
 ok($add_all_check == 0);
 ok(!$my_set2->is_empty());
 ok($my_set->contains($sn7) && $my_set->contains($sn8) && $my_set->contains($sn9));
-# todo check the next test:
+
+# TODO check the next test:
 #ok($my_set->equals($my_set2));
 
 ok($my_set2->size() == 5);
@@ -120,11 +116,37 @@ my $snB = OBO::Core::Synonym->new();
 $snA->scope('EXACT');
 $snB->scope('EXACT');
 
-$snA->def_as_string("This is a very dummy synonym", "[]");
-$snB->def_as_string("This is a very dummy synonym", "[]");
+$snA->def_as_string('This is a very dummy synonym', '[]');
+$snB->def_as_string('This is a very dummy synonym', '[]');
 $my_set2->clear();
 $my_set2->add_all($snA, $snB);
 ok($my_set2->size() == 1);
+ok($my_set2->contains($snB));
+ok($my_set2->contains($snA));
+
+my $snB2 = OBO::Core::Synonym->new();
+$snB2->scope('EXACT');
+$snB2->def_as_string('This is a very very dummy synonym', '[]');
+$my_set2->add_all($snB2);
+ok($my_set2->size() == 2);
+ok($my_set2->contains($snB2));
+ok($my_set2->contains($snB));
+ok($my_set2->contains($snA));
+
+my $snB3 = OBO::Core::Synonym->new();
+$snB3->scope('EXACT');
+$snB3->def_as_string('This is a very very dummy synonym', '[]');
+$snB3->synonym_type_name('UK_SPELLING');
+$my_set2->add_all($snB3);
+ok($my_set2->size() == 3);
+ok($my_set2->contains($snB3));
+ok($my_set2->contains($snB2));
+ok($my_set2->contains($snB));
+ok($my_set2->contains($snA));
+$my_set2->remove($snB2);
+ok($my_set2->size() == 2);
+ok($my_set2->contains($snB3));
+ok(!$my_set2->contains($snB2));
 ok($my_set2->contains($snB));
 ok($my_set2->contains($snA));
 
@@ -133,11 +155,11 @@ ok($my_set2->contains($snA));
 #
 my $snC = OBO::Core::Synonym->new();
 $snC->scope('EXACT');
-$snC->def_as_string("SPCC645.04", "[]");
+$snC->def_as_string('SPCC645.04', '[]');
 $my_set2->clear();
 $my_set2->add($snC);
 ok($my_set2->size() == 1);
 ok($my_set2->contains($snC));
-ok(($my_set2->get_set())[0]->def()->text() eq "SPCC645.04");
+ok(($my_set2->get_set())[0]->def()->text() eq 'SPCC645.04');
 
 ok(1);

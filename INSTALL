@@ -50,7 +50,7 @@ For more information about these modules, check:
 See also:
  
   1. ONTO-PERL: An API supporting the development and analysis of bio-ontologies
-     E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
+     Antezana E, Egana M, De Baets B, Kuiper M, Mironov V.
      Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
   2. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
@@ -62,23 +62,31 @@ Citing ONTO-PERL
 If you use ONTO-PERL in your work, you are kindly requested to cite:
 
 	ONTO-PERL: An API supporting the development and analysis of bio-ontologies
-    E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
+    Antezana E, Egana M, De Baets B, Kuiper M, Mironov V.
     Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
 Third part modules
 ==================
 
-1. SWISS Knife (v1.65) is used by the 'UniProtParser':
+Required module:
 
-	ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife
+1. Date::Manip (v6.24) is used by the OBOParser (to check dates):
 
-2. XML::Simple (v2.16) is used by the IntAct related modules:
+   http://search.cpan.org/~sbeck/Date-Manip-6.24/
 
-	http://search.cpan.org/~grantm/XML-Simple-2.16/
-	
-3. XML::Parser (v2.34) is used in format conversions (obo2owl and owl2obo)
+Optional modules:
 
-	http://search.cpan.org/~msergeant/XML-Parser-2.34/
+1. XML::Parser (v2.41) is used in format conversions (obo2owl and owl2obo):
+
+   http://search.cpan.org/~msergeant/XML-Parser-2.41/
+
+2. XML::XPath (v1.13) is used by the IntAct related modules:
+
+   http://search.cpan.org/~msergeant/XML-XPath-1.13/
+
+3. SWISS Knife (v1.67) is used by the 'UniProtParser':
+
+   ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife/
 
 Bugs/comments/questions/etc
 ===========================

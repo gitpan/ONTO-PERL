@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: owl2obo.pl 2010-09-29 erick.antezana $
+# $Id: owl2obo.pl 2011-02-29 erick.antezana $
 #
 # script  : owl2obo.pl
 #
@@ -35,8 +35,10 @@ owl2obo.pl - OWL to OBO translator (oboinowl mapping).
 
 =head1 DESCRIPTION
 
-This script transforms an OWL file (cf. oboinowl mapping) into an OBO one (spec 1.2).
+This script transforms an OWL file (cf. oboinowl mapping) into an OBO one (spec 1.4).
 Use the obo2owl.pl to get the round-trip transformation.
+
+This is not a universal translator from any OWL file into an OBO one.
 
 =head1 AUTHOR
 

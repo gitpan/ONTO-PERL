@@ -26,7 +26,7 @@ use warnings;
 sub remove {
 	my $self = shift;
 	my $result = undef;
-	if (@_) {	
+	if (@_) {
 		my $ele = shift;
 		if ($self->size() > 0) {
 			for (my $i = 0; $i < scalar(@{$self->{SET}}); $i++){

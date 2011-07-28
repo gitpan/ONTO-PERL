@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 60;
+    plan tests => 61;
 }
 
 #########################
@@ -56,6 +56,21 @@ foreach my $subsetdef (sort {lc($a->name()) cmp lc($b->name())} $mini_onto->subs
 # test on comments
 my $F4 = $mini_onto->get_term_by_id('CCO:F0000004');
 ok($F4->is_anonymous());
+
+# test on comments
+my $F3 = $mini_onto->get_term_by_id('CCO:F0000003');
+
+my $rt = $mini_onto->get_relationship_type_by_id('is_a');
+if (defined $rt)  {
+	my %saw_is_a; # avoid duplicated arrows (RelationshipSet?)
+	my @heads = @{$mini_onto->get_head_by_relationship_type($F3, $rt)}; 
+	foreach my $head (grep (!$saw_is_a{$_}++, @heads)) {
+		my $is_a_txt = "is_a: ".$head->id();
+		my $head_name = $head->name();
+		$is_a_txt .= ' ! '.$head_name if (defined $head_name);
+		ok ($is_a_txt eq "is_a: CCO:F0000002 ! dos")
+	}
+}
 
 # instances
 my $ins = $mini_onto->get_instance_by_id('CCO:erick');

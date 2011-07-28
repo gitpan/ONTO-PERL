@@ -1,4 +1,4 @@
-# $Id: Map.pm 2010-11-29 erick.antezana $
+# $Id: Map.pm 2011-06-06 erick.antezana $
 #
 # Module  : Map.pm
 # Purpose : An implementation of a Map. An object that maps keys to values.
