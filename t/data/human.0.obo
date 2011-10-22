@@ -68480,8 +68480,8 @@ is_transitive: true
 [Typedef]
 id: association
 name: is in association with
-def: "C in association with C' produces C'' if and only if for all c belonging to C and c' belonging to C', exists a c'' (belonging to C'') which is the result of the reversible union between c and c'." [CCO:ea]
-xref: CCO_REL:association
+def: "C in association with C' produces C'' if and only if for all c belonging to C and c' belonging to C', exists a c'' (belonging to C'') which is the result of the reversible union between c and c'." [APO:ea]
+xref: APO_REL:association
 
 [Typedef]
 id: attached_to
@@ -68548,16 +68548,16 @@ holds_over_chain: capable_of regulates
 [Typedef]
 id: catalyses
 name: catalyses
-def: "C catalyses P if and only if for all c (catalyst) belonging to C, exists a p (belonging to P) which chemical reaction rate is increased by c." [CCO:ea]
+def: "C catalyses P if and only if for all c (catalyst) belonging to C, exists a p (belonging to P) which chemical reaction rate is increased by c." [APO:ea]
 synonym: "activates" EXACT []
-xref: CCO_REL:catalyses
+xref: APO_REL:catalyses
 
 [Typedef]
 id: codes_for
 name: codes for
-def: "g encodes for p where g a Gene and p is a Protein." [CCO:ea]
-synonym: "encodes" EXACT [CCO:ea]
-xref: CCO_REL:codes_for
+def: "g encodes for p where g a Gene and p is a Protein." [APO:ea]
+synonym: "encodes" EXACT [APO:ea]
+xref: APO_REL:codes_for
 
 [Typedef]
 id: coextensive_with
@@ -68635,10 +68635,10 @@ is_a: different_in_magnitude_relative_to ! is different in magnitude relative to
 [Typedef]
 id: degradates
 name: degradates into
-def: "C degradates (into NIL) if and only if for all c belonging to C, exists c', c'', ... (belonging to C', C'', ...) which are the result of any undesired breakdown of c with impairment or loss of its characteristic properties." [CCO:ea]
+def: "C degradates (into NIL) if and only if for all c belonging to C, exists c', c'', ... (belonging to C', C'', ...) which are the result of any undesired breakdown of c with impairment or loss of its characteristic properties." [APO:ea]
 synonym: "catabolises into" EXACT []
 synonym: "decomposes into" EXACT []
-xref: CCO_REL:degradates
+xref: APO_REL:degradates
 
 [Typedef]
 id: dendrite_innervates
@@ -68762,10 +68762,10 @@ creation_date: 2010-01-06T06:53:45Z
 [Typedef]
 id: encoded_by
 name: is encoded by
-def: "p is encoded by g where p is a Protein and g a Gene." [CCO:ea]
-synonym: "is coded by" EXACT [CCO:ea]
-synonym: "is produced by" EXACT [CCO:ea]
-xref: CCO_REL:encoded_by
+def: "p is encoded by g where p is a Protein and g a Gene." [APO:ea]
+synonym: "is coded by" EXACT [APO:ea]
+synonym: "is produced by" EXACT [APO:ea]
+xref: APO_REL:encoded_by
 
 [Typedef]
 id: end
@@ -69254,8 +69254,8 @@ inverse_of: role_of ! is role of
 [Typedef]
 id: has_source
 name: has source
-def: "o has_source O where o is a gene or gene product and O an organism." [CCO:ea]
-xref: CCO_REL:has_source
+def: "o has_source O where o is a gene or gene product and O an organism." [APO:ea]
+xref: APO_REL:has_source
 
 [Typedef]
 id: has_specific_outcome
@@ -69356,8 +69356,8 @@ is_metadata_tag: true
 [Typedef]
 id: interacts_with
 name: interacts with
-def: "C interacts_with C' if and only if for all c belonging to C, exists a c' (belonging to C') which plays a role with c'." [CCO:ea]
-xref: CCO_REL:interacts_with
+def: "C interacts_with C' if and only if for all c belonging to C, exists a c' (belonging to C') which plays a role with c'." [APO:ea]
+xref: APO_REL:interacts_with
 is_symmetric: true
 
 [Typedef]
@@ -70005,8 +70005,8 @@ def: "C site_of P iff exists species S such that P occurs_in C for all members o
 [Typedef]
 id: source_of
 name: is source of
-def: "O is source_of o where O is an organism and o a gene or gene product." [CCO:ea]
-xref: CCO_REL:source_of
+def: "O is source_of o where O is an organism and o a gene or gene product." [APO:ea]
+xref: APO_REL:source_of
 
 [Typedef]
 id: spatially_disjoint_from
@@ -70178,7 +70178,7 @@ inverse_of: transforms_into ! transforms into
 [Typedef]
 id: transforms_into
 name: transforms into
-xref: CCO_REL:transforms_into
+xref: APO_REL:transforms_into
 inverse_of: transformation_of ! is transformation of
 
 [Typedef]

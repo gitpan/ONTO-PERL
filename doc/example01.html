@@ -63,7 +63,7 @@
 			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology = $my_parser->work("my_obo_ontology.obo");
 			
-			my @my_terms = @{$ontology->get_terms("CCO:G.*")}; # get all the terms with such an ID
+			my @my_terms = @{$ontology->get_terms("APO:G.*")}; # get all the terms with such an ID
 			
 			foreach my $t (@my_terms) {
 				print "The name of the term is: ", $t->name();
@@ -94,10 +94,10 @@
 			
 			my $my_parser = OBO::Parser::OBOParser->new();
 			my $ontology1 = $my_parser->work("go.obo");
-			my $ontology2 = $my_parser->work("cco.obo");
+			my $ontology2 = $my_parser->work("apo.obo");
 			
 			my $my_term1 = $ontology1->get_term_by_id("GO:00007049"); # get the term by ID
-			my $my_term2 = $ontology2->get_term_by_id("CCO:P0000056"); # get the term by ID
+			my $my_term2 = $ontology2->get_term_by_id("APO:P0000056"); # get the term by ID
 			
 			print "\nThe name of the term1 is: ", $my_term1->name();
 			print "\nThe name of the term2 is: ", $my_term2->name();

@@ -27,9 +27,9 @@ my $n1 = OBO::Core::Instance->new();
 my $n2 = OBO::Core::Instance->new();
 my $n3 = OBO::Core::Instance->new();
 
-$n1->id("CCO:K0000001");
-$n2->id("CCO:K0000002");
-$n3->id("CCO:K0000003");
+$n1->id("APO:K0000001");
+$n2->id("APO:K0000002");
+$n3->id("APO:K0000003");
 
 $n1->name("instance of One");
 $n2->name("instance of Two");
@@ -56,7 +56,7 @@ ok($my_set->contains($n3));
 
 ok($my_set->size() == 3);
 my $n3_idem = OBO::Core::Instance->new();
-$n3_idem->id("CCO:K0000003");
+$n3_idem->id("APO:K0000003");
 $n3_idem->name("instance of Three");
 $my_set->add($n3_idem);
 ok($my_set->contains($n3_idem));
@@ -73,9 +73,9 @@ my $n4 = OBO::Core::Instance->new();
 my $n5 = OBO::Core::Instance->new();
 my $n6 = OBO::Core::Instance->new();
 
-$n4->id("CCO:K0000004");
-$n5->id("CCO:K0000005");
-$n6->id("CCO:K0000006");
+$n4->id("APO:K0000004");
+$n5->id("APO:K0000005");
+$n6->id("APO:K0000006");
 
 $n4->name("instance of Four");
 $n5->name("instance of Five");
@@ -83,8 +83,8 @@ $n6->name("instance of Six");
 
 $my_set->add_all($n4, $n5, $n6);
 ok($my_set->contains($n4) && $my_set->contains($n5) && $my_set->contains($n6));
-ok($my_set->contains_id("CCO:K0000006"));
-ok(!$my_set->contains_id("CCO:K0000007"));
+ok($my_set->contains_id("APO:K0000006"));
+ok(!$my_set->contains_id("APO:K0000007"));
 ok($my_set->contains_name('instance of Six'));
 ok(!$my_set->contains_name('instance of Seven'));
 

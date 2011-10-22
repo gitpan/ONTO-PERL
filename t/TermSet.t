@@ -27,9 +27,9 @@ my $n1 = OBO::Core::Term->new();
 my $n2 = OBO::Core::Term->new();
 my $n3 = OBO::Core::Term->new();
 
-$n1->id("CCO:P0000001");
-$n2->id("CCO:P0000002");
-$n3->id("CCO:P0000003");
+$n1->id("APO:P0000001");
+$n2->id("APO:P0000002");
+$n3->id("APO:P0000003");
 
 $n1->name("One");
 $n2->name("Two");
@@ -56,7 +56,7 @@ ok($my_set->contains($n3));
 
 ok($my_set->size() == 3);
 my $n3_idem = OBO::Core::Term->new();
-$n3_idem->id("CCO:P0000003");
+$n3_idem->id("APO:P0000003");
 $n3_idem->name("Three");
 $my_set->add($n3_idem);
 ok($my_set->contains($n3_idem));
@@ -73,9 +73,9 @@ my $n4 = OBO::Core::Term->new();
 my $n5 = OBO::Core::Term->new();
 my $n6 = OBO::Core::Term->new();
 
-$n4->id("CCO:P0000004");
-$n5->id("CCO:P0000005");
-$n6->id("CCO:P0000006");
+$n4->id("APO:P0000004");
+$n5->id("APO:P0000005");
+$n6->id("APO:P0000006");
 
 $n4->name("Four");
 $n5->name("Five");
@@ -83,8 +83,8 @@ $n6->name("Six");
 
 $my_set->add_all($n4, $n5, $n6);
 ok($my_set->contains($n4) && $my_set->contains($n5) && $my_set->contains($n6));
-ok($my_set->contains_id("CCO:P0000006"));
-ok(!$my_set->contains_id("CCO:P0000007"));
+ok($my_set->contains_id("APO:P0000006"));
+ok(!$my_set->contains_id("APO:P0000007"));
 ok($my_set->contains_name('Six'));
 ok(!$my_set->contains_name('Seven'));
 

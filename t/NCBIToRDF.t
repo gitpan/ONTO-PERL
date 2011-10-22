@@ -11,12 +11,12 @@ BEGIN {
 
 #########################
 
-use OBO::CCO::NCBIToRDF;
+use OBO::APO::NCBIToRDF;
 use Carp;
 use strict;
 use warnings;
 
-my $ncbi2rdf = OBO::CCO::NCBIToRDF->new();
+my $ncbi2rdf = OBO::APO::NCBIToRDF->new();
 ok(1);
 
 open (FH, ">./t/data/ncbi.rdf") || die $!;

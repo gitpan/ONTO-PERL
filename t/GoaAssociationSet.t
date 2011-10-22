@@ -12,20 +12,20 @@ BEGIN {
 #########################
 
 use OBO::Util::Set;
-use OBO::CCO::GoaAssociationSet;
-use OBO::CCO::GoaAssociation;
+use OBO::APO::GoaAssociationSet;
+use OBO::APO::GoaAssociation;
 use strict;
 
 #################
 # class methods #
 #################
-my $my_set = OBO::CCO::GoaAssociationSet->new();
+my $my_set = OBO::APO::GoaAssociationSet->new();
 ok(1);
 
 # three new association's
-my $assc1 = OBO::CCO::GoaAssociation->new();
-my $assc2 = OBO::CCO::GoaAssociation->new();
-my $assc3 = OBO::CCO::GoaAssociation->new();
+my $assc1 = OBO::APO::GoaAssociation->new();
+my $assc2 = OBO::APO::GoaAssociation->new();
+my $assc3 = OBO::APO::GoaAssociation->new();
 
 $assc1->annot_src("annot_src1");
 $assc1->aspect("aspect1");
@@ -101,9 +101,9 @@ ok($my_set->contains($assc2));
 $my_set->add($assc3);
 ok($my_set->contains($assc3));
 
-my $assc4 = OBO::CCO::GoaAssociation->new();
-my $assc5 = OBO::CCO::GoaAssociation->new();
-my $assc6 = OBO::CCO::GoaAssociation->new();
+my $assc4 = OBO::APO::GoaAssociation->new();
+my $assc5 = OBO::APO::GoaAssociation->new();
+my $assc6 = OBO::APO::GoaAssociation->new();
 
 $assc4->annot_src("annot_src4");
 $assc4->aspect("aspect4");
@@ -184,7 +184,7 @@ $my_set->add_all($assc8, $assc9);
 ok($my_set->size() == 5);
 
 
-my $my_set2 = OBO::CCO::GoaAssociationSet->new();
+my $my_set2 = OBO::APO::GoaAssociationSet->new();
 ok(1);
 
 ok($my_set2->is_empty());
@@ -228,8 +228,6 @@ $my_set->remove_duplicates();
 $my_set2->remove_duplicates();
 ok($my_set->size() == 5);
 ok($my_set2->size() == 5);
-
-
 
 $my_set->clear();
 ok($my_set->is_empty());

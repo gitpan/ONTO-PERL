@@ -29,26 +29,26 @@
 			my $n3 = OBO::Core::Term->new();
 			
 			# setting up id's
-			$n1->id("CCO:P0000001");
-			$n2->id("CCO:P0000002");
-			$n3->id("CCO:P0000003");
+			$n1->id("APO:P0000001");
+			$n2->id("APO:P0000002");
+			$n3->id("APO:P0000003");
 			
 			# name, namespace, code for term n1
-			my $my_idspace = $n1->idspace();      # should be "CCO"
+			my $my_idspace = $n1->idspace();      # should be "APO"
 			my $my_subns   = $n1->subnamespace(); # should be "P"
 			my $my_code    = $n1->code();         # should be "0000001"
 			
 			# alt_id
-			$n1->alt_id("CCO:P0000001_alt_id");
-			$n2->alt_id("CCO:P0000002_alt_id1", "CCO:P0000002_alt_id2", "CCO:P0000002_alt_id3", "CCO:P0000002_alt_id4");
+			$n1->alt_id("APO:P0000001_alt_id");
+			$n2->alt_id("APO:P0000002_alt_id1", "APO:P0000002_alt_id2", "APO:P0000002_alt_id3", "APO:P0000002_alt_id4");
 			
 			my @n2_alt_ids = $n2->alt_id()->get_set(); # get all the alternative ids of n2
 			
 			# n3 has no alt ids; therefore, $n3->alt_id()->get_set() is empty
 			
 			# subset
-			$n1->subset("CCO:P0000001_subset");
-			$n2->subset("CCO:P0000002_subset1", "CCO:P0000002_subset2", "CCO:P0000002_subset3", "CCO:P0000002_subset4");
+			$n1->subset("APO:P0000001_subset");
+			$n2->subset("APO:P0000002_subset1", "APO:P0000002_subset2", "APO:P0000002_subset3", "APO:P0000002_subset4");
 			
 			my @n2_subsets = $n2->subset(); # get all the subsets of n2
 			
@@ -83,7 +83,7 @@
 			$def1->text("Hola mundo1");   # set a definition
 			
 			my $sref1 = OBO::Core::Dbxref->new();
-			$sref1->name("CCO:vm");       # set the DB and ACC of the dbxref
+			$sref1->name("APO:vm");       # set the DB and ACC of the dbxref
 			
 			my $srefs_set1 = OBO::Util::DbxrefSet->new();
 			$srefs_set1->add($sref1);
@@ -98,7 +98,7 @@
 			$def2->text("Hola mundo2");   # set a definition
 			
 			my $sref2 = OBO::Core::Dbxref->new();
-			$sref2->name("CCO:ls");       # set the DB and ACC of the dbxref
+			$sref2->name("APO:ls");       # set the DB and ACC of the dbxref
 			
 			$srefs_set1->add_all($sref1);
 			my $srefs_set2 = OBO::Util::DbxrefSet->new();
@@ -116,7 +116,7 @@
 			$def3->text("Hola mundo2");
 			
 			my $sref3 = OBO::Core::Dbxref->new();
-			$sref3->name("CCO:ls");
+			$sref3->name("APO:ls");
 			
 			my $srefs_set3 = OBO::Util::DbxrefSet->new();
 			$srefs_set3->add_all($sref1, $sref2);
@@ -150,15 +150,15 @@
 			}
 			
 			# checking the synonym as strings
-			if (($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]") {
+			if (($n2->synonym_as_string())[0] eq "\"Hola mundo2\" [APO:ls, APO:vm]") {
 				# should enter here
 			}
 			
 			# setting a sysnonym as string
-			$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
+			$n2->synonym_as_string("Hello world2", "[APO:vm2, APO:ls2]", "EXACT");
 			# as a result, the following should be TRUE:
-			(($n2->synonym_as_string())[0] eq "\"Hello world2\" [CCO:ls2, CCO:vm2]");
-			(($n2->synonym_as_string())[1] eq "\"Hola mundo2\" [CCO:ls, CCO:vm]");
+			(($n2->synonym_as_string())[0] eq "\"Hello world2\" [APO:ls2, APO:vm2]");
+			(($n2->synonym_as_string())[1] eq "\"Hola mundo2\" [APO:ls, APO:vm]");
 			
 			# xref
 			my $xref1 = OBO::Core::Dbxref->new();
@@ -167,11 +167,11 @@
 			my $xref4 = OBO::Core::Dbxref->new();
 			my $xref5 = OBO::Core::Dbxref->new();
 			
-			$xref1->name("XCCO:vm");
-			$xref2->name("XCCO:ls");
-			$xref3->name("XCCO:ea");
-			$xref4->name("XCCO:vm");
-			$xref5->name("XCCO:ls");
+			$xref1->name("XAPO:vm");
+			$xref2->name("XAPO:ls");
+			$xref3->name("XAPO:ea");
+			$xref4->name("XAPO:vm");
+			$xref5->name("XAPO:ls");
 			
 			my $xrefs_set = OBO::Util::DbxrefSet->new();
 			$xrefs_set->add_all($xref1, $xref2, $xref3, $xref4, $xref5);
@@ -183,7 +183,7 @@
 			
 			# xref_set_as_string
 			my @empty_refs = $n2->xref_set_as_string(); # no refs so far
-			$n2->xref_set_as_string("[YCCO:vm, YCCO:ls, YCCO:ea \"Erick Antezana\"] {opt=first}");
+			$n2->xref_set_as_string("[YAPO:vm, YAPO:ls, YAPO:ea \"Erick Antezana\"] {opt=first}");
 			# then get them back:
 			my @xrefs_n2 = $n2->xref_set()->get_set();
 			
@@ -194,9 +194,9 @@
 			my $ref2 = OBO::Core::Dbxref->new();
 			my $ref3 = OBO::Core::Dbxref->new();
 			
-			$ref1->name("CCO:vm");
-			$ref2->name("CCO:ls");
-			$ref3->name("CCO:ea");
+			$ref1->name("APO:vm");
+			$ref2->name("APO:ls");
+			$ref3->name("APO:ea");
 			
 			my $refs_set = OBO::Util::DbxrefSet->new();
 			$refs_set->add_all($ref1,$ref2,$ref3);
@@ -210,16 +210,16 @@
 			$n2->def($def);
 			
 			# def as string
-			my $n2_def_as_string = $n2->def_as_string(); # should be "Hola mundo" [CCO:ea, CCO:ls, CCO:vm]
+			my $n2_def_as_string = $n2->def_as_string(); # should be "Hola mundo" [APO:ea, APO:ls, APO:vm]
 			
-			$n2->def_as_string("This is a dummy definition", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\" {opt=first}]");
+			$n2->def_as_string("This is a dummy definition", "[APO:vm, APO:ls, APO:ea \"Erick Antezana\" {opt=first}]");
 			my $n2_def_text = $n2->def()->text(); # should be "This is a dummy definition"
 			
 			# get them back:
 			my @refs_n2 = $n2->def()->dbxref_set()->get_set();
 			
 			# definition as string
-			$n2_def_as_string = $n2->def_as_string(); # should be "This is a dummy definition" [CCO:ea "Erick Antezana" {opt=first}, CCO:ls, CCO:vm]
+			$n2_def_as_string = $n2->def_as_string(); # should be "This is a dummy definition" [APO:ea "Erick Antezana" {opt=first}, APO:ls, APO:vm]
 			
 			# OBO tag: 'disjoint_from'
 			$n2->disjoint_from($n1->id(), $n3->id());

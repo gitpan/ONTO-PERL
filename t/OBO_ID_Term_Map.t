@@ -1,5 +1,5 @@
 # Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl CCO_ID_Term_Map.t'
+# `make test'. After `make install' it should work as `perl OBO_ID_Term_Map.t'
 
 #########################
 

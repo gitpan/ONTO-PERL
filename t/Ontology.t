@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 367;
+    plan tests => 369;
 }
 
 #########################
@@ -46,13 +46,13 @@ my @my_ssd = $onto->subset_def_map()->values();
 ok($my_ssd[0]->name() eq 'GO_SS');
 ok($my_ssd[0]->description() eq 'Term used for My GO');
 
-$n1->id('CCO:P0000001');
-$n2->id('CCO:P0000002');
-$n3->id('CCO:P0000003');
+$n1->id('APO:P0000001');
+$n2->id('APO:P0000002');
+$n3->id('APO:P0000003');
 
-$in1->id('CCO:K0000001');
-$in2->id('CCO:K0000002');
-$in3->id('CCO:K0000003');
+$in1->id('APO:K0000001');
+$in2->id('APO:K0000002');
+$in3->id('APO:K0000003');
 
 $n1->name('One');
 $n2->name('Two');
@@ -105,27 +105,27 @@ $in3->instance_of($n3);
 
 my $j = 1;
 foreach my $term (sort {$a->id() cmp $b->id()} $ts->get_set()) {
-	ok($term->id eq 'CCO:P000000'.$j);
+	ok($term->id eq 'APO:P000000'.$j);
 	foreach my $ti ($term->class_of()->get_set()) {
-		ok($ti->id eq 'CCO:K000000'.$j++);
+		ok($ti->id eq 'APO:K000000'.$j++);
 	}
 }
 
 # modifying a term name directly
 $n3->name('Trej');
-ok($onto->get_term_by_id('CCO:P0000003')->name() eq 'Trej');
+ok($onto->get_term_by_id('APO:P0000003')->name() eq 'Trej');
 
 # modifying a instance name directly
 $in3->name('instance of Trej');
-ok($onto->get_instance_by_id('CCO:K0000003')->name() eq 'instance of Trej');
+ok($onto->get_instance_by_id('APO:K0000003')->name() eq 'instance of Trej');
 
 # modifying a term name via the ontology
-$onto->get_term_by_id('CCO:P0000003')->name('Three');
-ok($onto->get_term_by_id('CCO:P0000003')->name() eq 'Three');
+$onto->get_term_by_id('APO:P0000003')->name('Three');
+ok($onto->get_term_by_id('APO:P0000003')->name() eq 'Three');
 
 # modifying a instance name via the ontology
-$onto->get_instance_by_id('CCO:K0000003')->name('instance of Three');
-ok($onto->get_instance_by_id('CCO:K0000003')->name() eq 'instance of Three');
+$onto->get_instance_by_id('APO:K0000003')->name('instance of Three');
+ok($onto->get_instance_by_id('APO:K0000003')->name() eq 'instance of Three');
 
 # check terms (+ rels)
 ok($onto->get_number_of_terms() == 3);
@@ -154,7 +154,7 @@ ok($onto->get_number_of_instances() == 3);
 
 # new term
 my $n4 = OBO::Core::Term->new();
-$n4->id('CCO:P0000004');
+$n4->id('APO:P0000004');
 $n4->name('Four');
 my $def4 = OBO::Core::Def->new();
 $def4->text('Definition of Four');
@@ -167,7 +167,7 @@ ok($onto->has_term($n4) == 1);
 
 # new instance
 my $in4 = OBO::Core::Instance->new();
-$in4->id('CCO:K0000004');
+$in4->id('APO:K0000004');
 $in4->name('instance of Four');
 ok($onto->has_instance($in4) == 0);
 $onto->delete_instance($in4);
@@ -176,17 +176,17 @@ $onto->add_instance($in4);
 ok($onto->has_instance($in4) == 1);
 
 # add term as string
-my $new_term = $onto->add_term_as_string('CCO:P0000005', 'Five');
-$new_term->def_as_string('This is a dummy definition', '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
+my $new_term = $onto->add_term_as_string('APO:P0000005', 'Five');
+$new_term->def_as_string('This is a dummy definition', '[APO:vm, APO:ls, APO:ea "Erick Antezana"]');
 ok($onto->has_term($new_term) == 1);
-ok($onto->get_term_by_id('CCO:P0000005')->equals($new_term));
+ok($onto->get_term_by_id('APO:P0000005')->equals($new_term));
 ok($onto->get_number_of_terms() == 5);
 my $n5 = $new_term;
 
 # add instance as string
-my $new_instance = $onto->add_instance_as_string('CCO:K0000005', 'instance of Five');
+my $new_instance = $onto->add_instance_as_string('APO:K0000005', 'instance of Five');
 ok($onto->has_instance($new_instance) == 1);
-ok($onto->get_instance_by_id('CCO:K0000005')->equals($new_instance));
+ok($onto->get_instance_by_id('APO:K0000005')->equals($new_instance));
 ok($onto->get_number_of_instances() == 5);
 my $in5 = $new_instance;
 
@@ -197,11 +197,11 @@ my $r13 = OBO::Core::Relationship->new();
 my $r14 = OBO::Core::Relationship->new();
 my $r35 = OBO::Core::Relationship->new();
 
-$r12->id('CCO:P0000001_is_a_CCO:P0000002');
-$r23->id('CCO:P0000002_part_of_CCO:P0000003');
-$r13->id('CCO:P0000001_participates_in_CCO:P0000003');
-$r14->id('CCO:P0000001_participates_in_CCO:P0000004');
-$r35->id('CCO:P0000003_part_of_CCO:P0000005');
+$r12->id('APO:P0000001_is_a_APO:P0000002');
+$r23->id('APO:P0000002_part_of_APO:P0000003');
+$r13->id('APO:P0000001_participates_in_APO:P0000003');
+$r14->id('APO:P0000001_participates_in_APO:P0000004');
+$r35->id('APO:P0000003_part_of_APO:P0000005');
 
 $r12->type('is_a');
 $r23->type('part_of');
@@ -218,76 +218,76 @@ $r35->link($n3, $n5);
 # get all terms
 my $c = 0;
 my %h;
-ok($onto->has_term_id('CCO:P0000003'));
-ok(!$onto->has_term_id('CCO:P0000033'));
+ok($onto->has_term_id('APO:P0000003'));
+ok(!$onto->has_term_id('APO:P0000033'));
 foreach my $t (@{$onto->get_terms()}) {
-	if ($t->id() eq 'CCO:P0000003'){
+	if ($t->id() eq 'APO:P0000003'){
 		ok($onto->has_term($t));
-		$onto->set_term_id($t, 'CCO:P0000033');
+		$onto->set_term_id($t, 'APO:P0000033');
 		ok($onto->has_term($t));
-		$t = $onto->get_term_by_id('CCO:P0000033');
+		$t = $onto->get_term_by_id('APO:P0000033');
 	}
 	
-	$t->name('Uj') if ($t->id() eq 'CCO:P0000001');
+	$t->name('Uj') if ($t->id() eq 'APO:P0000001');
 
 	$h{$t->id()} = $t;
 	$c++;	
 }
-ok(!$onto->has_term_id('CCO:P0000003'));
-ok($onto->has_term_id('CCO:P0000033'));
+ok(!$onto->has_term_id('APO:P0000003'));
+ok($onto->has_term_id('APO:P0000033'));
 
 ok($onto->get_number_of_terms() == 5);
 ok($c == 5);
-ok($h{'CCO:P0000001'}->name() eq 'Uj'); # The name has been changed above
-ok($h{'CCO:P0000002'}->name() eq 'Two');
-ok($h{'CCO:P0000033'}->name() eq 'Three'); # The ID has been changed above
-ok($h{'CCO:P0000004'}->name() eq 'Four');
-ok($h{'CCO:P0000005'}->name() eq 'Five');
+ok($h{'APO:P0000001'}->name() eq 'Uj'); # The name has been changed above
+ok($h{'APO:P0000002'}->name() eq 'Two');
+ok($h{'APO:P0000033'}->name() eq 'Three'); # The ID has been changed above
+ok($h{'APO:P0000004'}->name() eq 'Four');
+ok($h{'APO:P0000005'}->name() eq 'Five');
 
 # get all instances
 my $ic = 0;
 my %ih;
-ok($onto->has_instance_id('CCO:K0000003'));
-ok(!$onto->has_instance_id('CCO:K0000033'));
+ok($onto->has_instance_id('APO:K0000003'));
+ok(!$onto->has_instance_id('APO:K0000033'));
 foreach my $t (@{$onto->get_instances()}) {
-	if ($t->id() eq 'CCO:K0000003'){
+	if ($t->id() eq 'APO:K0000003'){
 		ok($onto->has_instance($t));
-		$onto->set_instance_id($t, 'CCO:K0000033');
+		$onto->set_instance_id($t, 'APO:K0000033');
 		ok($onto->has_instance($t));
-		$t = $onto->get_instance_by_id('CCO:K0000033');
+		$t = $onto->get_instance_by_id('APO:K0000033');
 	}
 	
-	$t->name('instance of Uj') if ($t->id() eq 'CCO:K0000001');
+	$t->name('instance of Uj') if ($t->id() eq 'APO:K0000001');
 
 	$ih{$t->id()} = $t;
 	$ic++;	
 }
-ok(!$onto->has_instance_id('CCO:K0000003'));
-ok($onto->has_instance_id('CCO:K0000033'));
+ok(!$onto->has_instance_id('APO:K0000003'));
+ok($onto->has_instance_id('APO:K0000033'));
 
 ok($onto->get_number_of_instances() == 5);
 ok($ic == 5);
-ok($ih{'CCO:K0000001'}->name() eq 'instance of Uj'); # The name has been changed above
-ok($ih{'CCO:K0000002'}->name() eq 'instance of Two');
-ok($ih{'CCO:K0000033'}->name() eq 'instance of Three'); # The ID has been changed above
-ok($ih{'CCO:K0000004'}->name() eq 'instance of Four');
-ok($ih{'CCO:K0000005'}->name() eq 'instance of Five');
+ok($ih{'APO:K0000001'}->name() eq 'instance of Uj'); # The name has been changed above
+ok($ih{'APO:K0000002'}->name() eq 'instance of Two');
+ok($ih{'APO:K0000033'}->name() eq 'instance of Three'); # The ID has been changed above
+ok($ih{'APO:K0000004'}->name() eq 'instance of Four');
+ok($ih{'APO:K0000005'}->name() eq 'instance of Five');
 
 # modifying a term id via the ontology
-ok($onto->set_term_id($onto->get_term_by_id('CCO:P0000033'), 'CCO:P0000003')->id() eq 'CCO:P0000003');
-ok($onto->has_term_id('CCO:P0000003'));
-ok(!$onto->has_term_id('CCO:P0000033'));
+ok($onto->set_term_id($onto->get_term_by_id('APO:P0000033'), 'APO:P0000003')->id() eq 'APO:P0000003');
+ok($onto->has_term_id('APO:P0000003'));
+ok(!$onto->has_term_id('APO:P0000033'));
 ok($onto->get_number_of_terms() == 5);
 
 # modifying a instance id via the ontology
-ok($onto->set_instance_id($onto->get_instance_by_id('CCO:K0000033'), 'CCO:K0000003')->id() eq 'CCO:K0000003');
-ok($onto->has_instance_id('CCO:K0000003'));
-ok(!$onto->has_instance_id('CCO:K0000033'));
+ok($onto->set_instance_id($onto->get_instance_by_id('APO:K0000033'), 'APO:K0000003')->id() eq 'APO:K0000003');
+ok($onto->has_instance_id('APO:K0000003'));
+ok(!$onto->has_instance_id('APO:K0000033'));
 ok($onto->get_number_of_instances() == 5);
 
 # get terms with argument
-my @processes         = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P.*")};
-my @sorted_processes  = @{$onto->get_terms_sorted_by_id("CCO:P.*")};
+my @processes         = sort {$a->id() cmp $b->id()} @{$onto->get_terms("APO:P.*")};
+my @sorted_processes  = @{$onto->get_terms_sorted_by_id("APO:P.*")};
 my @sorted_processes2 = @{$onto->get_terms_sorted_by_id()};
 ok($#processes == $#sorted_processes); # should be 5
 for (my $i = 0; $i <= $#sorted_processes; $i++) {
@@ -297,19 +297,19 @@ for (my $i = 0; $i <= $#sorted_processes; $i++) {
 ok($#processes == 4);
 ok($#sorted_processes2 == 4);
 
-my @odd_processes        = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000[35]")};
-my @sorted_odd_processes = @{$onto->get_terms_sorted_by_id("CCO:P000000[35]")};
+my @odd_processes        = sort {$a->id() cmp $b->id()} @{$onto->get_terms("APO:P000000[35]")};
+my @sorted_odd_processes = @{$onto->get_terms_sorted_by_id("APO:P000000[35]")};
 ok($#odd_processes == $#sorted_odd_processes); # should be 2
 for (my $i = 0; $i <= $#sorted_odd_processes; $i++) {
 	ok($odd_processes[$i]->id() eq $sorted_odd_processes[$i]->id());
 }
 ok($#odd_processes == 1);
-ok($odd_processes[0]->id() eq 'CCO:P0000003');
-ok($odd_processes[1]->id() eq 'CCO:P0000005');
+ok($odd_processes[0]->id() eq 'APO:P0000003');
+ok($odd_processes[1]->id() eq 'APO:P0000005');
 
 # get instances with argument
-my @iprocesses         = sort {$a->id() cmp $b->id()} @{$onto->get_instances("CCO:K.*")};
-my @isorted_processes  = @{$onto->get_instances_sorted_by_id("CCO:K.*")};
+my @iprocesses         = sort {$a->id() cmp $b->id()} @{$onto->get_instances("APO:K.*")};
+my @isorted_processes  = @{$onto->get_instances_sorted_by_id("APO:K.*")};
 my @isorted_processes2 = @{$onto->get_instances_sorted_by_id()};
 ok($#iprocesses == $#isorted_processes); # should be 5
 for (my $i = 0; $i <= $#isorted_processes; $i++) {
@@ -319,23 +319,23 @@ for (my $i = 0; $i <= $#isorted_processes; $i++) {
 ok($#iprocesses == 4);
 ok($#isorted_processes2 == 4);
 
-my @iodd_processes        = sort {$a->id() cmp $b->id()} @{$onto->get_instances("CCO:K000000[35]")};
-my @isorted_odd_processes = @{$onto->get_instances_sorted_by_id("CCO:K000000[35]")};
+my @iodd_processes        = sort {$a->id() cmp $b->id()} @{$onto->get_instances("APO:K000000[35]")};
+my @isorted_odd_processes = @{$onto->get_instances_sorted_by_id("APO:K000000[35]")};
 ok($#iodd_processes == $#isorted_odd_processes); # should be 2
 for (my $i = 0; $i <= $#isorted_odd_processes; $i++) {
 	ok($iodd_processes[$i]->id() eq $isorted_odd_processes[$i]->id());
 }
 ok($#iodd_processes == 1);
-ok($iodd_processes[0]->id() eq 'CCO:K0000003');
-ok($iodd_processes[1]->id() eq 'CCO:K0000005');
+ok($iodd_processes[0]->id() eq 'APO:K0000003');
+ok($iodd_processes[1]->id() eq 'APO:K0000005');
 
 # IDspace's
 my $ids = $onto->idspaces();
 ok($ids->is_empty() == 1);
 my $id1 = OBO::Core::IDspace->new();
-$id1->as_string('CCO', 'http://www.cellcycle.org/ontology/CCO', 'cell cycle ontology terms');
+$id1->as_string('APO', 'http://www.cellcycle.org/ontology/APO', 'cell cycle ontology terms');
 $onto->idspaces($id1);
-ok(($onto->idspaces()->get_set())[0]->local_idspace() eq "CCO");
+ok(($onto->idspaces()->get_set())[0]->local_idspace() eq "APO");
 
 my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
 ok(@same_processes == @processes);
@@ -348,12 +348,12 @@ my @ino_processes = @{$onto->get_instances_by_subnamespace("k")};
 ok($#no_processes == -1);
 
 # get term and terms
-ok($onto->get_term_by_id('CCO:P0000001')->name() eq 'Uj');
+ok($onto->get_term_by_id('APO:P0000001')->name() eq 'Uj');
 ok($onto->get_term_by_name('Uj')->equals($n1));
-$n1->synonym_as_string('Uno', '[CCO:ls, CCO:vm]', 'EXACT');
-ok(($n1->synonym_as_string())[0] eq '"Uno" [CCO:ls, CCO:vm] EXACT');
-$n1->synonym_as_string('One', '[CCO:ls, CCO:vm]', 'BROAD');
-$n1->synonym_as_string('Een', '[CCO:ab, CCO:cd]', 'RELATED');
+$n1->synonym_as_string('Uno', '[APO:ls, APO:vm]', 'EXACT');
+ok(($n1->synonym_as_string())[0] eq '"Uno" [APO:ls, APO:vm] EXACT');
+$n1->synonym_as_string('One', '[APO:ls, APO:vm]', 'BROAD');
+$n1->synonym_as_string('Een', '[APO:ab, APO:cd]', 'RELATED');
 
 ok($onto->get_term_by_name_or_synonym('Uno')->equals($n1));            # needs to be EXACT
 ok($onto->get_term_by_name_or_synonym('One') eq '');                   # undef due to BROAD
@@ -379,12 +379,12 @@ ok($onto->get_terms_by_name('Four')->contains($n4));
 ok($onto->get_terms_by_name('T')->size() == 2); # 'Two' and 'Three'
 
 # get instance and instances
-ok($onto->get_instance_by_id('CCO:K0000001')->name() eq 'instance of Uj');
+ok($onto->get_instance_by_id('APO:K0000001')->name() eq 'instance of Uj');
 ok($onto->get_instance_by_name('instance of Uj')->equals($in1));
-$in1->synonym_as_string('instance of Uno', '[CCO:ls, CCO:vm]', 'EXACT');
-ok(($in1->synonym_as_string())[0] eq '"instance of Uno" [CCO:ls, CCO:vm] EXACT');
-$in1->synonym_as_string('instance of One', '[CCO:ls, CCO:vm]', 'BROAD');
-$in1->synonym_as_string('instance of Een', '[CCO:ab, CCO:cd]', 'RELATED');
+$in1->synonym_as_string('instance of Uno', '[APO:ls, APO:vm]', 'EXACT');
+ok(($in1->synonym_as_string())[0] eq '"instance of Uno" [APO:ls, APO:vm] EXACT');
+$in1->synonym_as_string('instance of One', '[APO:ls, APO:vm]', 'BROAD');
+$in1->synonym_as_string('instance of Een', '[APO:ab, APO:cd]', 'RELATED');
 
 ok($onto->get_instance_by_name_or_synonym('instance of Uno')->equals($in1));            # needs to be EXACT
 ok($onto->get_instance_by_name_or_synonym('instance of One') eq '');                   # undef due to BROAD
@@ -411,22 +411,22 @@ ok($onto->get_instances_by_name('instance of T')->size() == 2); # 'Two' and 'Thr
 
 # add relationships
 $onto->add_relationship($r12);
-ok($onto->get_relationship_by_id('CCO:P0000001_is_a_CCO:P0000002')->head()->id() eq 'CCO:P0000002');
-ok($onto->has_relationship_id('CCO:P0000001_is_a_CCO:P0000002'));
+ok($onto->get_relationship_by_id('APO:P0000001_is_a_APO:P0000002')->head()->id() eq 'APO:P0000002');
+ok($onto->has_relationship_id('APO:P0000001_is_a_APO:P0000002'));
 
 # delete a relationship
 $onto->delete_relationship($r12);
-ok(!$onto->has_relationship_id('CCO:P0000001_is_a_CCO:P0000002'));
+ok(!$onto->has_relationship_id('APO:P0000001_is_a_APO:P0000002'));
 
 # add back the just deleted relationship
 $onto->add_relationship($r12);
-ok($onto->get_relationship_by_id('CCO:P0000001_is_a_CCO:P0000002')->head()->id() eq 'CCO:P0000002');
-ok($onto->has_relationship_id('CCO:P0000001_is_a_CCO:P0000002'));
+ok($onto->get_relationship_by_id('APO:P0000001_is_a_APO:P0000002')->head()->id() eq 'APO:P0000002');
+ok($onto->has_relationship_id('APO:P0000001_is_a_APO:P0000002'));
 
-my @relas = @{$onto->get_relationships_by_target_term($onto->get_term_by_id('CCO:P0000002'))};
-ok($relas[0]->id()         eq 'CCO:P0000001_is_a_CCO:P0000002');
-ok($relas[0]->tail()->id() eq 'CCO:P0000001');
-ok($relas[0]->head()->id() eq 'CCO:P0000002');
+my @relas = @{$onto->get_relationships_by_target_term($onto->get_term_by_id('APO:P0000002'))};
+ok($relas[0]->id()         eq 'APO:P0000001_is_a_APO:P0000002');
+ok($relas[0]->tail()->id() eq 'APO:P0000001');
+ok($relas[0]->head()->id() eq 'APO:P0000002');
 
 $onto->add_relationship($r23);
 $onto->add_relationship($r13);
@@ -440,10 +440,10 @@ ok($onto->get_number_of_relationships() == 5);
 # add relationships and terms linked by this relationship
 my $n11 = OBO::Core::Term->new();
 my $n21 = OBO::Core::Term->new();
-$n11->id('CCO:P0000011'); $n11->name('One one'); $n11->def_as_string('Definition One one', '');
-$n21->id('CCO:P0000021'); $n21->name('Two one'); $n21->def_as_string('Definition Two one', '');
+$n11->id('APO:P0000011'); $n11->name('One one'); $n11->def_as_string('Definition One one', '');
+$n21->id('APO:P0000021'); $n21->name('Two one'); $n21->def_as_string('Definition Two one', '');
 my $r11_21 = OBO::Core::Relationship->new();
-$r11_21->id('CCO:L0001121'); $r11_21->type('r11-21');
+$r11_21->id('APO:L0001121'); $r11_21->type('r11-21');
 $r11_21->link($n11, $n21);
 $onto->add_relationship($r11_21); # adds to the ontology the terms linked by this relationship
 $onto->get_relationship_type_by_id('r11-21')->name('r11-21');
@@ -453,8 +453,8 @@ ok($onto->get_number_of_relationships() == 6);
 # add some instances
 my $in11 = OBO::Core::Instance->new();
 my $in21 = OBO::Core::Instance->new();
-$in11->id('CCO:K0000011'); $in11->name('instance of One one');
-$in21->id('CCO:K0000021'); $in21->name('instance of Two one');
+$in11->id('APO:K0000011'); $in11->name('instance of One one');
+$in21->id('APO:K0000021'); $in21->name('instance of Two one');
 $in11->instance_of($n11);
 ok($in11->is_instance_of($n11));
 ok($n11->is_class_of($in11));
@@ -473,23 +473,23 @@ my %hr;
 foreach my $r (@{$onto->get_relationships()}) {
 	$hr{$r->id()} = $r;
 }
-ok($hr{'CCO:P0000001_is_a_CCO:P0000002'}->head()->equals($n2));
-ok($hr{'CCO:P0000002_part_of_CCO:P0000003'}->head()->equals($n3));
-ok($hr{'CCO:P0000001_participates_in_CCO:P0000003'}->head()->equals($n3));
-ok($hr{'CCO:P0000001_participates_in_CCO:P0000004'}->head()->equals($n4));
+ok($hr{'APO:P0000001_is_a_APO:P0000002'}->head()->equals($n2));
+ok($hr{'APO:P0000002_part_of_APO:P0000003'}->head()->equals($n3));
+ok($hr{'APO:P0000001_participates_in_APO:P0000003'}->head()->equals($n3));
+ok($hr{'APO:P0000001_participates_in_APO:P0000004'}->head()->equals($n4));
 
 # recover a previously stored relationship
-ok($onto->get_relationship_by_id('CCO:P0000001_participates_in_CCO:P0000003')->equals($r13));
-ok($onto->has_relationship_id('CCO:P0000001_participates_in_CCO:P0000003'));
+ok($onto->get_relationship_by_id('APO:P0000001_participates_in_APO:P0000003')->equals($r13));
+ok($onto->has_relationship_id('APO:P0000001_participates_in_APO:P0000003'));
 
 # delete a relationship
 $onto->delete_relationship($r13);
-ok(!$onto->has_relationship_id('CCO:P0000001_participates_in_CCO:P0000003'));
+ok(!$onto->has_relationship_id('APO:P0000001_participates_in_APO:P0000003'));
 
 # add back the just deleted relationship
 $onto->add_relationship($r13);
-ok($onto->get_relationship_by_id('CCO:P0000001_participates_in_CCO:P0000003')->head()->id() eq 'CCO:P0000003');
-ok($onto->has_relationship_id('CCO:P0000001_participates_in_CCO:P0000003'));
+ok($onto->get_relationship_by_id('APO:P0000001_participates_in_APO:P0000003')->head()->id() eq 'APO:P0000003');
+ok($onto->has_relationship_id('APO:P0000001_participates_in_APO:P0000003'));
 
 # get children
 my @children = @{$onto->get_child_terms($n1)}; 
@@ -501,12 +501,12 @@ my %ct;
 foreach my $child (@children) {
 	$ct{$child->id()} = $child;
 } 
-ok($ct{'CCO:P0000002'}->equals($n2));
-ok($ct{'CCO:P0000001'}->equals($n1));
+ok($ct{'APO:P0000002'}->equals($n2));
+ok($ct{'APO:P0000001'}->equals($n1));
 
 @children = @{$onto->get_child_terms($n2)};
 ok(scalar(@children) == 1);
-ok($children[0]->id eq 'CCO:P0000001');
+ok($children[0]->id eq 'APO:P0000001');
 
 # get parents
 my @parents = @{$onto->get_parent_terms($n3)};
@@ -515,28 +515,28 @@ ok(scalar(@parents) == 1);
 ok(scalar(@parents) == 3);
 @parents = @{$onto->get_parent_terms($n2)};
 ok(scalar(@parents) == 1);
-ok($parents[0]->id eq 'CCO:P0000003');
+ok($parents[0]->id eq 'APO:P0000003');
 
 # get all descendents
 my @descendents1 = @{$onto->get_descendent_terms($n1)};
 ok(scalar(@descendents1) == 0);
 my @descendents2 = @{$onto->get_descendent_terms($n2)};
 ok(scalar(@descendents2) == 1);
-ok($descendents2[0]->id eq 'CCO:P0000001');
+ok($descendents2[0]->id eq 'APO:P0000001');
 my @descendents3 = @{$onto->get_descendent_terms($n3)};
 ok(scalar(@descendents3) == 2);
 my @descendents5 = @{$onto->get_descendent_terms($n5)};
 ok(scalar(@descendents5) == 3);
 
 # get descendents of a term (using its unique ID)
-@descendents1 = @{$onto->get_descendent_terms('CCO:P0000001')};
+@descendents1 = @{$onto->get_descendent_terms('APO:P0000001')};
 ok(scalar(@descendents1) == 0);
-@descendents2 = @{$onto->get_descendent_terms('CCO:P0000002')};
+@descendents2 = @{$onto->get_descendent_terms('APO:P0000002')};
 ok(scalar(@descendents2) == 1);
-ok($descendents2[0]->id eq 'CCO:P0000001');
-@descendents3 = @{$onto->get_descendent_terms('CCO:P0000003')};
+ok($descendents2[0]->id eq 'APO:P0000001');
+@descendents3 = @{$onto->get_descendent_terms('APO:P0000003')};
 ok(scalar(@descendents3) == 2);
-@descendents5 = @{$onto->get_descendent_terms('CCO:P0000005')};
+@descendents5 = @{$onto->get_descendent_terms('APO:P0000005')};
 ok(scalar(@descendents5) == 3);
 
 # get all ancestors
@@ -544,8 +544,8 @@ my @ancestors1 = @{$onto->get_ancestor_terms($n1)};
 ok(scalar(@ancestors1) == 4);
 my @ancestors2 = @{$onto->get_ancestor_terms($n2)};
 ok(scalar(@ancestors2) == 2);
-ok($ancestors2[0]->id() eq 'CCO:P0000003' || $ancestors2[0]->id() eq 'CCO:P0000005');
-ok($ancestors2[1]->id() eq 'CCO:P0000003' || $ancestors2[1]->id() eq 'CCO:P0000005');
+ok($ancestors2[0]->id() eq 'APO:P0000003' || $ancestors2[0]->id() eq 'APO:P0000005');
+ok($ancestors2[1]->id() eq 'APO:P0000003' || $ancestors2[1]->id() eq 'APO:P0000005');
 my @ancestors3 = @{$onto->get_ancestor_terms($n3)};
 ok(scalar(@ancestors3) == 1);
 
@@ -554,7 +554,7 @@ ok(scalar(@ancestors3) == 1);
 ok(scalar(@descendents1) == 0);
 @descendents2 = @{$onto->get_descendent_terms_by_subnamespace($n2, 'P')}; 
 ok(scalar(@descendents2) == 1);
-ok($descendents2[0]->id eq 'CCO:P0000001');
+ok($descendents2[0]->id eq 'APO:P0000001');
 @descendents3 = @{$onto->get_descendent_terms_by_subnamespace($n3, 'P')};
 ok(scalar(@descendents3) == 2);
 @descendents3 = @{$onto->get_descendent_terms_by_subnamespace($n3, 'R')};
@@ -565,8 +565,8 @@ ok(scalar(@descendents3) == 0);
 ok(scalar(@ancestors1) == 4);
 @ancestors2 = @{$onto->get_ancestor_terms_by_subnamespace($n2, 'P')}; 
 ok(scalar(@ancestors2) == 2);
-ok($ancestors2[0]->id() eq 'CCO:P0000003' || $ancestors2[0]->id() eq 'CCO:P0000005');
-ok($ancestors2[1]->id() eq 'CCO:P0000003' || $ancestors2[1]->id() eq 'CCO:P0000005');
+ok($ancestors2[0]->id() eq 'APO:P0000003' || $ancestors2[0]->id() eq 'APO:P0000005');
+ok($ancestors2[1]->id() eq 'APO:P0000003' || $ancestors2[1]->id() eq 'APO:P0000005');
 @ancestors3 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'P')};
 ok(scalar(@ancestors3) == 1);
 @ancestors3 = @{$onto->get_ancestor_terms_by_subnamespace($n3, 'R')};
@@ -676,10 +676,20 @@ ok($onto->get_relationship_type_by_name('is a')->id() eq 'is_a');
 ok($onto->get_relationship_type_by_name('part_of')->id() eq 'part_of');
 ok($onto->get_relationship_type_by_name('participates_in')->id() eq 'participates_in');
 
+# get_local_term_neighbourhood
+
+my @nei = @{$onto->get_term_local_neighbourhood($n1)};
+my %rtbsh;
+foreach my $rel (@nei) {
+	$rtbsh{$rel->type()} = $rel->type();
+}
+ok($rtbsh{'participates_in'} eq 'participates_in');
+ok($rtbsh{'is_a'} eq 'is_a');
+
 # get_relationships_by_(source|target)_term
 my @rtbs = @{$onto->get_relationships_by_source_term($n1)};
 
-my %rtbsh;
+%rtbsh = ();
 foreach my $rel (@rtbs) {
 	$rtbsh{$rel->type()} = $rel->type();
 }
@@ -705,7 +715,7 @@ ok($rtbth{'part_of'} eq 'part_of');
 
 @rtbt = @{$onto->get_relationships_by_target_term($n3, 'participates_in')};
 foreach my $rel (@rtbt) {
-	ok ($rel->id() eq 'CCO:P0000001_participates_in_CCO:P0000003');
+	ok ($rel->id() eq 'APO:P0000001_participates_in_APO:P0000003');
 }
 
 # get_head_by_relationship_type
@@ -714,15 +724,14 @@ my %hbrt;
 foreach my $head (@heads_n1) {
 	$hbrt{$head->id()} = $head;
 }
-ok($hbrt{'CCO:P0000003'}->equals($n3));
-ok($hbrt{'CCO:P0000004'}->equals($n4));
+ok($hbrt{'APO:P0000003'}->equals($n3));
+ok($hbrt{'APO:P0000004'}->equals($n4));
 ok(@{$onto->get_head_by_relationship_type($n1, $onto->get_relationship_type_by_name('is a'))}[0]->equals($n2));
 
 # get_tail_by_relationship_type
 ok(@{$onto->get_tail_by_relationship_type($n3, $onto->get_relationship_type_by_name('participates_in'))}[0]->equals($n1));
 ok(@{$onto->get_tail_by_relationship_type($n2, $onto->get_relationship_type_by_name('is a'))}[0]->equals($n1));
 
-#export
 $onto->remarks('This is a test ontology');
 
 # subontology_by_terms
@@ -774,23 +783,23 @@ ok($ids->is_empty() == 0);
 my $id2 = OBO::Core::IDspace->new();
 my $id3 = OBO::Core::IDspace->new();
 
-$id2->as_string('CCO', 'http://www.cellcycle.org/ontology/CCO', 'cell cycle ontology terms');
+$id2->as_string('APO', 'http://www.cellcycle.org/ontology/APO', 'cell cycle ontology terms');
 $id3->as_string('GO', 'urn:lsid:bioontology.org:GO:', 'gene ontology terms');
 $so->idspaces($id2, $id3);
 
-ok($onto->get_terms_idspace() eq 'CCO');
+ok($onto->get_terms_idspace() eq 'APO');
 ok($onto->get_terms_idspace() ne 'GO');
 ok(!defined $onto->id());
-$onto->id('CCO');
-ok($onto->get_terms_idspace() eq 'CCO');
+$onto->id('APO');
+ok($onto->get_terms_idspace() eq 'APO');
 ok($onto->get_terms_idspace() ne 'GO');
-ok($onto->id() eq 'CCO');
+ok($onto->id() eq 'APO');
 
 my $idspaces = $so->idspaces();
 ok($idspaces->size() == 2);
 
 my @IDs = sort {$a->local_idspace() cmp $b->local_idspace()} ($so->idspaces()->get_set());
-ok($IDs[0]->as_string() eq 'CCO http://www.cellcycle.org/ontology/CCO "cell cycle ontology terms"');
+ok($IDs[0]->as_string() eq 'APO http://www.cellcycle.org/ontology/APO "cell cycle ontology terms"');
 ok($IDs[1]->as_string() eq 'GO urn:lsid:bioontology.org:GO: "gene ontology terms"');
 
 $so->remarks('1. This is a test ontology', '2. This is a second remark', '3. This is the last remark');
@@ -839,10 +848,10 @@ ok($instances_by_ss[0]->name() eq 'instance of mitotic cell cycle');
 @instances_by_ss = @{$so->get_instances_by_subset('IJukucha')};
 ok($instances_by_ss[0]->name() eq 'instance of mitotic cell cycle');
 
-$n2->def_as_string('This is a dummy definition', '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}]');
-$n1->xref_set_as_string('CCO:ea');
-$n3->synonym_as_string('This is a dummy synonym definition', '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana" {opt=first}]', 'EXACT');
-$n3->alt_id('CCO:P0000033');
+$n2->def_as_string('This is a dummy definition', '[APO:vm, APO:ls, APO:ea "Erick Antezana" {opt=first}]');
+$n1->xref_set_as_string('APO:ea');
+$n3->synonym_as_string('This is a dummy synonym definition', '[APO:vm, APO:ls, APO:ea "Erick Antezana" {opt=first}]', 'EXACT');
+$n3->alt_id('APO:P0000033');
 $n3->namespace('cellcycle');
 $n3->is_obsolete('1');
 $n3->union_of('GO:0001');

@@ -9,6 +9,7 @@
 #
 package OBO::XO::OBO_ID_Term_Map;
 
+use Carp;
 use strict;
 
 use OBO::XO::OBO_ID_Set;
@@ -24,7 +25,7 @@ sub new {
 
     bless( $self, $class );
 
-    die if ( !defined $self->{FILE} );
+    croak if ( !defined $self->{FILE} );
 
     # if the file exists:
     if ( -e $self->{FILE} && -r $self->{FILE} ) {
@@ -69,7 +70,7 @@ sub put {
 	my ( $self, $new_id, $new_name ) = @_;
 
 	if ( $new_id && $new_name ) {
-		die "The ID is not valid: '$new_id'\n" if ($self->_is_valid_id($new_id));
+		croak "The ID is not valid: '$new_id'\n" if ($self->_is_valid_id($new_id));
 
 		my $has_key   = $self->contains_key($new_id);
 		my $has_value = $self->contains_value($new_name);
@@ -91,11 +92,11 @@ sub put {
 				warn "The pair: $new_id, $new_name is part of the map BUT they correspond to other entries!";
 			}
 		} else {
-			die "This case should have never happened: -> ($new_id, $new_name)";
+			croak "This case should have never happened: -> ($new_id, $new_name)";
 		}
 		return $self->size();
 	} else {
-		die "You should provide both a term ID and a term name -> ($new_id, $new_name)\n";
+		croak "You should provide both a term ID and a term name -> ($new_id, $new_name)\n";
 	}    
 }
 
@@ -324,7 +325,7 @@ sub is_empty {
 
 sub write_map {
 	my $self = shift;
-	open( FH, '>' . $self->{FILE} ) || die "Cannot write map into the file: '$self->{FILE}', $!";
+	open( FH, '>' . $self->{FILE} ) || croak "Cannot write map into the file: '$self->{FILE}', $!";
 	foreach ( sort keys %{ $self->{MAP_BY_ID} } ) {
 		if ($self->{MAP_BY_ID}->{$_}) {
 			print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";

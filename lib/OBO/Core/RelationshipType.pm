@@ -1,7 +1,7 @@
 # $Id: RelationshipType.pm 2011-06-06 erick.antezana $
 #
 # Module  : RelationshipType.pm
-# Purpose : Type of Relationship in the Ontology: is_a, part_of, etc.
+# Purpose : Type of relationship in the Ontology: is_a, part_of, etc.
 # License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
@@ -9,6 +9,7 @@
 #
 package OBO::Core::RelationshipType;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -140,7 +141,7 @@ sub def {
 
 =head2 def_as_string
 
-  Usage    - $relationship_type->def_as_string() or $relationship_type->def_as_string("This is a sample", "[CCO:ea, PMID:9334324]")
+  Usage    - $relationship_type->def_as_string() or $relationship_type->def_as_string("This is a sample", "[APO:ea, PMID:9334324]")
   Returns  - the definition (string) of the relationship type
   Args     - the definition (string) of the relationship type plus the dbxref list describing the source of this definition
   Function - gets/sets the definition of the relationship type
@@ -238,7 +239,7 @@ sub synonym_set {
 	foreach my $synonym (@_) {
 		my $rel_type_name = $self->name();
 		if (!defined($rel_type_name)) {
-			die 'The name of this term (', $self->id(), ') is undefined. Add it before adding its synonyms.';
+			croak 'The name of this term (', $self->id(), ') is undefined. Add it before adding its synonyms.';
 		}
 		
 		#
@@ -280,7 +281,7 @@ sub synonym_set {
 
 =head2 synonym_as_string
 
-  Usage    - print $relationship_type->synonym_as_string() or $relationship_type->synonym_as_string("this is a synonym text", "[CCO:ea]", "EXACT")
+  Usage    - print $relationship_type->synonym_as_string() or $relationship_type->synonym_as_string("this is a synonym text", "[APO:ea]", "EXACT")
   Returns  - an array with the synonym(s) of this relationship type
   Args     - the synonym text (string), the dbxrefs (string), synonym scope (string) of this relationship type, and optionally the synonym type name (string)
   Function - gets/sets the synonym(s) of this relationship type
@@ -768,18 +769,18 @@ sub equals  {
 		my $self_id   = $_[0]->{'ID'};
 		my $target_id = $_[1]->{'ID'};
 		
-		die 'The ID of this relationship type is not defined.' if (!defined($self_id));
-		die 'The ID of the target relationship type is not defined.' if (!defined($target_id));
+		croak 'The ID of this relationship type is not defined.' if (!defined($self_id));
+		croak 'The ID of the target relationship type is not defined.' if (!defined($target_id));
 		
 		$result = ($self_id eq $target_id);
 	} else {
-		die "An unrecognized object type (not a OBO::Core::RelationshipType) was found: '", $_[1], "'";
+		croak "An unrecognized object type (not a OBO::Core::RelationshipType) was found: '", $_[1], "'";
 	}
 	return $result;
 }
 
 sub __dbxref () {
-	caller eq __PACKAGE__ or die "You cannot call this (__dbxref) prived method!";
+	caller eq __PACKAGE__ or croak "You cannot call this (__dbxref) prived method!";
 	#
 	# $_[0] ==> set
 	# $_[1] ==> dbxref string
@@ -819,7 +820,7 @@ sub __dbxref () {
 			$desc  = __unescape($3) if ($3);
 			$mod   = __unescape($4) if ($4);
 		} else {
-			die "ERROR: Check the 'dbxref' field of '", $entry, "'.";
+			croak "ERROR: Check the 'dbxref' field of '", $entry, "'.";
 		}
 		
 		# set the dbxref:
@@ -863,11 +864,11 @@ my $r2 = OBO::Core::RelationshipType->new();
 my $r3 = OBO::Core::RelationshipType->new();
 
 
-$r1->id("CCO:R0000001");
+$r1->id("APO:R0000001");
 
-$r2->id("CCO:R0000002");
+$r2->id("APO:R0000002");
 
-$r3->id("CCO:R0000003");
+$r3->id("APO:R0000003");
 
 
 $r1->name("is a");
@@ -888,7 +889,7 @@ $r1->creation_date("2008-04-13T01:32:36Z ");
 
 my $r3_inv = OBO::Core::RelationshipType->new();
 
-$r3_inv->id("CCO:R0000004");
+$r3_inv->id("APO:R0000004");
 
 $r3_inv->name("has participant");
 
@@ -897,7 +898,7 @@ $r3_inv->inverse_of($r3);
 
 # def as string
 
-$r2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
+$r2->def_as_string("This is a dummy definition", '[APO:vm, APO:ls, APO:ea "Erick Antezana"]');
 
 my @refs_r2 = $r2->def()->dbxref_set()->get_set();
 

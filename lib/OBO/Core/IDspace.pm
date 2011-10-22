@@ -9,6 +9,7 @@
 #
 package OBO::Core::IDspace;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -37,7 +38,7 @@ sub local_idspace {
 	if ($_[1]) {
 		$_[0]->{LOCAL_IDSPACE} = $_[1];
 	} else { # get-mode
-		die 'The local ID space of this ID space is not defined.' if (!defined($_[0]->{LOCAL_IDSPACE}));
+		croak 'The local ID space of this ID space is not defined.' if (!defined($_[0]->{LOCAL_IDSPACE}));
 	}
 	return $_[0]->{LOCAL_IDSPACE};
 }
@@ -55,7 +56,7 @@ sub uri {
 	if ($_[1]) {
 		$_[0]->{URI} = $_[1];
 	} else { # get-mode
-		die 'The URI of this ID space is not defined.' if (!defined($_[0]->{URI}));
+		croak 'The URI of this ID space is not defined.' if (!defined($_[0]->{URI}));
 	}
 	return $_[0]->{URI};
 }
@@ -73,7 +74,7 @@ sub description {
 	if ($_[1]) { 
 		$_[0]->{DESCRIPTION} = $_[1];
 	} else { # get-mode
-		die 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
+		croak 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
 	}
 	return $_[0]->{DESCRIPTION};
 }
@@ -94,7 +95,7 @@ sub as_string {
 		$_[0]->{DESCRIPTION}   = $_[3] if ($_[3]);
 		return; # set mode
 	} else {
-		die 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
+		croak 'Neither the local idspace nor the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
 		my $result = $_[0]->{LOCAL_IDSPACE}.' '.$_[0]->{URI};
 		$result   .= ' "'.$_[0]->{DESCRIPTION}.'"' if (defined $_[0]->{DESCRIPTION} && $_[0]->{DESCRIPTION} ne '');
 		$result    = '' if ($result =~ /^\s*$/);
@@ -114,13 +115,13 @@ sub as_string {
 sub equals {
 	if ($_[1] && eval { $_[1]->isa('OBO::Core::IDspace') }) {
 		
-		die 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
-		die 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($_[1]->{LOCAL_IDSPACE}) || !defined($_[1]->{URI}));
+		croak 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($_[0]->{LOCAL_IDSPACE}) || !defined($_[0]->{URI}));
+		croak 'Neither the local idspace or the URI of this idspace is defined.' if (!defined($_[1]->{LOCAL_IDSPACE}) || !defined($_[1]->{URI}));
 		my $result = ((defined $_[0]->{DESCRIPTION} && defined $_[1]->{DESCRIPTION}) && ($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION}));
 		return $result && (($_[0]->{LOCAL_IDSPACE} eq $_[1]->{LOCAL_IDSPACE}) &&
 							($_[0]->{URI} eq $_[1]->{URI}));
 	} else {
-		die "An unrecognized object type (not a OBO::Core::IDspace) was found: '", $_[1], "'";
+		croak "An unrecognized object type (not a OBO::Core::IDspace) was found: '", $_[1], "'";
 	}
 	return 0;
 }
@@ -143,9 +144,9 @@ use strict;
 my $idspace = OBO::Core::IDspace->new();
 
 
-$idspace->local_idspace("CCO");
+$idspace->local_idspace("APO");
 
-$idspace->uri("http://www.cellcycleontology.org/ontology/CCO");
+$idspace->uri("http://www.cellcycleontology.org/ontology/APO");
 
 $idspace->description("cell cycle ontology terms);
 

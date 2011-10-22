@@ -10,17 +10,18 @@ BEGIN {
 }
 #########################
 
-use OBO::CCO::GoaToRDF;
 use Carp;
 use strict;
 use warnings;
 
-my $goa2rdf = OBO::CCO::GoaToRDF->new();
+use OBO::APO::GoaToRDF;
+
+my $goa2rdf = OBO::APO::GoaToRDF->new();
 ok(1);
 
-open (FH, ">./t/data/goa.rdf") || die $!;
+open (FH, '>./t/data/goa.rdf') || die $!;
 my $file_handle = \*FH;
-$file_handle = $goa2rdf->work($file_handle,"./t/data/goa_assoc_filt.txt");
+$file_handle = $goa2rdf->work($file_handle, './t/data/goa_assoc_filt.txt');
 ok(1);
 
 close $file_handle;

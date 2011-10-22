@@ -20,7 +20,7 @@
 			my $my_parser = OBO::Parser::OBOParser->new();
 			my $result = OBO::Core::Ontology->new();
 			
-			$result->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO");
+			$result->idspace_as_string("APO", "http://www.cellcycle.org/ontology/APO");
 			$result->default_namespace("cellcycle_ontology");
 			$result->remarks("Simple Merged Ontology");
 			
@@ -40,7 +40,7 @@
 				}
 			}
 			
-			$result->export(\*STDOUT, "obo");    # export back in OBO format the simple merged ontology
+			$result->export();    # export back in OBO format the simple merged ontology
 			
 		</pre>
 	</li>

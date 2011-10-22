@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 47;
+    plan tests => 57;
 }
 
 #########################
@@ -32,9 +32,9 @@ $sn1->scope('EXACT');
 $sn2->scope('EXACT');
 $sn3->scope('EXACT');
 
-$sn1->def_as_string("This is a dummy synonym1", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
-$sn2->def_as_string("This is a dummy synonym2", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
-$sn3->def_as_string("This is a dummy synonym3", "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
+$sn1->def_as_string("This is a dummy synonym1", "[APO:vm, APO:ls, APO:ea \"Erick Antezana\"]");
+$sn2->def_as_string("This is a dummy synonym2", "[APO:vm, APO:ls, APO:ea \"Erick Antezana\"]");
+$sn3->def_as_string("This is a dummy synonym3", "[APO:vm, APO:ls, APO:ea \"Erick Antezana\"]");
 
 # tests with empty set
 $my_set->remove($sn1);
@@ -63,9 +63,9 @@ $sn4->scope('EXACT');
 $sn5->scope('EXACT');
 $sn6->scope('EXACT');
 
-$sn4->def_as_string('This is a dummy synonym4', "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
-$sn5->def_as_string('This is a dummy synonym5', "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]");
-$sn6->def_as_string('This is a dummy synonym1', "[CCO:vm, CCO:ls, CCO:ea \"Erick Antezana\"]"); # repeated !!!
+$sn4->def_as_string('This is a dummy synonym4', "[APO:vm, APO:ls, APO:ea \"Erick Antezana\"]");
+$sn5->def_as_string('This is a dummy synonym5', "[APO:vm, APO:ls, APO:ea \"Erick Antezana\"]");
+$sn6->def_as_string('This is a dummy synonym1', "[APO:vm, APO:ls, APO:ea \"Erick Antezana\"]"); # repeated !!!
 
 $my_set->add_all($sn4, $sn5);
 my $false = $my_set->add($sn6);
@@ -96,12 +96,22 @@ ok($add_all_check == 0);
 $add_all_check = $my_set2->add_all($sn7, $sn8, $sn9, $sn1, $sn2, $sn3);
 ok($add_all_check == 0);
 ok(!$my_set2->is_empty());
+
 ok($my_set->contains($sn7) && $my_set->contains($sn8) && $my_set->contains($sn9));
+ok($my_set->contains($sn4) && $my_set->contains($sn5) && $my_set->contains($sn6));
+ok($my_set->contains($sn1) && $my_set->contains($sn2) && $my_set->contains($sn3));
+ok($my_set->size() == 5);
 
-# TODO check the next test:
-#ok($my_set->equals($my_set2));
-
+ok($my_set2->contains($sn7) && $my_set2->contains($sn8) && $my_set2->contains($sn9));
+ok($my_set2->contains($sn4) && $my_set2->contains($sn5) && $my_set2->contains($sn6));
+ok($my_set2->contains($sn1) && $my_set2->contains($sn2) && $my_set2->contains($sn3));
 ok($my_set2->size() == 5);
+
+# equality
+ok($my_set->equals($my_set));
+ok($my_set2->equals($my_set2));
+ok($my_set->equals($my_set2));
+ok($my_set2->equals($my_set));
 
 $my_set2->clear();
 ok($my_set2->is_empty());

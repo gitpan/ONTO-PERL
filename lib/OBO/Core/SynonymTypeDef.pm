@@ -9,6 +9,7 @@
 #
 package OBO::Core::SynonymTypeDef;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -98,16 +99,16 @@ sub equals {
 	my $result = 0;
 	if ($_[1] && eval { $_[1]->isa('OBO::Core::SynonymTypeDef') }) {
 
-		die 'The name of this synonym type definition is undefined.' if (!defined($_[0]->{NAME}));
-		die 'The name of the target synonym type definition is undefined.' if (!defined($_[0]->{NAME}));
+		croak 'The name of this synonym type definition is undefined.' if (!defined($_[0]->{NAME}));
+		croak 'The name of the target synonym type definition is undefined.' if (!defined($_[0]->{NAME}));
 		
-		die 'The description of the this synonym type definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
-		die 'The description of the target synonym type definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
+		croak 'The description of the this synonym type definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
+		croak 'The description of the target synonym type definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
 		
 		$result = ($_[0]->{NAME} eq $_[1]->{NAME}) && ($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION});
 		$result = $result && ($_[0]->{SCOPE} eq $_[1]->{SCOPE}) if (defined $_[0]->{SCOPE} && defined $_[1]->{SCOPE}); # TODO Future improvement, consider case: scope_1 undefined and scope_2 defined!
 	} else {
-		die "An unrecognized object type (not a OBO::Core::SynonymTypeDef) was found: '", $_[1], "'";
+		croak "An unrecognized object type (not a OBO::Core::SynonymTypeDef) was found: '", $_[1], "'";
 	}
 	return $result;
 }

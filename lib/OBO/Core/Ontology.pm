@@ -17,10 +17,11 @@ use OBO::Util::TermSet;
 use OBO::Util::InstanceSet;
 use OBO::Util::RelationshipTypeSet;
 
+use Carp;
 use strict;
 use warnings;
 
-our $VERSION = '1.35';
+our $VERSION = '1.36';
 
 sub new {
 	my $class  = shift;
@@ -130,6 +131,7 @@ sub treat_xrefs_as_equivalent {
   Returns  - the current date (in dd:MM:yyyy HH:mm format) of the ontology
   Args     - the current date (in dd:MM:yyyy HH:mm format) of the ontology
   Function - gets/sets the date of the ontology
+  Remark   - for historic reasons, this is NOT a ISO 8601 date, as is the case for the creation-date field
   
 =cut
 
@@ -275,10 +277,10 @@ sub add_term {
 			#$self->{TERMS_SET}->add($term);
 			return $term;
 		} else {
-			die 'A term to be added to this ontology must have an ID.';
+			croak 'A term to be added to this ontology must have an ID.';
 		}
 	} else {
-    	die 'Missing term.';
+    	croak 'Missing term.';
     }
 }
 
@@ -300,10 +302,10 @@ sub add_instance {
 			#$self->{INSTANCES_SET}->add($instance);
 			return $instance;
 		} else {
-			die 'A instance to be added to this ontology must have an ID.';
+			croak 'A instance to be added to this ontology must have an ID.';
 		}
 	} else {
-    	die 'Missing instance.';
+    	croak 'Missing instance.';
     }
 }
 
@@ -322,7 +324,7 @@ sub add_term_as_string {
 		my $term_id = shift;
 		if (!$self->has_term_id($term_id)){
 			my $term_name = shift;
-			$term_id || die 'A term to be added to this ontology must have an ID.';
+			$term_id || croak 'A term to be added to this ontology must have an ID.';
 			my $new_term = OBO::Core::Term->new();
 			$new_term->id($term_id);
 			$new_term->name($term_name);
@@ -332,7 +334,7 @@ sub add_term_as_string {
 			warn "The term you tried to add ($term_id) is already in the ontology.\n";
 		}
     } else {
-    	die 'To add a term, you need to provide both a term ID and a term name.';
+    	croak 'To add a term, you need to provide both a term ID and a term name.';
     }
 }
 
@@ -351,7 +353,7 @@ sub add_instance_as_string {
 		my $instance_id = shift;
 		if (!$self->has_instance_id($instance_id)){
 			my $instance_name = shift;
-			$instance_id || die 'A instance to be added to this ontology must have an ID.';
+			$instance_id || croak 'A instance to be added to this ontology must have an ID.';
 			my $new_instance = OBO::Core::Instance->new();
 			$new_instance->id($instance_id);
 			$new_instance->name($instance_name);
@@ -361,7 +363,7 @@ sub add_instance_as_string {
 			warn "The instance you tried to add ($instance_id) is already in the ontology.\n";
 		}
     } else {
-    	die 'To add a instance, you need to provide both a instance ID and a instance name.';
+    	croak 'To add a instance, you need to provide both a instance ID and a instance name.';
     }
 }
 
@@ -383,7 +385,7 @@ sub add_relationship_type {
 		# TODO Is it necessary to implement a set of relationship types? Maybe for get_relationship_types()?
 		#$self->{RELATIONSHIP_TYPES_SET}->add($relationship_type);
     } else {
-    	die 'Missing relationship type.';
+    	croak 'Missing relationship type.';
     }
 }
 
@@ -401,7 +403,7 @@ sub add_relationship_type_as_string {
     if (@_) {
 		my $relationship_type_id = shift;
 		
-		$relationship_type_id || die 'A relationship type to be added to this ontology must have an ID';
+		$relationship_type_id || croak 'A relationship type to be added to this ontology must have an ID';
 		
 		if (!$self->has_relationship_type_id($relationship_type_id)){
 			my $relationship_type_name = shift;
@@ -414,7 +416,7 @@ sub add_relationship_type_as_string {
 			warn "The relationship type you tried to add ($relationship_type_id) is already in the ontology\n";
 		}
     } else {
-    	die 'To add a relationship type, you need to provide both a relationship type ID and a relationship type name';
+    	croak 'To add a relationship type, you need to provide both a relationship type ID and a relationship type name';
     }
 }
 
@@ -430,7 +432,7 @@ sub add_relationship_type_as_string {
 sub delete_term {
     my ($self, $term) = @_;
     if ($term) {    
-		$term->id() || die 'The term to be deleted from this ontology does not have an ID.';
+		$term->id() || croak 'The term to be deleted from this ontology does not have an ID.';
     
 		my $id = $term->id();
 		if (defined($id) && defined($self->{TERMS}->{$id})) {
@@ -453,7 +455,7 @@ sub delete_term {
 sub delete_instance {
     my ($self, $instance) = @_;
     if ($instance) {    
-		$instance->id() || die 'The instance to be deleted from this ontology does not have an ID.';
+		$instance->id() || croak 'The instance to be deleted from this ontology does not have an ID.';
     
 		my $id = $instance->id();
 		if (defined($id) && defined($self->{INSTANCES}->{$id})) {
@@ -476,7 +478,7 @@ sub delete_instance {
 sub delete_relationship {
     my ($self, $relationship) = @_;
     if ($relationship) {    
-		$relationship->id() || die 'The relationship to be deleted from this ontology does not have an ID.';
+		$relationship->id() || croak 'The relationship to be deleted from this ontology does not have an ID.';
     
 		my $id = $relationship->id();
 		if (defined($id) && defined($self->{RELATIONSHIPS}->{$id})) {
@@ -614,14 +616,14 @@ sub equals {
 	my $result =  0; 
 	
 	# TODO Implement this method
-	die 'Method: OBO::Core:Ontology::equals in not implemented yet, use OBO::Util::Ontolome meanwhile';
+	croak 'Method: OBO::Core:Ontology::equals in not implemented yet, use OBO::Util::Ontolome meanwhile';
 	
 	return $result;
 }
 
 =head2 get_terms
 
-  Usage    - $ontology->get_terms() or $ontology->get_terms("CCO:I.*")
+  Usage    - $ontology->get_terms() or $ontology->get_terms("APO:I.*") or $ontology->get_terms("GO:012*")
   Returns  - the terms held by this ontology as a reference to an array of OBO::Core::Term's
   Args     - none or the regular expression for filtering the terms by id's
   Function - returns the terms held by this ontology
@@ -644,7 +646,7 @@ sub get_terms {
 
 =head2 get_instances
 
-  Usage    - $ontology->get_instances() or $ontology->get_instances("CCO:K.*")
+  Usage    - $ontology->get_instances() or $ontology->get_instances("APO:K.*")
   Returns  - the instances held by this ontology as a reference to an array of OBO::Core::Instance's
   Args     - none or the regular expression for filtering the instances by id's
   Function - returns the instances held by this ontology
@@ -667,7 +669,7 @@ sub get_instances {
 
 =head2 get_terms_sorted_by_id
 
-  Usage    - $ontology->get_terms_sorted_by_id() or $ontology->get_terms_sorted_by_id("CCO:I.*")
+  Usage    - $ontology->get_terms_sorted_by_id() or $ontology->get_terms_sorted_by_id("APO:I.*")
   Returns  - the terms held by this ontology as a reference to a sorted (by ID) array of OBO::Core::Term's
   Args     - none or the regular expression for filtering the terms by id's
   Function - returns the terms held by this ontology, the terms are sorted by ID (using the Schwartzian Transform)
@@ -682,7 +684,7 @@ sub get_terms_sorted_by_id {
 
 =head2 get_instances_sorted_by_id
 
-  Usage    - $ontology->get_instances_sorted_by_id() or $ontology->get_instances_sorted_by_id("CCO:K.*")
+  Usage    - $ontology->get_instances_sorted_by_id() or $ontology->get_instances_sorted_by_id("APO:K.*")
   Returns  - the instances held by this ontology as a reference to a sorted (by ID) array of OBO::Core::Instance's
   Args     - none or the regular expression for filtering the instances by id's
   Function - returns the instances held by this ontology, the instances are sorted by ID (using the Schwartzian Transform)
@@ -710,7 +712,7 @@ sub get_terms_by_subnamespace {
 	if (@_) {
 		my $is = $self->get_terms_idspace();
 		if (!defined $is) {
-			die 'The local ID space is not defined for this ontology.';
+			croak 'The local ID space is not defined for this ontology.';
 		} else {
 			$terms = $self->get_terms($is.':'.$_[0]);
 		}
@@ -733,7 +735,7 @@ sub get_instances_by_subnamespace {
 	if (@_) {
 		my $is = $self->get_instances_idspace();
 		if (!defined $is) {
-			die 'The local ID space is not defined for this ontology.';
+			croak 'The local ID space is not defined for this ontology.';
 		} else {
 			$instances = $self->get_instances($is.':'.$_[0]);
 		}
@@ -826,10 +828,25 @@ sub get_relationship_types_sorted_by_id {
 	return \@sorted_relationship_types;
 }
 
+=head2 get_term_local_neighbourhood
+
+  Usage    - $ontology->get_term_local_neighbourhood($term, $rel_type)
+  Returns  - the neighbourhood of a given term as a reference to an array with the relationships (OBO::Core::Relationship)
+  Args     - the term (OBO::Core::Term) for which its relationships will be found out; and optionally the relationship type name (e.g. 'participates_in') to select only those types of relationships
+  Function - returns the local neighbourhood of the given term as a reference to an array with the relationships (OBO::Core::Relationship)
+  Remark   - this subroutine, which is an alias of OBO::Core::get_relationships_by_source_term, might change its interface in the future (a new module, named e.g. TermNeighbourhood, might be implemented)
+  
+=cut
+
+sub get_term_local_neighbourhood {
+	my ($self, $term, $rel_type) = @_;
+	return $self->get_relationships_by_source_term($term, $rel_type);
+}
+
 =head2 get_relationships_by_source_term
 
   Usage    - $ontology->get_relationships_by_source_term($source_term, $rel_type)
-  Returns  - a reference to an array with the relationship (OBO::Core::Relationship) connecting this term to its children
+  Returns  - a reference to an array with the relationships (OBO::Core::Relationship) connecting the given term to its children
   Args     - the term (OBO::Core::Term) for which its relationships will be found out; and optionally the relationship type name (e.g. 'participates_in') to filter out those types of relationships
   Function - returns the relationships associated to the given source term
   
@@ -861,7 +878,7 @@ sub get_relationships_by_source_term {
 =head2 get_relationships_by_target_term
 
   Usage    - $ontology->get_relationships_by_target_term($target_term, $rel_type)
-  Returns  - a reference to an array with the relationship (OBO::Core::Relationship) connecting this term to its parents
+  Returns  - a reference to an array with the relationships (OBO::Core::Relationship) connecting the given term to its parents
   Args     - the term (OBO::Core::Term) for which its relationships will be found out; and optionally the relationship type name (e.g. 'participates_in') to filter out those types of relationships
   Function - returns the relationships associated to the given target term
   
@@ -936,13 +953,13 @@ sub set_term_id {
 				$term->id($new_term_id);
 				$self->{TERMS}->{$new_term_id} = $self->{TERMS}->{$old_id};
 				delete $self->{TERMS}->{$old_id};
-				# TODO Adapt the relationship ids of this term: CCO:P0000001_is_a_CCO:P0000002  => CCO:P0000003_is_a_CCO:P0000002
+				# TODO Adapt the relationship ids of this term: APO:P0000001_is_a_APO:P0000002  => APO:P0000003_is_a_APO:P0000002
 				return $self->{TERMS}->{$new_term_id};
     		} else {
-    			die 'The given new ID (', $new_term_id, ') is already used by: ', $self->get_term_by_id($new_term_id)->name();
+    			croak 'The given new ID (', $new_term_id, ') is already used by: ', $self->get_term_by_id($new_term_id)->name();
     		}
     	} else {
-    		die 'The term for which you want to modify its ID (', $new_term_id, ') is not in the ontology';
+    		croak 'The term for which you want to modify its ID (', $new_term_id, ') is not in the ontology';
     	}
     }
 }
@@ -965,13 +982,13 @@ sub set_instance_id {
 				$instance->id($new_instance_id);
 				$self->{INSTANCES}->{$new_instance_id} = $self->{INSTANCES}->{$old_id};
 				delete $self->{INSTANCES}->{$old_id};
-				# TODO Adapt the subtype relationship this instance: CCO:K0000001_is_a_CCO:P0000001  => CCO:K0000011_is_a_CCO:P0000001
+				# TODO Adapt the subtype relationship this instance: APO:K0000001_is_a_APO:P0000001  => APO:K0000011_is_a_APO:P0000001
 				return $self->{INSTANCES}->{$new_instance_id};
     		} else {
-    			die 'The given new ID (', $new_instance_id, ') is already used by: ', $self->get_instance_by_id($new_instance_id)->name();
+    			croak 'The given new ID (', $new_instance_id, ') is already used by: ', $self->get_instance_by_id($new_instance_id)->name();
     		}
     	} else {
-    		die 'The instance for which you want to modify its ID (', $new_instance_id, ') is not in the ontology';
+    		croak 'The instance for which you want to modify its ID (', $new_instance_id, ') is not in the ontology';
     	}
     }
 }
@@ -1217,8 +1234,8 @@ sub add_relationship {
 	my $rel_id   = $relationship->id();
 	my $rel_type = $relationship->type();
 	
-	$rel_id   || die 'The relationship to be added to this ontology does not have an ID';
-	$rel_type || die 'The relationship to be added to this ontology does not have an TYPE';
+	$rel_id   || croak 'The relationship to be added to this ontology does not have an ID';
+	$rel_type || croak 'The relationship to be added to this ontology does not have an TYPE';
 	
 	$self->{RELATIONSHIPS}->{$rel_id} = $relationship;
     
@@ -1235,7 +1252,7 @@ sub add_relationship {
 		$self->has_relationship_type($target_element) || $self->add_relationship_type($target_element);
 		$self->has_relationship_type($source_element) || $self->add_relationship_type($source_element);
 	} else {
-		die "An unrecognized object type (nor a Term, nor a RelationshipType) was found as part of the relationship with ID: '", $rel_id, "'";
+		croak "An unrecognized object type (nor a Term, nor a RelationshipType) was found as part of the relationship with ID: '", $rel_id, "'";
 	}
 	
 	#
@@ -1282,7 +1299,7 @@ sub get_relationship_by_id {
 sub create_rel (){
 	my $self = shift;
 	my($tail, $type, $head) = @_;
-	die "Not a valid relationship type: '", $type, "'" unless($self->{RELATIONSHIP_TYPES}->{$type});
+	croak "Not a valid relationship type: '", $type, "'" unless($self->{RELATIONSHIP_TYPES}->{$type});
 	if ($tail && $head) {
 		my $id = $tail->id().'_'.$type.'_'.$head->id();
 		if ($self->has_relationship_id($id)) {
@@ -1300,7 +1317,7 @@ sub create_rel (){
 			$self->add_relationship($rel);
 		}
 	} else {
-		die 'To create a relationship, you must provide both a tail and a head object!';
+		croak 'To create a relationship, you must provide both a tail and a head object!';
 	}
 	return $self;
 }
@@ -1534,23 +1551,38 @@ sub get_number_of_relationship_types {
            - the output file handle (STDOUT by default), and
            - the error file handle (STDERR by default)
   Function - exports this ontology
-  Remark   - warning and errors are printed to the STDERR
+  Remark   - warning and errors are printed to the STDERR (default file handle)
   Remark   - you may use this method to check your OBO file syntax and/or to clean it up
-  
+  Remark   - in case of an 'rdf' export: export($export_format, $output_file_handle, $error_file_handle, $url, $rdf_tc, $sbb_url, $skip)
+           - $url     : a base URL of your ontology (default value is 'http://www.cellcycleontology.org/ontology/rdf/')
+           - $rdf_tc  : 1=reflexive relations for each term (0 value is default)
+           - $sbb_url : 1=SBB, 2=SBB reflex (0 value is default)
+           - $skip    : 1=skip exporting the rel types, 0=do not skip (default)
+  Remark   - in case of an 'owl' export: export($export_format, $output_file_handle, $error_file_handle, $oboContentUrl, $oboInOwlUrl)
+           - $oboContentUrl : default value is 'http://www.cellcycleontology.org/ontology/owl/', e.g. 'http://purl.org/obo/owl/'
+           - $oboInOwlUrl   : default value is 'http://www.cellcycleontology.org/formats/oboInOwl#', e.g. 'http://www.geneontology.org/formats/oboInOwl#'
+
 =cut
 
 sub export {
 	my $self               = shift;
 	my $format             = lc(shift) || 'obo';
-	my $output_file_handle = shift || \*STDOUT;
-	my $error_file_handle  = shift || \*STDERR;
+	my $output_file_handle = shift     || \*STDOUT;
+	my $error_file_handle  = shift     || \*STDERR;
     
 	my $possible_formats = OBO::Util::Set->new();
 	$possible_formats->add_all('obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3');
 	if (!$possible_formats->contains($format)) {
-		die "The export format must be one of the following: 'obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3'";
+		croak "The export format must be one of the following: 'obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3'";
 	}
-    
+	
+    # check the file_handle's
+	if (!-w $output_file_handle) {
+		croak "export: you must provide a valid output handle, e.g. export($format, \\*STDOUT)";
+	} elsif (!-w $error_file_handle) {
+		croak "export: you must provide a valid error handle, e.g. export($format, \\*STDOUT, \\*STDERR)";
+	}
+
 	if ($format eq 'obo') {
 		
 		#######################################################################
@@ -2258,6 +2290,12 @@ sub export {
 	} elsif ($format eq 'rdf') {
 		
 		my $url     = shift || 'http://www.cellcycleontology.org/ontology/rdf/';
+		
+		if ($url !~ /^http/) {
+			croak "RDF export: you must provide a valid URL, e.g. export('rdf', \*STDOUT, \*STDERR, 'http://www.cellcycleontology.org/ontology/rdf/')";
+		}
+		 
+		
 		my $rdf_tc  = shift || 0; # Set this according to your needs: 1=reflexive relations for each term
 		my $sbb_url = shift || 0; # Set this according to your needs: 1=SBB, 2=SBB reflex
 		my $skip    = shift || 0; # Set this according to your needs: 1=skip exporting the rel types, 0=do not skip (default)
@@ -2309,13 +2347,13 @@ sub export {
 			#	R	Reference
 			#	T	Taxon
 			#	N	Instance
-			#	U	Upper Level Ontology (CCO)
+			#	U	Upper Level Ontology (APO)
 			#	L	Relationship type (e.g. is_a)
 			#	Y	Interaction type
 			#	O	Type of protein (orthology)
 			#	Z	Unknown
 
-			my $subnamespace = $term->subnamespace(); # CCO has this feature
+			my $subnamespace = $term->subnamespace(); # APO has this feature
 			my $rdf_subnamespace = undef;
 			if    ( $subnamespace =~ /^C[a-z]?/ ) { $rdf_subnamespace = 'cellular_component';}
 			elsif ( $subnamespace =~ /^F[a-z]?/ ) { $rdf_subnamespace = 'molecular_function';}
@@ -3372,6 +3410,14 @@ sub export {
 		my $oboContentUrl = shift || 'http://www.cellcycleontology.org/ontology/owl/'; # "http://purl.org/obo/owl/"; 
 		my $oboInOwlUrl   = shift || 'http://www.cellcycleontology.org/formats/oboInOwl#'; # "http://www.geneontology.org/formats/oboInOwl#";
 
+		if ($oboContentUrl !~ /^http/) {
+			croak "OWL export: you must provide a valid URL, e.g. export('owl', \*STDOUT, \*STDERR, 'http://www.cellcycleontology.org/ontology/owl/')";
+		}
+		
+		if ($oboInOwlUrl !~ /^http/) {
+			croak "OWL export: you must provide a valid URL, e.g. export('rdf', \*STDOUT, \*STDERR, , 'http://www.cellcycleontology.org/ontology/owl/', 'http://www.cellcycleontology.org/formats/oboInOwl#')";
+		}
+		
 		#
 		# preambule
 		#
@@ -3483,7 +3529,7 @@ sub export {
 			
 			# for the URLs
 			my $term_id = $term->id();
-			$local_idspace = $local_idspace || (split(':', $term_id))[0]; # the idspace or the space from the term itself. e.g. CCO
+			$local_idspace = $local_idspace || (split(':', $term_id))[0]; # the idspace or the space from the term itself. e.g. APO
 		
 			#
 			# Class name
@@ -3541,7 +3587,7 @@ sub export {
 					$synonym_type = 'hasRelatedSynonym';
 				} else {
 					# TODO Consider the synonym types defined in the header: 'synonymtypedef' tag
-					die 'A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED';
+					croak 'A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED';
 				}
 				print $output_file_handle "\t<oboInOwl:", $synonym_type, ">\n";
 				print $output_file_handle "\t\t<oboInOwl:Synonym>\n";
@@ -3627,7 +3673,7 @@ sub export {
 						print $output_file_handle "\t\t\t<owl:someValuesFrom rdf:resource=\"", $oboContentUrl, $local_idspace, "#", obo_id2owl_id($inter[1]), "\"/>\n";
 						print $output_file_handle "\t\t</owl:Restriction>\n";
 					} else {
-						die "Parsing error: 'intersection_of' tag has an unknown argument";
+						croak "Parsing error: 'intersection_of' tag has an unknown argument";
 					}
 				}
 				print $output_file_handle "\t\t\t</owl:intersectionOf>\n";
@@ -3773,7 +3819,7 @@ sub export {
 					$synonym_type = 'hasRelatedSynonym';
 				} else {
 					# TODO Consider the synonym types defined in the header: 'synonymtypedef' tag
-					die 'A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED';
+					croak 'A non-valid synonym type has been found ($synonym). Valid types: EXACT, BROAD, NARROW, RELATED';
 				}
 				print $output_file_handle "\t<oboInOwl:", $synonym_type, ">\n";
 				print $output_file_handle "\t\t<oboInOwl:Synonym>\n";
@@ -3984,9 +4030,9 @@ sub export {
 				my @sorted_heads = __sort_by_id(sub {lc(shift)}, @{$self->get_head_by_relationship_type($term, $rt)});
 				foreach my $head (grep (!$saw_rel{$_}++, @sorted_heads)) {
 					if (!defined $term->name()) {
-				   		die 'The term with id: ', $term_id, ' has no name!' ;
+				   		croak 'The term with id: ', $term_id, ' has no name!' ;
 				   	} elsif (!defined $head->name()) {
-				   		die 'The term with id: ', $head->id(), ' has no name!' ;
+				   		croak 'The term with id: ', $head->id(), ' has no name!' ;
 				   	} else {
 			    		print $output_file_handle "\tedge [\n";
 			    		print $output_file_handle "\t\troot_index	-", $gml_id{$term_id}, "\n";
@@ -4013,7 +4059,7 @@ sub export {
 		my $nodecount = $self->get_number_of_terms();
 		print $output_file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" db_online=\"true\" fineArt=\"false\" double_click=\"gcard\" layout=\"scramble\">\n";
 		
-		print $output_file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"C\" visible=\"true\" color=\"232,14,133\"/>";
+		print $output_file_handle "<method name=\"M7000\" desc=\"APO\" type=\"C\" visible=\"true\" color=\"232,14,133\"/>";
 		# Terms
 		print $output_file_handle "<Nodes>\n";
 		my @all_terms = @{$self->get_terms_sorted_by_id()};
@@ -4123,12 +4169,12 @@ sub export {
 		print $output_file_handle "</VisAnt>\n";
 	} elsif ($format eq 'vis2') { # interaction centric model
 		print $output_file_handle "<?xml version=\"1.0\" ?>\n";
-		my @interactions = @{$self->get_terms_sorted_by_id("CCO:I.*")}; # get all the interactions
-		my @proteins     = @{$self->get_terms_sorted_by_id("CCO:B.*")}; # get all the proteins (and modified protein term)
+		my @interactions = @{$self->get_terms_sorted_by_id("APO:I.*")}; # get all the interactions
+		my @proteins     = @{$self->get_terms_sorted_by_id("APO:B.*")}; # get all the proteins (and modified protein term)
 		my $nodecount    = $#interactions + $#proteins + 2;
 		print $output_file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" fineArt=\"false\" layout=\"scramble\">\n";
                 
-		print $output_file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";
+		print $output_file_handle "<method name=\"M7000\" desc=\"APO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";
 		# Terms
 		print $output_file_handle "\n<Nodes>\n";
 		my $i = 1;
@@ -4221,12 +4267,12 @@ sub export {
 		print $output_file_handle "</VisAnt>\n";
 	} elsif ($format eq 'vis3') { # protein centric model
 		print $output_file_handle "<?xml version=\"1.0\" ?>\n";
-		my @interactions = @{$self->get_terms("CCO:I.*")}; # get all the interactions
-		my @proteins     = @{$self->get_terms("CCO:B.*")}; # get all the B's
+		my @interactions = @{$self->get_terms("APO:I.*")}; # get all the interactions
+		my @proteins     = @{$self->get_terms("APO:B.*")}; # get all the B's
 		my $nodecount    = $#interactions + $#proteins + 2;
 		print $output_file_handle "<VisAnt ver=\"1.35\" species=\"ath\" nodecount=\"$nodecount\" edgeopp=\"false\" fineArt=\"false\" layout=\"scramble\">\n";
                 
-		print $output_file_handle "<method name=\"M7000\" desc=\"CCO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";	
+		print $output_file_handle "<method name=\"M7000\" desc=\"APO\" type=\"g\" visible=\"null\" color=\"0,0,0\"/>\n";	
 		# Terms
 		print $output_file_handle "\n<Nodes>\n";
 		my @all_terms = (@proteins, @interactions);
@@ -4382,7 +4428,7 @@ sub get_subontology_from {
 	my ($self, $root_term) = @_;
 	my $result = OBO::Core::Ontology->new();
 	if ($root_term) {
-		$self->has_term($root_term) || die "The term '", $root_term,"' does not belong to this ontology";
+		$self->has_term($root_term) || croak "The term '", $root_term,"' does not belong to this ontology";
 
 		$result->data_version($self->data_version());
 		$result->id($self->id());
@@ -5040,7 +5086,7 @@ sub get_paths_term_terms_same_rel () {
   Usage    - $ontology->obo_id2owl_id($term)
   Returns  - the ID for OWL representation.
   Args     - the OBO-type ID.
-  Function - Transform an OBO-type ID into an OWL-type one. E.g. CCO:I1234567 -> CCO_I1234567
+  Function - Transform an OBO-type ID into an OWL-type one. E.g. APO:I1234567 -> APO_I1234567
   
 =cut
 
@@ -5054,7 +5100,7 @@ sub obo_id2owl_id {
   Usage    - $ontology->owl_id2obo_id($term)
   Returns  - the ID for OBO representation.
   Args     - the OWL-type ID.
-  Function - Transform an OWL-type ID into an OBO-type one. E.g. CCO_I1234567 -> CCO:I1234567
+  Function - Transform an OWL-type ID into an OBO-type one. E.g. APO_I1234567 -> APO:I1234567
   
 =cut
 
@@ -5083,7 +5129,7 @@ sub char_hex_http {
 	$_[0] =~ s/\//&#47;/g; # slash
 	$_[0] =~ s/&/&#38;/g;  # ampersand
 	$_[0] =~ s/"/&#34;/g;  # double quotes
-	$_[0] =~ s/±/&#177;/g; # plus-or-minus sign
+	$_[0] =~ s/ï¿½/&#177;/g; # plus-or-minus sign
 	
 #	$_[0] =~ s/:/%3A/g;
 #	$_[0] =~ s/;/%3B/g;
@@ -5097,7 +5143,7 @@ sub char_hex_http {
 #	$_[0] =~ s/\//%2F/g;
 #	$_[0] =~ s/&/%26/g;
 #	$_[0] =~ s/"/%22/g;
-#	$_[0] =~ s/±/%B1/g;
+#	$_[0] =~ s/ï¿½/%B1/g;
 
 	return $_[0];
 }
@@ -5281,11 +5327,11 @@ my $n3 = OBO::Core::Term->new();
 my $onto = OBO::Core::Ontology->new;
 
 
-$n1->id("CCO:P0000001");
+$n1->id("APO:P0000001");
 
-$n2->id("CCO:P0000002");
+$n2->id("APO:P0000002");
 
-$n3->id("CCO:P0000003");
+$n3->id("APO:P0000003");
 
 
 $n1->name("One");
@@ -5331,7 +5377,7 @@ $onto->add_term($n1);
 
 my $n4 = OBO::Core::Term->new();
 
-$n4->id("CCO:P0000004");
+$n4->id("APO:P0000004");
 
 $n4->name("Four");
 
@@ -5348,9 +5394,9 @@ $onto->add_term($n4);
 
 # add term as string
 
-my $new_term = $onto->add_term_as_string("CCO:P0000005", "Five");
+my $new_term = $onto->add_term_as_string("APO:P0000005", "Five");
 
-$new_term->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
+$new_term->def_as_string("This is a dummy definition", '[APO:vm, APO:ls, APO:ea "Erick Antezana"]');
 
 my $n5 = $new_term; 
 
@@ -5368,15 +5414,15 @@ my $r14 = OBO::Core::Relationship->new();
 my $r35 = OBO::Core::Relationship->new();
 
 
-$r12->id("CCO:P0000001_is_a_CCO:P0000002");
+$r12->id("APO:P0000001_is_a_APO:P0000002");
 
-$r23->id("CCO:P0000002_part_of_CCO:P0000003");
+$r23->id("APO:P0000002_part_of_APO:P0000003");
 
-$r13->id("CCO:P0000001_participates_in_CCO:P0000003");
+$r13->id("APO:P0000001_participates_in_APO:P0000003");
 
-$r14->id("CCO:P0000001_participates_in_CCO:P0000004");
+$r14->id("APO:P0000001_participates_in_APO:P0000004");
 
-$r35->id("CCO:P0000003_part_of_CCO:P0000005");
+$r35->id("APO:P0000003_part_of_APO:P0000005");
 
 
 $r12->type('is_a');
@@ -5418,11 +5464,11 @@ foreach my $t (@{$onto->get_terms()}) {
 
 # get terms with argument
 
-my @processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P.*")};
+my @processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("APO:P.*")};
 
-my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("CCO:P000000[35]")};
+my @odd_processes = sort {$a->id() cmp $b->id()} @{$onto->get_terms("APO:P000000[35]")};
 
-$onto->idspace_as_string("CCO", "http://www.cellcycle.org/ontology/CCO");
+$onto->idspace_as_string("APO", "http://www.cellcycle.org/ontology/APO");
 
 my @same_processes = @{$onto->get_terms_by_subnamespace("P")};
 
@@ -5449,13 +5495,13 @@ my $n11 = OBO::Core::Term->new();
 
 my $n21 = OBO::Core::Term->new();
 
-$n11->id("CCO:P0000011"); $n11->name("One one"); $n11->def_as_string("Definition One one", "");
+$n11->id("APO:P0000011"); $n11->name("One one"); $n11->def_as_string("Definition One one", "");
 
-$n21->id("CCO:P0000021"); $n21->name("Two one"); $n21->def_as_string("Definition Two one", "");
+$n21->id("APO:P0000021"); $n21->name("Two one"); $n21->def_as_string("Definition Two one", "");
 
 my $r11_21 = OBO::Core::Relationship->new();
 
-$r11_21->id("CCO:R0001121"); $r11_21->type("r11-21");
+$r11_21->id("APO:R0001121"); $r11_21->type("r11-21");
 
 $r11_21->link($n11, $n21);
 
@@ -5551,11 +5597,11 @@ my $r2 = OBO::Core::RelationshipType->new();
 my $r3 = OBO::Core::RelationshipType->new();
 
 
-$r1->id("CCO:R0000001");
+$r1->id("APO:R0000001");
 
-$r2->id("CCO:R0000002");
+$r2->id("APO:R0000002");
 
-$r3->id("CCO:R0000003");
+$r3->id("APO:R0000003");
 
 
 $r1->name('is_a');
@@ -5604,7 +5650,7 @@ my @ancestors7 = @{$onto->get_ancestor_terms_by_relationship_type($n1, $rel_type
 
 # add relationship type as string
 
-my $relationship_type = $onto->add_relationship_type_as_string("CCO:R0000004", "has_participant");
+my $relationship_type = $onto->add_relationship_type_as_string("APO:R0000004", "has_participant");
 
 
 # get relationship types

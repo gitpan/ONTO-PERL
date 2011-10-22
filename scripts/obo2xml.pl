@@ -5,7 +5,7 @@
 #
 # Purpose : Converts a file from OBO to XML.
 #
-# Usage   : obo2xml.pl $pre_cco_obo_path > $pre_cco_xml_path
+# Usage   : obo2xml.pl $pre_apo_obo_path > $pre_apo_xml_path
 #
 # License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ __END__
 
 =head1 NAME
 
-obo2xml.pl - OBO to XML translator (CCO scheme).
+obo2xml.pl - OBO to XML translator (APO scheme).
 
 =head1 DESCRIPTION
 

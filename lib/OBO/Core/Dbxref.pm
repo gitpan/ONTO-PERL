@@ -9,6 +9,7 @@
 #
 package OBO::Core::Dbxref;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -42,7 +43,7 @@ sub name {
 			$_[0]->{ACC} = $2;
 		}
 	} elsif (!defined($_[0]->{DB}) || !defined($_[0]->{ACC})) {
-		die 'The name of this dbxref is not defined.';
+		croak 'The name of this dbxref is not defined.';
 	} else {  # get-mode
 		return $_[0]->{DB}.':'.$_[0]->{ACC};
 	}
@@ -64,7 +65,7 @@ sub db {
 	if ($_[1]) {
 		$_[0]->{DB} = $_[1];
 	} elsif (!defined($_[0]->{DB})) {
-		die "The database (db) of this 'dbxref' is not defined.";
+		croak "The database (db) of this 'dbxref' is not defined.";
 	} else { # get-mode
 		return $_[0]->{DB};
 	}
@@ -83,7 +84,7 @@ sub acc {
 	if ($_[1]) {
 		$_[0]->{ACC} = $_[1];
 	} elsif (!defined($_[0]->{ACC})) {
-		die 'The accession number (acc) of this dbxref is not defined.';
+		croak 'The accession number (acc) of this dbxref is not defined.';
 	} else { # get-mode
 		return $_[0]->{ACC};
 	}
@@ -102,7 +103,7 @@ sub description {
 	if ($_[1]) { 
 		$_[0]->{DESCRIPTION} = $_[1];
 	} elsif (!defined($_[0]->{DB}) || !defined($_[0]->{ACC})) {
-		die 'The name of this dbxref is not defined.';
+		croak 'The name of this dbxref is not defined.';
 	} else { # get-mode
 		return $_[0]->{DESCRIPTION};
 	}
@@ -121,7 +122,7 @@ sub modifier {
 	if ($_[1]) { 
 		$_[0]->{MODIFIER} = $_[1];
 	} elsif (!defined($_[0]->{DB}) || !defined($_[0]->{ACC})) {
-		die 'The name of this dbxref is not defined.';
+		croak 'The name of this dbxref is not defined.';
 	} else { # get-mode
 		return $_[0]->{MODIFIER};
 	}
@@ -137,7 +138,7 @@ sub modifier {
 =cut
 
 sub as_string {
-	die 'The name of this dbxref is not defined.' if (!defined($_[0]->{DB}) || !defined($_[0]->{ACC}));
+	croak 'The name of this dbxref is not defined.' if (!defined($_[0]->{DB}) || !defined($_[0]->{ACC}));
 	my $result = $_[0]->{DB}.':'.$_[0]->{ACC};
 	$result   .= ' "'.$_[0]->{DESCRIPTION}.'"' if (defined $_[0]->{DESCRIPTION} && $_[0]->{DESCRIPTION} ne '');
 	$result   .= ' '.$_[0]->{MODIFIER} if (defined $_[0]->{MODIFIER} && $_[0]->{MODIFIER} ne '');
@@ -157,17 +158,17 @@ sub equals {
 	if ($_[1] && eval { $_[1]->isa('OBO::Core::Dbxref') }) {
 		
 		if (!defined($_[0]->{DB}) || !defined($_[0]->{ACC})) {
-			die 'The name of this dbxref is undefined.';
+			croak 'The name of this dbxref is undefined.';
 		} 
 		if (!defined($_[1]->{DB}) || !defined($_[1]->{ACC})) {
-			die 'The name of the target dbxref is undefined.';
+			croak 'The name of the target dbxref is undefined.';
 		}
 		return (($_[0]->{DB}          eq $_[1]->{DB})          &&
 				($_[0]->{ACC}         eq $_[1]->{ACC})         &&
 				($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION}) &&
 				($_[0]->{MODIFIER}    eq $_[1]->{MODIFIER}));
 	} else {
-		die "An unrecognized object type (not a OBO::Core::Dbxref) was found: '", $_[1], "'";
+		croak "An unrecognized object type (not a OBO::Core::Dbxref) was found: '", $_[1], "'";
 	}
 	return 0;
 }
@@ -195,22 +196,22 @@ my $ref2 = OBO::Core::Dbxref->new;
 my $ref3 = OBO::Core::Dbxref->new;
 
 
-$ref1->name("CCO:vm");
+$ref1->name("APO:vm");
 
 $ref1->description("this is a description");
 
 $ref1->modifier("{opt=123}");
 
-$ref2->name("CCO:ls");
+$ref2->name("APO:ls");
 
-$ref3->name("CCO:ea");
+$ref3->name("APO:ea");
 
 
 my $ref4 = $ref3;
 
 my $ref5 = OBO::Core::Dbxref->new;
 
-$ref5->name("CCO:vm");
+$ref5->name("APO:vm");
 
 $ref5->description("this is a description");
 

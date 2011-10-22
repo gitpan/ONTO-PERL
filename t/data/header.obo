@@ -1,6 +1,6 @@
 format-version: 1.4
 data-version:3.2
-ontology:CCO
+ontology:APO
 date: 28:03:2011 13:57
 saved-by: easr
 auto-generated-by: ONTO-PERL 1.32
@@ -18,14 +18,14 @@ synonymtypedef: equivalent_name "equivalent name" EXACT
 synonymtypedef: scientific_name "scientific name" EXACT
 synonymtypedef: synonym "synonym" RELATED
 synonymtypedef: systematic_synonym "Systematic synonym" EXACT
-idspace: CCO http://www.cellcycleontology.org/ontology/CCO "cell cycle ontology terms"
-default-namespace: cco
+idspace: APO http://www.cellcycleontology.org/ontology/APO "cell cycle ontology terms"
+default-namespace: apo
 remark: <p>This file holds some fake terms.</p>
 treat-xrefs-as-equivalent: TEST
 treat-xrefs-as-equivalent: EQUI
 
 [Term]
-id: CCO:F0000000
+id: APO:F0000000
 name: uno
 def: "uno" [FO:ea]
 subset: Citrus
@@ -34,46 +34,46 @@ synonym: "blood vessel formation from pre-existing blood vessels" EXACT systemat
 synonym: "one" EXACT [FO:ea]
 
 [Term]
-id: CCO:F0000001
+id: APO:F0000001
 name: uno punto uno
 def: "one dot one" [FO:15892874]
 subset: Tomato
 synonym: "one period one" EXACT common_name [FO:15892874]
 synonym: "thing" BROAD [FO:12345]
 xref: TEST:T0000001
-is_a: CCO:F0000000 ! uno
+is_a: APO:F0000000 ! uno
 
 [Term]
-id: CCO:F0000002
+id: APO:F0000002
 name: dos
 def: "two" [FO:15892874]
 synonym: "twee" EXACT [FO:15892874]
-disjoint_from: CCO:F0000001 ! uno punto uno
+disjoint_from: APO:F0000001 ! uno punto uno
 
 [Term]
-id: CCO:F0000003
+id: APO:F0000003
 is_anonymous: true
 name: dos punto uno
 def: "two point two" [FO:ea]
 synonym: "two period two" EXACT [FO:ea]
 xref: TEST:T0000003
 xref: EQUI:T0000003
-is_a: CCO:F0000002 ! implied link automatically realized ! dos 
+is_a: APO:F0000002 ! implied link automatically realized ! dos 
 
 [Term]
-id: CCO:F0000004
+id: APO:F0000004
 is_anonymous: true ! verdadero
 name: dos punto dos
 def: "two point three" [FO:ea]
 subset: Tomato
 synonym: "two period three" EXACT [FO:ea]
-is_a: CCO:F0000002 ! dos
+is_a: APO:F0000002 ! dos
 
 [Instance]
-id: CCO:erick
+id: APO:erick
 name: Erick Antezana
-instance_of: CCO:man
-property_value: married_to CCO:cecilia
+instance_of: APO:man
+property_value: married_to APO:cecilia
 property_value: shoe_size "8" xsd:positiveInteger
 
 [Typedef]

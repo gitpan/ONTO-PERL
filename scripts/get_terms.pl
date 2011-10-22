@@ -18,7 +18,7 @@
 use OBO::Parser::OBOParser;
 			
 my $my_parser = OBO::Parser::OBOParser->new();
-my $ontology = $my_parser->work(shift @ARGV);
+my $ontology  = $my_parser->work(shift @ARGV);
 
 my @sorted_terms = map { $_->[0] }           # restore original values
 				sort { $a->[1] cmp $b->[1] } # sort

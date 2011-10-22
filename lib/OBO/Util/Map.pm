@@ -9,10 +9,12 @@
 #
 package OBO::Util::Map;
 
+use OBO::Util::Set;
+
+use Carp;
 use strict;
 use warnings;
 
-use OBO::Util::Set;
 
 sub new {
 	my $class       = shift;
@@ -76,7 +78,7 @@ sub contains_value {
 
   Usage    - $map->equals($another_map)
   Returns  - either 1 (true) or 0 (false)
-  Args     - the map (Core::Util::Map) to compare with
+  Args     - the map (OBO::Util::Map) to compare with
   Function - tells whether this map is equal to the given one
   
 =cut
@@ -169,7 +171,7 @@ sub put {
 		$old_value  = $self->{MAP}->{$key} if ($has_key);
 		$self->{MAP}->{$key} = $value;
 	} else {
-		die "You should provide both a key and value -> ('$key', '$value')\n";
+		croak "You should provide both a key and value -> ('$key', '$value')\n";
 	}    
 	return $old_value;
 }
@@ -282,7 +284,7 @@ if (!$my_map->is_empty()) { print "map is not empty"; }
 
 
 
-$my_map->put("CCO", "Cell Cycle Ontology");
+$my_map->put("APO", "Application Ontology");
 
 $my_map->put("PO", "Plant Ontology");
 
@@ -302,7 +304,7 @@ if (!$my_map->equals($my_map2)) { print "my map is not identical to map2"; }
 
 if (!$my_map2->equals($my_map)) { print "map2 is not identical to my map"; }
 
-$my_map2->put("CCO", "Cell Cycle Ontology");
+$my_map2->put("APO", "Application Ontology");
 
 $my_map2->put("PO", "Plant Ontology");
 
@@ -324,7 +326,7 @@ if ($my_map->equals($my_map2)) { print "my map is not identical to map2"; }
 
 if ($my_map2->get("GO") eq "Gene Ontology") { print "get GO"}
 
-if ($my_map2->get("CCO") eq "Cell Cycle Ontology") { print "get CCO"}
+if ($my_map2->get("APO") eq "Application Ontology") { print "get APO"}
 
 if ($my_map2->get("PO") eq "Plant Ontology") { print "get PO"}
 

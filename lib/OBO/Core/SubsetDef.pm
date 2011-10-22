@@ -9,6 +9,7 @@
 #
 package OBO::Core::SubsetDef;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -27,7 +28,7 @@ sub new {
   Usage    - print $subset_def->name() or $subset_def->name($name)
   Returns  - the subset def name (string)
   Args     - the subset def name (string)
-  Function - gets/sets thesubset def name
+  Function - gets/sets the subset def name
   
 =cut
 
@@ -80,15 +81,15 @@ sub equals {
 	my $result = 0;
 	if ($_[1] && eval { $_[1]->isa('OBO::Core::SubsetDef') }) {
 			
-		die 'The name of this subset definition is undefined.' if (!defined($_[0]->{NAME}));
-		die 'The name of the target subset definition is undefined.' if (!defined($_[1]->{NAME}));
+		croak 'The name of this subset definition is undefined.' if (!defined($_[0]->{NAME}));
+		croak 'The name of the target subset definition is undefined.' if (!defined($_[1]->{NAME}));
 		
-		die 'The description of the this subset definition is undefined.' if (!defined($_[0]->{DESCRIPTION}));
-		die 'The description of the target subset definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
+		croak 'The description of the this subset definition is undefined.' if (!defined($_[0]->{DESCRIPTION}));
+		croak 'The description of the target subset definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
 		
 		$result = ($_[0]->{NAME} eq $_[1]->{NAME}) && ($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION});
 	} else {
-		die "An unrecognized object type (not a OBO::Core::SubsetDef) was found: '", $_[1], "'";
+		croak "An unrecognized object type (not a OBO::Core::SubsetDef) was found: '", $_[1], "'";
 	}
 	return $result;
 }
@@ -99,8 +100,8 @@ __END__
 
 =head1 NAME
 
-OBO::Core::SubsetDef  - A description of a term subset. The value for this tag should contain 
-a subset name and a subset description.
+OBO::Core::SubsetDef  - A description of a term subset. The value for 
+this tag should contain a subset name and a subset description.
     
 =head1 SYNOPSIS
 
@@ -116,22 +117,22 @@ my $std2 = OBO::Core::SubsetDef->new();
 
 # name
 
-$std1->name("GO_SLIM");
+$std1->name('GO_SLIM');
 
-$std2->name("CCO_SLIM");
+$std2->name('APO_SLIM');
 
 
 # description
 
-$std1->description("GO slim");
+$std1->description('GO slim');
 
-$std2->description("CCO slim");
+$std2->description('APO slim');
 
 # subset def as string
 
 my $std3 = OBO::Core::SubsetDef->new();
 
-$std3->as_string("GO_SLIM", "GO Slim" );
+$std3->as_string('GO_SLIM', 'GO Slim');
 
 if ($std1->equals($std3)) {
 	

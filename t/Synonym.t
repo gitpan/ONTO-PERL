@@ -42,10 +42,10 @@ my $ref2 = OBO::Core::Dbxref->new();
 my $ref3 = OBO::Core::Dbxref->new();
 my $ref4 = OBO::Core::Dbxref->new();
 
-$ref1->name('CCO:vm');
-$ref2->name('CCO:ls');
-$ref3->name('CCO:ea');
-$ref4->name('CCO:ea');
+$ref1->name('APO:vm');
+$ref2->name('APO:ls');
+$ref3->name('APO:ea');
+$ref4->name('APO:ea');
 
 my $refs_set1 = OBO::Util::DbxrefSet->new();
 $refs_set1->add_all($ref1, $ref2, $ref3, $ref4);
@@ -73,7 +73,7 @@ $def3->dbxref_set($refs_set3);
 $syn3->def($def3);
 ok($syn3->def()->text() eq 'Hola mundo3');
 ok($syn3->def()->dbxref_set()->size == 1);
-ok(($syn3->def()->dbxref_set()->get_set())[0]->name() eq 'CCO:ea');
+ok(($syn3->def()->dbxref_set()->get_set())[0]->name() eq 'APO:ea');
 
 my $refs_set4 = OBO::Util::DbxrefSet->new();
 ok($syn1->def()->dbxref_set()->size == 3);
@@ -85,7 +85,7 @@ $def4->dbxref_set($refs_set4);
 $syn4->def($def4);
 ok($syn4->def()->text() eq 'Hola mundo3');
 ok($syn4->def()->dbxref_set()->size == 1);
-ok(($syn4->def()->dbxref_set()->get_set())[0]->name() eq 'CCO:ea');
+ok(($syn4->def()->dbxref_set()->get_set())[0]->name() eq 'APO:ea');
 
 # syn3 and syn4 are equal
 ok($syn3->equals($syn4));
@@ -95,8 +95,8 @@ ok($syn3->def()->text() eq $syn4->def()->text());
 ok(($syn3->def()->dbxref_set())->equals($syn4->def()->dbxref_set()));
 
 # def as string
-ok($syn3->def_as_string() eq '"Hola mundo3" [CCO:ea]');
-$syn3->def_as_string('This is a dummy synonym', '[CCO:ls, CCO:ea "Erick Antezana", CCO:vm, http://mydomain.com/key1=value1&key2=value2]');
+ok($syn3->def_as_string() eq '"Hola mundo3" [APO:ea]');
+$syn3->def_as_string('This is a dummy synonym', '[APO:ls, APO:ea "Erick Antezana", APO:vm, http://mydomain.com/key1=value1&key2=value2]');
 ok($syn3->def()->text() eq 'This is a dummy synonym');
 my @refs_syn3 = $syn3->def()->dbxref_set()->get_set();
 my %r_syn3;
@@ -104,11 +104,11 @@ foreach my $ref_syn3 (@refs_syn3) {
 	$r_syn3{$ref_syn3->name()} = $ref_syn3->name();
 }
 ok($syn3->def()->dbxref_set()->size == 4);
-ok($r_syn3{'CCO:vm'} eq 'CCO:vm');
-ok($r_syn3{'CCO:ls'} eq 'CCO:ls');
-ok($r_syn3{'CCO:ea'} eq 'CCO:ea');
+ok($r_syn3{'APO:vm'} eq 'APO:vm');
+ok($r_syn3{'APO:ls'} eq 'APO:ls');
+ok($r_syn3{'APO:ea'} eq 'APO:ea');
 ok($r_syn3{'http://mydomain.com/key1=value1&key2=value2'} eq 'http://mydomain.com/key1=value1&key2=value2');
-ok($syn3->def_as_string() eq '"This is a dummy synonym" [CCO:ea "Erick Antezana", CCO:ls, CCO:vm, http://mydomain.com/key1=value1&key2=value2]');
+ok($syn3->def_as_string() eq '"This is a dummy synonym" [APO:ea "Erick Antezana", APO:ls, APO:vm, http://mydomain.com/key1=value1&key2=value2]');
 
 # synonym_type_name
 $syn1->synonym_type_name('UK_SPELLING');

@@ -14,6 +14,7 @@ our @ISA = qw(OBO::Util::ObjectSet);
 use OBO::Util::ObjectSet;
 use OBO::XO::OBO_ID;
 
+use Carp;
 use strict;
 use warnings;
     
@@ -67,7 +68,7 @@ sub add_all_as_string () {
 sub get_new_id {
 	my ($self, $local_idspace) = @_;
 	my $new_obo_id = OBO::XO::OBO_ID->new();
-	die 'The local idspace is invalid: ', $local_idspace if ($local_idspace !~ /\w+/);
+	croak 'The local idspace is invalid: ', $local_idspace if ($local_idspace !~ /\w+/);
 	$new_obo_id->idspace($local_idspace);
 	# get the last 'localID'
 	if ($self->is_empty()){

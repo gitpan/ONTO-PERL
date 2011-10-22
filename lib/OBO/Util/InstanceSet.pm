@@ -85,11 +85,11 @@ my $n2 = OBO::Core::Instance->new;
 
 my $n3 = OBO::Core::Instance->new;
 
-$n1->id("CCO:K0000001");
+$n1->id("APO:K0000001");
 
-$n2->id("CCO:K0000002");
+$n2->id("APO:K0000002");
 
-$n3->id("CCO:K0000003");
+$n3->id("APO:K0000003");
 
 
 $n1->name("instance of One");
@@ -126,11 +126,11 @@ my $n5 = OBO::Core::Instance->new;
 my $n6 = OBO::Core::Instance->new;
 
 
-$n4->id("CCO:K0000004");
+$n4->id("APO:K0000004");
 
-$n5->id("CCO:K0000005");
+$n5->id("APO:K0000005");
 
-$n6->id("CCO:K0000006");
+$n6->id("APO:K0000006");
 
 
 $n4->name("instance of Four");

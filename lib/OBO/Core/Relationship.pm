@@ -9,6 +9,7 @@
 #
 package OBO::Core::Relationship;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -73,12 +74,12 @@ sub equals  {
 			my $self_id   = $_[0]->{'ID'};
 			my $target_id = $_[1]->{'ID'};
 			
-			die 'The ID of this relationship is not defined.' if (!defined($self_id));
-			die 'The ID of the target relationship is not defined.' if (!defined($target_id));
+			croak 'The ID of this relationship is not defined.' if (!defined($self_id));
+			croak 'The ID of the target relationship is not defined.' if (!defined($target_id));
 			
 			$result = ($self_id eq $target_id);
 		} else {
-			die "An unrecognized object type (not a OBO::Core::Relationship) was found: '", $_[1], "'";
+			croak "An unrecognized object type (not a OBO::Core::Relationship) was found: '", $_[1], "'";
 		}
 	}
 	return $result;
@@ -115,7 +116,7 @@ sub tail {
 =head2 link
 
   Usage    - $relationship->link($tail, $head) or $relationship->link()
-  Returns  - the two Terms or two RelationshipTypes (subject and source) connected by this relationship
+  Returns  - the two Terms (OBO::Core::Term) or two RelationshipTypes ()OBO::Core::RelationshipType) --subject and source-- connected by this relationship
   Args     - the source (tail, OBO::Core::Term/OBO::Core::RelationshipType) and target(head, OBO::Core::Term/OBO::Core::RelationshipType) term/relationship type
   Function - gets/sets the terms/relationship type attached to this relationship
   
@@ -146,9 +147,9 @@ my $r1 = OBO::Core::Relationship->new();
 my $r2 = OBO::Core::Relationship->new();
 my $r3 = OBO::Core::Relationship->new();
 
-$r1->id("CCO:P0000001_is_a_CCO:P0000002");
-$r2->id("CCO:P0000002_part_of_CCO:P0000003");
-$r3->id("CCO:P0000001_has_child_CCO:P0000003");
+$r1->id("APO:P0000001_is_a_APO:P0000002");
+$r2->id("APO:P0000002_part_of_APO:P0000003");
+$r3->id("APO:P0000001_has_child_APO:P0000003");
 
 $r1->type('is_a');
 $r2->type('part_of');
@@ -163,9 +164,9 @@ my $n1 = OBO::Core::Term->new();
 my $n2 = OBO::Core::Term->new();
 my $n3 = OBO::Core::Term->new();
 
-$n1->id("CCO:P0000001");
-$n2->id("CCO:P0000002");
-$n3->id("CCO:P0000003");
+$n1->id("APO:P0000001");
+$n2->id("APO:P0000002");
+$n3->id("APO:P0000003");
 
 $n1->name("One");
 $n2->name("Two");
@@ -188,9 +189,9 @@ my $r4 = OBO::Core::Relationship->new();
 my $r5 = OBO::Core::Relationship->new();
 my $r6 = OBO::Core::Relationship->new();
 
-$r4->id("CCO:R0000004");
-$r5->id("CCO:R0000005");
-$r6->id("CCO:R0000006");
+$r4->id("APO:R0000004");
+$r5->id("APO:R0000005");
+$r6->id("APO:R0000006");
 
 $r4->type("r4");
 $r5->type("r5");
@@ -204,7 +205,7 @@ $r6->link($n1, $n3);
 
 A Relationship between two terms (OBO::Core::Term) in the ontology (OBO::Core::Ontology).
 
-A relationships must have a unique ID (e.g. "CCO:P0000028_is_a_CCO:P0000005"), 
+A relationships must have a unique ID (e.g. "APO:P0000028_is_a_APO:P0000005"), 
 a type (e.g. 'is_a') and it must known the linking terms (tail and head).
 
 =head1 AUTHOR

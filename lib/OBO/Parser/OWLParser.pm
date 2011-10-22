@@ -15,6 +15,7 @@ use OBO::Core::Dbxref;
 use OBO::Core::Relationship;
 use OBO::Core::RelationshipType;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -150,7 +151,7 @@ sub work {
 						);
 	$my_parser->parsefile($self->{OWL_FILE});
 	
-	open (OWL_FILE, $self->{OWL_FILE}) || die "The OWL file cannot be opened: $!";
+	open (OWL_FILE, $self->{OWL_FILE}) || croak "The OWL file cannot be opened: $!";
 	
 	close OWL_FILE;
 
@@ -194,7 +195,7 @@ sub startElement {
 					$result->add_term($term);        # add it to the ontology
 				} elsif (defined $term->def()->text() && $term->def()->text() ne "") {
 					# the term is already in the ontology since it has a definition! (maybe empty?)
-					die "The term with id '", $obo_like_id, "' is duplicated in the OWL file.";
+					croak "The term with id '", $obo_like_id, "' is duplicated in the OWL file.";
 				}
 			}			
 			$parent_tag = $parseinst->current_element();
@@ -299,7 +300,7 @@ sub startElement {
 					$result->add_relationship_type($type);        # add it to the ontology
 				} elsif (defined $type->def()->text() && $type->def()->text() ne "") {
 					# the type is already in the ontology since it has a definition! (maybe empty?)
-					die "The relationship type with id '", $3, "' is duplicated in the OWL file.";
+					croak "The relationship type with id '", $3, "' is duplicated in the OWL file.";
 				}
 				$owl_object_property_tag = 1;
 			}
@@ -691,12 +692,12 @@ sub endElement {
   Usage    - $obj->owl_id2obo_id($term)
   Returns  - the ID for OBO representation.
   Args     - the OWL-type ID.
-  Function - Transform an OWL-type ID into an OBO-type one. E.g. CCO_I1234567 -> CCO:I1234567
+  Function - Transform an OWL-type ID into an OBO-type one. E.g. APO_I1234567 -> APO:I1234567
   
 =cut
 
 sub owl_id2obo_id {
-	die "owl_id2obo_id: Invalid argument: '", $_[0], "'", if ($_[0] !~ /_/);
+	croak "owl_id2obo_id: Invalid argument: '", $_[0], "'", if ($_[0] !~ /_/);
 	$_[0] =~ tr/_/:/;
 	return $_[0];
 }
@@ -746,7 +747,7 @@ use strict;
 
 my $my_parser = OBO::Parser::OWLParser->new;
 
-my $ontology = $my_parser->work("cco.owl");
+my $ontology = $my_parser->work("apo.owl");
 
 =head1 DESCRIPTION
 

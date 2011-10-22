@@ -19,16 +19,16 @@ my $ref1 = OBO::Core::Dbxref->new();
 my $ref2 = OBO::Core::Dbxref->new();
 my $ref3 = OBO::Core::Dbxref->new();
 
-$ref1->name('CCO:vm');
+$ref1->name('APO:vm');
 $ref1->description('this is a description');
 $ref1->modifier('{opt=123}');
-ok($ref1->name() eq 'CCO:vm');
-$ref2->name('CCO:ls');
-ok($ref2->name() eq 'CCO:ls');
-$ref3->db('CCO');
+ok($ref1->name() eq 'APO:vm');
+$ref2->name('APO:ls');
+ok($ref2->name() eq 'APO:ls');
+$ref3->db('APO');
 $ref3->acc('ea');
-ok($ref3->name() eq 'CCO:ea');
-ok($ref3->db() eq 'CCO');
+ok($ref3->name() eq 'APO:ea');
+ok($ref3->db() eq 'APO');
 ok($ref3->acc() eq 'ea');
 
 ok(!$ref2->equals($ref3));
@@ -42,14 +42,14 @@ my $ref4 = $ref3;
 ok($ref4->name() eq $ref3->name() && $ref4->description() eq $ref3->description() && $ref4->modifier() eq $ref3->modifier());
 
 my $ref5 = OBO::Core::Dbxref->new();
-$ref5->name('CCO:vm');
+$ref5->name('APO:vm');
 $ref5->description('this is a description');
 $ref5->modifier('{opt=123}');
-ok($ref5->name() eq 'CCO:vm');
+ok($ref5->name() eq 'APO:vm');
 
 ok($ref1->equals($ref5));
 
-ok($ref1->as_string() eq 'CCO:vm "this is a description" {opt=123}');
+ok($ref1->as_string() eq 'APO:vm "this is a description" {opt=123}');
 
 my $ref6 = OBO::Core::Dbxref->new();
 $ref6->name('IUPAC:1');

@@ -41,12 +41,12 @@ my $my_ssd1 = OBO::Core::SubsetDef->new();
 my $my_ssd2 = OBO::Core::SubsetDef->new();
 my $my_ssd3 = OBO::Core::SubsetDef->new();
 
-$my_ssd1->as_string('CCO', 'Cell Cycle Ontology');
+$my_ssd1->as_string('APO', 'Application Ontology');
 $my_ssd2->as_string('PO', 'Plant Ontology');
 $my_ssd3->as_string('SO', 'Sequence Ontology');
 
 my $another_map = OBO::Util::SubsetDefMap->new();
-$another_map->put('CCO', $my_ssd1);
+$another_map->put('APO', $my_ssd1);
 $another_map->put('PO', $my_ssd2);
 $another_map->put('SO', $my_ssd3);
 ok($another_map->size() == 3);
@@ -71,7 +71,7 @@ my $my_map2 = OBO::Util::SubsetDefMap->new();
 ok(!$my_map->equals($my_map2));
 ok(!$my_map2->equals($my_map));
 
-$my_map2->put('CCO', $my_ssd1);
+$my_map2->put('APO', $my_ssd1);
 $my_map2->put('PO', $my_ssd2);
 $my_map2->put('SO', $my_ssd3);
 
@@ -83,7 +83,7 @@ ok($my_map2->equals($my_map));
 ok($my_map->equals($my_map2));
 
 ok($my_map2->get('GO_SS')->equals($my_ssd));
-ok($my_map2->get('CCO')->equals($my_ssd1));
+ok($my_map2->get('APO')->equals($my_ssd1));
 ok($my_map2->get('PO')->equals($my_ssd2));
 ok($my_map2->get('SO')->equals($my_ssd3));
 
@@ -126,11 +126,11 @@ ok($GO_SS->equals($my_ssd));
 
 ok($my_map->size() == 4);
 ok($my_map->contains_value($my_ssd1));
-my $CCO = $my_map->remove('CCO');
-ok(!$my_map->contains_key('CCO'));
+my $APO = $my_map->remove('APO');
+ok(!$my_map->contains_key('APO'));
 ok(!$my_map->contains_value($my_ssd1));
 
-ok($CCO->equals($my_ssd1));
+ok($APO->equals($my_ssd1));
 ok($my_map->size() == 3);
 $my_map->remove('PO');
 ok($my_map->size() == 2);

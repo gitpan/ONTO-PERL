@@ -215,13 +215,13 @@ use strict;
 
 my $my_set = OBO::Util::Set->new();
 
-$my_set->add("CCO:P0000001");
+$my_set->add("APO:P0000001");
 
-print "contains" if ($my_set->contains("CCO:P0000001"));
+print "contains" if ($my_set->contains("APO:P0000001"));
 
-$my_set->add_all("CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
+$my_set->add_all("APO:P0000002", "APO:P0000003", "APO:P0000004");
 
-print "contains" if ($my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
+print "contains" if ($my_set->contains("APO:P0000002") && $my_set->contains("APO:P0000003") && $my_set->contains("APO:P0000004"));
 
 foreach ($my_set->get_set()) {
 
@@ -229,33 +229,33 @@ foreach ($my_set->get_set()) {
 
 }
 
-print "\nContained!\n" if ($my_set->contains("CCO:P0000001"));
+print "\nContained!\n" if ($my_set->contains("APO:P0000001"));
 
 my $my_set2 = OBO::Util::Set->new();
 
-$my_set2->add_all("CCO:P0000001", "CCO:P0000002", "CCO:P0000003", "CCO:P0000004");
+$my_set2->add_all("APO:P0000001", "APO:P0000002", "APO:P0000003", "APO:P0000004");
 
-print "contains" if ($my_set2->contains("CCO:P0000002") && $my_set->contains("CCO:P0000003") && $my_set->contains("CCO:P0000004"));
+print "contains" if ($my_set2->contains("APO:P0000002") && $my_set->contains("APO:P0000003") && $my_set->contains("APO:P0000004"));
 
 $my_set->equals($my_set2);
 
 $my_set2->size() == 4;
 
-$my_set2->remove("CCO:P0000003");
+$my_set2->remove("APO:P0000003");
 
-print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
+print "contains" if ($my_set2->contains("APO:P0000001") && $my_set->contains("APO:P0000002") && $my_set->contains("APO:P0000004"));
 
 $my_set2->size() == 3;
 
-$my_set2->remove("CCO:P0000005");
+$my_set2->remove("APO:P0000005");
 
-print "contains" if ($my_set2->contains("CCO:P0000001") && $my_set->contains("CCO:P0000002") && $my_set->contains("CCO:P0000004"));
+print "contains" if ($my_set2->contains("APO:P0000001") && $my_set->contains("APO:P0000002") && $my_set->contains("APO:P0000004"));
 
 $my_set2->size() == 3;
 
 $my_set2->clear();
 
-print "not contains" if (!$my_set2->contains("CCO:P0000001") || !$my_set->contains("CCO:P0000002") || !$my_set->contains("CCO:P0000004"));
+print "not contains" if (!$my_set2->contains("APO:P0000001") || !$my_set->contains("APO:P0000002") || !$my_set->contains("APO:P0000004"));
 
 $my_set2->size() == 0;
 

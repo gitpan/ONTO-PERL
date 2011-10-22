@@ -12,6 +12,8 @@ package OBO::Core::Term;
 use OBO::Util::InstanceSet;
 use OBO::Core::Synonym;
 use OBO::Util::SynonymSet;
+
+use Carp;
 use strict;
 use warnings;
 
@@ -270,7 +272,7 @@ sub synonym_set {
 	foreach my $synonym (@_) {
 		my $term_name = $self->name();
 		if (!defined($term_name)) {
-			die 'The name of this term (', $self->id(), ') is undefined. Add it before adding its synonyms.';
+			croak 'The name of this term (', $self->id(), ') is undefined. Add it before adding its synonyms.';
 		}
 		
 		#
@@ -312,7 +314,7 @@ sub synonym_set {
 
 =head2 synonym_as_string
 
-  Usage    - print $term->synonym_as_string() or $term->synonym_as_string('this is a synonym text', '[CCO:ea]', 'EXACT', 'UK_SPELLING')
+  Usage    - print $term->synonym_as_string() or $term->synonym_as_string('this is a synonym text', '[APO:ea]', 'EXACT', 'UK_SPELLING')
   Returns  - an array with the synonym(s) of this term
   Args     - the synonym text (string), the dbxrefs (string), synonym scope (string) of this term, and optionally the synonym type name (string)
   Function - gets/sets the synonym(s) of this term
@@ -616,12 +618,12 @@ sub equals {
 	if ($_[1] && eval { $_[1]->isa('OBO::Core::Term') }) {
 		return (defined $_[1] && $_[0]->{'ID'} eq $_[1]->{'ID'})?1:0;
 	} else {
-		die "An unrecognized object type (not a OBO::Core::Term) was found: '", $_[1], "'";
+		croak "An unrecognized object type (not a OBO::Core::Term) was found: '", $_[1], "'";
 	}
 }
 
 sub __dbxref () {
-	caller eq __PACKAGE__ or die "You cannot call this (__dbxref) prived method!";
+	caller eq __PACKAGE__ or croak "You cannot call this (__dbxref) prived method!";
 	#
 	# $_[0] ==> set
 	# $_[1] ==> dbxref string
@@ -661,7 +663,7 @@ sub __dbxref () {
 			$desc  = __unescape($3) if ($3);
 			$mod   = __unescape($4) if ($4);
 		} else {
-			die "ERROR: Check the 'dbxref' field of '", $entry, "'.";
+			croak "ERROR: Check the 'dbxref' field of '", $entry, "'.";
 		}
 		
 		# set the dbxref:
@@ -715,18 +717,18 @@ my $n3 = OBO::Core::Term->new();
 
 # id's
 
-$n1->id("CCO:P0000001");
+$n1->id("APO:P0000001");
 
-$n2->id("CCO:P0000002");
+$n2->id("APO:P0000002");
 
-$n3->id("CCO:P0000003");
+$n3->id("APO:P0000003");
 
 
 # alt_id
 
-$n1->alt_id("CCO:P0000001_alt_id");
+$n1->alt_id("APO:P0000001_alt_id");
 
-$n2->alt_id("CCO:P0000002_alt_id1", "CCO:P0000002_alt_id2", "CCO:P0000002_alt_id3", "CCO:P0000002_alt_id4");
+$n2->alt_id("APO:P0000002_alt_id1", "APO:P0000002_alt_id2", "APO:P0000002_alt_id3", "APO:P0000002_alt_id4");
 
 
 # name
@@ -759,7 +761,7 @@ $def1->text("Hola mundo1");
 
 my $sref1 = OBO::Core::Dbxref->new();
 
-$sref1->name("CCO:vm");
+$sref1->name("APO:vm");
 
 my $srefs_set1 = OBO::Util::DbxrefSet->new();
 
@@ -782,7 +784,7 @@ $def2->text("Hola mundo2");
 
 my $sref2 = OBO::Core::Dbxref->new();
 
-$sref2->name("CCO:ls");
+$sref2->name("APO:ls");
 
 $srefs_set1->add_all($sref1);
 
@@ -807,7 +809,7 @@ $def3->text("Hola mundo2");
 
 my $sref3 = OBO::Core::Dbxref->new();
 
-$sref3->name("CCO:ls");
+$sref3->name("APO:ls");
 
 my $srefs_set3 = OBO::Util::DbxrefSet->new();
 
@@ -822,7 +824,7 @@ $n3->synonym($syn3);
 
 # synonym as string
 
-$n2->synonym_as_string("Hello world2", "[CCO:vm2, CCO:ls2]", "EXACT");
+$n2->synonym_as_string("Hello world2", "[APO:vm2, APO:ls2]", "EXACT");
 
 
 # creator + date
@@ -858,11 +860,11 @@ my $ref2 = OBO::Core::Dbxref->new();
 my $ref3 = OBO::Core::Dbxref->new();
 
 
-$ref1->name("CCO:vm");
+$ref1->name("APO:vm");
 
-$ref2->name("CCO:ls");
+$ref2->name("APO:ls");
 
-$ref3->name("CCO:ea");
+$ref3->name("APO:ea");
 
 
 my $refs_set = OBO::Util::DbxrefSet->new();
@@ -878,7 +880,7 @@ $n2->def($def);
 
 # def as string
 
-$n2->def_as_string("This is a dummy definition", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"] {opt=first}');
+$n2->def_as_string("This is a dummy definition", '[APO:vm, APO:ls, APO:ea "Erick Antezana"] {opt=first}');
 
 my @refs_n2 = $n2->def()->dbxref_set()->get_set();
 

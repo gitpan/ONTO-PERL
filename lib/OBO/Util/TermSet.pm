@@ -54,6 +54,8 @@ sub contains_name {
 	return $result;
 }
 
+# TODO Check is equals() need be implemented
+
 1;
 
 __END__
@@ -85,11 +87,11 @@ my $n2 = OBO::Core::Term->new;
 
 my $n3 = OBO::Core::Term->new;
 
-$n1->id("CCO:P0000001");
+$n1->id("APO:P0000001");
 
-$n2->id("CCO:P0000002");
+$n2->id("APO:P0000002");
 
-$n3->id("CCO:P0000003");
+$n3->id("APO:P0000003");
 
 
 $n1->name("One");
@@ -126,11 +128,11 @@ my $n5 = OBO::Core::Term->new;
 my $n6 = OBO::Core::Term->new;
 
 
-$n4->id("CCO:P0000004");
+$n4->id("APO:P0000004");
 
-$n5->id("CCO:P0000005");
+$n5->id("APO:P0000005");
 
-$n6->id("CCO:P0000006");
+$n6->id("APO:P0000006");
 
 
 $n4->name("Four");

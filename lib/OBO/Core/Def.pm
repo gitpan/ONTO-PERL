@@ -10,6 +10,8 @@
 package OBO::Core::Def;
 
 use OBO::Util::DbxrefSet;
+
+use Carp;
 use strict;
 use warnings;
 
@@ -93,21 +95,21 @@ sub equals {
 	if ($target && eval { $target->isa('OBO::Core::Def') }) {
 
 		if (!defined($self->{TEXT})) {
-			die 'The text of this definition is undefined.';
+			croak 'The text of this definition is undefined.';
 		}
 		if (!defined($target->{TEXT})) {
-			die 'The text of the target definition is undefined.';
+			croak 'The text of the target definition is undefined.';
 		}
 
 		$result = (($self->{TEXT} eq $target->{TEXT}) && ($self->{DBXREF_SET}->equals($target->{DBXREF_SET})));
 	} else {
-		die "An unrecognized object type (not a OBO::Core::Def) was found: '", $target, "'";
+		croak "An unrecognized object type (not a OBO::Core::Def) was found: '", $target, "'";
 	}
 	return $result;
 }
 
 sub __dbxref () {
-	caller eq __PACKAGE__ or die "You cannot call this (__dbxref) prived method!";
+	caller eq __PACKAGE__ or croak "You cannot call this (__dbxref) prived method!";
 	#
 	# $_[0] ==> set
 	# $_[1] ==> dbxref string
@@ -147,7 +149,7 @@ sub __dbxref () {
 			$desc  = __unescape($3) if ($3);
 			$mod   = __unescape($4) if ($4);
 		} else {
-			die "ERROR: Check the 'dbxref' field of '", $entry, "'.";
+			croak "ERROR: Check the 'dbxref' field of '", $entry, "'.";
 		}
 		
 		# set the dbxref:
@@ -192,11 +194,11 @@ my $def2 = OBO::Core::Def->new();
 my $def3 = OBO::Core::Def->new();
 
 
-$def1->text("CCO:vm text");
+$def1->text("APO:vm text");
 
-$def2->text("CCO:ls text");
+$def2->text("APO:ls text");
 
-$def3->text("CCO:ea text");
+$def3->text("APO:ea text");
 
 
 my $ref1 = OBO::Core::Dbxref->new();
@@ -206,11 +208,11 @@ my $ref2 = OBO::Core::Dbxref->new();
 my $ref3 = OBO::Core::Dbxref->new();
 
 
-$ref1->name("CCO:vm");
+$ref1->name("APO:vm");
 
-$ref2->name("CCO:ls");
+$ref2->name("APO:ls");
 
-$ref3->name("CCO:ea");
+$ref3->name("APO:ea");
 
 
 my $dbxref_set1 = OBO::Util::DbxrefSet->new();
@@ -236,7 +238,7 @@ $def3->dbxref_set($dbxref_set3);
 
 # dbxref_set_as_string
 
-$def2->dbxref_set_as_string('[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"] {opt=first}');
+$def2->dbxref_set_as_string('[APO:vm, APO:ls, APO:ea "Erick Antezana"] {opt=first}');
 
 my @refs_def2 = $def2->dbxref_set()->get_set();
 

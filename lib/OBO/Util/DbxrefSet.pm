@@ -79,9 +79,9 @@ my $ref1 = OBO::Core::Dbxref->new;
 my $ref2 = OBO::Core::Dbxref->new;
 my $ref3 = OBO::Core::Dbxref->new;
 
-$ref1->name("CCO:vm");
-$ref2->name("CCO:ls");
-$ref3->name("CCO:ea");
+$ref1->name("APO:vm");
+$ref2->name("APO:ls");
+$ref3->name("APO:ea");
 
 # remove from my_set
 $my_set->remove($ref1);
@@ -97,9 +97,9 @@ my $ref4 = OBO::Core::Dbxref->new;
 my $ref5 = OBO::Core::Dbxref->new;
 my $ref6 = OBO::Core::Dbxref->new;
 
-$ref4->name("CCO:ef");
-$ref5->name("CCO:sz");
-$ref6->name("CCO:qa");
+$ref4->name("APO:ef");
+$ref5->name("APO:sz");
+$ref6->name("APO:qa");
 
 $my_set->add_all($ref4, $ref5, $ref6);
 

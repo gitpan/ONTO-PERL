@@ -3,7 +3,7 @@
 <!-- $Id: xml2html.xsl 1847 2011-06-06 12:38:58Z erick.antezana $
 
  Module  : xml2html.xsl
- Purpose : Transform the XML CCO version into HTML.
+ Purpose : Transform the XML APO version into HTML.
  Usage: xsltproc xml2html.xsl ../t/data/test2.xml > ../t/data/main.html
  License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
            This program is free software; you can redistribute it and/or
@@ -18,11 +18,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:template match="/">
   <html>
   <body>
-    <h2>Entire list of all the terms from the Cell Cycle Ontology</h2>
+    <h2>Entire list of all the terms from the Application Ontology</h2>
     <b>Version:</b> 0.3 <br/>
-    <b>Date:</b> <xsl:value-of select="./cco/header/date"/> <br/> <br/>
+    <b>Date:</b> <xsl:value-of select="./apo/header/date"/> <br/> <br/>
     
-    <xsl:for-each select="cco/term">
+    <xsl:for-each select="apo/term">
     <xsl:sort select="id"/>
 	<a>
 	<xsl:attribute name="name">

@@ -18,6 +18,7 @@ package OBO::Util::SubsetDefMap;
 our @ISA = qw(OBO::Util::Map);
 use OBO::Util::Map;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -53,7 +54,7 @@ sub equals {
 				$result = 0;
 			}
 		} else {
-			die "An unrecognized object type (not a OBO::Util::SubsetDefMap) was found: '", $other_map, "'";
+			croak "An unrecognized object type (not a OBO::Util::SubsetDefMap) was found: '", $other_map, "'";
 		}
 	}
 	return $result;
@@ -70,9 +71,10 @@ OBO::Util::SubsetDefMap - A Map implementation of a subset definition.
     
 =head1 SYNOPSIS
 
+use OBO::Core::SubsetDef;
+
 use OBO::Util::SubsetDefMap;
 
-use OBO::Core::SubsetDef;
 
 use strict;
 
@@ -89,13 +91,13 @@ my $n3 = OBO::Core::SubsetDef->new();
 
 $n1->name("GO_SLIM");
 
-$n2->name("CCO_SLIM");
+$n2->name("APO_SLIM");
 
 $n3->name("SO_SLIM");
 
 $n1->description("GO terms");
 
-$n2->description("CCO terms");
+$n2->description("APO terms");
 
 $n3->description("SO terms");
 

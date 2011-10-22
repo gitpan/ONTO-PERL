@@ -17,31 +17,31 @@ use strict;
 my $my_set = OBO::Util::Set->new();
 ok(1);
 
-ok(!$my_set->contains('CCO:P0000001'));
-$my_set->add('CCO:P0000001');
-ok($my_set->contains('CCO:P0000001'));
+ok(!$my_set->contains('APO:P0000001'));
+$my_set->add('APO:P0000001');
+ok($my_set->contains('APO:P0000001'));
 
-$my_set->add_all('CCO:P0000002', 'CCO:P0000003', 'CCO:P0000004');
-ok($my_set->contains('CCO:P0000002') && $my_set->contains('CCO:P0000003') && $my_set->contains('CCO:P0000004'));
+$my_set->add_all('APO:P0000002', 'APO:P0000003', 'APO:P0000004');
+ok($my_set->contains('APO:P0000002') && $my_set->contains('APO:P0000003') && $my_set->contains('APO:P0000004'));
 
 my $my_set2 = OBO::Util::Set->new();
 ok(1);
 
-$my_set2->add_all('CCO:P0000001', 'CCO:P0000002', 'CCO:P0000003', 'CCO:P0000004');
-ok($my_set2->contains('CCO:P0000002') && $my_set->contains('CCO:P0000003') && $my_set->contains('CCO:P0000004'));
+$my_set2->add_all('APO:P0000001', 'APO:P0000002', 'APO:P0000003', 'APO:P0000004');
+ok($my_set2->contains('APO:P0000002') && $my_set->contains('APO:P0000003') && $my_set->contains('APO:P0000004'));
 ok($my_set->equals($my_set2));
 ok($my_set2->size() == 4);
 
-$my_set2->remove('CCO:P0000003');
-ok($my_set2->contains('CCO:P0000001') && $my_set->contains('CCO:P0000002') && $my_set->contains('CCO:P0000004'));
+$my_set2->remove('APO:P0000003');
+ok($my_set2->contains('APO:P0000001') && $my_set->contains('APO:P0000002') && $my_set->contains('APO:P0000004'));
 ok($my_set2->size() == 3);
 
-$my_set2->remove('CCO:P0000005');
-ok($my_set2->contains('CCO:P0000001') && $my_set->contains('CCO:P0000002') && $my_set->contains('CCO:P0000004'));
+$my_set2->remove('APO:P0000005');
+ok($my_set2->contains('APO:P0000001') && $my_set->contains('APO:P0000002') && $my_set->contains('APO:P0000004'));
 ok($my_set2->size() == 3);
 
 $my_set2->clear();
-ok(!$my_set2->contains('CCO:P0000001') || !$my_set->contains('CCO:P0000002') || !$my_set->contains('CCO:P0000004'));
+ok(!$my_set2->contains('APO:P0000001') || !$my_set->contains('APO:P0000002') || !$my_set->contains('APO:P0000004'));
 ok($my_set2->size() == 0);
 ok($my_set2->is_empty());
 ok(1);

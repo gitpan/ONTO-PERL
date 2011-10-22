@@ -4,12 +4,12 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-$p = "Date::Manip";
+$p = 'Date::Manip';
 if (!eval "require $p") {
     print <<MSG;
 
    Date::Manip is missing. This module is required in order to perform 
-   dates checking while parsing OBO-formatted files ('creation_date' tag).
+   dates checking while parsing OBO-formatted files (e.g. 'creation_date' tag).
    However, this module is not fully required for using ONTO-PERL. If you 
    do not intend to parse OBO-formatted files, then you may continue, and 
    install Date::Manip in the future.
@@ -18,7 +18,7 @@ MSG
       
 }
 
-$p = "SWISS::Entry";
+$p = 'SWISS::Entry';
 if (!eval "require $p") {
     print <<MSG;
 
@@ -32,7 +32,7 @@ MSG
       
 }
 
-$p = "XML::Parser";
+$p = 'XML::Parser';
 if (!eval "require $p") {
     print <<MSG;
 
@@ -46,7 +46,7 @@ MSG
       
 }
 
-$p = "XML::XPath";
+$p = 'XML::XPath';
 if (!eval "require $p") {
     print <<MSG;
 
@@ -82,6 +82,7 @@ WriteMakefile(
 								scripts/get_ancestor_terms.pl
 								scripts/get_child_terms.pl
 								scripts/get_descendent_terms.pl
+								scripts/get_lowest_common_ancestor.pl
 								scripts/get_obsolete_term_id_vs_def_in_go.pl
 								scripts/get_obsolete_term_id_vs_name_in_go.pl
 								scripts/get_obsolete_terms.pl
@@ -95,13 +96,14 @@ WriteMakefile(
 								scripts/get_term_id_vs_term_def.pl
 								scripts/get_term_id_vs_term_name.pl
 								scripts/get_term_id_vs_term_namespace.pl
+								scripts/get_term_local_neighbourhood.pl
 								scripts/get_term_synonyms.pl
 								scripts/get_terms.pl
 								scripts/get_terms_and_synonyms.pl
 								scripts/get_terms_by_name.pl
 								scripts/go2owl.pl
 								scripts/goa2rdf.pl
-								scripts/obo2cco.pl
+								scripts/obo2apo.pl
 								scripts/obo2owl.pl
 								scripts/obo2rdf.pl
 								scripts/obo2tran.pl	
@@ -117,17 +119,21 @@ WriteMakefile(
 	($] >= 5.005 ?     ## Add these new keywords supported since 5.005
 	(AUTHOR   => 'Erick Antezana <erick.antezana -@- gmail.com>') : ()),
 	dist      => { 
-					'SUFFIX'       => ".gz",
+					'SUFFIX'       => '.gz',
 					'DIST_DEFAULT' => 'all tardist',
-					'COMPRESS'     => "gzip -9f" 
+					'COMPRESS'     => 'gzip -9f' 
 				},
 	clean      => {FILES => "t/data/human.2.map
 							t/data/add_goa_assocs.out
-							t/data/goa.rdf t/data/go.obo
+							t/data/goa.rdf
+							t/data/goa_parser_test_out.obo
+							t/data/go.obo
 							t/data/go_transitive_closure.obo
 							t/data/go_transitive_reduction.obo
+							t/data/intact_parser_test_out.obo
 							t/data/ncbi.rdf
-							t/data/pre_cco_taxa.obo
+							t/data/ncbi_parser_test_out.obo
+							t/data/pre_apo_taxa.obo
 							t/data/test0.obo
 							t/data/test1.obo
 							t/data/test1.rdf
@@ -137,7 +143,8 @@ WriteMakefile(
 							t/data/test2.owl
 							t/data/test2.rdf
 							t/data/test2.xml
-							t/data/test_ulo_cco2.obo
-							t/data/test_ulo_cco.dot
-							t/data/test_ulo_cco.owl"},
+							t/data/test_ulo_apo2.obo
+							t/data/test_ulo_apo.dot
+							t/data/test_ulo_apo.owl
+							t/data/uniprot_parser_test_out.obo"},
 );

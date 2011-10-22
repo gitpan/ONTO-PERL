@@ -1,13 +1,13 @@
 #!/usr/local/bin/perl
-# $Id: relationship_id_vs_relationship_namespace.pl 2010-09-29 erick.antezana $
+# $Id: get_relationship_id_vs_relationship_namespace.pl 2010-09-29 erick.antezana $
 #
-# Script  : relationship_id_vs_relationship_namespace.pl
+# Script  : get_relationship_id_vs_relationship_namespace.pl
 #
 # Purpose : Generates a flat file with two columns (TAB separated) with the 
 #           relationship_id and relationship_namespace (e.g. biological process) from the elements 
 #           of the given OBO ontology.
 #
-# Usage   : relationship_id_vs_relationship_namespace.pl my_ontology.obo > relationship_id_vs_relationship_namespace.txt
+# Usage   : get_relationship_id_vs_relationship_namespace.pl my_ontology.obo > relationship_id_vs_relationship_namespace.txt
 #
 # License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -36,13 +36,13 @@ __END__
 
 =head1 NAME
 
-relationship_id_vs_relationship_namespace.pl - Gets the relationship IDs and its namespaces in a given ontology.
+get_relationship_id_vs_relationship_namespace.pl - Gets the relationship IDs and its namespaces in a given ontology.
 
 =head1 DESCRIPTION
 
 Generates a flat file with two columns (TAB separated) with the 
-relationship_id and relationship_namespace (e.g. biological process) from the elements 
-of the given OBO ontology.
+relationship_id and relationship_namespace (e.g. biological process)
+from the elements of the given OBO ontology.
 
 =head1 AUTHOR
 

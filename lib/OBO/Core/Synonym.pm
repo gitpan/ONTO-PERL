@@ -12,6 +12,8 @@ package OBO::Core::Synonym;
 use OBO::Core::Dbxref;
 use OBO::Core::Def;
 use OBO::Util::Set;
+
+use Carp;
 use strict;
 use warnings;
 
@@ -44,7 +46,7 @@ sub scope {
 		if ($possible_scopes->contains($_[1])) {
 			$_[0]->{SCOPE} = $_[1];
 		} else {
-			die 'The synonym scope you provided must be one of the following: ', join (', ', @synonym_scopes);
+			croak 'The synonym scope you provided must be one of the following: ', join (', ', @synonym_scopes);
 		}
 	}
     return $_[0]->{SCOPE};
@@ -126,8 +128,8 @@ sub equals {
 	my $result = 0;
 	if ($_[1] && eval { $_[1]->isa('OBO::Core::Synonym') }) {
 
-		die 'The scope of this synonym is undefined.' if (!defined($_[0]->{SCOPE}));
-		die 'The scope of the target synonym is undefined.' if (!defined($_[1]->{SCOPE}));
+		croak 'The scope of this synonym is undefined.' if (!defined($_[0]->{SCOPE}));
+		croak 'The scope of the target synonym is undefined.' if (!defined($_[1]->{SCOPE}));
 		
 		$result = (($_[0]->{SCOPE} eq $_[1]->{SCOPE}) && ($_[0]->{DEF}->equals($_[1]->{DEF})));
 		
@@ -141,13 +143,13 @@ sub equals {
 			}
 		}
 	} else {
-		die "An unrecognized object type (not a OBO::Core::Synonym) was found: '", $_[1], "'";
+		croak "An unrecognized object type (not a OBO::Core::Synonym) was found: '", $_[1], "'";
 	}
 	return $result;
 }
 
 sub __dbxref () {
-	caller eq __PACKAGE__ or die "You cannot call this (__dbxref) prived method!";
+	caller eq __PACKAGE__ or croak "You cannot call this (__dbxref) prived method!";
 	#
 	# $_[0] ==> set
 	# $_[1] ==> dbxref string
@@ -187,7 +189,7 @@ sub __dbxref () {
 			$desc  = __unescape($3) if ($3);
 			$mod   = __unescape($4) if ($4);
 		} else {
-			die "ERROR: Check the 'dbxref' field of '", $entry, "'.";
+			croak "ERROR: Check the 'dbxref' field of '", $entry, "'.";
 		}
 		
 		# set the dbxref:
@@ -273,13 +275,13 @@ my $ref3 = OBO::Core::Dbxref->new();
 my $ref4 = OBO::Core::Dbxref->new();
 
 
-$ref1->name("CCO:vm");
+$ref1->name("APO:vm");
 
-$ref2->name("CCO:ls");
+$ref2->name("APO:ls");
 
-$ref3->name("CCO:ea");
+$ref3->name("APO:ea");
 
-$ref4->name("CCO:ea");
+$ref4->name("APO:ea");
 
 
 my $refs_set1 = OBO::Util::DbxrefSet->new();
@@ -320,7 +322,7 @@ $syn4->def($def4);
 
 # def as string
 
-$syn3->def_as_string("This is a dummy synonym", '[CCO:vm, CCO:ls, CCO:ea "Erick Antezana"]');
+$syn3->def_as_string("This is a dummy synonym", '[APO:vm, APO:ls, APO:ea "Erick Antezana"]');
 
 my @refs_syn3 = $syn3->def()->dbxref_set()->get_set();
 

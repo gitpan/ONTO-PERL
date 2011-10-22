@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               ONTO-PERL
-version:            1.35
+version:            1.36
 abstract:           PERL Modules for OBO-formatted ontologies such as the Gene Ontology (GO)
 author:
     - Erick Antezana <erick.antezana -@- gmail.com>

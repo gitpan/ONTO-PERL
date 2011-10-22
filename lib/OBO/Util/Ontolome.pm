@@ -96,7 +96,7 @@ sub union () {
 					my $cola    = $r->tail();
 					my $tail_id = $cola->id();
 					
-					#die 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
+					#croak 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
 					
 					my $tail = $result->get_term_by_id($tail_id); # Is $cola already present in the growing ontology?					
 					if (!defined $tail) {
@@ -565,7 +565,7 @@ sub transitive_closure () {
 				my $cola    = $r->tail();
 				my $cola_id = $cola->id();
 				
-				#die 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
+				#croak 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
 				
 				my $tail = $result->get_term_by_id($cola_id); # Is $cola already present in the growing ontology?					
 				if (!defined $tail) {
@@ -703,7 +703,7 @@ sub transitive_reduction () {
 				my $cola    = $r->tail();
 				my $cola_id = $cola->id();
 				
-				#die 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
+				#croak 'There is no ID for the tail term linked to: ', $term->id() if (!$tail_id);
 				
 				my $tail = $result->get_term_by_id($cola_id); # Is $cola already present in the growing ontology?					
 				if (!defined $tail) {

@@ -34,8 +34,8 @@
 			my $o = $my_parser->work("gene_ontology.obo");
 			
 			# export to OWL: gene_ontology.owl
-			open (FH, ">gene_ontology_by_cco.owl");
-			$o->export(\*FH, 'owl');
+			open (FH, ">gene_ontology_by_apo.owl");
+			$o->export('owl', \*FH);
 			close FH;
 			
 		</pre>
@@ -52,8 +52,8 @@
 			my $o = $my_parser->work("gene_ontology.obo");
 			
 			# export to GML: gene_ontology.gml
-			open (FH, ">gene_ontology_by_cco.gml");
-			$o->export(\*FH, 'gml');
+			open (FH, ">gene_ontology_by_apo.gml");
+			$o->export('gml', \*FH);
 			close FH;
 			
 		</pre>
@@ -70,8 +70,8 @@
 			my $o = $my_parser->work("gene_ontology.obo");
 					
 			# export to XML: gene_ontology.xml
-			open (FH, ">gene_ontology_by_cco.xml");
-			$o->export(\*FH, 'xml');
+			open (FH, ">gene_ontology_by_apo.xml");
+			$o->export('xml', \*FH);
 			close FH;
 			
 		</pre>
@@ -88,8 +88,8 @@
 			my $o = $my_parser->work("gene_ontology.obo");
 						
 			# export to DOT: gene_ontology.dot
-			open (FH, ">gene_ontology_by_cco.dot");
-			$o->export(\*FH, 'dot');
+			open (FH, ">gene_ontology_by_apo.dot");
+			$o->export('dot', \*FH);
 			close FH;
 			
 		</pre>
@@ -106,8 +106,8 @@
 			my $o = $my_parser->work("gene_ontology.obo");
 							
 			# export to OBO: gene_ontology.obo
-			open (FH, ">gene_ontology_by_cco.obo");
-			$o->export(\*FH, 'obo');
+			open (FH, ">gene_ontology_by_apo.obo");
+			$o->export('obo', \*FH);
 			close FH;
 						
 		</pre>
@@ -124,8 +124,8 @@
 			my $o = $my_parser->work("gene_ontology.obo");
 							
 			# export to RDF: gene_ontology.rdf
-			open (FH, ">gene_ontology_by_cco.rdf");
-			$o->export(\*FH, 'rdf');
+			open (FH, ">gene_ontology_by_apo.rdf");
+			$o->export('rdf', \*FH);
 			close FH;
 						
 		</pre>

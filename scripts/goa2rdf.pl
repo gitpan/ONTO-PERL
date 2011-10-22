@@ -19,10 +19,10 @@ use Carp;
 use strict;
 use warnings;
 
-use OBO::CCO::GoaToRDF;
+use OBO::APO::GoaToRDF;
 
 my $input_file = shift(@ARGV);
-my $goa2rdf = OBO::CCO::GoaToRDF->new();
+my $goa2rdf = OBO::APO::GoaToRDF->new();
 
 $goa2rdf->work(\*STDOUT, $input_file);
 

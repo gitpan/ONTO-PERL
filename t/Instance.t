@@ -32,15 +32,15 @@ ok($n1->subnamespace() eq 'X');
 ok($n1->code() eq '0000000');
 
 # id's
-$n1->id('CCO:Pa0000001');
-ok($n1->id() eq 'CCO:Pa0000001');
-$n2->id('CCO:P0000002');
-ok($n2->id() eq 'CCO:P0000002');
-$n3->id('CCO:P0000003');
-ok($n3->id() eq 'CCO:P0000003');
+$n1->id('APO:Pa0000001');
+ok($n1->id() eq 'APO:Pa0000001');
+$n2->id('APO:P0000002');
+ok($n2->id() eq 'APO:P0000002');
+$n3->id('APO:P0000003');
+ok($n3->id() eq 'APO:P0000003');
 
 # name, subnamespace, code
-ok($n1->idspace() eq 'CCO');
+ok($n1->idspace() eq 'APO');
 ok($n1->subnamespace() eq 'Pa');
 ok($n1->code() eq '0000001');
 
@@ -53,28 +53,28 @@ ok($n1->creation_date() eq '2009-04-13T01:32:36Z ');
 # instance modificator + date
 $n1->modified_by('erick_antezana');
 ok($n1->modified_by() eq 'erick_antezana');
-$n1->modification_date('2010-04-13T01:32:36Z ');
-ok($n1->modification_date() eq '2010-04-13T01:32:36Z ');
+$n1->modification_date('2010-04-13T01:32:36Z');
+ok($n1->modification_date() eq '2010-04-13T01:32:36Z');
 
 # alt_id
-$n1->alt_id('CCO:P0000001_alt_id');
-ok(($n1->alt_id()->get_set())[0] eq 'CCO:P0000001_alt_id');
-$n2->alt_id('CCO:P0000002_alt_id1', 'CCO:P0000002_alt_id2', 'CCO:P0000002_alt_id3', 'CCO:P0000002_alt_id4');
-ok(($n2->alt_id()->get_set())[0] eq 'CCO:P0000002_alt_id1');
-ok(($n2->alt_id()->get_set())[1] eq 'CCO:P0000002_alt_id2');
-ok(($n2->alt_id()->get_set())[2] eq 'CCO:P0000002_alt_id3');
-ok(($n2->alt_id()->get_set())[3] eq 'CCO:P0000002_alt_id4');
+$n1->alt_id('APO:P0000001_alt_id');
+ok(($n1->alt_id()->get_set())[0] eq 'APO:P0000001_alt_id');
+$n2->alt_id('APO:P0000002_alt_id1', 'APO:P0000002_alt_id2', 'APO:P0000002_alt_id3', 'APO:P0000002_alt_id4');
+ok(($n2->alt_id()->get_set())[0] eq 'APO:P0000002_alt_id1');
+ok(($n2->alt_id()->get_set())[1] eq 'APO:P0000002_alt_id2');
+ok(($n2->alt_id()->get_set())[2] eq 'APO:P0000002_alt_id3');
+ok(($n2->alt_id()->get_set())[3] eq 'APO:P0000002_alt_id4');
 ok(!defined (($n3->alt_id()->get_set())[0]));
 ok(!$n3->alt_id()->get_set());
 
 # subset
-$n1->subset('CCO:P0000001_subset');
-ok(($n1->subset())[0] eq 'CCO:P0000001_subset');
-$n2->subset('CCO:P0000002_subset1', 'CCO:P0000002_subset2', 'CCO:P0000002_subset3', 'CCO:P0000002_subset4');
-ok(($n2->subset())[0] eq 'CCO:P0000002_subset1');
-ok(($n2->subset())[1] eq 'CCO:P0000002_subset2');
-ok(($n2->subset())[2] eq 'CCO:P0000002_subset3');
-ok(($n2->subset())[3] eq 'CCO:P0000002_subset4');
+$n1->subset('APO:P0000001_subset');
+ok(($n1->subset())[0] eq 'APO:P0000001_subset');
+$n2->subset('APO:P0000002_subset1', 'APO:P0000002_subset2', 'APO:P0000002_subset3', 'APO:P0000002_subset4');
+ok(($n2->subset())[0] eq 'APO:P0000002_subset1');
+ok(($n2->subset())[1] eq 'APO:P0000002_subset2');
+ok(($n2->subset())[2] eq 'APO:P0000002_subset3');
+ok(($n2->subset())[3] eq 'APO:P0000002_subset4');
 ok(!defined (($n3->subset())[0]));
 ok(!$n3->subset());
 
@@ -108,7 +108,7 @@ $syn1->scope('EXACT');
 my $def1 = OBO::Core::Def->new();
 $def1->text('Hola mundo1');
 my $sref1 = OBO::Core::Dbxref->new();
-$sref1->name('CCO:vm');
+$sref1->name('APO:vm');
 my $srefs_set1 = OBO::Util::DbxrefSet->new();
 $srefs_set1->add($sref1);
 $def1->dbxref_set($srefs_set1);
@@ -120,7 +120,7 @@ $syn2->scope('BROAD');
 my $def2 = OBO::Core::Def->new();
 $def2->text('Hola mundo2');
 my $sref2 = OBO::Core::Dbxref->new();
-$sref2->name('CCO:ls');
+$sref2->name('APO:ls');
 $srefs_set1->add_all($sref1);
 my $srefs_set2 = OBO::Util::DbxrefSet->new();
 $srefs_set2->add_all($sref1, $sref2);
@@ -136,7 +136,7 @@ $syn3->scope('BROAD');
 my $def3 = OBO::Core::Def->new();
 $def3->text('Hola mundo2');
 my $sref3 = OBO::Core::Dbxref->new();
-$sref3->name('CCO:ls');
+$sref3->name('APO:ls');
 my $srefs_set3 = OBO::Util::DbxrefSet->new();
 $srefs_set3->add_all($sref1, $sref2);
 $def3->dbxref_set($srefs_set3);
@@ -151,23 +151,23 @@ ok(($n2->synonym_set())[0]->def()->equals(($n3->synonym_set())[0]->def()));
 ok(($n2->synonym_set())[0]->equals(($n3->synonym_set())[0]));
 
 # synonym as string
-ok(($n2->synonym_as_string())[0] eq '"Hola mundo2" [CCO:ls, CCO:vm] BROAD');
-$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls2]', 'EXACT');
-ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2] EXACT');
-ok(($n2->synonym_as_string())[1] eq '"Hola mundo2" [CCO:ls, CCO:vm] BROAD');
+ok(($n2->synonym_as_string())[0] eq '"Hola mundo2" [APO:ls, APO:vm] BROAD');
+$n2->synonym_as_string('Hello world2', '[APO:vm2, APO:ls2]', 'EXACT');
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [APO:ls2, APO:vm2] EXACT');
+ok(($n2->synonym_as_string())[1] eq '"Hola mundo2" [APO:ls, APO:vm] BROAD');
 ok(scalar $n2->synonym_set() == 2);
 
 # updating the scope ans synonym type name of a synonym
-$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls2]', 'RELATED');
+$n2->synonym_as_string('Hello world2', '[APO:vm2, APO:ls2]', 'RELATED');
 ok(scalar $n2->synonym_set() == 2);
-ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2] RELATED');
-$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls2]', 'BROAD');
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [APO:ls2, APO:vm2] RELATED');
+$n2->synonym_as_string('Hello world2', '[APO:vm2, APO:ls2]', 'BROAD');
 ok(scalar $n2->synonym_set() == 2);
-ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2] BROAD');
-$n2->synonym_as_string('Hello world2', '[CCO:vm2, CCO:ls2]', 'NARROW', 'UK_SPELLING');
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [APO:ls2, APO:vm2] BROAD');
+$n2->synonym_as_string('Hello world2', '[APO:vm2, APO:ls2]', 'NARROW', 'UK_SPELLING');
 ok(scalar $n2->synonym_set() == 2);
-ok(($n2->synonym_as_string())[0] eq '"Hello world2" [CCO:ls2, CCO:vm2] NARROW UK_SPELLING');
-ok(($n2->synonym_as_string())[1] eq '"Hola mundo2" [CCO:ls, CCO:vm] BROAD');
+ok(($n2->synonym_as_string())[0] eq '"Hello world2" [APO:ls2, APO:vm2] NARROW UK_SPELLING');
+ok(($n2->synonym_as_string())[1] eq '"Hola mundo2" [APO:ls, APO:vm] BROAD');
 
 # xref
 my $xref1 = OBO::Core::Dbxref->new();
@@ -176,11 +176,11 @@ my $xref3 = OBO::Core::Dbxref->new();
 my $xref4 = OBO::Core::Dbxref->new();
 my $xref5 = OBO::Core::Dbxref->new();
 
-$xref1->name('XCCO:vm');
-$xref2->name('XCCO:ls');
-$xref3->name('XCCO:ea');
-$xref4->name('XCCO:vm');
-$xref5->name('XCCO:ls');
+$xref1->name('XAPO:vm');
+$xref2->name('XAPO:ls');
+$xref3->name('XAPO:ea');
+$xref4->name('XAPO:vm');
+$xref5->name('XAPO:ls');
 
 my $xrefs_set = OBO::Util::DbxrefSet->new();
 $xrefs_set->add_all($xref1, $xref2, $xref3, $xref4, $xref5);
@@ -192,15 +192,15 @@ ok($xref_length == 3);
 # xref_set_as_string
 my @empty_refs = $n2->xref_set_as_string();
 ok($#empty_refs == -1);
-$n2->xref_set_as_string('[YCCO:vm, YCCO:ls, YCCO:ea "Erick Antezana" {opt=first}]');
+$n2->xref_set_as_string('[YAPO:vm, YAPO:ls, YAPO:ea "Erick Antezana" {opt=first}]');
 my @xrefs_n2 = $n2->xref_set()->get_set();
 my %xr_n2;
 foreach my $xref_n2 (@xrefs_n2) {
 	$xr_n2{$xref_n2->name()} = $xref_n2->name();
 }
-ok($xr_n2{'YCCO:vm'} eq 'YCCO:vm');
-ok($xr_n2{'YCCO:ls'} eq 'YCCO:ls');
-ok($xr_n2{'YCCO:ea'} eq 'YCCO:ea');
+ok($xr_n2{'YAPO:vm'} eq 'YAPO:vm');
+ok($xr_n2{'YAPO:ls'} eq 'YAPO:ls');
+ok($xr_n2{'YAPO:ea'} eq 'YAPO:ea');
 
 # disjoint_from:
 $n2->disjoint_from($n1->id(), $n3->id());

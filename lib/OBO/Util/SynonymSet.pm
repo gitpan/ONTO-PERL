@@ -87,8 +87,9 @@ sub equals {
 		my $other_set = shift;
 		
 		my %count = ();
-		my @this = map ({scalar $_;} @{$self->{SET}});
-		my @that = map ({scalar $_;} $other_set->get_set());
+
+		my @this = map ({scalar $_->def_as_string();} @{$self->{SET}});
+		my @that = map ({scalar $_->def_as_string();} $other_set->get_set());
 		
 		if ($#this == $#that) {
 			foreach (@this, @that) {
@@ -138,11 +139,11 @@ my $n2 = OBO::Core::Synonym->new;
 my $n3 = OBO::Core::Synonym->new;
 
 
-$n1->id("CCO:P0000001");
+$n1->id("APO:P0000001");
 
-$n2->id("CCO:P0000002");
+$n2->id("APO:P0000002");
 
-$n3->id("CCO:P0000003");
+$n3->id("APO:P0000003");
 
 
 $n1->name("One");
@@ -177,11 +178,11 @@ my $n5 = OBO::Core::Synonym->new;
 my $n6 = OBO::Core::Synonym->new;
 
 
-$n4->id("CCO:P0000004");
+$n4->id("APO:P0000004");
 
-$n5->id("CCO:P0000005");
+$n5->id("APO:P0000005");
 
-$n6->id("CCO:P0000006");
+$n6->id("APO:P0000006");
 
 
 $n4->name("Four");

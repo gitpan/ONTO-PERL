@@ -9,10 +9,6 @@
 #
 package OBO::Parser::OBOParser;
 
-use strict;
-use warnings;
-
-
 use OBO::Core::Dbxref;
 use OBO::Core::Instance;
 use OBO::Core::Ontology;
@@ -24,7 +20,10 @@ use OBO::Core::Term;
 use OBO::Util::IDspaceSet;
 use OBO::Util::Set;
 
+use Carp;
 use Date::Manip qw(ParseDate UnixDate);
+use strict;
+use warnings;
 
 sub new {
 	my $class = shift;
@@ -47,7 +46,7 @@ sub work {
 	my $self = shift;
 	$self->{OBO_FILE} = shift if (@_);
 	
-	open (OBO_FILE, $self->{OBO_FILE}) || die 'The OBO file cannot be opened: ', $!;
+	open (OBO_FILE, $self->{OBO_FILE}) || croak 'The OBO file cannot be opened: ', $!;
 	
 	$/ = ""; # one paragraph at the time
 	chomp(my @chunks = <OBO_FILE>);
@@ -190,7 +189,7 @@ sub work {
 		}
 
 		if (!defined $format_version) {
-			die "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
+			croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
 		}
 		
 		#
@@ -259,7 +258,7 @@ sub work {
 					$file_line_number++;
 					if ($line =~ /^id:\s*(\S+)/) { # get the term id
 						if ($line =~ /^id:$r_db_acc/) { # Does it follow the "convention"?
-							die "The term with id '", $1, "' has a duplicated 'id' tag in the file '", $self->{OBO_FILE} if ($only_one_id_tag_per_entry);
+							croak "The term with id '", $1, "' has a duplicated 'id' tag in the file '", $self->{OBO_FILE} if ($only_one_id_tag_per_entry);
 							$term = $result->get_term_by_id($1); # does this term is already in the ontology?
 							if (!defined $term){
 								$term = OBO::Core::Term->new();  # if not, create a new term
@@ -268,15 +267,15 @@ sub work {
 								$only_one_id_tag_per_entry = 1;
 							} elsif (defined $term->def()->text() && $term->def()->text() ne '') {
 								# The term is already in the ontology since it has a definition! (maybe empty?)
-								die "The term with id '", $1, "' is duplicated in the OBO file.";
+								croak "The term with id '", $1, "' is duplicated in the OBO file.";
 							}
 						} else {
-							die "The term with id '", $1, "' does NOT follow the ID convention: 'IDSPACE:UNIQUE_IDENTIFIER', e.g. GO:1234567";
+							croak "The term with id '", $1, "' does NOT follow the ID convention: 'IDSPACE:UNIQUE_IDENTIFIER', e.g. GO:1234567";
 						}						
 					} elsif ($line =~ /^is_anonymous:$r_true_false/) {
 						$term->is_anonymous(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^name:\s*(.*)/) {
-						die "The term with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
+						croak "The term with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
 						if (!defined $1) {
 							warn "The term with id '", $term->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 						} else {
@@ -299,7 +298,7 @@ sub work {
 						if ($result->subset_def_map()->contains_key($ss)) {
 							$term->subset($ss); # it is a Set (i.e. added to a Set)
 						} else {
-							die "The subset '", $ss, "' is not defined in the header! Check your OBO file line '", $file_line_number, "'";
+							croak "The subset '", $ss, "' is not defined in the header! Check your OBO file line '", $file_line_number, "'";
 						}
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"$r_dbxref/) { # OBO spec 1.1
 						$term->synonym_as_string($2, $3, uc($1));
@@ -318,7 +317,7 @@ sub work {
 									last;
 								}
 							}
-							die 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+							croak 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
 						}
 						$term->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unknown:\s*(.*)/) {
@@ -379,7 +378,7 @@ sub work {
 						my $d = $1;
 						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
 						if (!$pd) {
-							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+							warn "Bad date string: '", $d, "' in line ", $file_line_number, "\n";
 #						} else {
 #							my ($year, $month, $day) = UnixDate($pd, "%Y", "%m", "%d");
 #							warn "Date was $month/$day/$year\n";
@@ -391,7 +390,7 @@ sub work {
 						my $d = $1;
 						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
 						if (!$pd) {
-							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+							warn "Bad date string: '", $d, "' in line ", $file_line_number, "\n";
 						}
 						$term->modification_date($d);
 					} elsif ($line =~ /^is_obsolete:$r_true_false/) {
@@ -414,10 +413,10 @@ sub work {
 				}
 				# Check for required fields: id
 				if (defined $term && !defined $term->id()) {
-					die "No ID found in term:\n", $chunk;
+					croak "No ID found in term:\n", $chunk;
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
-					die "Missing 'intersection_of' tag in term:\n\n", $chunk, "\n";
+					croak "Missing 'intersection_of' tag in term:\n\n", $chunk, "\n";
 				}				
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Typedef\]/) { # treat [Typedef]
@@ -438,7 +437,7 @@ sub work {
 							$result->add_relationship_type($type);        # add it to the ontology
 						} elsif (defined $type->def()->text() && $type->def()->text() ne '') {
 							# the type is already in the ontology since it has a definition! (not empty)
-							die "The relationship type with id '", $1, "' is duplicated in the OBO file. Check line: '", $file_line_number, "'";
+							croak "The relationship type with id '", $1, "' is duplicated in the OBO file. Check line: '", $file_line_number, "'";
 						} else {
 							# the type already in the ontology but with an empty def, which most probably will
 							# be defined later. This case is the result of adding a relationship while parsing
@@ -448,7 +447,7 @@ sub work {
 					} elsif ($line =~ /^is_anonymous:$r_true_false/) {
 						$type->is_anonymous(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^name:\s*(.*)/) {
-						die "The typedef with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE}, "'. Check line: '", $file_line_number, "'" if ($only_one_name_tag_per_entry);
+						croak "The typedef with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE}, "'. Check line: '", $file_line_number, "'" if ($only_one_name_tag_per_entry);
 						$type->name($1);
 						$only_one_name_tag_per_entry = 1;
 					} elsif ($line =~ /^namespace:\s*(.*)/) {
@@ -467,7 +466,7 @@ sub work {
 						if ($result->subset_def_map()->contains_key($ss)) {
 							$type->subset($ss); # it is a Set (i.e. added to a Set)
 						} else {
-							die "The subset '", $ss, "' is not defined in the header! Check your OBO file relationship type in line: '", $file_line_number, "'";
+							croak "The subset '", $ss, "' is not defined in the header! Check your OBO file relationship type in line: '", $file_line_number, "'";
 						}
 					} elsif ($line =~ /^domain:\s*(.*)/) {
 						$type->domain($1);
@@ -517,7 +516,7 @@ sub work {
 									last;
 								}
 							}
-							die 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+							croak 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
 						}
 						$type->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
@@ -588,7 +587,7 @@ sub work {
 						my $d = $1;
 						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
 						if (!$pd) {
-							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+							warn "Bad date string: '", $d, "' in line ", $file_line_number, "\n";
 						}
 						$type->creation_date($d);
 					} elsif ($line =~ /^modified_by:\s*(.*)/) {
@@ -597,7 +596,7 @@ sub work {
 						my $d = $1;
 						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
 						if (!$pd) {
-							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+							warn "Bad date string: '", $d, "' in line ", $file_line_number, "\n";
 						}
 						$type->modification_date($d);
 					} elsif ($line =~ /^is_obsolete:\s*(.*)/) {
@@ -616,10 +615,10 @@ sub work {
 				}
 				# Check for required fields: id
 				if (!defined $type->id()) {
-					die "No ID found in type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
+					croak "No ID found in type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
-					die "Missing 'intersection_of' tag in relationship type:\n\n", $chunk, "\n";
+					croak "Missing 'intersection_of' tag in relationship type:\n\n", $chunk, "\n";
 				}
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Instance\]/) { # treat [Instance]
@@ -640,7 +639,7 @@ sub work {
 					$file_line_number++;
 					if ($line =~ /^id:\s*(\S+)/) { # get the instance id
 						if ($line =~ /^id:$r_db_acc/) { # Does it follow the "convention"?
-							die "The instance with id '", $1, "' has a duplicated 'id' tag in the file '", $self->{OBO_FILE} if ($only_one_id_tag_per_entry);
+							croak "The instance with id '", $1, "' has a duplicated 'id' tag in the file '", $self->{OBO_FILE} if ($only_one_id_tag_per_entry);
 							$instance = $result->get_instance_by_id($1); # does this instance is already in the ontology?
 							if (!defined $instance){
 								$instance = OBO::Core::Instance->new();  # if not, create a new instance
@@ -649,15 +648,15 @@ sub work {
 								$only_one_id_tag_per_entry = 1;
 							} elsif (defined $instance->def()->text() && $instance->def()->text() ne '') {
 								# The instance is already in the ontology since it has a definition! (maybe empty?)
-								die "The instance with id '", $1, "' is duplicated in the OBO file.";
+								croak "The instance with id '", $1, "' is duplicated in the OBO file.";
 							}
 						} else {
-							die "The instance with id '", $1, "' does NOT follow the ID convention: 'IDSPACE:UNIQUE_IDENTIFIER', e.g. GO:1234567";
+							croak "The instance with id '", $1, "' does NOT follow the ID convention: 'IDSPACE:UNIQUE_IDENTIFIER', e.g. GO:1234567";
 						}						
 					} elsif ($line =~ /^is_anonymous:$r_true_false/) {
 						$instance->is_anonymous(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^name:\s*(.*)/) {
-						die "The instance with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
+						croak "The instance with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
 						if (!defined $1) {
 							warn "The instance with id '", $instance->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 						} else {
@@ -681,7 +680,7 @@ sub work {
 						if ($result->subset_def_map()->contains_key($ss)) {
 							$instance->subset($ss); # it is a Set (i.e. added to a Set)
 						} else {
-							die "The subset '", $ss, "' is not defined in the header! Check your OBO file line '", $file_line_number, "'";
+							croak "The subset '", $ss, "' is not defined in the header! Check your OBO file line '", $file_line_number, "'";
 						}
 					} elsif ($line =~ /^(exact|narrow|broad|related)_synonym:\s*\"(.*)\"$r_dbxref/) { # OBO spec 1.1
 						$instance->synonym_as_string($2, $3, uc($1));
@@ -700,7 +699,7 @@ sub work {
 									last;
 								}
 							}
-							die 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+							croak 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
 						}
 						$instance->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unknown:\s*(.*)/) {
@@ -761,7 +760,7 @@ sub work {
 						my $d = $1;
 						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
 						if (!$pd) {
-							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+							warn "Bad date string: '", $d, "' in line ", $file_line_number, "\n";
 						}
 						$instance->creation_date($d);
 					} elsif ($line =~ /^modified_by:\s*(.*)/) {
@@ -770,7 +769,7 @@ sub work {
 						my $d = $1;
 						my $pd = ParseDate($d); # Check that the date follows the ISO 8601 format
 						if (!$pd) {
-							warn "Bad date string: '", $pd, "' in line ", $file_line_number, "\n";
+							warn "Bad date string: '", $d, "' in line ", $file_line_number, "\n";
 						}
 						$instance->modification_date($d);
 					} elsif ($line =~ /^is_obsolete:$r_true_false/) {
@@ -805,11 +804,11 @@ sub work {
 				}
 				# Check for required fields: id
 				if (defined $instance && !defined $instance->id()) {
-					die "No ID found in instance:\n", $chunk;
+					croak "No ID found in instance:\n", $chunk;
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2)
 					 # TODO do INSTANCES have this tag?
-					die "Missing 'intersection_of' tag in instance:\n\n", $chunk, "\n";
+					croak "Missing 'intersection_of' tag in instance:\n\n", $chunk, "\n";
 				}		
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Annotation\]/) { # treat [Annotation]
@@ -831,7 +830,7 @@ sub work {
 
 		return $result;
 	} else { # if no header (chunk[0])
-		die "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
+		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
 	}
 }
 
@@ -852,26 +851,26 @@ use strict;
 
 my $my_parser = OBO::Parser::OBOParser->new;
 
-my $ontology = $my_parser->work("cco.obo");
+my $ontology = $my_parser->work("apo.obo");
 
-$ontology->has_term($ontology->get_term_by_id("CCO:B9999993"));
+$ontology->has_term($ontology->get_term_by_id("APO:B9999993"));
 
 $ontology->has_term($ontology->get_term_by_name("small molecule"));
 
-$ontology->get_relationship_by_id("CCO:B9999998_is_a_CCO:B0000000")->type() eq 'is_a';
+$ontology->get_relationship_by_id("APO:B9999998_is_a_APO:B0000000")->type() eq 'is_a';
 
-$ontology->get_relationship_by_id("CCO:B9999996_part_of_CCO:B9999992")->type() eq 'part_of'; 
+$ontology->get_relationship_by_id("APO:B9999996_part_of_APO:B9999992")->type() eq 'part_of'; 
 
 
-my $ontology2 = $my_parser->work("cco.obo");
+my $ontology2 = $my_parser->work("apo.obo");
 
-$ontology2->has_term($ontology2->get_term_by_id("CCO:B9999993"));
+$ontology2->has_term($ontology2->get_term_by_id("APO:B9999993"));
 
 $ontology2->has_term($ontology2->get_term_by_name("cell cycle"));
 
-$ontology2->get_relationship_by_id("CCO:P0000274_is_a_CCO:P0000262")->type() eq 'is_a';
+$ontology2->get_relationship_by_id("APO:P0000274_is_a_APO:P0000262")->type() eq 'is_a';
 
-$ontology2->get_relationship_by_id("CCO:P0000274_part_of_CCO:P0000271")->type() eq 'part_of'; 
+$ontology2->get_relationship_by_id("APO:P0000274_part_of_APO:P0000271")->type() eq 'part_of'; 
 
 =head1 DESCRIPTION
 

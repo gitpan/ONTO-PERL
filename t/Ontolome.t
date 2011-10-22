@@ -37,13 +37,13 @@ ok($onto3->get_number_of_relationships() == 0);
 my $n1 = OBO::Core::Term->new();
 my $n2 = OBO::Core::Term->new();
 
-$n1->id('CCO:D0000001');
-$n2->id('CCO:D0000001'); # same ID!
+$n1->id('APO:D0000001');
+$n2->id('APO:D0000001'); # same ID!
 
 $n1->name('One');
 $n2->name('One');
 
-$n2->def_as_string('My definition.', '[CCO:ea]');
+$n2->def_as_string('My definition.', '[APO:ea]');
 
 $onto1->add_term($n1);
 $onto2->add_term($n2);
@@ -57,16 +57,16 @@ ok($onto1->get_number_of_terms() == 1);
 ok($onto3->get_number_of_terms() == 1);
 ok($onto3->get_number_of_relationships() == 0);
 
-my $n = $onto3->get_term_by_id('CCO:D0000001');
+my $n = $onto3->get_term_by_id('APO:D0000001');
 ok($n->name() eq 'One');
-ok($n->def_as_string() eq "\"My definition.\" [CCO:ea]");
+ok($n->def_as_string() eq "\"My definition.\" [APO:ea]");
 ok($n->xref_set()->get_set() == 2);
 
 # more terms in onto1
 my $n3 = OBO::Core::Term->new();
 my $n5 = OBO::Core::Term->new();
-$n3->id('CCO:D0000003');
-$n5->id('CCO:D0000005');
+$n3->id('APO:D0000003');
+$n5->id('APO:D0000005');
 $n3->name('Three');
 $n5->name('Five');
 
@@ -79,8 +79,8 @@ ok($onto1->get_number_of_terms() == 3);
 my $r51 = OBO::Core::Relationship->new();
 my $r31 = OBO::Core::Relationship->new();
 
-$r51->id('CCO:D0000005_is_a_CCO:D0000001');
-$r31->id('CCO:D0000003_part_of_CCO:D0000001');
+$r51->id('APO:D0000005_is_a_APO:D0000001');
+$r31->id('APO:D0000003_part_of_APO:D0000001');
 $r51->type('is_a');
 $r31->type('part_of');
 $r51->link($n5, $n1); 
@@ -97,8 +97,8 @@ ok($onto1->get_number_of_terms() ==3);
 # more terms in onto2
 my $n4 = OBO::Core::Term->new();
 my $n6 = OBO::Core::Term->new();
-$n4->id('CCO:D0000004');
-$n6->id('CCO:D0000006');
+$n4->id('APO:D0000004');
+$n6->id('APO:D0000006');
 $n4->name('Four');
 $n6->name('Six');
 
@@ -109,8 +109,8 @@ $onto2->add_term($n6);
 my $r42 = OBO::Core::Relationship->new();
 my $r64 = OBO::Core::Relationship->new();
 
-$r42->id('CCO:D0000004_is_a_CCO:D0000001');
-$r64->id('CCO:D0000006_part_of_CCO:D0000004');
+$r42->id('APO:D0000004_is_a_APO:D0000001');
+$r64->id('APO:D0000006_part_of_APO:D0000004');
 $r42->type('is_a');
 $r64->type('part_of');
 $r42->link($n4, $n2); 
@@ -130,15 +130,15 @@ ok($onto1->get_number_of_terms() == 3);
 ok($onto4->get_number_of_terms() == 5);
 ok($onto4->get_number_of_relationships() >= 4); # diff arch: '>='
 
-my $nn1 = $onto4->get_term_by_id('CCO:D0000001');
+my $nn1 = $onto4->get_term_by_id('APO:D0000001');
 my @relatives1 = @{$onto4->get_descendent_terms($nn1)};
 ok(scalar(@relatives1) == 4);
 
-my $nn6 = $onto4->get_term_by_id('CCO:D0000006');
+my $nn6 = $onto4->get_term_by_id('APO:D0000006');
 my @relatives2 = @{$onto4->get_ancestor_terms($nn6)};
 ok(scalar(@relatives2) == 2);
 
-my $nn5 = $onto4->get_term_by_id('CCO:D0000005');
+my $nn5 = $onto4->get_term_by_id('APO:D0000005');
 my @relatives3 = @{$onto4->get_ancestor_terms($nn5)};
 ok(scalar(@relatives3) == 1);
 
@@ -170,18 +170,18 @@ my $t10 = OBO::Core::Term->new();
 my $t11 = OBO::Core::Term->new();
 my $t12 = OBO::Core::Term->new();
 
-$t1->id('CCO:T0000001');
-$t2->id('CCO:T0000002');
-$t3->id('CCO:T0000003');
-$t4->id('CCO:T0000004');
-$t5->id('CCO:T0000005');
-$t6->id('CCO:T0000006');
-$t7->id('CCO:T0000007');
-$t8->id('CCO:T0000008');
-$t9->id('CCO:T0000009');
-$t10->id('CCO:T0000010');
-$t11->id('CCO:T0000011');
-$t12->id('CCO:T0000012');
+$t1->id('APO:T0000001');
+$t2->id('APO:T0000002');
+$t3->id('APO:T0000003');
+$t4->id('APO:T0000004');
+$t5->id('APO:T0000005');
+$t6->id('APO:T0000006');
+$t7->id('APO:T0000007');
+$t8->id('APO:T0000008');
+$t9->id('APO:T0000009');
+$t10->id('APO:T0000010');
+$t11->id('APO:T0000011');
+$t12->id('APO:T0000012');
 
 $t1->name('t1');
 $t2->name('t2');
@@ -215,7 +215,7 @@ $onto22->create_rel($t12, 'is_a', $t9);
 my $onto22_reflex = $ome1->intersection($onto22, $onto22);
 ok($onto22_reflex->get_number_of_terms() == 12);
 ok($onto22_reflex->get_number_of_relationships() == 12);
-ok($onto22_reflex->has_relationship_id('CCO:T0000002_is_a_CCO:T0000001'));
+ok($onto22_reflex->has_relationship_id('APO:T0000002_is_a_APO:T0000001'));
 
 my $onto23 = OBO::Core::Ontology->new();
 my $tt0  = OBO::Core::Term->new();
@@ -227,14 +227,14 @@ my $tt8  = OBO::Core::Term->new();
 my $tt9  = OBO::Core::Term->new();
 my $tt11 = OBO::Core::Term->new(); 
 
-$tt0->id('CCO:T0000000');
-$tt1->id('CCO:T0000001');
-$tt4->id('CCO:T0000004');
-$tt5->id('CCO:T0000005');
-$tt6->id('CCO:T0000006');
-$tt8->id('CCO:T0000008');
-$tt9->id('CCO:T0000009');
-$tt11->id('CCO:T0000011');
+$tt0->id('APO:T0000000');
+$tt1->id('APO:T0000001');
+$tt4->id('APO:T0000004');
+$tt5->id('APO:T0000005');
+$tt6->id('APO:T0000006');
+$tt8->id('APO:T0000008');
+$tt9->id('APO:T0000009');
+$tt11->id('APO:T0000011');
 
 $tt0->name('t0');
 $tt1->name('t1');
@@ -258,14 +258,14 @@ $onto23->create_rel($tt5, 'is_a', $tt11);
 my $onto22_23 = $ome1->intersection($onto23, $onto22);
 ok($onto22_23->get_number_of_terms() == 7);
 ok($onto22_23->get_number_of_relationships() == 4);
-ok($onto22_23->has_relationship_id('CCO:T0000004_is_a_CCO:T0000001'));
-ok($onto22_23->has_relationship_id('CCO:T0000005_is_a_CCO:T0000001'));
-ok($onto22_23->has_relationship_id('CCO:T0000004_is_a_CCO:T0000006'));
-ok(!($onto22_23->has_relationship_id('CCO:T0000005_is_a_CCO:T0000006')));
-ok($onto22_23->has_relationship_id('CCO:T0000001_is_a_CCO:T0000008'));
-ok(!($onto22_23->has_relationship_id('CCO:T0000006_is_a_CCO:T0000008')));
-ok(!($onto22_23->has_relationship_id('CCO:T0000001_is_a_CCO:T0000009')));
-ok(!($onto22_23->has_relationship_id('CCO:T0000005_is_a_CCO:T0000011')));
+ok($onto22_23->has_relationship_id('APO:T0000004_is_a_APO:T0000001'));
+ok($onto22_23->has_relationship_id('APO:T0000005_is_a_APO:T0000001'));
+ok($onto22_23->has_relationship_id('APO:T0000004_is_a_APO:T0000006'));
+ok(!($onto22_23->has_relationship_id('APO:T0000005_is_a_APO:T0000006')));
+ok($onto22_23->has_relationship_id('APO:T0000001_is_a_APO:T0000008'));
+ok(!($onto22_23->has_relationship_id('APO:T0000006_is_a_APO:T0000008')));
+ok(!($onto22_23->has_relationship_id('APO:T0000001_is_a_APO:T0000009')));
+ok(!($onto22_23->has_relationship_id('APO:T0000005_is_a_APO:T0000011')));
 
 my $o1  = OBO::Core::Ontology->new();
 my $d5  = OBO::Core::Term->new();

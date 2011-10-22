@@ -22,14 +22,14 @@ my $std2 = OBO::Core::SubsetDef->new();
 # name
 $std1->name("GO_SLIM");
 ok ($std1->name() eq "GO_SLIM");
-$std2->name("CCO_SLIM");
-ok ($std2->name() eq "CCO_SLIM");
+$std2->name("APO_SLIM");
+ok ($std2->name() eq "APO_SLIM");
 
 # description
 $std1->description("GO slim");
 ok ($std1->description() eq "GO slim");
-$std2->description("CCO slim");
-ok ($std2->description() eq "CCO slim");
+$std2->description("APO slim");
+ok ($std2->description() eq "APO slim");
 
 # synonym type def as string
 my $std3 = OBO::Core::SubsetDef->new();
