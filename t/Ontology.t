@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 369;
+    plan tests => 399;
 }
 
 #########################
@@ -81,12 +81,24 @@ $in2->xref_set_as_string('[GO:0000002]');
 $in3->xref_set_as_string('[GO:0000003]');
 
 # add terms
+$onto->delete_term($n1);
+ok($onto->has_term($n1) == 0);
+$onto->add_term($n1);
+$onto->delete_term($n1);
+ok($onto->has_term($n1) == 0);
 $onto->add_term($n1);
 ok($onto->has_term($n1) == 1);
+
+ok($onto->has_term($n2) == 0);
 $onto->add_term($n2);
 ok($onto->has_term($n2) == 1);
+
+ok($onto->has_term($n3) == 0);
 $onto->add_term($n3);
 ok($onto->has_term($n3) == 1);
+
+my $udef = undef;
+ok($onto->has_term($udef) == 0);
 
 # add instances
 $onto->add_instance($in1);
@@ -896,7 +908,6 @@ ok ($sub_o->get_number_of_terms() == 2);
 ok ($root->equals($roots[0])); # MYO:0000014
 
 # get paths from term1 to term2
-my $o1  = OBO::Core::Ontology->new();
 my $d5  = OBO::Core::Term->new();
 my $d2  = OBO::Core::Term->new();
 my $d6  = OBO::Core::Term->new();
@@ -960,6 +971,7 @@ $d29->name('29');
 my $r = 'is_a';
 my $p = 'part_of';
 
+my $o1  = OBO::Core::Ontology->new();
 $o1->add_relationship_type_as_string($r, $r);
 $o1->add_relationship_type_as_string($p, $p);
 
@@ -1014,5 +1026,42 @@ ok ($#pref2 == 22);
 
 my @pref3 = $o1->get_paths_term_terms_same_rel($d1->id(), $stop, $p);
 ok ($#pref3 == 2); # 1_part_of_25; 1_part_of_20; 1_part_of_20 --> 20_part_of_25
+
+# modifying a term id via the ontology
+ok($o1->has_relationship_id('2_is_a_7'));
+ok($o1->has_relationship_id('7_is_a_8'));
+ok($o1->has_relationship_id('7_is_a_11'));
+ok($o1->get_number_of_relationships() == 23);
+
+ok(!$o1->has_relationship_id('2_is_a_77'));
+ok(!$o1->has_relationship_id('77_is_a_8'));
+ok(!$o1->has_relationship_id('77_is_a_11'));
+
+$d7 = $o1->set_term_id($o1->get_term_by_id('7'), '77');
+ok($d7->id() eq '77');
+
+ok($o1->has_relationship_id('2_is_a_77'));
+ok($o1->has_relationship_id('77_is_a_8'));
+ok($o1->has_relationship_id('77_is_a_11'));
+ok($o1->get_number_of_relationships() == 23);
+
+ok(!$o1->has_relationship_id('2_is_a_7'));
+ok(!$o1->has_relationship_id('7_is_a_8'));
+ok(!$o1->has_relationship_id('7_is_a_11'));
+
+# delete a term: 7
+ok($o1->has_term($d7));
+ok($o1->has_relationship_id('2_is_a_77'));
+ok($o1->has_relationship_id('77_is_a_8'));
+ok($o1->has_relationship_id('77_is_a_11'));
+ok($o1->get_number_of_relationships() == 23);
+
+$o1->delete_term($d7);
+
+ok(!$o1->has_term($d7));
+ok(!$o1->has_relationship_id('2_is_a_77'));
+ok(!$o1->has_relationship_id('77_is_a_8'));
+ok(!$o1->has_relationship_id('77_is_a_11'));
+ok($o1->get_number_of_relationships() == 20);
 
 ok (1);

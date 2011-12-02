@@ -68,7 +68,7 @@ my @license = $ExtUtils::MakeMaker::VERSION > 6.30
 WriteMakefile(
 	NAME              => 'ONTO-PERL',
 	DISTNAME          => 'ONTO-PERL',
-	ABSTRACT          => 'PERL Modules for OBO-formatted ontologies such as the Gene Ontology (GO)',
+	ABSTRACT          => 'PERL modules for manipulating OBO-formatted ontologies, such as the Gene Ontology (GO)',
 	VERSION_FROM      => 'lib/OBO/Core/Ontology.pm',
 	@license,
 	PREREQ_PM         => {

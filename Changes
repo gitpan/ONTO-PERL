@@ -102,3 +102,5 @@ Revision history for ONTO-PERL
 1.35 Term and Relationship type synonyms can be updated (based on the same synonym type name if defined). Fixed bug in Synonym.pm. Improved PODs. Dates in 'creation_date' entries are checked. Stricter module versions.
 
 1.36 Term Local Neighbourhood retrieval implemented. Now using croak's instead of die's. Renaming: CCO --> APO. Checks in OBO::Core::Ontology::export() improved. New script for LCA. Bug fix in OBO::Util::SynonymSet::equals(). Some parsers were moved and cleaned.
+
+1.37 Added missing data test file (up.dat). OBO::Core::Ontology::(delete_term()|set_term_id()) improved. Reflexive is_a relationships are now warned and skipped while parsing OBO files. SwissProtToRDF.pm added.

@@ -1,8 +1,8 @@
-# $Id: Ontolome.pm 2010-12-02 erick.antezana $
+# $Id: Ontolome.pm 2011-12-02 erick.antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
-# License : Copyright (c) 2007, 2008, 2009, 2010 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -520,7 +520,7 @@ sub transitive_closure () {
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set());         # add all synonym_type_def_set by default
 	
 	my @terms = @{$ontology->get_terms()};
-	foreach my $term (@terms){
+	foreach my $term (@terms) {
 		my $current_term =  $result->get_term_by_id($term->id());
 		if (defined $current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
 			$current_term->is_anonymous(1) if (!defined $current_term->is_anonymous() && $term->is_anonymous());
@@ -607,7 +607,7 @@ sub transitive_closure () {
 	}
 	@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
 	
-	my $stop  = OBO::Util::Set->new();
+	my $stop = OBO::Util::Set->new();
 	map {$stop->add($_->id())} @terms;
 
 	# link the common terms
@@ -621,6 +621,7 @@ sub transitive_closure () {
 			my @ref_paths = $ontology->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
 
 			foreach my $ref_path (@ref_paths) {
+				#next if !defined @$ref_path[0]; # reflexive relationships (e.g. GO:0000011_is_a_GO:0000011) are problematic... 
 				my $f = @$ref_path[0]->tail();
 				my $l = @$ref_path[$#$ref_path]->head();
 				$result->create_rel($f, $type_of_rel, $l); # add the transitive closure relationship!

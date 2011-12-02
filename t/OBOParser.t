@@ -85,7 +85,7 @@ ok($mini_onto->get_number_of_instances() == 1); # will be 2 ('APO:erick' && 'APO
 
 # export to OBO
 open (FH, '>./t/data/test0.obo') || die 'Run as root the tests: ', $!;
-$mini_onto->export('obo', \*FH);
+$mini_onto->export('obo', \*FH, \*STDERR);
 close FH;
 my $ontology = $my_parser->work('./t/data/fake_ulo_apo.obo');
 

@@ -1,7 +1,7 @@
 ONTO-PERL suite
 ===============
 
-'ONTO-PERL' a collection of PERL modules for dealing with OBO-formatted
+ONTO-PERL a collection of PERL modules for dealing with OBO-formatted
 ontologies (like the Gene Ontology). This code distribution gathers 
 object-oriented modules (for dealing with ontology elements such as 
 Term, Relationship and so forth), scripts (for typical tasks such as 

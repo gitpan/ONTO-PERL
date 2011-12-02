@@ -1,4 +1,4 @@
-# $Id: TermSet.pm 2010-09-29 erick.antezana $
+# $Id: TermSet.pm 2011-09-29 erick.antezana $
 #
 # Module  : TermSet.pm
 # Purpose : Term set.
@@ -53,8 +53,6 @@ sub contains_name {
 	}
 	return $result;
 }
-
-# TODO Check is equals() need be implemented
 
 1;
 

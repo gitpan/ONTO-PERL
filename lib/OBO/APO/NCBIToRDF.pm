@@ -14,8 +14,7 @@ The method 'work' gets the nodes file, the names file, and file handler for the 
 
 =head1 AUTHOR
 
-Mikel Egana Aranguren
-mikel.egana.aranguren@gmail.com
+Mikel Egana Aranguren, mikel.egana.aranguren@gmail.com
 
 =head1 COPYRIGHT AND LICENSE
 

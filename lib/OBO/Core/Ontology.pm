@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2011-12-05 erick.antezana $
+# $Id: Ontology.pm 2011-12-25 erick.antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -21,7 +21,7 @@ use Carp;
 use strict;
 use warnings;
 
-our $VERSION = '1.36';
+our $VERSION = '1.37';
 
 sub new {
 	my $class  = shift;
@@ -45,7 +45,7 @@ sub new {
 	$self->{RELATIONSHIP_TYPES}        = {}; # map: relationship_type_id(string) vs. relationship_type(OBO::Core::RelationshipType) (0..N)
 	$self->{RELATIONSHIPS}             = {}; # (0..N)
 	
-	#$self->{TERMS_SET}                 = OBO::Util::TermSet->new();          # Terms (0..n) # TODO enable the terms_set
+	$self->{TERMS_SET}                 = OBO::Util::TermSet->new();      # Terms (0..n) # TODO Test this more deeply
 	#$self->{INSTANCES_SET}             = OBO::Util::TermSet->new();          # Instances (0..n) # TODO enable the instances_set
 	#$self->{RELATIONSHIP_SET}          = OBO::Util::RelationshipSet->new();  # TODO Implement RELATIONSHIP_SET
 		
@@ -274,7 +274,7 @@ sub add_term {
 		my $term_id = $term->id();
 		if ($term_id) {
 			$self->{TERMS}->{$term_id} = $term;
-			#$self->{TERMS_SET}->add($term);
+			$self->{TERMS_SET}->add($term);
 			return $term;
 		} else {
 			croak 'A term to be added to this ontology must have an ID.';
@@ -426,6 +426,8 @@ sub add_relationship_type_as_string {
   Returns  - none
   Args     - the term (OBO::Core::Term) to be deleted
   Function - deletes a term from this ontology
+  Remark   - the resulting ontology might be segmented, i.e., the deleted node might create an unconnected sub-ontology
+  Remark   - the term (OBO::Core::Term) still exits after removing it from this ontology
   
 =cut
 
@@ -437,9 +439,15 @@ sub delete_term {
 		my $id = $term->id();
 		if (defined($id) && defined($self->{TERMS}->{$id})) {
 			delete $self->{TERMS}->{$id};
-			#$self->{TERMS_SET}->remove($term);
+			$self->{TERMS_SET}->remove($term);
+			
+			# Delete the relationships: to its parents and children!
+			my @outward = @{$self->get_relationships_by_source_term($term)};
+			my @inward  = @{$self->get_relationships_by_target_term($term)};
+			foreach my $r (@outward, @inward){
+				$self->delete_relationship($r);
+			}
 		}
-		# TODO Delete the relationships: to its parents and children!
     }
 }
 
@@ -449,6 +457,7 @@ sub delete_term {
   Returns  - none
   Args     - the instance (OBO::Core::Instance) to be deleted
   Function - deletes a instance from this ontology
+  Remark   - the instance (OBO::Core::Instance) still exits after removing it from this ontology
   
 =cut
 
@@ -461,8 +470,9 @@ sub delete_instance {
 		if (defined($id) && defined($self->{INSTANCES}->{$id})) {
 			delete $self->{INSTANCES}->{$id};
 			#$self->{INSTANCES_SET}->remove($instance);
+			
+			# TODO Delete the relationships ($self->delete_relationship()): to its parents and children!
 		}
-		# TODO Delete the relationships ($self->delete_relationship()): to its parents and children!
     }
 }
 
@@ -472,7 +482,8 @@ sub delete_instance {
   Returns  - none
   Args     - the relationship (OBO::Core::Relationship) to be deleted
   Function - deletes a relationship from this ontology
-  
+  Remark   - the relationship (OBO::Core::Relationship) still exits after removing it from this ontology
+
 =cut
 
 sub delete_relationship {
@@ -507,9 +518,8 @@ sub delete_relationship {
 
 sub has_term {
 	my ($self, $term) = @_;
-	return (defined $term && defined($self->{TERMS}->{$term->id()}));
-	# TODO Check the TERMS_SET
-	#$result = 1 if (defined($id) && defined($self->{TERMS}->{$id}) && $self->{TERMS_SET}->contains($term));
+	#return (defined $term && defined($self->{TERMS}->{$term->id()})); # TODO Is this faster than:
+	return defined $term && $self->{TERMS_SET}->contains($term);
 }
 
 =head2 has_instance
@@ -638,8 +648,8 @@ sub get_terms {
 			push @terms, $term if ($term->id() =~ /$_[0]/);
 		}
     } else {
+		#@terms = $self->{TERMS_SET}->get_set(); # TODO Is this faster than:
 		@terms = values(%{$self->{TERMS}});
-		#@terms = $self->{TERMS_SET}->get_set(); # TODO This TERMS_SET was giving wrong results....
     }
     return \@terms;
 }
@@ -937,7 +947,7 @@ sub get_instance_by_id {
 
 =head2 set_term_id
 
-  Usage    - $ontology->set_term_id($term, $new_id)
+  Usage    - $ontology->set_term_id($term, $new_term_id)
   Returns  - the term (OBO::Core::Term) with its new ID
   Args     - the term (OBO::Core::Term) and its new term's ID (string)
   Function - sets a new term ID for the given term 
@@ -949,11 +959,33 @@ sub set_term_id {
     if ($term && $new_term_id) {
     	if ($self->has_term($term)) {
     		if (!$self->has_term_id($new_term_id)) {
+				$self->{TERMS_SET}->remove($term);
 				my $old_id = $term->id();
 				$term->id($new_term_id);
 				$self->{TERMS}->{$new_term_id} = $self->{TERMS}->{$old_id};
 				delete $self->{TERMS}->{$old_id};
-				# TODO Adapt the relationship ids of this term: APO:P0000001_is_a_APO:P0000002  => APO:P0000003_is_a_APO:P0000002
+				$self->{TERMS_SET}->add($term);
+				
+				# Adapt the relationship ids of this term, e.g., APO:P0000001_is_a_APO:P0000002  => APO:P0000003_is_a_APO:P0000002
+				my @outward = @{$self->get_relationships_by_source_term($term)};
+				foreach my $r (@outward){
+					$self->delete_relationship($r);
+
+					my $r_id = $r->id();
+					(my $new_r_id = $r_id) =~ s/^$old_id(_)/$new_term_id$1/;
+					$r->id($new_r_id);
+					$self->create_rel($term, $r->type(), $r->head());
+				}
+				my @inward  = @{$self->get_relationships_by_target_term($term)};
+				foreach my $r (@inward){
+					$self->delete_relationship($r);
+					
+					my $r_id = $r->id();
+					(my $new_r_id = $r_id) =~ s/(_)$old_id$/$1$new_term_id/;
+					$r->id($new_r_id);
+					$self->create_rel($r->tail(), $r->type(), $term);
+				}
+
 				return $self->{TERMS}->{$new_term_id};
     		} else {
     			croak 'The given new ID (', $new_term_id, ') is already used by: ', $self->get_term_by_id($new_term_id)->name();
@@ -1296,7 +1328,7 @@ sub get_relationship_by_id {
   
 =cut
 
-sub create_rel (){
+sub create_rel {
 	my $self = shift;
 	my($tail, $type, $head) = @_;
 	croak "Not a valid relationship type: '", $type, "'" unless($self->{RELATIONSHIP_TYPES}->{$type});
@@ -1549,7 +1581,7 @@ sub get_number_of_relationship_types {
   Returns  - exports this ontology
   Args     - the format: obo (by default), xml, owl, dot, gml, xgmml, sbml
            - the output file handle (STDOUT by default), and
-           - the error file handle (STDERR by default)
+           - the error file handle (STDERR by default, if not writable, STDOUT is used)
   Function - exports this ontology
   Remark   - warning and errors are printed to the STDERR (default file handle)
   Remark   - you may use this method to check your OBO file syntax and/or to clean it up
@@ -1565,10 +1597,9 @@ sub get_number_of_relationship_types {
 =cut
 
 sub export {
-	my $self               = shift;
-	my $format             = lc(shift) || 'obo';
-	my $output_file_handle = shift     || \*STDOUT;
-	my $error_file_handle  = shift     || \*STDERR;
+	
+	my $self   = shift;
+	my $format = lc(shift) || 'obo';
     
 	my $possible_formats = OBO::Util::Set->new();
 	$possible_formats->add_all('obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3');
@@ -1576,11 +1607,22 @@ sub export {
 		croak "The export format must be one of the following: 'obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml', 'vis', 'vis2', 'vis3'";
 	}
 	
+	my $stdout_fh          = \*STDOUT;
+	my $stderr_fh          = \*STDERR;
+	my $output_file_handle = shift || $stdout_fh;
+	my $error_file_handle  = shift || $stderr_fh;
+	
     # check the file_handle's
 	if (!-w $output_file_handle) {
 		croak "export: you must provide a valid output handle, e.g. export($format, \\*STDOUT)";
-	} elsif (!-w $error_file_handle) {
+	} elsif (!-e $error_file_handle) {
 		croak "export: you must provide a valid error handle, e.g. export($format, \\*STDOUT, \\*STDERR)";
+	}
+	
+	if (($error_file_handle eq $stderr_fh) && (!-w $error_file_handle)) {
+		$error_file_handle = $output_file_handle;
+		# TODO A few CPAN test platforms (e.g. solaris) don't have this handle open for testing 
+		#warn  "export: the STDERR is not writable!";
 	}
 
 	if ($format eq 'obo') {
@@ -1593,10 +1635,12 @@ sub export {
 		print $output_file_handle "format-version: 1.4\n";
 		my $data_version = $self->data_version();
 		print $output_file_handle 'data-version:', $data_version, "\n" if ($data_version);
+		
 		my $ontology_id_space = $self->id();
 		print $output_file_handle 'ontology:', $ontology_id_space, "\n" if ($ontology_id_space);
 		chomp(my $local_date = __date()); # `date '+%d:%m:%Y %H:%M'` # date: 11:05:2008 12:52
 		print $output_file_handle 'date: ', (defined $self->date())?$self->date():$local_date, "\n";
+		
 		my $saved_by = $self->saved_by();
 		print $output_file_handle 'saved-by: ', $saved_by, "\n" if (defined $saved_by);
 		print $output_file_handle "auto-generated-by: ONTO-PERL $VERSION\n";
@@ -2500,7 +2544,7 @@ sub export {
 				my $tr_head_id = $tr_head->id();
 				$tr_head_id =~ tr/:/_/;
 
-				my $intersection_of_txt  = "";
+				my $intersection_of_txt  = '';
 				$intersection_of_txt    .= $tr_type.' ' if ($tr_type ne 'nil');
 				$intersection_of_txt    .= $tr_head_id;
 				print $output_file_handle "\t\t<",$ns,":intersection_of rdf:resource=\"#", $intersection_of_txt, "\"/>\n";
@@ -4765,12 +4809,13 @@ sub get_paths_term1_term2 () {
 	my @ruta;
 	my @result;
 	
+	my $target_source_rels = $self->{TARGET_SOURCE_RELATIONSHIPS};
 	while ($#nei > -1) {
 		my @back;
-		my $n          = pop @nei; # neighbors
+		my $n          = pop @nei; # neighbours
 		my $n_id       = $n->id();
 
-		next if (!defined $p_id);  # investigate cases where $p_id might not be defined
+		next if (!defined $p_id);  # TODO investigate cases where $p_id might not be defined
 		my $p          = $self->get_term_by_id($p_id);
 		 
 		my @ps         = @{$self->get_parent_terms($n)};
@@ -4781,7 +4826,7 @@ sub get_paths_term1_term2 () {
 		push @bk, $n_id;
 		
 		# add the (candidate) relationship
-		push @ruta, values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$p}->{$n}});
+		push @ruta, values(%{$target_source_rels->{$p}->{$n}});
 
 		if ($bstop eq $n_id) {
 			#warn "\nSTOP FOUND : ", $n_id;			
@@ -4794,30 +4839,33 @@ sub get_paths_term1_term2 () {
 		
 		if ($#ps == -1) { # leaf
 			my $sou = $p_id;		
-			$p_id = pop @bk;
+			$p_id   = pop @bk;
 			pop @ruta;
 			
 			#push @back, $p_id; # hold the un-stacked ones
 
-			# NOTE: The following 3 lines of code are misteriously not used...
+			# NOTE: The following 3 lines of code are misteriously not used anymore...
 			# banned relationship
 			#my $source = $self->get_term_by_id($sou);
 			#my $target = $self->get_term_by_id($p_id);
 			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
-			if (defined $banned{$sou} && $banned{$sou} > $hijos{$sou}){ # banned rel's from source
-				$banned{$sou} = $hijos{$sou};
+			my $hijos_sou  = $hijos{$sou};
+			my $banned_sou = $banned{$sou};
+			if (defined $banned_sou && $banned_sou > $hijos_sou){ # banned rel's from source
+				$banned{$sou} = $hijos_sou;
 			}
 			
 			$drop{$bk[$#bk]}++; # if (defined $drop{$bk[$#bk]}  && $drop{$bk[$#bk]} < $hijos{$p_id});
 			
 			my $w = $#bk;
+			my $bk_ww;
 			while ( $w > -1 
 					&& 
-					(     ($hijos{$bk[$w]} == 1 )
-					   || (defined $drop{$bk[$w]}   && $hijos{$bk[$w]} == $drop{$bk[$w]})
-					   || (defined $banned{$bk[$w]} && $banned{$bk[$w]} == $hijos{$bk[$w]})
+					(  $bk_ww = $bk[$w], ($hijos{$bk_ww} == 1 )
+					   || (defined $drop{$bk_ww}   && $hijos{$bk_ww}  == $drop{$bk_ww})
+					   || (defined $banned{$bk_ww} && $banned{$bk_ww} == $hijos{$bk_ww})
 					)
 			      ) {
 				$p_id = pop @bk;
@@ -4827,12 +4875,14 @@ sub get_paths_term1_term2 () {
 				$banned{$p_id}++ if ($banned{$p_id} < $hijos{$p_id}); # more banned rel's
 				
 				$w--;
-				if ($w > -1 ) {
+				if ($w > -1) {
 					my $bk_w = $bk[$w];
-				
+
 					$banned{$bk_w}++;
-					if (defined $banned{$bk_w} && $banned{$bk_w} > $hijos{$bk_w}) {
-						$banned{$bk_w} = $hijos{$bk_w};
+					my $hijos_bk_w  = $hijos{$bk_w};
+					my $banned_bk_w = $banned{$bk_w};
+					if (defined $banned_bk_w && $banned_bk_w > $hijos_bk_w) {
+						$banned{$bk_w} = $hijos_bk_w;
 					}				
 				}
 				
@@ -4877,13 +4927,14 @@ sub get_paths_term_terms () {
 	my @ruta;
 	my @result;
 	
+	my $target_source_rels = $self->{TARGET_SOURCE_RELATIONSHIPS};
 	while ($#nei > -1) {
 		my @back;	
 
-		my $n          = pop @nei; # neighbors
+		my $n          = pop @nei; # neighbours
 		my $n_id       = $n->id();
 
-		next if (!defined $p_id);  # investigate cases where $p_id might not be defined
+		next if (!defined $p_id);  # TODO investigate cases where $p_id might not be defined
 		my $p          = $self->get_term_by_id($p_id);
 		 
 		my @ps         = @{$self->get_parent_terms($n)};
@@ -4894,7 +4945,7 @@ sub get_paths_term_terms () {
 		push @bk, $n_id;
 		
 		# add the (candidate) relationship
-		push @ruta, values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$p}->{$n}});
+		push @ruta, values(%{$target_source_rels->{$p}->{$n}});
 		
 		if ($bstop->contains($n_id)) {
 			#warn "\nSTOP FOUND : ", $n_id;			
@@ -4919,18 +4970,21 @@ sub get_paths_term_terms () {
 			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
-			if (defined $banned{$sou} && $banned{$sou} > $hijos{$sou}){ # banned rel's from source
-				$banned{$sou} = $hijos{$sou};
+			my $hijos_sou  = $hijos{$sou};
+			my $banned_sou = $banned{$sou};
+			if (defined $banned_sou && $banned_sou > $hijos_sou){ # banned rel's from source
+				$banned{$sou} = $hijos_sou;
 			}
 			
 			$drop{$bk[$#bk]}++; # if (defined $drop{$bk[$#bk]}  && $drop{$bk[$#bk]} < $hijos{$p_id});
 			
 			my $w = $#bk;
+			my $bk_ww;
 			while ( $w > -1 
 					&& 
-					(     ($hijos{$bk[$w]} == 1 )
-					   || (defined $drop{$bk[$w]}   && $hijos{$bk[$w]} == $drop{$bk[$w]})
-					   || (defined $banned{$bk[$w]} && $banned{$bk[$w]} == $hijos{$bk[$w]})
+					(  $bk_ww = $bk[$w], ($hijos{$bk_ww} == 1 )
+					   || (defined $drop{$bk_ww}   && $hijos{$bk_ww}  == $drop{$bk_ww})
+					   || (defined $banned{$bk_ww} && $banned{$bk_ww} == $hijos{$bk_ww})
 					)
 			      ) {
 				$p_id = pop @bk;
@@ -4940,12 +4994,14 @@ sub get_paths_term_terms () {
 				$banned{$p_id}++ if ($banned{$p_id} < $hijos{$p_id}); # more banned rel's
 				
 				$w--;
-				if ($w > -1 ) {
+				if ($w > -1) {
 					my $bk_w = $bk[$w];
 				
 					$banned{$bk_w}++;
-					if (defined $banned{$bk_w} && $banned{$bk_w} > $hijos{$bk_w}) {
-						$banned{$bk_w} = $hijos{$bk_w};
+					my $hijos_bk_w  = $hijos{$bk_w};
+					my $banned_bk_w = $banned{$bk_w};
+					if (defined $banned_bk_w && $banned_bk_w > $hijos_bk_w) {
+						$banned{$bk_w} = $hijos_bk_w;
 					}				
 				}
 				
@@ -4977,6 +5033,8 @@ sub get_paths_term_terms () {
 sub get_paths_term_terms_same_rel () {
 	my ($self, $v, $bstop, $rel) = @_;
 	
+	# TODO Check the case where there are relflexive relationships (e.g. GO:0000011_is_a_GO:0000011)
+	
 	my $r_type = $self->get_relationship_type_by_id($rel);
 	my @nei    = @{$self->get_head_by_relationship_type($self->get_term_by_id($v), $r_type)};
 	
@@ -4991,14 +5049,15 @@ sub get_paths_term_terms_same_rel () {
 	my @ruta;
 	my @result;
 	
+	my $target_source_rels = $self->{TARGET_SOURCE_RELATIONSHIPS};
 	while ($#nei > -1) {
 		
 		my @back;
 
-		my $n          = pop @nei; # neighbors
+		my $n          = pop @nei; # neighbours
 		my $n_id       = $n->id();
 
-		next if (!defined $p_id);  # investigate cases where $p_id might not be defined
+		next if (!defined $p_id);  # TODO investigate cases where $p_id might not be defined
 		my $p          = $self->get_term_by_id($p_id);
 
 		my @ps         = @{$self->get_head_by_relationship_type($n, $r_type)};
@@ -5010,7 +5069,7 @@ sub get_paths_term_terms_same_rel () {
 		push @bk, $n_id;
 		
 		# add the (candidate) relationship
-		push @ruta, values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$p}->{$n}});
+		push @ruta, values(%{$target_source_rels->{$p}->{$n}});
 		
 		if ($bstop->contains($n_id)) {
 			#warn "\nSTOP FOUND : ", $n_id;			
@@ -5035,33 +5094,38 @@ sub get_paths_term_terms_same_rel () {
 			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
-			if (defined $banned{$sou} && $banned{$sou} > $hijos{$sou}){ # banned rel's from source
-				$banned{$sou} = $hijos{$sou};
+			my $hijos_sou  = $hijos{$sou};
+			my $banned_sou = $banned{$sou};
+			if (defined $banned_sou && $banned_sou > $hijos_sou){ # banned rel's from source
+				$banned{$sou} = $hijos_sou;
 			}
 			
 			$drop{$bk[$#bk]}++; # if (defined $drop{$bk[$#bk]} && $drop{$bk[$#bk]} < $hijos{$p_id});
 			
 			my $w = $#bk;
+			my $bk_ww;
 			while ( $w > -1 
 					&& 
-					(     ( $hijos{$bk[$w]} == 1 )
-					   || ( defined $drop{$bk[$w]}   && $hijos{$bk[$w]}  == $drop{$bk[$w]} )
-					   || ( defined $banned{$bk[$w]} && $banned{$bk[$w]} == $hijos{$bk[$w]} )
+					(  $bk_ww = $bk[$w], ($hijos{$bk_ww} == 1 )
+					   || (defined $drop{$bk_ww}   && $hijos{$bk_ww}  == $drop{$bk_ww})
+					   || (defined $banned{$bk_ww} && $banned{$bk_ww} == $hijos{$bk_ww})
 					)
 			      ) {
 				$p_id = pop @bk;
 				push @back, $p_id; # hold the un-stacked ones
-				
+
 				pop @ruta;
 				$banned{$p_id}++ if ($banned{$p_id} < $hijos{$p_id}); # more banned rel's
-				
+
 				$w--;
-				if ($w > -1 ) {
+				if ($w > -1) {
 					my $bk_w = $bk[$w];
-				
+
 					$banned{$bk_w}++;
-					if (defined $banned{$bk_w} && $banned{$bk_w} > $hijos{$bk_w}) {
-						$banned{$bk_w} = $hijos{$bk_w};
+					my $hijos_bk_w  = $hijos{$bk_w};
+					my $banned_bk_w = $banned{$bk_w};
+					if (defined $banned_bk_w && $banned_bk_w > $hijos_bk_w) {
+						$banned{$bk_w} = $hijos_bk_w;
 					}
 				}
 			}

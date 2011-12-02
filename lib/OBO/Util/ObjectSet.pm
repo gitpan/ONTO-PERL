@@ -83,8 +83,12 @@ sub remove {
 
 sub contains {
 	my ($self, $target) = @_;
-	my $id = $target->id();
-	return (defined $id && defined $self->{MAP}->{$id})?1:0;
+	if (defined $target) {
+		my $id = $target->id();
+		return (defined $id && defined $self->{MAP}->{$id})?1:0;
+	} else {
+		return 0;
+	}
 }
 
 =head2 equals

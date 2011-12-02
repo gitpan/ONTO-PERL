@@ -322,9 +322,14 @@ sub work {
 						$term->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unknown:\s*(.*)/) {
 						$term->xref_set_as_string($1);
-					} elsif ($line =~ /^is_a:$r_db_acc$r_comments/) { # The comment is ignored here but retrieved later internally
+					} elsif ($line =~ /^is_a:$r_db_acc$r_comments/) { # The comment is ignored here but generated later internally
+						my $t_id = $term->id();
+						if ($t_id eq $1) {
+							warn "The term '", $t_id, "' has a reflexive is_a relationship, which was ignored!";
+							next;
+						}
 						my $rel = OBO::Core::Relationship->new();
-						$rel->id($term->id().'_is_a_'.$1);
+						$rel->id($t_id.'_is_a_'.$1);
 						$rel->type('is_a');
 						my $target = $result->get_term_by_id($1); # Is this term already in the ontology?
 						if (!defined $target) {
@@ -454,7 +459,7 @@ sub work {
 						$type->namespace($1); # it is a Set
 					} elsif ($line =~ /^alt_id:\s*([:\w]+)/) {
 						$type->alt_id($1);
-					} elsif ($line =~ /^def:\s*\"(.*)\"$r_dbxref/) { # fill the definition
+					} elsif ($line =~ /^def:\s*\"(.*)\"$r_dbxref/) { # fill in the definition
 						my $def = OBO::Core::Def->new();
 						$def->text($1);
 						$def->dbxref_set_as_string($2);
@@ -482,10 +487,15 @@ sub work {
 						$type->is_symmetric(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^is_transitive:$r_true_false/) {
 						$type->is_transitive(($1 eq 'true')?1:0);
-					} elsif ($line =~ /^is_a:\s*([:\w]+)$r_comments/) { # intrinsic or not??? # The comment is ignored here but retrieved (and sometimes fixed) later internally
-						my $r = $1;
+					} elsif ($line =~ /^is_a:\s*([:\w]+)$r_comments/) { # intrinsic or not??? # The comment is ignored here but generated (and sometimes fixed) later internally
+						my $r    = $1;
+						my $r_id = $type->id();
+						if ($r_id eq $r) {
+							warn "The term '", $r_id, "' has a reflexive is_a relationship, which was ignored!";
+							next;
+						}
 						my $rel = OBO::Core::Relationship->new();
-						$rel->id($type->id().'_is_a_'.$r);
+						$rel->id($r_id.'_is_a_'.$r);
 						$rel->type('is_a');
 						my $target = $result->get_relationship_type_by_id($r); # Is this relationship type already in the ontology?
 						if (!defined $target) {
@@ -668,7 +678,7 @@ sub work {
 					} elsif ($line =~ /^alt_id:$r_db_acc/) {
 						# TODO do INSTANCES have this tag?
 						$instance->alt_id($1);
-					} elsif ($line =~ /^def:\s*\"(.*)\"$r_dbxref/) { # fill the definition
+					} elsif ($line =~ /^def:\s*\"(.*)\"$r_dbxref/) { # fill in the definition
 						my $def = OBO::Core::Def->new();
 						$def->text($1);
 						$def->dbxref_set_as_string($2);

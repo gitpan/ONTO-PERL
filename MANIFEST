@@ -12,6 +12,7 @@ lib/OBO/APO/GoaAssociation.pm
 lib/OBO/APO/GoaAssociationSet.pm
 lib/OBO/APO/GoaToRDF.pm
 lib/OBO/APO/NCBIToRDF.pm
+lib/OBO/APO/SwissProtToRDF.pm
 lib/OBO/Core/Dbxref.pm
 lib/OBO/Core/Def.pm
 lib/OBO/Core/IDspace.pm
@@ -115,6 +116,7 @@ t/data/out_I_A_thaliana.obo
 t/data/pre_apo.obo
 t/data/test_ulo_apo2.owl
 t/data/ulo_apo.obo
+t/data/up.dat
 t/data/up.map
 t/APO_ID_Set.t
 t/APO_ID_Term_Map.t

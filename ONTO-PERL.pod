@@ -12,7 +12,7 @@ ONTO-PERL           - PERL modules for OBO-formatted ontologies
 
 =head1 DESCRIPTION
 
-'ONTO-PERL' a collection of PERL modules for dealing with OBO-formatted 
+ONTO-PERL a collection of PERL modules for dealing with OBO-formatted 
 ontologies (like the Gene Ontology). This code distribution gathers 
 object-oriented modules (to handle ontology elements such as a Term, 
 a Relationship, a Synonym, and so forth), scripts (for typical tasks 
@@ -35,7 +35,7 @@ See also:
   2. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
      http://bitbucket.org/easr/onto-toolkit
 
-Files in 'ONTO-PERL':
+Files in ONTO-PERL:
 
   README                        Readme file
 
@@ -45,12 +45,12 @@ Files in 'ONTO-PERL':
 
   ONTO-PERL-x.y.tar.gz          ONTO-PERL API: version x.y
 
-  Changes                       Description about the changes in 'ONTO-PERL'
+  Changes                       Description about the changes in ONTO-PERL
 
 
 Remark:
 
-  'ONTO-PERL' is provided "as-is". The current version is stable; 
+  ONTO-PERL is provided "as-is". The current version is stable; 
   nonetheless, improvements are expected as well as feedback is 
   very welcome. Please visit constantly this repository for checking 
   up-to-date versions of this distribution.

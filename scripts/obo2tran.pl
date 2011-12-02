@@ -28,7 +28,7 @@ my $ome       = OBO::Util::Ontolome->new();
 my $go_transitive_closure = $ome->transitive_closure($ontology);
 
 my $url = shift || "http://www.mydomain.com/ontology/rdf/";
-$go_transitive_closure->export('rdf', \*STDOUT, $url, 1, 2);
+$go_transitive_closure->export('rdf', \*STDOUT, \*STDERR, $url, 1, 2);
 
 exit 0;
 
