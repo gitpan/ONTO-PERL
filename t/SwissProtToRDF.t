@@ -1,10 +1,9 @@
 # Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl GoaToRDF.t'
+# `make test'. After `make install' it should work as `perl SwissProtToRDF.t'
 
 #########################
 
 BEGIN {
-	unshift @INC, '/norstore/user/mironov/workspace/onto-perl/ONTO-PERL-1.37/lib';
 	eval { require Test; };
 	use Test;    
 	plan tests => 2;
@@ -15,12 +14,12 @@ use Carp;
 use strict;
 use warnings;
 
-use OBO::APO::GoaToRDF;
+use OBO::APO::SwissProtToRDF;
 
-my $goa2rdf = OBO::APO::GoaToRDF->new();
+my $goa2rdf = OBO::APO::SwissProtToRDF->new();
 ok(1);
-my $file = './t/data/goa_assoc_filt.txt';
-open (FH, '>./t/data/test_goa.rdf') || die $!;
+my $file = './t/data/up.dat';
+open (FH, '>./t/data/test_uo.rdf') || die $!;
 
 my $file_handle = \*FH;
 my $base        = 'http://www.semantic-systems-biology.org/';

@@ -11,8 +11,10 @@ use Carp;
 use strict;
 use warnings;
 
+use IO::File;
+
 $Carp::Verbose = 1;
-my $print_obo = 0;
+my $print_obo  = 1;
 
 SKIP:
 {	
@@ -67,15 +69,15 @@ SKIP:
 	my @heads_to = @{$onto->get_head_by_relationship_type ( $mod_prot1, $onto->get_relationship_type_by_id ( "transformation_of" ) )};
 #	ok ( @heads_to == 1 ); # "transformation_of" currently not used
 
-	print_obo ( $onto, "$data_dir/uniprot_parser_test_out.obo" ) if $print_obo;
+	print_obo ( $onto, "$data_dir/test_uniprot_parser_out.obo" ) if $print_obo;
 }
 
 sub print_obo {
-	my ($onto, $path) = @_;
-	open( FH, ">$path" ) || croak "Error  exporting: $path", $!;
-	$onto->export( 'obo', \*FH );
-	select( ( select(FH), $| = 1 )[0] );
-	close FH;
+	my ($onto, $path) = @_;	
+	my $fh = new IO::File($path, 'w');
+	$onto->export('obo', $fh);
+	$fh->flush;
+	$fh->close;
 }
 
 sub read_map {

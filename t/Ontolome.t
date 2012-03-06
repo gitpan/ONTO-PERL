@@ -568,7 +568,7 @@ ok($go_go->get_number_of_relationships() >= 16);
 #
 # transitive closure test
 #
-open (FH, ">./t/data/go.obo") || die "Run as root the tests: ", $!;
+open (FH, ">./t/data/test_go.obo") || die "Run as root the tests: ", $!;
 $go->export('obo', \*FH);
 close FH;
 
@@ -626,7 +626,7 @@ ok($go_transitive_closure->has_relationship_id('56_is_a_10'));
 
 ok($go_transitive_closure->get_number_of_relationships() == 23);
 
-open (TC, ">./t/data/go_transitive_closure.obo") || die "Run as root the tests: ", $!;
+open (TC, ">./t/data/test_go_transitive_closure.obo") || die "Run as root the tests: ", $!;
 $go_transitive_closure->export('obo', \*TC);
 close TC;
 
@@ -683,7 +683,7 @@ ok(!$go_transitive_reduction->has_relationship_id('56_is_a_10'));
 
 ok($go_transitive_reduction->get_number_of_relationships() == 15);
 
-open (TR, ">./t/data/go_transitive_reduction.obo") || die "Run as root the tests: ", $!;
+open (TR, ">./t/data/test_go_transitive_reduction.obo") || die "Run as root the tests: ", $!;
 $go_transitive_reduction->export('obo', \*TR);
 close TR;
 

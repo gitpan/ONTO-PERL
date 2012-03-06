@@ -31,12 +31,17 @@ cpan> install OBO::Core::Ontology
 Manually
 ========
 
-By typing the following:
+By typing the following mantra:
 
 	perl Makefile.PL
 	make
 	make test
 	sudo make install
+
+Other useful commands:
+
+	make clean	
+	make distcheck
 	
 Documentation
 =============
@@ -54,7 +59,8 @@ See also:
      Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
   2. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
-     http://bitbucket.org/easr/onto-toolkit
+     Antezana E, Venkatesan A, Mungall C, Mironov V, Kuiper M.
+     BMC Bioinformatics 2010, 11(Suppl 12):S8 doi:10.1186/1471-2105-11-S12-S8
      
 Citing ONTO-PERL
 ================

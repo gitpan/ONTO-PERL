@@ -9,7 +9,7 @@
 #           Remark 3 - the default namespace is taken from the last ontology argument
 #           Remark 4 - the merging order is important while merging definitions: the one from the last ontology will be taken
 # Usage   : obo_union.pl my_first_ontology.obo my_second_ontology.obo > union.obo
-# License : Copyright (C) 2006-2011 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -33,7 +33,7 @@ foreach my $input_file (@ARGV) {
 
 my $my_ontolome = OBO::Util::Ontolome->new();
 my $union       = $my_ontolome->union(@ontologies);
-$union->export('obo');
+$union->export('obo', \*STDOUT);
 
 exit 0;
 
@@ -58,7 +58,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (c) 2006-2012 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

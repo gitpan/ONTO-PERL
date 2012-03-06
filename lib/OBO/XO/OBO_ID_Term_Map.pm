@@ -2,7 +2,7 @@
 #
 # Module  : OBO_ID_Term_Map.pm
 # Purpose : A (birectional) map OBO_ID vs Term name.
-# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -102,7 +102,7 @@ sub put {
 
 =head2 get_new_id
 
-  Usage    - $map->get_new_id("GO", "cell cycle")
+  Usage    - $map->get_new_id('GO', 'cell cycle')
   Returns  - a new OBO ID (string)
   Args     - idspace (string), term (string)
   Function - get a new OBO ID and insert it (put) into this map
@@ -391,7 +391,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (c) 2006-2012 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

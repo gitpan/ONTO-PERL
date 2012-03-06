@@ -2,7 +2,7 @@
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files
-# License : Copyright (c) 2006-2011. All rights reserved.
+# License : Copyright (c) 2006-2012. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 # Contact : erick.antezana@gmail.com
@@ -254,7 +254,7 @@ Vladimir Mironov E<lt>vladimir.n.mironov@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Vladimir Mironov
+Copyright (C) 2006-2012 by Vladimir Mironov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

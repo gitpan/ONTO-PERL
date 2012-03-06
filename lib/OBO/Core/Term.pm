@@ -2,7 +2,7 @@
 #
 # Module  : Term.pm
 # Purpose : Term of an Ontology.
-# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -182,7 +182,10 @@ sub def_as_string {
 		$def->text($_[1]);
 		my $dbxref_set = OBO::Util::DbxrefSet->new(); 
 		
-		__dbxref($dbxref_set, $dbxref_as_string);
+		my ($e, $entry) = __dbxref($dbxref_set, $dbxref_as_string);
+		if ($e == -1) {
+			croak "ERROR: Check the 'dbxref' field of '", $entry, "' (term ID = ", $_[0]->id(), ")." ;
+		}
 		
 		$def->dbxref_set($dbxref_set);
 	}
@@ -387,7 +390,10 @@ sub xref_set_as_string {
 	if ($xref_as_string) {
 		my $xref_set = $_[0]->{XREF_SET};
 		
-		__dbxref($xref_set, $xref_as_string);
+		my ($e, $entry) = __dbxref($xref_set, $xref_as_string);
+		if ($e == -1) {
+			croak "ERROR: Check the 'dbxref' field of '", $entry, "' (term ID = ", $_[0]->id(), ")." ;
+		}
 
 		$_[0]->{XREF_SET} = $xref_set; # We are overwriting the existing set; otherwise, add the new elements to the existing set!
 	}
@@ -663,7 +669,7 @@ sub __dbxref () {
 			$desc  = __unescape($3) if ($3);
 			$mod   = __unescape($4) if ($4);
 		} else {
-			croak "ERROR: Check the 'dbxref' field of '", $entry, "'.";
+			return (-1, $entry);
 		}
 		
 		# set the dbxref:
@@ -672,6 +678,7 @@ sub __dbxref () {
 		$dbxref->modifier($mod) if (defined $mod);
 		$dbxref_set->add($dbxref);
 	}
+	return 1;
 }
 
 sub __unescape {
@@ -905,7 +912,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (c) 2006-2012 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

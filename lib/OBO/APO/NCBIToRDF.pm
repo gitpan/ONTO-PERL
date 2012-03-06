@@ -14,7 +14,8 @@ The method 'work' gets the nodes file, the names file, and file handler for the 
 
 =head1 AUTHOR
 
-Mikel Egana Aranguren, mikel.egana.aranguren@gmail.com
+Mikel Egana Aranguren
+mikel.egana.aranguren@gmail.com
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -46,42 +47,55 @@ sub new {
   Function - Converts NCBI nodes and NCBI names to an RDF graph.
   
 =cut
+#vlmir
+# Argumenents
+# 1. Full path to the names.dmp file
+# 2. Full path to the nodes.dmp file
+# 3. File handle for writing RDF
+# 4. base URI (e.g. 'http://www.semantic-systems-biology.org/')
+# 5. name space (e.g. 'SSB')
+#vlmir
 
 sub work {
+
+	
 	my $self = shift;
 
+# 	TODO: have a thorough look into: ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump_readme.txt
+
 	# Get the arguments
-	my ($NCBInodesFileName,$NCBInamesFileName,$file_handle) = @_;
-	
+	# my ($NCBInodesFileName,$NCBInamesFileName,$file_handle ) = @_;
+	my ($NCBInamesFileName,$NCBInodesFileName, $file_handle, $base, $namespace ) = @_; #vlmir
+
 	# For the ID
 # 	$path_to_assoc_file =~ /.*\/(.*)/; # get what is after the slash in the path...
 # 	my $f_name = $1;
 # 	(my $prefix_id = $f_name) =~ s/\.goa//;
 # 	$prefix_id =~ s/\./_/g;
 
-	# TODO Set all the NS and URI via arguments
-	my $default_URL = "http://www.semantic-systems-biology.org/ontology/rdf/"; 
-
-	my $NS = "NCBI";
+	# TODO: set all the NS and URI via arguments
+	# my $default_URL = "http://www.semantic-systems-biology.org/"; 
+	my $default_URL = $base; #vlmir
+	my $NS = $namespace; #vlmir
 	my $ns = lc ($NS);
 	my $rdf_subnamespace = "taxon";
 	
-	my $obo_ns     = $default_URL."OBO#";
-	my $ncbi_ns    = $default_URL."NCBI#";
+	my $obo_ns     = $default_URL.$NS."#"; #$default_URL."OBO#";
+	my $ncbi_ns    = $default_URL.$NS."#"; #$default_URL."NCBI#";
 
 	# Preamble of RDF file
 	print $file_handle "<?xml version=\"1.0\"?>\n";
 	print $file_handle "<rdf:RDF\n";
 	print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
 	print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-	print $file_handle "\txmlns:".$ns."=\"".$ncbi_ns."\"\n";
-	print $file_handle "\txmlns:obo=\"".$obo_ns."\">\n";
+	print $file_handle "\txmlns:".$ns."=\"".$ncbi_ns."\">\n";
+	#print $file_handle "\txmlns:obo=\"".$obo_ns."\">\n";
 
 	my %nodes = ();
 	my %names = ();
 
 	# Open and parse names file (we want groups 1 and 2 only if group 4 is scientific name)
-	open(NCBInamesFile, $NCBInamesFileName) || die("can't open file: $!");
+	open(NCBInamesFile, $NCBInamesFileName) || croak("can't open file: $!");
 	my @mynamelines = <NCBInamesFile>;
 	foreach my $theline (@mynamelines){
 		if ($theline =~ /(.+)\|(.+)\|(.+)\|(.+)\|/){
@@ -99,21 +113,25 @@ sub work {
 	}
 	close(NCBInamesFile);
 
-	# Open and parse the nodes file (We want groups 1 and 2)
-	open(NCBInodesFile, $NCBInodesFileName) || die("can't open file: $!");
+	# Open and parse the nodes file 
+	open(NCBInodesFile, $NCBInodesFileName) || croak("can't open file: $!");
 	my @mynodelines =<NCBInodesFile>;
 	foreach my $theline (@mynodelines){
 		if ($theline =~ /(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|/){
 			my $child = $1;
 			my $parent = $2;
+			my $rank = $3;
 			$child =~ s/\s//g;
 			$parent =~ s/\s//g;
+			$rank =~ s/\s//g;
 			$nodes{$child} = $parent; 
 			print $file_handle "\t<",$ns,":".$rdf_subnamespace." rdf:about=\"#"."NCBI"."_".$child."\">\n";
 			print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($names{$child})."</rdfs:label>\n";
-			
+			print $file_handle "\t\t<".$ns.":name xml:lang=\"en\">".&char_hex_http($names{$child})."</".$ns.":name>\n";
+			print $file_handle "\t\t<".$ns.":rank>".&char_hex_http($rank)."</".$ns.":rank>\n";
+
 			unless ($child eq "1"){
-				print $file_handle "\t\t<obo:is_a rdf:resource=\"#"."NCBI"."_".$parent."\"/>\n";
+				print $file_handle "\t\t<".$ns.":is_a rdf:resource=\"#"."NCBI"."_".$parent."\"/>\n";
 			}
 
 			print $file_handle "\t</",$ns,":".$rdf_subnamespace.">\n";

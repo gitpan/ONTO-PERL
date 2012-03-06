@@ -10,10 +10,11 @@ use Test::More tests => 9;
 use Carp;
 use strict;
 use warnings;
-use Data::Dumper;
+
+use IO::File;
 
 $Carp::Verbose = 1;
-my $print_obo  = 0;
+my $print_obo  = 1;
 
 use OBO::Parser::GoaParser;
 use OBO::Parser::OBOParser;
@@ -73,14 +74,14 @@ ok ( %{$result} );
 my @heads_li = @{$onto->get_head_by_relationship_type ( $protein, $onto->get_relationship_type_by_id ('located_in') )};
 ok ( @heads_li == 4 );
 
-print_obo ( $onto, "$data_dir/goa_parser_test_out.obo" ) if $print_obo;
+print_obo ( $onto, "$data_dir/test_goa_parser_out.obo" ) if $print_obo;
 
 sub print_obo {
 	my ($onto, $path) = @_;
-	open( FH, ">$path" ) || croak "Error  exporting: $path", $!;
-	$onto->export( 'obo', \*FH );
-	select( ( select(FH), $| = 1 )[0] );
-	close FH;
+	my $fh = new IO::File($path, 'w');
+	$onto->export('obo', $fh);
+	$fh->flush;
+	$fh->close;
 }
 
 sub read_map {

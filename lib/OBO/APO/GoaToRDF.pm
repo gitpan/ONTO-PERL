@@ -1,10 +1,11 @@
-# $Id: GoaToRDF.pm 2165 2010-09-29 erick.antezana $
+# $Id: GoaToRDF.pm 2194 2008-08-07 12:46:25Z Erick Antezana $
 #
 # Module  : GoaToRDF.pm
 # Purpose : A GOA associations to RDF converter
-# License : Copyright (c) 2008 Application Ontology. All rights reserved.
+# License : Copyright (c) 2008 Cell Cycle Ontology. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
+# Contact : CCO <ccofriends@psb.ugent.be>
 #
 package OBO::APO::GoaToRDF; 
 
@@ -58,40 +59,48 @@ sub new {
   Function - converts an assoc. file to an RDF graph
   
 =cut
+#vlmir
+# Argumenents
+# 1. Full path to the GOA file
+# 2. File handle for writing RDF
+# 3. base URI (e.g. 'http://www.semantic-systems-biology.org/')
+# 4. name space (e.g. 'SSB')
+#vlmir
 
 sub work {
 	my $self = shift;
 
 	# Get the arguments
-	my ($file_handle, $path_to_assoc_file) = @_;
-	
+	# my ($file_handle, $path_to_assoc_file) = @_;
+	my ( $path_to_assoc_file, $file_handle, $base, $namespace ) = @_; #vlmir	
 	#
 	# Hard-coded evidence codes
 	#
+	#TODO the list is not complete anymore #vlmir
 	my %evidence_code_by_id = (
-	'IEA'	 => 'ECO_00000067',
-	'ND'	 => 'ECO_0000035',
-	'IDA'	 => 'ECO_0000002',
-	'IPI'	 => 'ECO_0000021',
-	'TAS'	 => 'ECO_0000033',
-	'NAS'	 => 'ECO_0000034',
-	'ISS'	 => 'ECO_0000041',
-	'IMP'	 => 'ECO_0000015',
-	'IC'	 => 'ECO_0000001',
-	'IGI'	 => 'ECO_0000011',
-	'IEP'	 => 'ECO_0000008',
-	'RCA'	 => 'ECO_0000053',
-	'IGC'	 => 'ECO_0000177',
-	'EXP'	 => 'ECO_0000006'
+		'IEA'	 => 'ECO_00000067',
+		'ND'	 => 'ECO_0000035',
+		'IDA'	 => 'ECO_0000002',
+		'IPI'	 => 'ECO_0000021',
+		'TAS'	 => 'ECO_0000033',
+		'NAS'	 => 'ECO_0000034',
+		'ISS'	 => 'ECO_0000041',
+		'IMP'	 => 'ECO_0000015',
+		'IC'	 => 'ECO_0000001',
+		'IGI'	 => 'ECO_0000011',
+		'IEP'	 => 'ECO_0000008',
+		'RCA'	 => 'ECO_0000053',
+		'IGC'	 => 'ECO_0000177',
+		'EXP'	 => 'ECO_0000006'
 	);
 	
 	#
 	# Aspects
 	#
 	my %aspect = (
-	'P'	 => 'participates_in',
-	'C'	 => 'located_in',
-	'F'	 => 'has_function'
+		'P'	 => 'participates_in',
+		'C'	 => 'located_in',
+		'F'	 => 'has_function'
 	);
 	
 	# For the ID
@@ -100,10 +109,10 @@ sub work {
 	(my $prefix_id = $f_name) =~ s/\.goa//;
 	$prefix_id =~ s/\./_/g;
 
-	# TODO set all the NS and URI via arguments
-	my $default_URL = "http://www.semantic-systems-biology.org/ontology/rdf/"; 
-
-	my $NS = "GOA";
+	# TODO: set all the NS and URI via arguments
+	# my $default_URL = "http://www.semantic-systems-biology.org/"; 
+	my $default_URL = $base; #vlmir
+	my $NS = $namespace;#vlmir
 	my $ns = lc ($NS);
 	my $rdf_subnamespace = "assoc";
 
@@ -112,66 +121,92 @@ sub work {
 	print $file_handle "<rdf:RDF\n";
 	print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
 	print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-	print $file_handle "\txmlns:".$ns."=\"".$default_URL.$NS."#\"\n"; # Change this URL according to your needs
-	my $goa_ns     = $default_URL."GOA#";
-	my $obo_ns     = $default_URL."OBO#";
-	my $uniprot_ns = $default_URL."UNIPROT#";
-	my $ncbi_ns    = $default_URL."NCBI#";
-	print $file_handle "\txmlns:obo=\"".$obo_ns."\"\n";
-	print $file_handle "\txmlns:uniprot=\"".$uniprot_ns."\"\n";
-	print $file_handle "\txmlns:ncbi=\"".$ncbi_ns."\">\n";
+	print $file_handle "\txmlns:".$ns."=\"".$default_URL.$NS."#\">\n";
 	
-	my $GoaParser = OBO::Parser::GoaParser->new;
+	my $GoaParser = OBO::Parser::GoaParser->new();
 	my $goaAssocSet = $GoaParser->parse($path_to_assoc_file);
 	
 	my %prot_duplicated; # to add only one copy of the protein
+	my $buffer;
 	
+	my $prot_space = "protein";
+	my $previous_protein = "";
 	# Chunk of RDF file	
 	foreach ($goaAssocSet->get_set()) {
-		my %assoc = %{$_};
+		my %assoc           = %{$_};
+		my $current_protein = $assoc{OBJ_ID};
+		
+		if ($previous_protein && $current_protein ne $previous_protein) { # flush the buffer
+			$buffer .=  "\t</".$ns.":".$prot_space.">\n";
+			print $file_handle $buffer;
+			$buffer = ""; # init
+		}
 		
 		#
 		# the protein: (this should come from uniprot.rdf)
 		#
-		#print $file_handle "\t<",$ns,":".$prot_space." rdf:about=\"#".$prefix_id."_".$assoc{ASSC_ID}."\">\n";
-		if (!$prot_duplicated{$assoc{OBJ_ID}}) {
-			my $prot_space = "prot";
-			print $file_handle "\t<".$ns.":".$prot_space." rdf:about=\"".$uniprot_ns.$assoc{OBJ_ID}."\">\n";
-			print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($assoc{OBJ_SYMB})."</rdfs:label>\n";
-			print $file_handle "\t\t<".$ns.":annot_src>".&char_hex_http($assoc{ANNOT_SRC})."</".$ns.":annot_src>\n";
+		my $triple_prefix_id_assoc_id = "triple_".$prefix_id."_".$assoc{ASSC_ID};
+		if (!$prot_duplicated{$current_protein}) {
+			$buffer .= "\t<".$ns.":".$prot_space." rdf:about=\"#".$current_protein."\">\n";
+			$buffer .=  "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($assoc{OBJ_SYMB})."</rdfs:label>\n";
+			$buffer .=  "\t\t<".$ns.":name xml:lang=\"en\">".&char_hex_http($assoc{OBJ_SYMB})."</".$ns.":name>\n";
+			$buffer .=  "\t\t<".$ns.":annot_src>".&char_hex_http($assoc{ANNOT_SRC})."</".$ns.":annot_src>\n";
 			my $t = $assoc{TAXON};
 			$t =~ s/taxon:/NCBI_/; # clean it
-			print $file_handle "\t\t<".$ns.":taxon>".$t."</".$ns.":taxon>\n";
-			print $file_handle "\t\t<obo:has_source rdf:resource=\"".$ncbi_ns.$t."\"/>\n";
-			print $file_handle "\t\t<".$ns.":type>".&char_hex_http($assoc{TYPE})."</".$ns.":type>\n";
-			print $file_handle "\t\t<".$ns.":description>".&char_hex_http($assoc{DESCRIPTION})."</".$ns.":description>\n";
-			print $file_handle "\t\t<".$ns.":obj_src>".&char_hex_http($assoc{OBJ_SRC})."</".$ns.":obj_src>\n";
-			print $file_handle "\t</".$ns.":".$prot_space.">\n";
-			$prot_duplicated{$assoc{OBJ_ID}} = 1;
+			$buffer .=  "\t\t<".$ns.":taxon>".$t."</".$ns.":taxon>\n";
+			$buffer .=  "\t\t<".$ns.":has_source rdf:resource=\"#".$t."\"/>\n";
+			$buffer .=  "\t\t<".$ns.":type>".&char_hex_http($assoc{TYPE})."</".$ns.":type>\n";
+			$buffer .=  "\t\t<".$ns.":description>".&char_hex_http($assoc{DESCRIPTION})."</".$ns.":description>\n";
+			$buffer .=  "\t\t<".$ns.":obj_src>".&char_hex_http($assoc{OBJ_SRC})."</".$ns.":obj_src>\n\n";
+			
+			$prot_duplicated{$current_protein} = 1;
+			$previous_protein = $current_protein; 
 		}
 		
-		my $triple_prefix_id_assoc_id = $goa_ns."triple_".$prefix_id."_".$assoc{ASSC_ID};
-		my $goa_ns_prefix_id_assoc_id = $goa_ns."GOA_".$prefix_id."_".$assoc{ASSC_ID};
+		my $goa_ns_prefix_id_assoc_id = "#GOA_".$prefix_id."_".$assoc{ASSC_ID};
 		#
 		# ASSOC:
 		#
-		print $file_handle "\t<",$ns,":".$rdf_subnamespace." rdf:about=\"".$goa_ns_prefix_id_assoc_id."\">\n";
+		print $file_handle "\t<".$ns.":".$rdf_subnamespace." rdf:about=\"".$goa_ns_prefix_id_assoc_id."\">\n";
 		print $file_handle "\t\t<".$ns.":date>".$assoc{DATE}."</".$ns.":date>\n";
 		print $file_handle "\t\t<".$ns.":refer>".&char_hex_http($assoc{REFER})."</".$ns.":refer>\n";
 		print $file_handle "\t\t<".$ns.":sup_ref>".&char_hex_http($assoc{SUP_REF})."</".$ns.":sup_ref>\n";
-		print $file_handle "\t\t<obo:has_evidence rdf:resource=\"".$obo_ns.$evidence_code_by_id{$assoc{"EVID_CODE"}}."\"/>\n";
+		print $file_handle "\t\t<".$ns.":has_evidence rdf:resource=\"#".$evidence_code_by_id{$assoc{"EVID_CODE"}}."\"/>\n";
 		print $file_handle "\t</".$ns.":".$rdf_subnamespace.">\n";
 		
 		#
-		# TRIPLE:
+		# TRIPLE (version 1):
 		#
-		print $file_handle "\t<rdf:Statement rdf:about=\"".$triple_prefix_id_assoc_id."\">\n";
-		print $file_handle "\t\t<rdf:subject rdf:resource=\"".$uniprot_ns.$assoc{OBJ_ID}."\"/>\n";
-		print $file_handle "\t\t<rdf:predicate rdf:resource=\"".$obo_ns.$aspect{$assoc{ASPECT}}."\"/>\n";
-		print $file_handle "\t\t<rdf:object rdf:resource=\"".$obo_ns.&char_hex_http($assoc{"GO_ID"})."\"/>\n\n";
-
-		print $file_handle "\t\t<goa:supported_by rdf:resource=\"".$goa_ns_prefix_id_assoc_id."\"/>\n";
-		print $file_handle "\t</rdf:Statement>\n";
+#		print $file_handle "\t<rdf:Statement rdf:about=\"".$triple_prefix_id_assoc_id."\">\n";
+#		print $file_handle "\t\t<rdf:subject rdf:resource=\"#".$assoc{OBJ_ID}."\"/>\n";
+#		print $file_handle "\t\t<rdf:predicate rdf:resource=\"#".$aspect{$assoc{ASPECT}}."\"/>\n";
+#		print $file_handle "\t\t<rdf:object rdf:resource=\"#".&char_hex_http($assoc{"GO_ID"})."\"/>\n\n";
+#
+#		print $file_handle "\t\t<".$ns.":supported_by rdf:resource=\"".$goa_ns_prefix_id_assoc_id."\"/>\n";
+#		print $file_handle "\t</rdf:Statement>\n";
+		
+		#
+		# TRIPLE (version 2):
+		#
+		print $file_handle "\t<rdf:Description rdf:about=\"#".$triple_prefix_id_assoc_id."\">\n";
+		print $file_handle "\t\t<".$ns.":supported_by rdf:resource=\"".$goa_ns_prefix_id_assoc_id."\"/>\n";
+		print $file_handle "\t</rdf:Description>\n";
+		
+		#
+		# flushing?
+		#
+		if ($current_protein eq $previous_protein) {
+			$buffer .=  "\t\t<".$ns.":".$aspect{$assoc{ASPECT}}." rdf:ID=\"".$triple_prefix_id_assoc_id."\" rdf:resource=\"#".&char_hex_http($assoc{"GO_ID"})."\"/>\n";
+		}
+		$previous_protein = $current_protein;
+	}
+	
+	#
+	# LAST FLUSH
+	#
+	if ($previous_protein) {
+		$buffer .=  "\t</".$ns.":".$prot_space.">\n";
+		print $file_handle $buffer;
 	}
 
 	print $file_handle "</rdf:RDF>\n\n";

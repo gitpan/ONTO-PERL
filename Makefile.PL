@@ -1,8 +1,6 @@
-# $Id: Makefile.PL 1896 2011-06-06 14:49:23Z erick.antezana $
+# $Id: Makefile.PL 2012-03-05 14:49:23Z erick.antezana $
 use 5.006;
-use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+use ExtUtils::MakeMaker 6.56;
 
 $p = 'Date::Manip';
 if (!eval "require $p") {
@@ -60,7 +58,7 @@ MSG
       
 }
 
-my @license = $ExtUtils::MakeMaker::VERSION > 6.30
+my @license = $ExtUtils::MakeMaker::VERSION > 6.56
 ? qw(LICENSE perl)
 : ();
 
@@ -70,6 +68,7 @@ WriteMakefile(
 	DISTNAME          => 'ONTO-PERL',
 	ABSTRACT          => 'PERL modules for manipulating OBO-formatted ontologies, such as the Gene Ontology (GO)',
 	VERSION_FROM      => 'lib/OBO/Core/Ontology.pm',
+	MIN_PERL_VERSION  => '5',
 	@license,
 	PREREQ_PM         => {
 						'Date::Manip'   => 6.24,
@@ -123,18 +122,7 @@ WriteMakefile(
 					'DIST_DEFAULT' => 'all tardist',
 					'COMPRESS'     => 'gzip -9f' 
 				},
-	clean      => {FILES => "t/data/human.2.map
-							t/data/add_goa_assocs.out
-							t/data/goa.rdf
-							t/data/goa_parser_test_out.obo
-							t/data/go.obo
-							t/data/go_transitive_closure.obo
-							t/data/go_transitive_reduction.obo
-							t/data/intact_parser_test_out.obo
-							t/data/ncbi.rdf
-							t/data/ncbi_parser_test_out.obo
-							t/data/pre_apo_taxa.obo
-							t/data/test0.obo
+	clean      => {FILES =>"t/data/test0.obo
 							t/data/test1.obo
 							t/data/test1.rdf
 							t/data/test1.xml
@@ -143,8 +131,17 @@ WriteMakefile(
 							t/data/test2.owl
 							t/data/test2.rdf
 							t/data/test2.xml
-							t/data/test_ulo_apo2.obo
+							t/data/test_go.obo
+							t/data/test_go_transitive_closure.obo
+							t/data/test_go_transitive_reduction.obo
+							t/data/test_goa.rdf
+							t/data/test_goa_parser_out.obo
+							t/data/test_intact_parser_out.obo
+							t/data/test_ncbi.rdf
+							t/data/test_ncbi_parser_out.obo
 							t/data/test_ulo_apo.dot
 							t/data/test_ulo_apo.owl
-							t/data/uniprot_parser_test_out.obo"},
+							t/data/test_ulo_apo2.obo
+							t/data/test_uniprot_parser_out.obo
+							t/data/test_uo.rdf"},
 );

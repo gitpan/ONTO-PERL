@@ -11,8 +11,10 @@ use Carp;
 use strict;
 use warnings;
 
+use IO::File;
+
 $Carp::Verbose = 1;
-my $print_obo  = 0;
+my $print_obo  = 1;
 
 SKIP:
 {	
@@ -54,10 +56,10 @@ SKIP:
 	
 	# terms
 	# 1 of 2 proteins added
-	ok ( my $protein = $onto->get_term_by_id ( 'UniProtKB:Q92466' ) );
-	my $protein1     = $onto->get_term_by_id ( 'UniProtKB:Q01094' );
+	ok ( my $protein = $onto->get_term_by_id('UniProtKB:Q92466'));
+	my $protein1     = $onto->get_term_by_id('UniProtKB:Q01094');
 	ok ( !$protein1 );
-	ok ( my  $interaction = $onto->get_term_by_id ( 'EBI:1213634' ));
+	ok ( my  $interaction = $onto->get_term_by_id('EBI:1213634'));
 	
 	# relations
 	my @tails_hp = @{$onto->get_tail_by_relationship_type ( $protein, $onto->get_relationship_type_by_name ( "has participant" ) )};
@@ -66,7 +68,7 @@ SKIP:
 	ok ( @heads_hp == 1 );
 	my @heads_hs = @{$onto->get_head_by_relationship_type ( $protein, $onto->get_relationship_type_by_name ( "has source" ) )};
 	ok ( @heads_hs == 1 );
-	print_obo ( $onto, "$data_dir/intact_parser_test_out.obo" ) if $print_obo;
+	print_obo ( $onto, "$data_dir/test_intact_parser_out.obo" ) if $print_obo;
 }
 
 sub read_map {
@@ -84,8 +86,8 @@ sub read_map {
 
 sub print_obo {
 	my ($onto, $path) = @_;
-	open( FH, ">$path" ) || croak "Error  exporting: $path", $!;
-	$onto->export( 'obo', \*FH );
-	select( ( select(FH), $| = 1 )[0] );
-	close FH;
+	my $fh = new IO::File($path, 'w');
+	$onto->export('obo', $fh);
+	$fh->flush;
+	$fh->close;
 }

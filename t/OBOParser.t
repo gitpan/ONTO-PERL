@@ -110,7 +110,7 @@ close FH;
 # export to RDF (generic)
 my $rdf_ontology_gen = $my_parser->work('./t/data/cell.obo');
 open (FH, '>./t/data/test2.rdf') || die 'Run as root the tests: ', $!;
-$rdf_ontology_gen->export('rdf', \*FH);
+$rdf_ontology_gen->export('rdf', \*FH, \*STDERR, 'http://www.cellcycleontology.org/ontology/rdf/');
 close FH;
 
 # export to XML 1
@@ -132,7 +132,7 @@ close FH;
 
 # export to OWL 2
 open (FH, '>./t/data/test2.owl') || die 'Run as root the tests: ', $!;
-$ontology2->export('owl', \*FH);
+$ontology2->export('owl', \*FH, \*STDERR, 'http://www.cellcycleontology.org/ontology/owl/', 'http://www.cellcycleontology.org/formats/oboInOwl#');
 close FH;
 
 # export to DOT 2
@@ -163,7 +163,7 @@ ok($ontology3->has_term($ontology3->get_term_by_id('APO:U0000001')));
 
 # export to OWL ULO
 open (FH, '>./t/data/test_ulo_apo.owl') || die 'Run as root the tests: ', $!;
-$ontology3->export('owl', \*FH);
+$ontology3->export('owl', \*FH, \*STDERR, 'http://www.cellcycleontology.org/ontology/owl/', 'http://www.cellcycleontology.org/formats/oboInOwl#');
 close FH;
 
 # export to DOT ULO

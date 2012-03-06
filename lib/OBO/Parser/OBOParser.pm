@@ -1,8 +1,8 @@
-# $Id: OBOParser.pm 2011-06-06 erick.antezana $
+# $Id: OBOParser.pm 2012-02-02 erick.antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO-formatted files.
-# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -25,9 +25,13 @@ use Date::Manip qw(ParseDate UnixDate);
 use strict;
 use warnings;
 
+$Carp::Verbose = 1; #vlmir
+
 sub new {
-	my $class = shift;
-	my $self  = {};
+	my $class         = shift;
+	my $self          = {};
+	
+	$self->{OBO_FILE} = undef; # required, (1)
         
 	bless ($self, $class);
 	return $self;
@@ -46,7 +50,7 @@ sub work {
 	my $self = shift;
 	$self->{OBO_FILE} = shift if (@_);
 	
-	open (OBO_FILE, $self->{OBO_FILE}) || croak 'The OBO file cannot be opened: ', $!;
+	open (OBO_FILE, $self->{OBO_FILE}) || croak 'The OBO file (', $self->{OBO_FILE}, ') cannot be opened: ', $!;
 	
 	$/ = ""; # one paragraph at the time
 	chomp(my @chunks = <OBO_FILE>);
@@ -270,12 +274,12 @@ sub work {
 								croak "The term with id '", $1, "' is duplicated in the OBO file.";
 							}
 						} else {
-							croak "The term with id '", $1, "' does NOT follow the ID convention: 'IDSPACE:UNIQUE_IDENTIFIER', e.g. GO:1234567";
+							carp "The term with id '", $1, "' does NOT follow the ID convention: 'IDSPACE:UNIQUE_IDENTIFIER', e.g. GO:1234567";
 						}						
 					} elsif ($line =~ /^is_anonymous:$r_true_false/) {
 						$term->is_anonymous(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^name:\s*(.*)/) {
-						croak "The term with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
+						carp "The term with id '", $1, "' has a duplicated 'name' tag in the file '", $self->{OBO_FILE} if ($only_one_name_tag_per_entry);
 						if (!defined $1) {
 							warn "The term with id '", $term->id(), "' has no name in file '", $self->{OBO_FILE}, "'";
 						} else {
@@ -421,7 +425,7 @@ sub work {
 					croak "No ID found in term:\n", $chunk;
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
-					croak "Missing 'intersection_of' tag in term:\n\n", $chunk, "\n";
+					carp "Missing 'intersection_of' tag in term:\n\n", $chunk, "\n";
 				}				
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Typedef\]/) { # treat [Typedef]
@@ -628,7 +632,7 @@ sub work {
 					croak "No ID found in type:\n\n", $chunk, "\n\nfrom file '", $self->{OBO_FILE}, "'";
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
-					croak "Missing 'intersection_of' tag in relationship type:\n\n", $chunk, "\n";
+					carp "Missing 'intersection_of' tag in relationship type:\n\n", $chunk, "\n";
 				}
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Instance\]/) { # treat [Instance]
@@ -840,7 +844,7 @@ sub work {
 
 		return $result;
 	} else { # if no header (chunk[0])
-		croak "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
+		carp "The OBO file '", $self->{OBO_FILE},"' does not have a correct header, please verify it.";
 	}
 }
 
@@ -896,7 +900,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (c) 2006-2012 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

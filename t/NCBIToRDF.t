@@ -4,6 +4,7 @@
 #########################
 
 BEGIN {
+	unshift @INC, '/norstore/user/mironov/workspace/onto-perl/ONTO-PERL-1.37/lib';
     eval { require Test; };
     use Test;    
     plan tests => 2;
@@ -18,9 +19,13 @@ use warnings;
 
 my $ncbi2rdf = OBO::APO::NCBIToRDF->new();
 ok(1);
+my $names = './t/data/names_dummy.dmp';
+my $nodes = './t/data/nodes_dummy.dmp';
+open (FH, ">./t/data/test_ncbi.rdf") || die $!;
+my $base = 'http://www.semantic-systems-biology.org/';
+my $ns   = 'SSB';
 
-open (FH, ">./t/data/ncbi.rdf") || die $!;
 my $file_handle = \*FH;
-$file_handle = $ncbi2rdf->work("./t/data/nodes_dummy.dmp","./t/data/names_dummy.dmp",$file_handle);
+$file_handle = $ncbi2rdf->work ( $names, $nodes, $file_handle, $base, $ns );
 close $file_handle;
 ok(1);

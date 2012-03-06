@@ -10,7 +10,7 @@
 #
 # Usage   : get_subontology_from.pl input_ontology.obo term_id > sub_ontology.obo
 #
-# License : Copyright (C) 2006-2011 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #
@@ -29,7 +29,7 @@ my $my_large_onto = $my_parser->work(shift @ARGV);
 my $new_root      = $my_large_onto->get_term_by_id(shift @ARGV);
 die "The term, you have asked as being the new root, does not exist!\n" if (!$new_root);
 my $sub_ontology  = $my_large_onto->get_subontology_from($new_root);
-$sub_ontology->export('obo');
+$sub_ontology->export('obo', \*STDOUT);
 
 exit 0;
 
@@ -56,7 +56,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (c) 2006-2012 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

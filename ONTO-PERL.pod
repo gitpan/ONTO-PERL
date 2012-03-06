@@ -1,4 +1,4 @@
-# $Id: ONTO-PERL.pod 2011-12-26 16:21:45Z erick.antezana $
+# $Id: ONTO-PERL.pod 2012-02-16 16:21:45Z erick.antezana $
 #
 # see also - http://search.cpan.org/~easr/ONTO-PERL/
 #
@@ -12,28 +12,29 @@ ONTO-PERL           - PERL modules for OBO-formatted ontologies
 
 =head1 DESCRIPTION
 
-ONTO-PERL a collection of PERL modules for dealing with OBO-formatted 
-ontologies (like the Gene Ontology). This code distribution gathers 
-object-oriented modules (to handle ontology elements such as a Term, 
-a Relationship, a Synonym, and so forth), scripts (for typical tasks 
-such as format conversions: obo2owl, owl2obo; besides, there are also
-many examples that can be easily adapted for specific applications), and 
-a comprehensive set of test files for ensuring its implementation quality.
+  ONTO-PERL a collection of PERL modules for dealing with OBO-formatted 
+  ontologies (like the Gene Ontology). This code distribution gathers 
+  object-oriented modules (to handle ontology elements such as a Term, 
+  a Relationship, a Synonym, and so forth), scripts (for typical tasks 
+  such as format conversions: obo2owl, owl2obo; besides, there are also
+  many examples that can be easily adapted for specific applications), and 
+  a comprehensive set of test files for ensuring its implementation quality.
 
 Citing ONTO-PERL:
 
   If you use ONTO-PERL in your work, you are kindly requested to cite:
  
-   ONTO-PERL: An API supporting the development and analysis of bio-ontologies
-   E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
-   Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
+    ONTO-PERL: An API supporting the development and analysis of bio-ontologies
+    E. Antezana; M. Egana; B. De Baets; M. Kuiper; V. Mironov
+    Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
 
 See also:
 
   1. perldoc ONTO-PERL.pod
   
   2. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
-     http://bitbucket.org/easr/onto-toolkit
+     Antezana E, Venkatesan A, Mungall C, Mironov V, Kuiper M.
+     BMC Bioinformatics 2010, 11(Suppl 12):S8 doi:10.1186/1471-2105-11-S12-S8
 
 Files in ONTO-PERL:
 
@@ -43,10 +44,9 @@ Files in ONTO-PERL:
 
   LICENSE                       ONTO-PERL's license
 
-  ONTO-PERL-x.y.tar.gz          ONTO-PERL API: version x.y
+  ONTO-PERL-x.y.tar.gz          ONTO-PERL API: version x.y (gzip file)
 
   Changes                       Description about the changes in ONTO-PERL
-
 
 Remark:
 
@@ -68,7 +68,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (c) 2006-2012 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

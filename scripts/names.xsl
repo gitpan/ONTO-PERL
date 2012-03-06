@@ -5,7 +5,7 @@
  Module  : names.xsl
  Purpose : Get the term names from APO (in XML) into HTML
  Usage: xsltproc names.xsl apo.xml > apo-names.html
- License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
+ License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
            This program is free software; you can redistribute it and/or
            modify it under the same terms as Perl itself.
  Contact : Erick Antezana <erick.antezana -@- gmail.com>

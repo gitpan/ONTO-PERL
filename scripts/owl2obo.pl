@@ -7,7 +7,7 @@
 #
 # Usage   : owl2obo.pl my_ontology.owl > my_ontology.obo
 #
-# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #
@@ -23,7 +23,7 @@ use OBO::Parser::OWLParser;
 
 my $my_parser = OBO::Parser::OWLParser->new();
 my $ontology = $my_parser->work(shift(@ARGV));
-$ontology->export('obo');
+$ontology->export('obo', \*STDOUT);
 
 exit 0;
 
@@ -46,7 +46,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (c) 2006-2012 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -1,13 +1,22 @@
 Changes
+doc/example00.html
+doc/example01.html
+doc/example02.html
+doc/example03.html
+doc/example04.html
+doc/example05.html
+doc/example06.html
+doc/example07.html
+doc/example08.html
+doc/example09.html
+doc/example10.html
+doc/example11.html
+doc/example12.html
+doc/example13.html
 INSTALL
-LICENSE
-Makefile.PL
-MANIFEST
-README
-ONTO-PERL.pod
+lib/OBO/APO/APO_ID.pm
 lib/OBO/APO/APO_ID_Set.pm
 lib/OBO/APO/APO_ID_Term_Map.pm
-lib/OBO/APO/APO_ID.pm
 lib/OBO/APO/GoaAssociation.pm
 lib/OBO/APO/GoaAssociationSet.pm
 lib/OBO/APO/GoaToRDF.pm
@@ -46,20 +55,13 @@ lib/OBO/Util/TermSet.pm
 lib/OBO/XO/OBO_ID.pm
 lib/OBO/XO/OBO_ID_Set.pm
 lib/OBO/XO/OBO_ID_Term_Map.pm
-doc/example00.html
-doc/example01.html
-doc/example02.html
-doc/example03.html
-doc/example04.html
-doc/example05.html
-doc/example06.html
-doc/example07.html
-doc/example08.html
-doc/example09.html
-doc/example10.html
-doc/example11.html
-doc/example12.html
-doc/example13.html
+LICENSE
+Makefile.PL
+MANIFEST
+META.json			Module JSON meta-data (added by MakeMaker)
+META.yml			Module meta-data (added by MakeMaker)
+ONTO-PERL.pod
+README
 scripts/get_ancestor_terms.pl
 scripts/get_child_terms.pl
 scripts/get_descendent_terms.pl
@@ -96,6 +98,9 @@ scripts/obo_trimming.pl
 scripts/obo_union.pl
 scripts/owl2obo.pl
 scripts/xml2html.xsl
+t/APO_ID.t
+t/APO_ID_Set.t
+t/APO_ID_Term_Map.t
 t/data/all.goa
 t/data/alpha.obo
 t/data/apo_id_term.map
@@ -103,12 +108,12 @@ t/data/cell.obo
 t/data/fake_ulo_apo.obo
 t/data/go.map
 t/data/goa_assoc_filt.txt
-t/data/my_parser_test.obo
 t/data/header.obo
 t/data/human.0.obo
 t/data/human.1.map
 t/data/human.map
 t/data/human_small-41.xml
+t/data/my_parser_test.obo
 t/data/names_dummy.dmp
 t/data/nodes_dummy.dmp
 t/data/obo_id_term.map
@@ -118,9 +123,6 @@ t/data/test_ulo_apo2.owl
 t/data/ulo_apo.obo
 t/data/up.dat
 t/data/up.map
-t/APO_ID_Set.t
-t/APO_ID_Term_Map.t
-t/APO_ID.t
 t/Dbxref.t
 t/DbxrefSet.t
 t/Def.t
@@ -149,6 +151,7 @@ t/RelationshipTypeSet.t
 t/Set.t
 t/SubsetDef.t
 t/SubsetDefMap.t
+t/SwissProtToRDF.t
 t/Synonym.t
 t/SynonymSet.t
 t/SynonymTypeDef.t
@@ -156,5 +159,3 @@ t/SynonymTypeDefSet.t
 t/Term.t
 t/TermSet.t
 t/UniProtParser.t
-META.yml                                 Module meta-data (added by MakeMaker)
-META.json                                Module JSON meta-data (added by MakeMaker)

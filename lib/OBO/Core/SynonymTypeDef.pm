@@ -2,7 +2,7 @@
 #
 # Module  : SynonymTypeDef.pm
 # Purpose : A synonym type definition.
-# License : Copyright (c) 2006-2011 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -100,10 +100,10 @@ sub equals {
 	if ($_[1] && eval { $_[1]->isa('OBO::Core::SynonymTypeDef') }) {
 
 		croak 'The name of this synonym type definition is undefined.' if (!defined($_[0]->{NAME}));
-		croak 'The name of the target synonym type definition is undefined.' if (!defined($_[0]->{NAME}));
+		croak 'The name of the target synonym type definition is undefined.' if (!defined($_[1]->{NAME}));
 		
-		croak 'The description of the this synonym type definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
-		croak 'The description of the target synonym type definition is undefined.' if (!defined($_[1]->{DESCRIPTION}));
+		croak "The description of the this ($_[0]->{NAME}) synonym type definition is undefined." if (!defined($_[0]->{DESCRIPTION}));
+		croak "The description of the target ($_[1]->{NAME}) synonym type definition is undefined." if (!defined($_[1]->{DESCRIPTION}));
 		
 		$result = ($_[0]->{NAME} eq $_[1]->{NAME}) && ($_[0]->{DESCRIPTION} eq $_[1]->{DESCRIPTION});
 		$result = $result && ($_[0]->{SCOPE} eq $_[1]->{SCOPE}) if (defined $_[0]->{SCOPE} && defined $_[1]->{SCOPE}); # TODO Future improvement, consider case: scope_1 undefined and scope_2 defined!
@@ -181,7 +181,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (c) 2006-2012 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

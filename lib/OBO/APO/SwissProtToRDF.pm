@@ -20,11 +20,12 @@ ftp://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/complete/un
 
 =head1 AUTHOR
 
-Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
+Erick Antezana
+erant@psb.ugent.be
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2011 by Erick Antezana
+Copyright (C) 2008 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
@@ -37,6 +38,7 @@ use warnings;
 use Carp;
 
 use SWISS::Entry;
+use Data::Dumper;
 
 sub new {
 	my $class                   = shift;
@@ -54,14 +56,23 @@ sub new {
   Function - Converts SwissProt entries from a file to an RDF graph.
   
 =cut
+#vlmir
+# Argumenents
+# 1. Full path to the UniProt file
+# 2. File handle for writing RDF
+# 3. base URI (e.g. 'http://www.semantic-systems-biology.org/')
+# 4. name space (e.g. 'SSB')
+#vlmir
 
 sub work() {
-	my $self         = shift;
-	my $uniprot_file = shift;
-	my $file_handle  = shift;
 	
-	my $default_URL = "http://www.semantic-systems-biology.org/";
-	my $NS = "SSB";
+	my $self         = shift;
+	# my $uniprot_file = shift;
+	# my $file_handle  = shift;
+	my ( $uniprot_file, $file_handle, $base, $namespace ) = @_; #vlmir
+	# my $default_URL = "http://www.semantic-systems-biology.org/";
+	my $default_URL = $base; #vlmir
+	my $NS = $namespace; #vlmir
 	my $ns = lc ($NS);
 	
 	
@@ -72,7 +83,7 @@ sub work() {
 	print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
 	print $file_handle "\txmlns:".$ns."=\"".$default_URL.$NS."#\">\n";
 
-	open (SPFH, $uniprot_file) || die "Cannot open the file: ", $!;
+	open (SPFH, $uniprot_file) || croak "Cannot open the file: ", $!;
 	local $/ = "\n//\n";
 	while (<SPFH>) {
 		my $entry = SWISS::Entry->fromText($_);
@@ -201,81 +212,9 @@ sub work() {
 
 	return $file_handle;
 
-#	# Get the arguments
-#	my ($NCBInodesFileName,$NCBInamesFileName,$file_handle) = @_;
-#	
-#	# For the ID
-## 	$path_to_assoc_file =~ /.*\/(.*)/; # get what is after the slash in the path...
-## 	my $f_name = $1;
-## 	(my $prefix_id = $f_name) =~ s/\.goa//;
-## 	$prefix_id =~ s/\./_/g;
-#
-#	# TODO: set all the NS and URI via arguments
-#	my $default_URL = "http://www.semantic-systems-biology.org/"; 
-#
-#	my $NS = "SSB";
-#	my $ns = lc ($NS);
-#	my $rdf_subnamespace = "taxon";
-#	
-#	my $obo_ns     = $default_URL.$NS."#"; #$default_URL."OBO#";
-#	my $ncbi_ns    = $default_URL.$NS."#"; #$default_URL."NCBI#";
-#
-#	# Preamble of RDF file
-#	print $file_handle "<?xml version=\"1.0\"?>\n";
-#	print $file_handle "<rdf:RDF\n";
-#	print $file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
-#	print $file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-#	print $file_handle "\txmlns:".$ns."=\"".$ncbi_ns."\"\n";
-#	#print $file_handle "\txmlns:obo=\"".$obo_ns."\">\n";
-#
-#	my %nodes = ();
-#	my %names = ();
-#
-#	# Open and parse names file (we want groups 1 and 2 only if group 4 is scientific name)
-#	open(NCBInamesFile, $NCBInamesFileName) || die("can't open file: $!");
-#	my @mynamelines = <NCBInamesFile>;
-#	foreach my $theline (@mynamelines){
-#		if ($theline =~ /(.+)\|(.+)\|(.+)\|(.+)\|/){
-#			my $childid = $1;
-#			my $childname = $2;
-#			my $nametype = $4;
-#			$childid =~ s/\s//g;
-#			$nametype =~ s/\s//g;
-#			if($nametype eq 'scientificname'){
-#				$childname =~ s/^\s+//;
-#				$childname =~ s/\s+$//;
-#				$names{$childid} = $childname;
-#			}
-#		}
-#	}
-#	close(NCBInamesFile);
-#
-#	# Open and parse the nodes file (We want groups 1 and 2)
-#	open(NCBInodesFile, $NCBInodesFileName) || die("can't open file: $!");
-#	my @mynodelines =<NCBInodesFile>;
-#	foreach my $theline (@mynodelines){
-#		if ($theline =~ /(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|(.+)\|/){
-#			my $child = $1;
-#			my $parent = $2;
-#			$child =~ s/\s//g;
-#			$parent =~ s/\s//g;
-#			$nodes{$child} = $parent; 
-#			print $file_handle "\t<",$ns,":".$rdf_subnamespace." rdf:about=\"#"."NCBI"."_".$child."\">\n";
-#			print $file_handle "\t\t<rdfs:label xml:lang=\"en\">".&char_hex_http($names{$child})."</rdfs:label>\n";
-#			
-#			unless ($child eq "1"){
-#				print $file_handle "\t\t<obo:is_a rdf:resource=\"#"."NCBI"."_".$parent."\"/>\n";
-#			}
-#
-#			print $file_handle "\t</",$ns,":".$rdf_subnamespace.">\n";
-#		}
-#	}
-#	close(NCBInodesFile);
-#
-#	print $file_handle "</rdf:RDF>\n\n";
-#	print $file_handle "<!--\nGenerated with ONTO-PERL: ".$0.", ".__date()."\n-->";
-#
-#	return $file_handle;
+
+
+
 }
 
 sub __date {

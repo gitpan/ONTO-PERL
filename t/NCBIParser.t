@@ -12,34 +12,36 @@ use Carp;
 use warnings;
 
 $Carp::Verbose = 1;
-my $print_obo = 0;
+my $print_obo  = 1;
+
+use IO::File;
 
 use OBO::Parser::OBOParser;
 use OBO::Parser::NCBIParser;
 
 my $obo_parser  = OBO::Parser::OBOParser->new ();
 my $ncbi_parser = OBO::Parser::NCBIParser->new ();
-ok ( $ncbi_parser );
+ok($ncbi_parser);
 
 my $data_dir = "./t/data";
 
 # 1st arg
 my $in_onto_path = "$data_dir/my_parser_test.obo";
-my $onto = $obo_parser->work ( $in_onto_path );
+my $onto = $obo_parser->work($in_onto_path);
 
 # 2nd arg
 my $ncbi_nodes_path = "$data_dir/nodes_dummy.dmp";
-my $nodes = $ncbi_parser->parse ( $ncbi_nodes_path );
+my $nodes = $ncbi_parser->parse($ncbi_nodes_path);
 ok ( %{$nodes} );
 
 # 3rd arg
 my $ncbi_names_path = "$data_dir/names_dummy.dmp";
 my $name_type = 'scientific name';
-my $names = $ncbi_parser->parse ( $ncbi_names_path, $name_type );
+my $names = $ncbi_parser->parse($ncbi_names_path, $name_type);
 ok ( %{$names} );
 
 # 4th arg
-my $parent = $onto->get_term_by_id ( 'GRAO:0000001' );
+my $parent = $onto->get_term_by_id('GRAO:0000001');
 
 # 5th arg
 my @taxon_ids = ( '3702' );
@@ -56,12 +58,11 @@ ok ( %{$result} );
 
 # terms
 ok ( $onto->has_term ( $onto->get_term_by_name ('Mikel') ) );
-print_obo ( $onto, "$data_dir/ncbi_parser_test_out.obo" ) if $print_obo;
+print_obo ( $onto, "$data_dir/test_ncbi_parser_out.obo" ) if $print_obo;
 
 sub print_obo {
-	my ( $onto, $path ) = @_;
-	open ( FH, ">$path" ) || croak "Error exporting: $path", $! ;
-	$onto->export ( \*FH );
-	select ( ( select ( FH ), $| = 1 )[0] );
-	close FH;
+	my ($onto, $path) = @_; 
+	my $fh = new IO::File($path, 'w');
+	$onto->export('obo', $fh);
+	$fh->flush;
 }

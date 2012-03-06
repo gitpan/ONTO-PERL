@@ -451,7 +451,7 @@
 			
 			# export
 			$onto->remarks("This is a test ontology");
-			$onto->export(); # by default in OBO format (spec 1.4)
+			$onto->export('obo', \*STDOUT); # by default in OBO format (spec 1.4)
 			
 			# subontology_by_terms
 			my $terms = OBO::Util::TermSet->new();
@@ -511,7 +511,7 @@
 			$n2->intersection_of("part_of GO:0004");
 			
 			# export the ontology to OWL
-			$so->export('owl', \*STDOUT, \*STDERR);
+			$so->export('owl', \*FH, \*STDERR, 'http://www.cellcycleontology.org/ontology/owl/', 'http://www.cellcycleontology.org/formats/oboInOwl#');
 			
 			# export the ontology to OBO
 			$so->export('obo', \*STDOUT, \*STDERR);
