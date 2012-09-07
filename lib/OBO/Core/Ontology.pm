@@ -21,7 +21,7 @@ use Carp;
 use strict;
 use warnings;
 
-our $VERSION = '1.38';
+our $VERSION = '1.39';
 
 sub new {
 	my $class  = shift;
@@ -385,7 +385,7 @@ sub add_relationship_type {
 		# TODO Is it necessary to implement a set of relationship types? Maybe for get_relationship_types()?
 		#$self->{RELATIONSHIP_TYPES_SET}->add($relationship_type);
     } else {
-    	croak 'Missing relationship type.';
+    	croak 'Missing argument: add_relationship_type(relationship_type)';
     }
 }
 
@@ -1257,6 +1257,7 @@ sub get_relationship_type_by_name {
   Args     - the relationship (OBO::Core::Relationship) to be added between two existing terms or two relationship types
   Function - adds a relationship between either two terms or two relationship types.
   Remark   - If the terms or relationship types bound by this relationship are not yet in the ontology, they will be added
+  Remark   - if you are adding relationships to an ontology, sometimes it might be better to add their type first (usually if you are building a new ontology from an extant one)  
   
 =cut
 
@@ -1283,6 +1284,12 @@ sub add_relationship {
 	} elsif (eval { $target_element->isa('OBO::Core::RelationshipType') } && eval { $source_element->isa('OBO::Core::RelationshipType') }) {
 		$self->has_relationship_type($target_element) || $self->add_relationship_type($target_element);
 		$self->has_relationship_type($source_element) || $self->add_relationship_type($source_element);
+	} elsif (eval { $target_element->isa('OBO::Core::Term') } && eval { $source_element->isa('OBO::Core::Instance') }) { # TODO Do we need this? or better add $self->{PROPERTY_VALUES}?
+		$self->has_term($target_element)              || $self->add_term($target_element);
+		$self->has_instance($source_element)          || $self->add_instance($source_element);
+	} elsif (eval { $target_element->isa('OBO::Core::Instance') } && eval { $source_element->isa('OBO::Core::Instance') }) { # TODO Do we need this? or better add $self->{PROPERTY_VALUES}?
+		$self->has_instance($target_element)          || $self->add_instance($target_element);
+		$self->has_instance($source_element)          || $self->add_instance($source_element);
 	} else {
 		croak "An unrecognized object type (nor a Term, nor a RelationshipType) was found as part of the relationship with ID: '", $rel_id, "'";
 	}
@@ -1935,7 +1942,7 @@ sub export2obo {
 		foreach my $xref (@sorted_xrefs) {
 			print $output_file_handle "\nxref: ", $xref->as_string();
 		}
-    	
+
 		#
 		# instance_of
 		#
@@ -1945,6 +1952,15 @@ sub export2obo {
 			my $class_name      = $class->name();
 			$instance_of_txt   .= ' ! '.$class_name if (defined $class_name);
 			print $output_file_handle $instance_of_txt;
+		}
+
+		#
+		# property_value
+		#
+		my @property_values = sort {$a->id() cmp $b->id()} $instance->property_value()->get_set();
+		foreach my $value (@property_values) {
+	    	# TODO Finalise this implementation
+			print $output_file_handle "\nproperty_value: ".$value->type().' '.$value->head()->id();
 		}
 
 		#
@@ -2301,8 +2317,10 @@ sub export2rdf {
 	
 	my ($self, $output_file_handle, $error_file_handle, $base, $namespace, $rdf_tc, $skip) = @_;
 	
-	if ($base !~ /^http/) {
+	if ($base && $base !~ /^http/) {
 		croak "RDF export: you must provide a valid URL, e.g. export('rdf', \*STDOUT, \*STDERR, 'http://www.cellcycleontology.org/ontology/rdf/')";
+	} elsif (!defined $namespace){
+		croak "RDF export: you must provide a valid namespace (e.g. 'SSB')";
 	}
 
 	my $default_URL = $base;
@@ -4061,7 +4079,7 @@ sub export2gml {
   Remark   - Standard arguments:
            -   1. Format, one of 'obo', 'rdf', 'xml', 'owl', 'dot', 'gml', 'xgmml', 'sbml'
            -   2. Otput filehandle \*OUT
-           -   3. Error filehandle \*ERR ( default \*STDERR, but not for RDF or OWL )
+           -   3. Error filehandle \*ERR ( default \*STDERR, but for RDF or OWL )
            - Extra arguments:
            -   'rdf':
            -     1. base URI (e.g. 'http://www.semantic-systems-biology.org/')
@@ -4091,9 +4109,9 @@ sub export {
 	
     # check the file_handle's
 	if (!-w $output_file_handle) {
-		croak "export: you must provide a valid output handle, e.g. export($format, \\*STDOUT)";
+		croak "export: you must provide a valid output handle, e.g. export('$format', \\*STDOUT)";
 	} elsif (!-e $error_file_handle) {
-		croak "export: you must provide a valid error handle, e.g. export($format, \\*STDOUT, \\*STDERR)";
+		croak "export: you must provide a valid error handle, e.g. export('$format', \\*STDOUT, \\*STDERR)";
 	}
 	
 	if (($error_file_handle eq $stderr_fh) && (!-w $error_file_handle)) {
@@ -4109,7 +4127,7 @@ sub export {
 	} elsif ($format eq 'rdf') {
 		
 		my $base      = shift;
-		my $namespace = shift;
+		my $namespace = shift;		
 		my $rdf_tc    = shift || 0; # Set this according to your needs: 1=reflexive relations for each term
 		my $skip      = shift || 0; # Set this according to your needs: 1=skip exporting the rel types, 0=do not skip (default)
 	
@@ -4123,7 +4141,7 @@ sub export {
 
 		my $oboContentUrl = shift; # e.g. 'http://www.cellcycleontology.org/ontology/owl/'; # "http://purl.org/obo/owl/"; 
 		my $oboInOwlUrl   = shift; # e.g. 'http://www.cellcycleontology.org/formats/oboInOwl#'; # "http://www.geneontology.org/formats/oboInOwl#";
-		
+
 		$self->export2owl($output_file_handle, $error_file_handle, $oboContentUrl, $oboInOwlUrl);
 		
 	} elsif ($format eq 'dot') {
@@ -4196,13 +4214,16 @@ sub subontology_by_terms {
 
   Usage    - $ontology->get_subontology_from($new_root_term)
   Returns  - a subontology from the given term of this ontology 
-  Args     - the term (OBO::Core::Term) that is the root of the subontology
+  Args     - the term (OBO::Core::Term) that is the root of the subontology, and optionally, a reference to relationship type ids
   Function - creates a subontology having as root the given term
   
 =cut
 
 sub get_subontology_from {
-	my ($self, $root_term) = @_;
+	my ($self, 
+	$root_term,
+	$rel_type_ids #vlmir - ref {relationsship type id => relationship type name}; optional
+	) = @_;
 	my $result = OBO::Core::Ontology->new();
 	if ($root_term) {
 		$self->has_term($root_term) || croak "The term '", $root_term,"' does not belong to this ontology";
@@ -4217,14 +4238,25 @@ sub get_subontology_from {
 		$result->remarks($self->remarks()->get_set());
 		$result->treat_xrefs_as_equivalent($self->treat_xrefs_as_equivalent->get_set());
 
+		if ( $rel_type_ids ) { #vlmir
+			foreach my $rel_type_id ( keys %{$rel_type_ids} ) {
+				$result->add_relationship_type_as_string( $rel_type_id, $rel_type_ids->{$rel_type_id} );
+			} #vlmir
+		}
+		
 		my @queue = ($root_term);
 		while (scalar(@queue) > 0) {
 			my $unqueued = shift @queue;
 			$result->add_term($unqueued);
 			foreach my $rel (@{$self->get_relationships_by_target_term($unqueued)}){
-				$result->add_relationship($rel);
-				my $rel_type = $self->get_relationship_type_by_id($rel->type());
-				$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+				if ( $rel_type_ids ) { #vlmir					
+					$rel_type_ids->{$rel->type()} ? $result->add_relationship($rel) : next;					
+				} #vlmir
+				else {
+					$result->add_relationship($rel);
+					my $rel_type = $self->get_relationship_type_by_id($rel->type()); #vlmir OBO::Core::RelationshipType
+					$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+				}
 			}
 			my @children = @{$self->get_child_terms($unqueued)};
 			@queue = (@queue, @children);
@@ -4520,7 +4552,7 @@ sub get_instance_by_xref {
 
 =head2 get_paths_term1_term2
 
-  Usage    - $ontology->get_paths_term1_term2($term1, $term2)
+  Usage    - $ontology->get_paths_term1_term2($term1_id, $term2_id)
   Returns  - an array of references to the paths between term1 and term2
   Args     - the IDs of the terms for which a path (or paths) will be found
   Function - returns the path(s) linking term1 and term2, where term1 is more specific than term2
@@ -4766,7 +4798,7 @@ sub get_paths_term_terms () {
 sub get_paths_term_terms_same_rel () {
 	my ($self, $v, $bstop, $rel) = @_;
 	
-	# TODO Check the case where there are relflexive relationships (e.g. GO:0000011_is_a_GO:0000011)
+	# TODO Check the case where there are reflexive relationships (e.g. GO:0000011_is_a_GO:0000011)
 	
 	my $r_type = $self->get_relationship_type_by_id($rel);
 	my @nei    = @{$self->get_head_by_relationship_type($self->get_term_by_id($v), $r_type)};

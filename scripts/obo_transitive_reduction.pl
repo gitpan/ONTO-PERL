@@ -12,6 +12,10 @@
 #
 ###############################################################################
 
+BEGIN {
+	unshift @INC, qw(/home/bbean/BOLS/ONTO-PERL/lib);
+}
+
 use Carp;
 use strict;
 use warnings;
@@ -19,9 +23,9 @@ use OBO::Parser::OBOParser;
 use OBO::Util::Ontolome;
 
 my $my_parser            = OBO::Parser::OBOParser->new();
-my $onto                 = $my_parser->work(shift @ARGV);
+my $ontology             = $my_parser->work(shift @ARGV);
 my $my_ontolome          = OBO::Util::Ontolome->new();
-my $transitive_reduction = $my_ontolome->transitive_reduction($onto);
+my $transitive_reduction = $my_ontolome->transitive_reduction($ontology);
 $transitive_reduction->export('obo', \*STDOUT);
 
 exit 0;

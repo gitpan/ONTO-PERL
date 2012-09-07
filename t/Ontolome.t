@@ -624,8 +624,7 @@ ok($go_transitive_closure->has_relationship_id('265_is_a_2'));
 ok($go_transitive_closure->has_relationship_id('265_is_a_10'));
 ok($go_transitive_closure->has_relationship_id('56_is_a_10'));
 
-ok($go_transitive_closure->get_number_of_relationships() == 23);
-
+ok($go_transitive_closure->get_number_of_relationships() == 34 + 14); # many new rels: isa*partof=>partof and partof*isa=>partof
 open (TC, ">./t/data/test_go_transitive_closure.obo") || die "Run as root the tests: ", $!;
 $go_transitive_closure->export('obo', \*TC);
 close TC;

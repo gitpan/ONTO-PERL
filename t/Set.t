@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 16;
+    plan tests => 20;
 }
 
 #########################
@@ -23,6 +23,12 @@ ok($my_set->contains('APO:P0000001'));
 
 $my_set->add_all('APO:P0000002', 'APO:P0000003', 'APO:P0000004');
 ok($my_set->contains('APO:P0000002') && $my_set->contains('APO:P0000003') && $my_set->contains('APO:P0000004'));
+
+my $c = 1;
+foreach (sort {$a cmp $b} $my_set->get_set()) {
+	ok('APO:P000000'.$c++ eq $_);
+}
+
 
 my $my_set2 = OBO::Util::Set->new();
 ok(1);

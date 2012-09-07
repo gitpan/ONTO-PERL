@@ -30,6 +30,7 @@ sub new {
 	$self->{SUBSET_SET}         = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
 	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
+	$self->{PROPERTY_VALUE}     = OBO::Util::ObjectSet->new();  # set of objects: rel's Instance->Instance or Instance->Datatype (0..N)
 	$self->{INSTANCE_OF}        = undef;                        # OBO::Core::Term (0..1)
 	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N)
 	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N)
@@ -319,6 +320,25 @@ sub xref_set_as_string {
 		$_[0]->{XREF_SET} = $xref_set; # We are overwriting the existing set; otherwise, add the new elements to the existing set!
 	}
 	my @result = $_[0]->xref_set()->get_set();
+}
+
+=head2 property_value
+
+  Usage    - $instance->property_value() or $instance->property_value($p_value1, $p_value2, $p_value3, ...)
+  Returns  - an array with the property value(s) of this instance
+  Args     - the relationship(s) (OBO::Core::Relationship) of this instance with its property value(s)
+  Function - gets/sets the property_value(s) of this instance
+  
+=cut
+
+sub property_value {
+	# TODO WARNING: this code might change!
+	my ($self, @co) = @_;
+	
+	foreach my $i (@co) {
+		$self->{PROPERTY_VALUE}->add($i);
+	}
+	return $self->{PROPERTY_VALUE};
 }
 
 =head2 instance_of

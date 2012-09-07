@@ -76,6 +76,12 @@ instance_of: APO:man
 property_value: married_to APO:cecilia
 property_value: shoe_size "8" xsd:positiveInteger
 
+[Instance]
+id: APO:cecilia
+name: Cecilia Rodriguez
+instance_of: APO:woman
+property_value: shoe_size "7" xsd:positiveInteger
+
 [Typedef]
 id: contained_in
 name: contained in

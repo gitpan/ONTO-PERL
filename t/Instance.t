@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 83;
+    plan tests => 84;
 }
 
 #########################
@@ -14,6 +14,7 @@ BEGIN {
 use OBO::Core::Instance;
 use OBO::Core::Def;
 use OBO::Core::Dbxref;
+use OBO::Core::Relationship;
 use OBO::Core::Synonym;
 use OBO::Core::Term;
 use OBO::Util::DbxrefSet;
@@ -202,7 +203,14 @@ ok($xr_n2{'YAPO:vm'} eq 'YAPO:vm');
 ok($xr_n2{'YAPO:ls'} eq 'YAPO:ls');
 ok($xr_n2{'YAPO:ea'} eq 'YAPO:ea');
 
-# disjoint_from:
+# property_value
+my $rel = OBO::Core::Relationship->new();
+$rel->id('APO:10000000');
+$rel->type('acts_on');
+$n1->property_value($rel);
+ok(($n1->property_value()->get_set())[0]->id() eq 'APO:10000000');
+
+# disjoint_from
 $n2->disjoint_from($n1->id(), $n3->id());
 my @dis = sort {$a cmp $b} $n2->disjoint_from();
 ok($#dis == 1);

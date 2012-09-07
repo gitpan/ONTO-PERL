@@ -51,7 +51,10 @@ SKIP:
 	ok ( %{$result} );
 	
 	# protein with 2 genes
+	
+	#
 	# terms
+	#
 	ok ( my $prot = $onto->get_term_by_name ( 'EF2_SCHPO' ) );
 	ok ( my $mod_prot1 = $onto->get_term_by_name ( 'EF2_SCHPO-Phosphoserine-568' ) );
 	ok ( my $mod_prot2 = $onto->get_term_by_name ( 'EF2_SCHPO-Phosphothreonine-574' ) );
@@ -59,7 +62,10 @@ SKIP:
 #	ok ( $onto->get_term_by_name ( "EF2_SCHPO gene" ) ); # gene names are now taken from NCBI
 	ok ( my $gene1 = $onto->get_term_by_id ( 'GeneID:2539544' ) );
 	ok ( my $gene2 = $onto->get_term_by_id ( 'GeneID:3361483' ) );
+	
+	#
 	# relations
+	#
 	my @heads_poly = @{$onto->get_head_by_relationship_type ( $prot, $onto->get_relationship_type_by_id ( "encoded_by" ) )};
 #	ok ( @heads_poly == 2 ); # "encoded_by" currently not used
 	my @heads_cf = @{$onto->get_head_by_relationship_type ( $gene1, $onto->get_relationship_type_by_name ( "codes for" ) )};

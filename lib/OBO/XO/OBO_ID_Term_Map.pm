@@ -379,7 +379,7 @@ $obo_id_set->file("OBO");
 
 if ($obo_id_set->add("OBO:0007049")) { ... }
 
-$new_id = $obo_id_set->get_new_id("GO");
+$new_id = $obo_id_set->get_new_id('GO', 'cel cycle');
 
 =head1 DESCRIPTION
 

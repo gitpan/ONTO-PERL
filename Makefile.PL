@@ -6,11 +6,8 @@ $p = 'Date::Manip';
 if (!eval "require $p") {
     print <<MSG;
 
-   Date::Manip is missing. This module is required in order to perform 
-   dates checking while parsing OBO-formatted files (e.g. 'creation_date' tag).
-   However, this module is not fully required for using ONTO-PERL. If you 
-   do not intend to parse OBO-formatted files, then you may continue, and 
-   install Date::Manip in the future.
+   Date::Manip is missing. This module is required in order to perform checks 
+   of dates while parsing OBO-formatted files (e.g. 'creation_date' tag).
 
 MSG
       
@@ -76,6 +73,7 @@ WriteMakefile(
 						#'XML::Parser'  => 2.41, # optional
 						#'XML::XPath'   => 1.13  # optional
 						},
+	PREREQ_FATAL      => '1',
 	EXE_FILES         => [
 							qw(
 								scripts/get_ancestor_terms.pl

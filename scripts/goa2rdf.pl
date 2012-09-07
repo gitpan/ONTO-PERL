@@ -5,7 +5,15 @@
 #
 # Purpose : Generates a simple RDF graph from a given GOA file.
 #
-# Usage   : goa2rdf.pl input_file.goa  > output_file.rdf
+# Usage   : goa2rdf.pl /path/to/input_file.goa [base_URI] [namespace] > output_file.rdf
+#
+# Example : goa2rdf.pl /path/to/input_file.goa http://www.semantic-systems-biology.org SSB > output_file.rdf
+#
+# Arguments:
+#  			1. Full path to the GOA file
+#  			2. File handle for writing RDF: STDOUT
+# 			3. base URI (default: 'http://www.semantic-systems-biology.org/')
+# 			4. namespace (default: 'SSB')
 #
 # License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -24,7 +32,10 @@ use OBO::APO::GoaToRDF;
 my $input_file = shift(@ARGV);
 my $goa2rdf = OBO::APO::GoaToRDF->new();
 
-$goa2rdf->work(\*STDOUT, $input_file);
+my $file_handle = \*STDOUT;
+my $base        = 'http://www.semantic-systems-biology.org/';
+my $ns          = 'SSB';
+$file_handle    = $goa2rdf->work($input_file, $file_handle, $base, $ns);
 
 exit 0;
 

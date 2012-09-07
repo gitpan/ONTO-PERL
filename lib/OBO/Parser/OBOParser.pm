@@ -25,7 +25,7 @@ use Date::Manip qw(ParseDate UnixDate);
 use strict;
 use warnings;
 
-$Carp::Verbose = 1; #vlmir
+$Carp::Verbose = 1;
 
 sub new {
 	my $class         = shift;
@@ -224,7 +224,7 @@ sub work {
 		$result->treat_xrefs_as_equivalent($treat_xrefs_as_equivalent->get_set());
 
 		if ($chunks[0]) {
-			print STDERR "The following has been ignored from the header:\n", $chunks[0], "\n";
+			print STDERR "The following line(s) has been ignored from the header:\n", $chunks[0], "\n";
 		}
 		
 		
@@ -239,6 +239,7 @@ sub work {
 		my $r_comments   = qr/\s*(\!\s*(.*))?/o;
 		
 		my $intersection_of_counter = 0;
+		my $union_of_counter        = 0;
 		
 		foreach my $chunk (@chunks) {
 			my @entry  = split (/\n/, $chunk);
@@ -249,9 +250,10 @@ sub work {
 				my $term;
 				
 				#
-				# to check we have at least two intersection_of tags
+				# to check we have zero or at least two intersection_of's and zero or at least two union_of's
 				#
 				$intersection_of_counter = 0;
+				$union_of_counter        = 0;
 				
 				$file_line_number++;
 				
@@ -360,11 +362,16 @@ sub work {
 						$rel->head($target);
 						$term->intersection_of($rel);
 						$intersection_of_counter++;
-					} elsif ($line =~ /^union_of:\s*(.*)/) {
+					} elsif ($line =~ /^union_of:$r_db_acc$r_comments/) {
 						# TODO wait until the OBO spec 1.4 be released
-						# Distinguish between terms and relations?
-						# Check there are at least 2 elements in the 'union_of' set
+						my $target = $result->get_term_by_id($1); # Is this term already in the ontology?
+						if (!defined $target) {
+							$target = OBO::Core::Term->new(); # if not, create a new term
+							$target->id($1);
+							$result->add_term($target);
+						}
 						$term->union_of($1);
+						$union_of_counter++;
 					} elsif ($line =~ /^disjoint_from:$r_db_acc$r_comments/) {
 						$term->disjoint_from($1); # We are assuming that the other term exists or will exist; otherwise , we have to create it like in the is_a section.
 					} elsif ($line =~ /^relationship:\s*([\w\/]+)$r_db_acc$r_comments/) {
@@ -426,16 +433,20 @@ sub work {
 				}
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
 					carp "Missing 'intersection_of' tag in term:\n\n", $chunk, "\n";
-				}				
+				}
+				if ($union_of_counter == 1) { # IDEM TEST: ($union_of_counter != 0 && $union_of_counter < 2) 
+					carp "Missing 'union_of' tag in term:\n\n", $chunk, "\n";
+				}
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Typedef\]/) { # treat [Typedef]
 				my $type;
 				my $only_one_name_tag_per_entry = 0;
 				
 				#
-				# to check we have at least two intersection_of tags
+				# to check we have zero or at least two intersection_of's and zero or at least two union_of's
 				#
 				$intersection_of_counter = 0;
+				$union_of_counter        = 0;
 				
 				foreach my $line (@entry) {
 					if ($line =~ /^id:\s*(.*)/) { # get the type id
@@ -554,9 +565,14 @@ sub work {
 						$intersection_of_counter++;
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
 						# TODO wait until the OBO spec 1.4 be released
-						# Distinguish between terms and relations?
-						# Check there are at least 2 elements in the 'union_of' set
+						my $target = $result->get_relationship_type_by_id($1); # Is this relationship type already in the ontology?
+						if (!defined $target) {
+							$target = OBO::Core::RelationshipType->new(); # if not, create a new relationship type
+							$target->id($1);
+							$result->add_relationship_type($target);
+						}
 						$type->union_of($1);
+						$union_of_counter++;
 					} elsif ($line =~ /^disjoint_from:\s*([:\w]+)$r_comments/) {
 						$type->disjoint_from($1); # We are assuming that the other relation type exists or will exist; otherwise , we have to create it like in the is_a section.
 					} elsif ($line =~ /^inverse_of:\s*([:\w]+)$r_comments/) { # e.g. inverse_of: has_participant ! has participant
@@ -634,15 +650,19 @@ sub work {
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2) 
 					carp "Missing 'intersection_of' tag in relationship type:\n\n", $chunk, "\n";
 				}
+				if ($union_of_counter == 1) { # IDEM TEST: ($union_of_counter != 0 && $union_of_counter < 2) 
+					carp "Missing 'union_of' tag in relationship type:\n\n", $chunk, "\n";
+				}
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Instance\]/) { # treat [Instance]
 				my $instance;
 				
 				#
-				# to check we have at least two intersection_of tags
+				# to check we have zero or at least two intersection_of's and zero or at least two union_of's
 				#
-				# TODO do INSTANCES have this tag?
+				# TODO do INSTANCES have these tags?
 				$intersection_of_counter = 0;
+				$union_of_counter        = 0;
 				
 				$file_line_number++;
 				
@@ -660,9 +680,10 @@ sub work {
 								$instance->id($1);
 								$result->add_instance($instance);        # add it to the ontology
 								$only_one_id_tag_per_entry = 1;
-							} elsif (defined $instance->def()->text() && $instance->def()->text() ne '') {
-								# The instance is already in the ontology since it has a definition! (maybe empty?)
-								croak "The instance with id '", $1, "' is duplicated in the OBO file.";
+							#} elsif (defined $instance->def()->text() && $instance->def()->text() ne '') {
+								# TODO Do instances have a definition?
+							#	# The instance is already in the ontology since it has a definition! (maybe empty?)
+							#	croak "The instance with id '", $1, "' is duplicated in the OBO file.";
 							}
 						} else {
 							croak "The instance with id '", $1, "' does NOT follow the ID convention: 'IDSPACE:UNIQUE_IDENTIFIER', e.g. GO:1234567";
@@ -746,10 +767,15 @@ sub work {
 						$intersection_of_counter++;
 					} elsif ($line =~ /^union_of:\s*(.*)/) {
 						# TODO wait until the OBO spec 1.4 be released
-						# Distinguish between instances and relations?
-						# Check there are at least 2 elements in the 'union_of' set
 						# TODO do INSTANCES have this tag?
+						my $target = $result->get_instance_by_id($1); # Is this instance already in the ontology?
+						if (!defined $target) {
+							$target = OBO::Core::Instance->new(); # if not, create a new instance
+							$target->id($1);
+							$result->add_instance($target);
+						}
 						$instance->union_of($1);
+						$union_of_counter++;
 					} elsif ($line =~ /^disjoint_from:$r_db_acc$r_comments/) {
 						# TODO do INSTANCES have this tag?
 						$instance->disjoint_from($1); # We are assuming that the other instance exists or will exist; otherwise , we have to create it like in the is_a section.
@@ -795,21 +821,39 @@ sub work {
 					} elsif ($line =~ /^builtin:$r_true_false/) {
 						# TODO do INSTANCES have this tag?
 						$instance->builtin(($1 eq 'true')?1:0);
-					} elsif ($line =~ /^property_value:\s*(.*)/) {
-						# TODO implement this once the OBO spec is more mature...
-						#my $rel = OBO::Core::Relationship->new();
-						#my $id  = $instance->id().'_'.$1.'_'.$2; 
-						#$id     =~ s/\s+/_/g;
-						#$rel->id($id);
-						#$rel->type($1);
-						#my $target = $result->get_instance_by_id($2); # Is this instance already in the ontology?
-						#if (!defined $target) {
-						#	$target = OBO::Core::Instance->new(); # if not, create a new instance
-						#	$target->id($2);
-						#	$result->add_instance($target);
-						#}
-						#$rel->link($instance, $target);
-						#$result->add_relationship($rel);
+					} elsif ($line =~ /^property_value:\s*(\w+)$r_db_acc/ || $line =~ /^property_value:\s*(\w+)\s+("\w+")\s+(\w+)/) {
+						# TODO re-implement this once the OBO spec is more mature...
+
+						if (!defined $3) { # e.g. shoe_size "12" xsd:positiveInteger
+							my $r2_type = $result->get_relationship_type_by_id($1); # Is this relationship type already in the ontology?
+							if (!defined $r2_type){
+								$r2_type = OBO::Core::RelationshipType->new();  # if not, create a new type
+								$r2_type->id($1);
+								$result->add_relationship_type($r2_type);       # add it to the ontology
+							}
+							
+							my $rel = OBO::Core::Relationship->new();
+							my $id  = $instance->id().'_'.$1.'_'.$2;
+							$id     =~ s/\s+/_/g;
+							$rel->id($id);
+							$rel->type($r2_type->id());
+						
+							my $target = $result->get_instance_by_id($2); # Is this instance already in the ontology?
+							if (!defined $target) {
+								$target = OBO::Core::Instance->new(); # if not, create a new instance
+								$target->id($2);
+								$result->add_instance($target);
+							}
+							$rel->link($instance, $target);
+							$instance->property_value($rel);
+							#$result->add_relationship($rel); # TODO Do we need this? or better add $ontology->{PROPERTY_VALUES}?
+						} else {
+							# TODO Implement cases like: e.g. shoe_size "12" xsd:positiveInteger
+							# TODO Perhaps create a new module: OBO::Util::Datatype  or so
+							#warn 'I cannot digest (yet) the line: ', $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
+							#$rel->link($instance, $target);
+							#$result->add_relationship($rel); # TODO Do we need this? or better add $ontology->{PROPERTY_VALUES}?
+						}						
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {					
@@ -823,7 +867,10 @@ sub work {
 				if ($intersection_of_counter == 1) { # IDEM TEST: ($intersection_of_counter != 0 && $intersection_of_counter < 2)
 					 # TODO do INSTANCES have this tag?
 					croak "Missing 'intersection_of' tag in instance:\n\n", $chunk, "\n";
-				}		
+				}
+				if ($union_of_counter == 1) { # IDEM TEST: ($union_of_counter != 0 && $union_of_counter < 2) 
+					carp "Missing 'union_of' tag in instance:\n\n", $chunk, "\n";
+				}
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Annotation\]/) { # treat [Annotation]
 				# TODO "Annotations are ignored by ONTO-PERL (they might be supported in the future).";

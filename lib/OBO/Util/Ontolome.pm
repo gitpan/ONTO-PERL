@@ -1,4 +1,4 @@
-# $Id: Ontolome.pm 2011-12-02 erick.antezana $
+# $Id: Ontolome.pm 2012-05-02 erick.antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
@@ -501,11 +501,12 @@ sub intersection () {
   Function - expands all the transitive relationships (e.g. is_a, part_of) along the
   			 hierarchy and generates a new ontology holding all possible paths
   Remark   - Performance issues with huge ontologies.
+           - an experimental code is enabled (flag: $composition) based on http://www.geneontology.org/GO.ontology.relations.shtml
   
 =cut
 
 sub transitive_closure () {
-	my ($self, $ontology, @trans_rts) = @_;
+	my ($self, $ontology, @trans_rts, $composition) = @_;
 	my @default_trans_rts = ('is_a', 'part_of');
 	if (scalar @trans_rts > 0) {
 		@default_trans_rts = @trans_rts;
@@ -579,16 +580,18 @@ sub transitive_closure () {
 					@rels = (@rels, @more_rels); # trick to 'recursively' visit the just added rel
 				}
 				my $r_type = $r->type();
-				$r->id($cola_id.'_'.$r_type.'_'.$current_term->id());
-				$r->link($tail, $current_term);
-				
-				$result->add_relationship($r);
 				
 				#
 				# relationship type
 				#
 				my $rel_type = $ontology->get_relationship_type_by_id($r_type);
 				$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+				
+				$r->id($cola_id.'_'.$r_type.'_'.$current_term->id());
+				$r->link($tail, $current_term);
+				
+				# add the relationship after adding its type
+				$result->add_relationship($r);
 			}
 		} else {
 			$result->add_term($term);
@@ -600,9 +603,11 @@ sub transitive_closure () {
 	}
 	foreach my $rel (@{$ontology->get_relationships()}) {
 		if (! $result->has_relationship_id($rel->id())) {
-			$result->add_relationship($rel);
 			my $rel_type = $ontology->get_relationship_type_by_id($rel->type());
 			$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+			
+			# add the relationship after adding its type
+			$result->add_relationship($rel);
 		}
 	}
 	@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
@@ -626,8 +631,40 @@ sub transitive_closure () {
 				my $l = @$ref_path[$#$ref_path]->head();
 				$result->create_rel($f, $type_of_rel, $l); # add the transitive closure relationship!
 			}
-		}	
+		}
 	}
+	# composition of 'is_a' and 'part_of'
+	$composition = 1;
+	if ($composition) { # http://wiki.geneontology.org/index.php/Relation_composition
+		foreach my $term (@terms) {
+			my $term_id = $term->id();
+			foreach my $term2_id ($stop->get_set()) {
+				next if ($term_id eq $term2_id); # reflexive
+				my @ref_paths = $result->get_paths_term1_term2($term_id, $term2_id);
+				#print STDERR "PATH:".$term_id."->".$term2_id."\n" if @ref_paths;
+				foreach my $ref_path (@ref_paths) {
+					next if !defined @$ref_path[0]; # reflexive relationships (e.g. GO:0000011_is_a_GO:0000011) are problematic... 
+					next if !defined @$ref_path[1]; # two elements (at least) are needed to make the composition
+					
+					my $left_entry  = @$ref_path[0]->tail();
+					my $left_type   = @$ref_path[0]->type();
+					my $right_entry = @$ref_path[1]->head();
+					my $right_type  = @$ref_path[1]->type();
+					
+					next if ($left_type eq $right_type);
+					
+					my $new_rel_id = $left_entry->id()."_part_of_".$right_entry->id();
+					
+					if (!$result->has_relationship_id($new_rel_id)) {
+						$result->create_rel($left_entry, 'part_of', $right_entry); # add the composed relationship!
+						#print STDERR "\tNEW:".$new_rel_id."\n";
+					}
+					
+				}
+			}
+		}
+	}
+	
 	return $result;
 }
 
@@ -659,7 +696,7 @@ sub transitive_reduction () {
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set());         # add all synonym_type_def_set by default
 	
 	my @terms = @{$ontology->get_terms()};
-	foreach my $term (@terms){
+	foreach my $term (@terms) {
 		my $current_term =  $result->get_term_by_id($term->id());
 		if (defined $current_term) { # TODO && $current_term is in $term->namespace()  i.e. check if they belong to an identical namespace
 			$current_term->is_anonymous(1) if (!defined $current_term->is_anonymous() && $term->is_anonymous());
@@ -717,17 +754,19 @@ sub transitive_reduction () {
 					my @more_rels = @{$ontology->get_relationships_by_target_term($cola)};
 					@rels = (@rels, @more_rels); # trick to 'recursively' visit the just added rel
 				}
-				my $r_type = $r->type();
-				$r->id($cola_id.'_'.$r_type.'_'.$current_term->id());
-				$r->link($tail, $current_term);
 				
-				$result->add_relationship($r);
+				my $r_type = $r->type();
 				
 				#
 				# relationship type
 				#
 				my $rel_type = $ontology->get_relationship_type_by_id($r_type);
 				$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+
+				# add the relationship after adding its type				
+				$r->id($cola_id.'_'.$r_type.'_'.$current_term->id());
+				$r->link($tail, $current_term);
+				$result->add_relationship($r);
 			}
 		} else {
 			$result->add_term($term);
@@ -739,14 +778,23 @@ sub transitive_reduction () {
 	}
 
 	#
-	# TODO This loop seems to be superflous!!
+	# In this loop, relationships of the Typedefs are added
 	#
 	foreach my $rel (@{$ontology->get_relationships()}) {
 		if (!$result->has_relationship_id($rel->id())) {
-			$result->add_relationship($rel);
 			my $rel_type = $ontology->get_relationship_type_by_id($rel->type());
 			$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
+			
+			# add the relationship after adding its type
+			$result->add_relationship($rel);
 		}
+	}
+	
+	#
+	# Add NON-USED relationship types
+	#
+	foreach my $rel_type ( @{$ontology->get_relationship_types_sorted_by_id()} ) {
+			$result->has_relationship_type($rel_type) || $result->add_relationship_type($rel_type);
 	}
 
 	@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
@@ -754,7 +802,7 @@ sub transitive_reduction () {
 	my $stop = OBO::Util::Set->new();
 	map {$stop->add($_->id())} @terms;
 
-	# delete rel's
+	# delete implicit rel's
 	foreach my $term (@terms) {
 		my $term_id = $term->id();
 		# path of references:
@@ -762,20 +810,55 @@ sub transitive_reduction () {
 			#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one reflexive relationship)
 
 			# take the paths from the original ontology
-			my @ref_paths = $ontology->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
+			my @ref_paths = $result->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
 
 			foreach my $ref_path (@ref_paths) {
+				next if !defined @$ref_path[0];
 				my $i = $#$ref_path;
 				my $f = @$ref_path[0]->tail();
 				my $l = @$ref_path[$i]->head();
 				my $v = $result->get_relationship_by_id($f->id().'_'.$type_of_rel.'_'.$l->id());
-
+				
 				if ($v && ($i > 0)) {
 					$result->delete_relationship($v);
 				}
 			}
 		}	
 	}
+	
+	# delete compositon of rel's
+	foreach my $term (@terms) {
+		my $term_id = $term->id();
+		foreach my $term2_id ($stop->get_set()) {
+			next if ($term_id eq $term2_id); # reflexive
+			my @ref_paths = $result->get_paths_term1_term2($term_id, $term2_id);
+						
+			my $rel_id = $term_id."_part_of_".$term2_id; # deleting the "part of" relationships added by following the simplest rule: isa*partof=>partof and partof*isa=>partof
+			
+			next if (!$result->has_relationship_id($rel_id));
+			
+			foreach my $ref_path (@ref_paths) {
+				next if !defined @$ref_path[0]; # reflexive relationships (e.g. GO:0000011_is_a_GO:0000011) are problematic... 
+				next if !defined @$ref_path[1]; # two elements (at least) are needed to make the composition
+					
+				my $left_entry  = @$ref_path[0]->tail();
+				my $left_type   = @$ref_path[0]->type();
+				my $i           = $#$ref_path;
+				my $right_entry = @$ref_path[$i]->head();
+				my $right_type  = @$ref_path[$i]->type();
+	
+				#next if ($left_type eq $right_type);
+
+				my $new_rel_id = $left_entry->id()."_part_of_".$right_entry->id(); # deleting the "part of" relationships added by following the simplest rule: isa*partof=>partof and partof*isa=>partof
+
+				if ($result->has_relationship_id($new_rel_id)) {
+					my $v = $result->get_relationship_by_id($new_rel_id);
+					$result->delete_relationship($v); # delete the composed relationship!
+				}
+			}
+		}
+	}
+		
 	return $result;
 }
 

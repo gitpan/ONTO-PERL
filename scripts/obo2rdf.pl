@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
-# $Id: obo2rdf.pl 2010-09-29 erick.antezana $
+# $Id: obo2rdf.pl 2012-09-02 erick.antezana $
 #
 # Script  : obo2rdf.pl
 #
 # Purpose : Converts a file from OBO to RDF.
 #
-# Usage   : obo2rdf.pl my_ontology.obo "http://www.mydomain.com/ontology/rdf/" > my_ontology.rdf
+# Usage   : obo2rdf.pl my_ontology.obo "http://www.mydomain.com/ontology/rdf/" SSB > my_ontology.rdf
 #
 # License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
@@ -23,7 +23,9 @@ use OBO::Parser::OBOParser;
 my $my_parser = OBO::Parser::OBOParser->new();
 my $ontology  = $my_parser->work(shift);
 my $url       = shift;
-$ontology->export('rdf', \*STDOUT, $url);
+my $namespace = shift;
+
+$ontology->export('rdf', \*STDOUT, \*STDERR, $url, $namespace);
 
 exit 0;
 
@@ -36,6 +38,14 @@ obo2rdf.pl - OBO to RDF translator.
 =head1 DESCRIPTION
 
 This script transforms an OBO file into RDF.
+
+Usage: 
+
+   obo2rdf.pl INPUT.obo URL NAMESPACE > OUTPUT.rdf
+
+Sample usage: 
+
+   obo2rdf.pl my_ontology.obo "http://www.mydomain.com/ontology/rdf/" SSB > my_ontology.rdf
 
 =head1 AUTHOR
 

@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 61;
+    plan tests => 67;
 }
 
 #########################
@@ -81,7 +81,17 @@ ok($mini_onto->has_term($tin));
 ok(!defined $tin->name());
 ok($ins->is_instance_of($tin));
 ok($tin->is_class_of($ins));
-ok($mini_onto->get_number_of_instances() == 1); # will be 2 ('APO:erick' && 'APO:cecilia') once the properties are implemented
+
+my $ins2 = $mini_onto->get_instance_by_id('APO:cecilia');
+ok($mini_onto->has_instance($ins2));
+ok($ins2->name() eq 'Cecilia Rodriguez');
+my $tin2 = $mini_onto->get_term_by_id('APO:woman');
+ok($mini_onto->has_term($tin2));
+ok(!defined $tin2->name());
+ok($ins2->is_instance_of($tin2));
+ok($tin2->is_class_of($ins2));
+
+ok($mini_onto->get_number_of_instances() == 2);
 
 # export to OBO
 open (FH, '>./t/data/test0.obo') || die 'Run as root the tests: ', $!;
@@ -104,13 +114,13 @@ close FH;
 # for RDF get the whole ontology, as we need interactions, processes ...
 my $rdf_ontology = $my_parser->work('./t/data/out_I_A_thaliana.obo');
 open (FH, '>./t/data/test1.rdf') || die 'Run as root the tests: ', $!;
-$rdf_ontology->export('rdf', \*FH, \*STDERR, 'http://www.myontology.org/ontology/rdf/');
+$rdf_ontology->export('rdf', \*FH, \*STDERR, 'http://www.myontology.org/ontology/rdf/', 'SSB');
 close FH;
 
 # export to RDF (generic)
 my $rdf_ontology_gen = $my_parser->work('./t/data/cell.obo');
 open (FH, '>./t/data/test2.rdf') || die 'Run as root the tests: ', $!;
-$rdf_ontology_gen->export('rdf', \*FH, \*STDERR, 'http://www.cellcycleontology.org/ontology/rdf/');
+$rdf_ontology_gen->export('rdf', \*FH, \*STDERR, 'http://www.cellcycleontology.org/ontology/rdf/', 'SSB');
 close FH;
 
 # export to XML 1

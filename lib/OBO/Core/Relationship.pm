@@ -1,4 +1,4 @@
-# $Id: Relationship.pm 2011-06-06 erick.antezana $
+# $Id: Relationship.pm 2012-03-08 erick.antezana $
 #
 # Module  : Relationship.pm
 # Purpose : Relationship in the Ontology.
@@ -20,10 +20,10 @@ sub new {
         $self->{ID}    = undef; # required, string (1)
         $self->{TYPE}  = undef; # required, string (1)
         
-        $self->{HEAD}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Term (1)
-                                #                  ^^                 ^^                            ^^
-                                #                  ||                 ||                            ||
-        $self->{TAIL}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Instance (1)
+        $self->{HEAD}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Term (1)     or OBO::Core::Datatype (TODO: property_value: shoe_size "8" xsd:positiveInteger)
+                                #                  ^^                 ^^                            ^^                            ^^
+                                #                  ||                 ||                            ||                            ||
+        $self->{TAIL}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Instance (1) or OBO::Core::Instance (TODO)
         
         bless ($self, $class);
         return $self;
@@ -102,9 +102,9 @@ sub head {
 =head2 tail
 
   Usage    - $relationship->tail($subject) or $relationship->tail()
-  Returns  - the OBO::Core::Term (subject or source) or OBO::Core::RelationshipType (object or target) sourced by this relationship
-  Args     - the source term (OBO::Core::Term) or the source relationship type (OBO::Core::RelationshipType)
-  Function - gets/sets the term/relationship type attached to the tail of the relationship
+  Returns  - the OBO::Core::Term (subject or source) or OBO::Core::RelationshipType (subject or source) sourced by this relationship or the OBO::Core::Instance (subject or source)
+  Args     - the source term (OBO::Core::Term) or the source relationship type (OBO::Core::RelationshipType) or the source instance (OBO::Core::Instance)
+  Function - gets/sets the term/relationship type/instance attached to the tail of the relationship
   
 =cut
 
@@ -116,7 +116,7 @@ sub tail {
 =head2 link
 
   Usage    - $relationship->link($tail, $head) or $relationship->link()
-  Returns  - the two Terms (OBO::Core::Term) or two RelationshipTypes ()OBO::Core::RelationshipType) --subject and source-- connected by this relationship
+  Returns  - the two Terms (OBO::Core::Term) or two RelationshipTypes (OBO::Core::RelationshipType) or an Instance (OBO::Core::Instance) and a Term (OBO::Core::Term) --subject and source-- connected by this relationship
   Args     - the source (tail, OBO::Core::Term/OBO::Core::RelationshipType) and target(head, OBO::Core::Term/OBO::Core::RelationshipType) term/relationship type
   Function - gets/sets the terms/relationship type attached to this relationship
   
@@ -134,7 +134,7 @@ __END__
 
 =head1 NAME
 
-OBO::Core::Relationship  - A relationship between two terms or two relationships within an ontology.
+OBO::Core::Relationship  - A relationship between two terms or two relationships or an instance and a term within an ontology.
 
 =head1 SYNOPSIS
 
@@ -203,9 +203,18 @@ $r6->link($n1, $n3);
 
 =head1 DESCRIPTION
 
-A Relationship between two terms (OBO::Core::Term) in the ontology (OBO::Core::Ontology).
+A relationship between:
 
-A relationships must have a unique ID (e.g. "APO:P0000028_is_a_APO:P0000005"), 
+- two Terms (OBO::Core::Term) or 
+- two RelationshipTypes (OBO::Core::RelationshipType) or 
+- an Instance (OBO::Core::Instance) and a Term (OBO::Core::Term)
+
+OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Term (1)
+      ^^                 ^^                            ^^
+      ||                 ||                            ||
+OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Instance (1)
+
+Relationships must have a unique ID (e.g. "APO:P0000028_is_a_APO:P0000005"), 
 a type (e.g. 'is_a') and it must known the linking terms (tail and head).
 
 =head1 AUTHOR

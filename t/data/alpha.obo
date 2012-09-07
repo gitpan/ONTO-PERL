@@ -169,6 +169,12 @@ instance_of: MYO:caveman
 property_value: married_to MYO:wilma
 property_value: shoe_size "12" xsd:positiveInteger
 
+[Instance]
+id: MYO:wilma
+name: wilma flintstone
+instance_of: MYO:caveman
+property_value: shoe_size "10" xsd:positiveInteger
+
 [Typedef]
 id: has_quality
 name: has_quality

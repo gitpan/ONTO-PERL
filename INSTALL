@@ -76,21 +76,21 @@ Third part modules
 
 Required module:
 
-1. Date::Manip (v6.24) is used by the OBOParser (to check dates):
+1. Date::Manip (> v6.24) is used by the OBOParser (to check dates):
 
-   http://search.cpan.org/~sbeck/Date-Manip-6.24/
+   http://search.cpan.org/~sbeck/Date-Manip/
 
 Optional modules:
 
-1. XML::Parser (v2.41) is used in format conversions (obo2owl and owl2obo):
+1. XML::Parser (> v2.41) is used in format conversions (obo2owl and owl2obo):
 
-   http://search.cpan.org/~msergeant/XML-Parser-2.41/
+   http://search.cpan.org/~msergeant/XML-Parser/
 
-2. XML::XPath (v1.13) is used by the IntAct related modules:
+2. XML::XPath (> v1.13) is used by the IntAct related modules:
 
-   http://search.cpan.org/~msergeant/XML-XPath-1.13/
+   http://search.cpan.org/~msergeant/XML-XPath/
 
-3. SWISS Knife (v1.67) is used by the 'UniProtParser':
+3. SWISS Knife (> v1.67) is used by the 'UniProtParser':
 
    ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife/
 

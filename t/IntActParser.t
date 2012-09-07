@@ -18,7 +18,7 @@ my $print_obo  = 1;
 
 SKIP:
 {	
-	eval 'use XML::XPath';
+	eval { require XML::XPath };
 	skip ( 'because XML::XPath is required for testing the NewIntAct parser', 10 ) if $@;
 	
 	use OBO::Parser::OBOParser;	

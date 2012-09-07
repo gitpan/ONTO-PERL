@@ -46,19 +46,23 @@ Other useful commands:
 DEPENDENCIES
 ============
 
-ONTO-PERL might require the following modules:
+ONTO-PERL requires the following modules:
 
 1. SWISS Knife (> v1.65) is used by the 'UniProtParser':
 
-	ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife
+	ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife (OPTIONAL)
 
 2. XML::Simple (> v2.16) is used by the IntAct related modules:
 
-	http://search.cpan.org/~grantm/XML-Simple-2.16/
+	http://search.cpan.org/~grantm/XML-Simple/ (OPTIONAL)
 	
 3. XML::Parser (> v2.34) is used in format conversions (obo2owl and owl2obo)
 
-	http://search.cpan.org/~msergeant/XML-Parser-2.34/
+	http://search.cpan.org/~msergeant/XML-Parser/ (OPTIONAL)
+	
+4. Date::Manip (> v6.24):
+
+	http://search.cpan.org/dist/Date-Manip/ (MANDATORY)
 
 COPYRIGHT AND LICENCE
 =====================

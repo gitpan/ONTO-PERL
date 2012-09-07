@@ -4,7 +4,6 @@
 #########################
 
 BEGIN {
-	unshift @INC, '/norstore/user/mironov/workspace/onto-perl/ONTO-PERL-1.37/lib';
 	eval { require Test; };
 	use Test;    
 	plan tests => 2;

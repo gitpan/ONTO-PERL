@@ -53,19 +53,15 @@ sub new {
 
 =head2 work
 
-  Usage    - $GoaToRDF->work($RDF_file_handler,$path_to_assoc_file)
+  Usage    - $GoaToRDF->workwork($input_file, $file_handle, $base, $ns);
   Returns  - RDF file handler
-  Args     - a file handler for the new RDF file and the path to the assoc. file.
+  Args     - 1. Full path to the GOA file
+  			 2. File handle for writing RDF
+  			 3. base URI (e.g. 'http://www.semantic-systems-biology.org/')
+  			 4. name space (e.g. 'SSB')
   Function - converts an assoc. file to an RDF graph
   
 =cut
-#vlmir
-# Argumenents
-# 1. Full path to the GOA file
-# 2. File handle for writing RDF
-# 3. base URI (e.g. 'http://www.semantic-systems-biology.org/')
-# 4. name space (e.g. 'SSB')
-#vlmir
 
 sub work {
 	my $self = shift;
@@ -78,7 +74,7 @@ sub work {
 	#
 	#TODO the list is not complete anymore #vlmir
 	my %evidence_code_by_id = (
-		'IEA'	 => 'ECO_00000067',
+		'IEA'	 => 'ECO_0000203',
 		'ND'	 => 'ECO_0000035',
 		'IDA'	 => 'ECO_0000002',
 		'IPI'	 => 'ECO_0000021',
@@ -91,7 +87,11 @@ sub work {
 		'IEP'	 => 'ECO_0000008',
 		'RCA'	 => 'ECO_0000053',
 		'IGC'	 => 'ECO_0000177',
-		'EXP'	 => 'ECO_0000006'
+		'EXP'	 => 'ECO_0000006',
+		'IBA'	 => 'ECO_0000318',
+		'IRD'	 => 'ECO_0000321',
+		'IKR'	 => 'ECO_0000320',
+		'ISO'	 => 'ECO_0000201'
 	);
 	
 	#
@@ -171,7 +171,7 @@ sub work {
 		print $file_handle "\t\t<".$ns.":date>".$assoc{DATE}."</".$ns.":date>\n";
 		print $file_handle "\t\t<".$ns.":refer>".&char_hex_http($assoc{REFER})."</".$ns.":refer>\n";
 		print $file_handle "\t\t<".$ns.":sup_ref>".&char_hex_http($assoc{SUP_REF})."</".$ns.":sup_ref>\n";
-		print $file_handle "\t\t<".$ns.":has_evidence rdf:resource=\"#".$evidence_code_by_id{$assoc{"EVID_CODE"}}."\"/>\n";
+		print $file_handle "\t\t<".$ns.":has_evidence rdf:resource=\"#".$evidence_code_by_id{$assoc{EVID_CODE}}."\"/>\n";
 		print $file_handle "\t</".$ns.":".$rdf_subnamespace.">\n";
 		
 		#

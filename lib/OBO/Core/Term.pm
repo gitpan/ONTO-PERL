@@ -33,8 +33,8 @@ sub new {
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
 	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
 	$self->{CLASS_OF}           = OBO::Util::InstanceSet->new();# set of instances (0..N)
-	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N)
-	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N)
+	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N) with N=0, 2, 3, ...
+	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N) with N=0, 2, 3, ...
 	$self->{DISJOINT_FROM}      = OBO::Util::Set->new();        # (0..N)
 	$self->{CREATED_BY}         = undef;                        # scalar (0..1)
 	$self->{CREATION_DATE}      = undef;                        # scalar (0..1)
@@ -433,12 +433,12 @@ sub is_class_of {
 }
 
 =head2 intersection_of
-        
+
   Usage    - $term->intersection_of() or $term->intersection_of($t1, $t2, $r1, ...)
   Returns  - an array with the terms/relations which define this term
   Args     - a set (strings) of terms/relations which define this term
-  Function - gets/sets the set of terms/relatonships defining this term
-        
+  Function - gets/sets the set of terms/relationships defining this term
+
 =cut
 
 sub intersection_of {
@@ -456,8 +456,8 @@ sub intersection_of {
   Usage    - $term->union_of() or $term->union_of($t1, $t2, $r1, ...)
   Returns  - an array with the terms/relations which define this term
   Args     - a set (strings) of terms/relations which define this term
-  Function - gets/sets the set of terms/relatonships defining this term
-        
+  Function - gets/sets the set of terms/relationships defining this term
+
 =cut   
  
 sub union_of {
@@ -476,7 +476,7 @@ sub union_of {
   Returns  - the disjoint term id(s) (string(s)) from this one
   Args     - the term id(s) (string) that is (are) disjoint from this one
   Function - gets/sets the disjoint term(s) from this one
-  
+
 =cut
 
 sub disjoint_from {
