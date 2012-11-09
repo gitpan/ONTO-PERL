@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo_transitive_reduction.pl 2011-02-03 erick.antezana $
+# $Id: obo_transitive_reduction.pl 2012-09-10 erick.antezana $
 #
 # Script  : obo_transitive_reduction.pl
 # Purpose : Reduces all the transitive relationships (e.g. is_a, part_of) along the

@@ -32,6 +32,7 @@ sub new {
 	$self->{SUBSET_SET}         = OBO::Util::Set->new();        # set of scalars (0..N)
 	$self->{SYNONYM_SET}        = OBO::Util::SynonymSet->new(); # set of synonyms (0..N)
 	$self->{XREF_SET}           = OBO::Util::DbxrefSet->new();  # set of dbxref's (0..N)
+	$self->{PROPERTY_VALUE}     = OBO::Util::ObjectSet->new();  # set of objects: rel's Term->Instance or Term->Datatype (0..N)
 	$self->{CLASS_OF}           = OBO::Util::InstanceSet->new();# set of instances (0..N)
 	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N) with N=0, 2, 3, ...
 	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N) with N=0, 2, 3, ...
@@ -400,6 +401,26 @@ sub xref_set_as_string {
 	my @result = $_[0]->xref_set()->get_set();
 }
 
+=head2 property_value
+
+  Usage    - $term->property_value() or $term->property_value($p_value1, $p_value2, $p_value3, ...)
+  Returns  - an array with the property value(s) of this term
+  Args     - the relationship(s) (OBO::Core::Relationship) of this term with its property value(s)
+  Function - gets/sets the property_value(s) of this term
+  Remark   - WARNING: this code might change!
+  
+=cut
+
+sub property_value {
+	# TODO WARNING: this code might change!
+	my ($self, @co) = @_;
+	
+	foreach my $i (@co) {
+		$self->{PROPERTY_VALUE}->add($i);
+	}
+	return $self->{PROPERTY_VALUE};
+}
+
 =head2 class_of
 
   Usage    - $term->class_of() or $term->class_of($instance1, $instance2, $instance3, ...)
@@ -509,7 +530,10 @@ sub created_by {
   Returns  - date (string) of creation of the term specified in ISO 8601 format
   Args     - date (string) of creation of the term specified in ISO 8601 format
   Function - gets/sets the date of creation of the term
-  
+  Remark   - You can get an ISO 8601 date as follows:
+  				use POSIX qw(strftime);
+				my $datetime = strftime("%Y-%m-%dT%H:%M:%S", localtime());
+
 =cut
 
 sub creation_date {
@@ -527,6 +551,7 @@ sub creation_date {
 =cut
 
 sub modified_by {
+	# TODO WARNING: This is not going to be in the OBO spec. Use property_values instead...
 	$_[0]->{MODIFIED_BY} = $_[1] if ($_[1]);
 	return $_[0]->{MODIFIED_BY};
 }
@@ -537,17 +562,21 @@ sub modified_by {
   Returns  - date (string) of modification of the term specified in ISO 8601 format
   Args     - date (string) of modification of the term specified in ISO 8601 format
   Function - gets/sets the date of modification of the term
+  Remark   - You can get an ISO 8601 date as follows:
+  				use POSIX qw(strftime);
+				my $datetime = strftime("%Y-%m-%dT%H:%M:%S", localtime());
   
 =cut
 
 sub modification_date {
+	# TODO WARNING: This is not going to be in the OBO spec. Use property_values instead...
 	$_[0]->{MODIFICATION_DATE} = $_[1] if ($_[1]);
 	return $_[0]->{MODIFICATION_DATE};
 }
 
 =head2 is_obsolete
 
-  Usage    - print $term->is_obsolete()
+  Usage    - $term->is_obsolete(1) or print $term->is_obsolete()
   Returns  - either 1 (true) or 0 (false)
   Args     - either 1 (true) or 0 (false)
   Function - tells whether the term is obsolete or not. 'false' by default.

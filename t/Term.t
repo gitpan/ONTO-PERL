@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 111;
+    plan tests => 113;
 }
 
 #########################
@@ -47,8 +47,13 @@ ok($n1->code() eq '0000001');
 # term creator + date
 $n1->created_by('erick_antezana');
 ok($n1->created_by() eq 'erick_antezana');
-$n1->creation_date('2009-04-13T01:32:36Z ');
-ok($n1->creation_date() eq '2009-04-13T01:32:36Z ');
+$n1->creation_date('2009-04-13T01:32:36Z');
+ok($n1->creation_date() eq '2009-04-13T01:32:36Z');
+
+use POSIX qw(strftime);
+my $datetime = strftime("%Y-%m-%dT%H:%M:%S", localtime());
+$n2->creation_date($datetime);
+ok($n2->creation_date() eq $datetime);
 
 # term modificator + date
 $n1->modified_by('erick_antezana');
@@ -310,5 +315,12 @@ ok($ia->is_instance_of($C));
 ok($ib->is_instance_of($C));
 ok($ic->is_instance_of($C));
 ok($id->is_instance_of($C));
+
+# property_value
+my $rel = OBO::Core::Relationship->new();
+$rel->id('APO:10000000');
+$rel->type('acts_on');
+$n1->property_value($rel);
+ok(($n1->property_value()->get_set())[0]->id() eq 'APO:10000000');
 
 ok(1);

@@ -1,4 +1,4 @@
-# $Id: OBOParser.pm 2012-02-02 erick.antezana $
+# $Id: OBOParser.pm 2012-11-07 erick.antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO-formatted files.
@@ -19,6 +19,7 @@ use OBO::Core::SynonymTypeDef;
 use OBO::Core::Term;
 use OBO::Util::IDspaceSet;
 use OBO::Util::Set;
+use OBO::XO::OBO_ID;
 
 use Carp;
 use Date::Manip qw(ParseDate UnixDate);
@@ -312,14 +313,15 @@ sub work {
 						my $scope = (defined $3)?$3:'RELATED';
 						# As of OBO flat file spec v1.2, we use:
 						# synonym: "endomitosis" EXACT []
-						if (defined $5) {
+						if (defined $5) { # if a 'synonym type name' is given
 							my $found = 0; # check that the 'synonym type name' was defined in the header!
 							foreach my $st ($result->synonym_type_def_set()->get_set()) {
-								# Adapt the scope if necessary to the one defined in the header!
 								if ($st->name() eq $5) {
+									if (!defined $3) { # if no scope is given, use the one defined in the header!
+										my $default_scope = $st->scope();
+										$scope = $default_scope if (defined $default_scope);
+									}
 									$found = 1;
-									my $default_scope = $st->scope();
-									$scope = $default_scope if (defined $default_scope);
 									last;
 								}
 							}
@@ -417,10 +419,68 @@ sub work {
 						$term->consider($1);
 					} elsif ($line =~ /^builtin:$r_true_false/) {
 						$term->builtin(($1 eq 'true')?1:0);
-					} elsif ($line =~ /^property_value:\s*(.*)/) {
-						# TODO implement this once the OBO spec is more mature...
-						# This tag should only be used within a [Instance] stanza and not in a [Term] one,
-						# but there are some ontologies (e.g. NCBITaxonomy) that used it...
+					} elsif ($line =~ /^property_value:\s*(\w+)$r_db_acc/ || $line =~ /^property_value:\s*(\w+)\s+"(\w+)"$r_db_acc/) { # TODO some parts in this block might change later on...
+
+						my $r2_type = $result->get_relationship_type_by_id($1); # Is this relationship type already in the ontology?
+						if (!defined $r2_type){
+							$r2_type = OBO::Core::RelationshipType->new();      # if not, create a new relationship type
+							$r2_type->id($1);
+							$result->add_relationship_type($r2_type);           # add it to the ontology
+						}
+
+						#
+						# create the triplet
+						#						
+						my $rel = OBO::Core::Relationship->new();
+						my $id  = $term->id().'_'.$1.'_'.$2;                    # term --> rel --> [term|instance|datatype]
+						$id     =~ s/\s+/_/g;
+						$rel->id($id);
+						$rel->type($r2_type->id());
+						
+						if (!defined $3) {
+							#
+							# property_value: lastest_modification_by erick
+							#
+						    my $target = $result->get_term_by_id($2);           # suggest to OBOF to define TERMs before they are used so that parsers could know they are dealing with terms!
+						    
+						    if (defined $target) {                              # term --> rel --> term
+						    	
+						    } else {
+								$target = $result->get_instance_by_id($2);
+								
+								if (!defined $target) {                         # term --> rel --> instance
+									$target = OBO::Core::Instance->new();
+									$target->id($2);
+									$result->add_instance($target);
+								}
+						    }
+						    
+							$rel->link($term, $target);                         # triplet: term --> rel --> target
+							$term->property_value($rel);
+							
+							#$result->add_relationship($rel);                   # TODO Do we need this? or better add $ontology->{PROPERTY_VALUES}?
+						} elsif (defined $3) {                                  # term --> rel --> datatype
+							#
+							# property_value: lastest_modification_by "erick" xsd:string or e.g. shoe_size "12" xsd:positiveInteger
+							#
+							my $target = $result->get_instance_by_id($2);
+							
+							if (!defined $target) {                             # term --> rel --> datatype
+								$target = OBO::Core::Instance->new();
+								$target->id($2);
+								
+								my $data_type = OBO::Core::Term->new();
+								$data_type->id($3);
+								#$result->add_term($data_type);                 # TODO Think about it...
+								$target->instance_of($data_type);
+								#$result->add_instance($target);                # TODO Think about it...
+							}
+
+							$rel->link($term, $target);
+							$term->property_value($rel);
+							
+							#$result->add_relationship($rel);                   # TODO Do we need this? or better add $ontology->{PROPERTY_VALUES}?
+						}
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {					
@@ -821,38 +881,67 @@ sub work {
 					} elsif ($line =~ /^builtin:$r_true_false/) {
 						# TODO do INSTANCES have this tag?
 						$instance->builtin(($1 eq 'true')?1:0);
-					} elsif ($line =~ /^property_value:\s*(\w+)$r_db_acc/ || $line =~ /^property_value:\s*(\w+)\s+("\w+")\s+(\w+)/) {
-						# TODO re-implement this once the OBO spec is more mature...
+					} elsif ($line =~ /^property_value:\s*(\w+)$r_db_acc/ || $line =~ /^property_value:\s*(\w+)\s+"(\w+)"$r_db_acc/) { # TODO re-implement this once the OBO spec is more mature...
+					
+						my $r2_type = $result->get_relationship_type_by_id($1); # Is this relationship type already in the ontology?
+						if (!defined $r2_type){
+							$r2_type = OBO::Core::RelationshipType->new();      # if not, create a new relationship type
+							$r2_type->id($1);
+							$result->add_relationship_type($r2_type);           # add it to the ontology
+						}
 
-						if (!defined $3) { # e.g. shoe_size "12" xsd:positiveInteger
-							my $r2_type = $result->get_relationship_type_by_id($1); # Is this relationship type already in the ontology?
-							if (!defined $r2_type){
-								$r2_type = OBO::Core::RelationshipType->new();  # if not, create a new type
-								$r2_type->id($1);
-								$result->add_relationship_type($r2_type);       # add it to the ontology
-							}
-							
-							my $rel = OBO::Core::Relationship->new();
-							my $id  = $instance->id().'_'.$1.'_'.$2;
-							$id     =~ s/\s+/_/g;
-							$rel->id($id);
-							$rel->type($r2_type->id());
+						#
+						# create the triplet
+						#						
+						my $rel = OBO::Core::Relationship->new();
+						my $id  = $instance->id().'_'.$1.'_'.$2;                # instance --> rel --> [term|instance|datatype]
+						$id     =~ s/\s+/_/g;
+						$rel->id($id);
+						$rel->type($r2_type->id());
 						
-							my $target = $result->get_instance_by_id($2); # Is this instance already in the ontology?
-							if (!defined $target) {
-								$target = OBO::Core::Instance->new(); # if not, create a new instance
+						if (!defined $3) {
+							#
+							# property_value: lastest_modification_by erick
+							#
+						    my $target = $result->get_term_by_id($2);           # suggest to OBOF to define TERMs before they are used so that parsers could know they are dealing with terms!
+						    
+						    if (defined $target) {                              # instance --> rel --> term
+						    	
+						    } else {
+								$target = $result->get_instance_by_id($2);
+								
+								if (!defined $target) {                         # instance --> rel --> instance
+									$target = OBO::Core::Instance->new();
+									$target->id($2);
+									$result->add_instance($target);
+								}
+						    }
+						    
+							$rel->link($instance, $target);                     # triplet: instance --> rel --> target
+							$instance->property_value($rel);
+							
+							#$result->add_relationship($rel);                   # TODO Do we need this? or better add $ontology->{PROPERTY_VALUES}?
+						} elsif (defined $3) {                                  # instance --> rel --> datatype
+							#
+							# property_value: lastest_modification_by "erick" xsd:string or e.g. shoe_size "12" xsd:positiveInteger
+							#
+							my $target = $result->get_instance_by_id($2);
+							
+							if (!defined $target) {                             # instance --> rel --> datatype
+								$target = OBO::Core::Instance->new();
 								$target->id($2);
-								$result->add_instance($target);
+								
+								my $data_type = OBO::Core::Term->new();
+								$data_type->id($3);
+								#$result->add_term($data_type);                 # TODO Think about it...
+								$target->instance_of($data_type);
+								#$result->add_instance($target);                # TODO Think about it...
 							}
+
 							$rel->link($instance, $target);
 							$instance->property_value($rel);
-							#$result->add_relationship($rel); # TODO Do we need this? or better add $ontology->{PROPERTY_VALUES}?
-						} else {
-							# TODO Implement cases like: e.g. shoe_size "12" xsd:positiveInteger
-							# TODO Perhaps create a new module: OBO::Util::Datatype  or so
-							#warn 'I cannot digest (yet) the line: ', $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
-							#$rel->link($instance, $target);
-							#$result->add_relationship($rel); # TODO Do we need this? or better add $ontology->{PROPERTY_VALUES}?
+							
+							#$result->add_relationship($rel);                   # TODO Do we need this? or better add $ontology->{PROPERTY_VALUES}?
 						}						
 					} elsif ($line =~ /^!/) {
 						# skip line

@@ -57,7 +57,7 @@ sub new {
 =cut
 
 sub id {
-	if ($_[1]) { $_[0]->{ID} = $_[1] }
+	if (defined $_[1]) { $_[0]->{ID} = $_[1] }
 	return $_[0]->{ID};
 }
 
@@ -328,7 +328,8 @@ sub xref_set_as_string {
   Returns  - an array with the property value(s) of this instance
   Args     - the relationship(s) (OBO::Core::Relationship) of this instance with its property value(s)
   Function - gets/sets the property_value(s) of this instance
-  
+  Remark   - WARNING: this code might change!
+
 =cut
 
 sub property_value {
@@ -360,13 +361,13 @@ sub instance_of {
 
 		$r->id($id);
 		$r->type($rt);
-		$r->link($_[0], $_[1]);
+		$r->link($_[0], $_[1]); # $_[0] --> $r --> $_[1]  == Instance --> rel --> Term
 		$_[0]->{INSTANCE_OF} = $r; # only one term (class) per instance 
 		
 		# make the term aware of its instance
 		$_[1]->class_of()->add($_[0]);
 	}
-	return $_[0]->{INSTANCE_OF}->head();
+	return ($_[0]->{INSTANCE_OF})?$_[0]->{INSTANCE_OF}->head():undef;
 }
 
 =head2 is_instance_of

@@ -1,4 +1,4 @@
-# $Id: Relationship.pm 2012-03-08 erick.antezana $
+# $Id: Relationship.pm 2012-11-08 erick.antezana $
 #
 # Module  : Relationship.pm
 # Purpose : Relationship in the Ontology.
@@ -20,10 +20,10 @@ sub new {
         $self->{ID}    = undef; # required, string (1)
         $self->{TYPE}  = undef; # required, string (1)
         
-        $self->{HEAD}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Term (1)     or OBO::Core::Datatype (TODO: property_value: shoe_size "8" xsd:positiveInteger)
-                                #                  ^^                 ^^                            ^^                            ^^
-                                #                  ||                 ||                            ||                            ||
-        $self->{TAIL}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Instance (1) or OBO::Core::Instance (TODO)
+        $self->{HEAD}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Term (1: instance_of)     or OBO::Core::Instance or OBO::Util::Datatype (TODO) or OBO::Util::Datatype (TODO: property_value: shoe_size "8" xsd:positiveInteger)
+                                #                  ^^                 ^^                            ^^                                       ^^                    ^^                            ^^
+                                #                  ||                 ||                            ||                                       ||                    ||                            ||
+        $self->{TAIL}  = undef; # required, OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Instance (1: instance_of) or OBO::Core::Term     or OBO::Core::Term (TODO)     or OBO::Core::Instance (TODO)
         
         bless ($self, $class);
         return $self;
@@ -135,6 +135,17 @@ __END__
 =head1 NAME
 
 OBO::Core::Relationship  - A relationship between two terms or two relationships or an instance and a term within an ontology.
+
+A relationship is simply a triplet: tail->type->head or subject->predicate->object
+
+     SUBJECT                 -->         PREDICATE           -->      OBJECT
+
+ OBO::Core::Term             --> OBO::Core::RelationshipType --> OBO::Core::Term
+ OBO::Core::RelationshipType --> OBO::Core::RelationshipType --> OBO::Core::RelationshipType
+ OBO::Core::Instance         --> OBO::Core::RelationshipType --> OBO::Core::Term
+ OBO::Core::Term             --> OBO::Core::RelationshipType --> OBO::Core::Instance
+ OBO::Core::Term             --> OBO::Core::RelationshipType --> OBO::Core::Datatype (NOT IMPLEMENTED YET)
+ OBO::Core::Instance         --> OBO::Core::RelationshipType --> OBO::Core::Datatype (NOT IMPLEMENTED YET)
 
 =head1 SYNOPSIS
 

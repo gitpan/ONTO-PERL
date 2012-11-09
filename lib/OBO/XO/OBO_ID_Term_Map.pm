@@ -1,4 +1,4 @@
-# $Id: OBO_ID_Term_Map.pm 2010-09-29 erick.antezana $
+# $Id: OBO_ID_Term_Map.pm 2012-10-26 erick.antezana $
 #
 # Module  : OBO_ID_Term_Map.pm
 # Purpose : A (birectional) map OBO_ID vs Term name.
@@ -104,17 +104,19 @@ sub put {
 
   Usage    - $map->get_new_id('GO', 'cell cycle')
   Returns  - a new OBO ID (string)
-  Args     - idspace (string), term (string)
+  Args     - idspace (string), term (string), seed_id (string)
   Function - get a new OBO ID and insert it (put) into this map
   
 =cut
 
 sub get_new_id {
-    my ( $self, $idspace, $term_name ) = @_;
+    my ( $self, $idspace, $term_name, $seed_id ) = @_;
     my $new_id;
     if ( $idspace && $term_name ) {
-        if ( $self->is_empty() ) {
-            $new_id = $idspace.":0000001";
+        if ( $self->is_empty() && !$seed_id) {
+            $new_id = $idspace.":0000001"; # use 7 'numeric placeholders'
+        } elsif($seed_id && $seed_id =~ /$idspace:\d{7}/ && !$self->contains_key($seed_id)) {
+       		$new_id = $seed_id; # TODO Test the addition of one more argument: $seed_id = to fix/force the starting ID
         } else {
             $new_id = $self->{KEYS}->get_new_id($idspace);
         }

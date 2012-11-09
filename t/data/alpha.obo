@@ -154,8 +154,16 @@ namespace: geographical_location
 xref: http://es.wikipedia.org/wiki/Pais\,_Bolivia
 xref: http://en.wikipedia.org/wiki/Country
 
-[Instance]
+[Term]
 id: MYO:1000007
+name: ghost town
+property_value: lastest_modification_by "erick" xsd:string
+property_value: number_of_permanent_residents "0" xsd:positiveInteger
+created_by: erick_antezana
+creation_date: 2012-11-08T08:55:12Z
+
+[Instance]
+id: MYO:1000008
 name: Belgium
 namespace: geographical_location
 synonym: "BE" EXACT [MYO:erick]

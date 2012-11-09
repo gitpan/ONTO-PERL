@@ -69,6 +69,7 @@ sub get_new_id {
 	my ($self, $local_idspace) = @_;
 	my $new_obo_id = OBO::XO::OBO_ID->new();
 	croak 'The local idspace is invalid: ', $local_idspace if ($local_idspace !~ /\w+/);
+	
 	$new_obo_id->idspace($local_idspace);
 	
 	#

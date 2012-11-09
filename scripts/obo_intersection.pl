@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: obo_intersection.pl 2010-10-29 erick.antezana $
+# $Id: obo_intersection.pl 2012-10-29 erick.antezana $
 #
 # Script  : obo_intersection.pl
 # Purpose : Finds the intersection ontology from my_first_ontology.obo and my_second_ontology.obo.

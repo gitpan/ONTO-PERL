@@ -1,4 +1,4 @@
-# $Id: Ontolome.pm 2012-05-02 erick.antezana $
+# $Id: Ontolome.pm 2012-11-02 erick.antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
@@ -32,6 +32,7 @@ sub union () {
 	my ($self, @ontos) = @_;
 	my $result         = OBO::Core::Ontology->new();
 	
+	$result->saved_by('ONTO-perl');
 	$result->remarks('Union of ontologies');
 	
 	my $default_namespace;
@@ -332,6 +333,7 @@ sub union () {
 sub intersection () {
 	my ($self, $onto1, $onto2) = @_;
 	my $result = OBO::Core::Ontology->new();
+	$result->saved_by('ONTO-perl');
 	$result->default_namespace($onto1->default_namespace()); # use the default_namespace of the first argument
 	$result->remarks('Intersection of ontologies');
 	
@@ -513,6 +515,7 @@ sub transitive_closure () {
 	}
 	
 	my $result = OBO::Core::Ontology->new();
+	$result->saved_by('ONTO-perl');
 	$result->idspaces($ontology->idspaces()->get_set());
 	$result->default_namespace($ontology->default_namespace());
 	$result->remarks('Ontology with transitive closures');
@@ -688,6 +691,7 @@ sub transitive_reduction () {
 	}
 	
 	my $result = OBO::Core::Ontology->new();
+	$result->saved_by('ONTO-perl');
 	$result->idspaces($ontology->idspaces()->get_set());
 	$result->default_namespace($ontology->default_namespace());
 	$result->remarks('Ontology with transitive reduction');

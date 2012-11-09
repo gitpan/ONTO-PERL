@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2012-01-03 erick.antezana $
+# $Id: Ontology.pm 2012-10-03 erick.antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -21,7 +21,7 @@ use Carp;
 use strict;
 use warnings;
 
-our $VERSION = '1.39';
+our $VERSION = '1.40';
 
 sub new {
 	my $class  = shift;
@@ -297,7 +297,7 @@ sub add_instance {
 	my ($self, $instance) = @_;
 	if ($instance) {
 		my $instance_id = $instance->id();
-		if ($instance_id) {
+		if (defined $instance_id) {
 			$self->{INSTANCES}->{$instance_id} = $instance;
 			#$self->{INSTANCES_SET}->add($instance);
 			return $instance;
@@ -1501,6 +1501,8 @@ sub get_tail_by_relationship_type {
 sub get_root_terms {
 	my $self  = shift;
 
+	# TODO Consider the addition of one extra argument to request the root terms filtering out the obsolete ones... 
+
 	my @roots = ();
 	my $term_set = OBO::Util::TermSet->new();
 	$term_set->add_all(values(%{$self->{TERMS}}));
@@ -1691,6 +1693,18 @@ sub export2obo {
 		# builtin
 		#
 		print $output_file_handle "\nbuiltin: true" if ($term->builtin());
+		
+		#
+		# property_value
+		#
+		my @property_values = sort {$a->id() cmp $b->id()} $term->property_value()->get_set();
+		foreach my $value (@property_values) {
+			if (defined $value->head()->instance_of()) {
+				print $output_file_handle "\nproperty_value: ".$value->type().' "'.$value->head()->id().'" '.$value->head()->instance_of()->id();
+			} else {
+				print $output_file_handle "\nproperty_value: ".$value->type().' '.$value->head()->id();
+			}
+		}
     	
 		#
 		# def
@@ -2374,6 +2388,28 @@ sub export2rdf {
 		#
 		print $output_file_handle "\t\t<",$ns,":builtin>true</",$ns,":builtin>\n" if ($term->builtin() == 1);
 		
+		#
+		# property_value
+		#
+		my @property_values = sort {$a->id() cmp $b->id()} $term->property_value()->get_set();
+		foreach my $value (@property_values) {
+			if (defined $value->head()->instance_of()) {
+				print $output_file_handle "\t\t<",$ns,":property_value>\n";
+				print $output_file_handle "\t\t\t<rdf:Description>\n";
+					print $output_file_handle "\t\t\t\t<",$ns,":property>", $value->type(),'</',$ns,":property>\n";
+					print $output_file_handle "\t\t\t\t<",$ns,":value rdf:type=\"",$value->head()->instance_of()->id(),"\">", $value->head()->id(),'</',$ns,":value>\n";
+				print $output_file_handle "\t\t\t</rdf:Description>\n";
+				print $output_file_handle "\t\t</",$ns,":property_value>";
+			} else {
+				print $output_file_handle "\t\t<",$ns,":property_value>\n";
+				print $output_file_handle "\t\t\t<rdf:Description>\n";
+					print $output_file_handle "\t\t\t\t<",$ns,":property>", $value->type(),'</',$ns,":property>\n";
+					print $output_file_handle "\t\t\t\t<",$ns,":value>", $value->head()->id(),'</',$ns,":value>\n";
+				print $output_file_handle "\t\t\t</rdf:Description>\n";
+				print $output_file_handle "\t\t</",$ns,":property_value>";
+			}
+		}
+
 		#
 		# def
 		#
@@ -3495,6 +3531,26 @@ sub export2xml {
 		# builtin
 		#
 		print $output_file_handle "\t\t<builtin>true</builtin>\n" if ($term->builtin() == 1);
+		
+		#
+		# property_value
+		#
+		my @property_values = sort {$a->id() cmp $b->id()} $term->property_value()->get_set();
+		foreach my $value (@property_values) {
+			if (defined $value->head()->instance_of()) {
+				print $output_file_handle "\t\t<property_value>\n";
+					print $output_file_handle "\t\t\t<property>", $value->type(),"</property>\n";
+					print $output_file_handle "\t\t\t<value rdf:type=\"",$value->head()->instance_of()->id(),"\">", $value->head()->id(),"</value>\n";
+				print $output_file_handle "\t\t</property_value>";
+			} else {
+				print $output_file_handle "\t\t<property_value>\n";
+					print $output_file_handle "\t\t\t<property>", $value->type(),"</:property>\n";
+					print $output_file_handle "\t\t\t<value>", $value->head()->id(),"</value>\n";
+				print $output_file_handle "\t\t</property_value>";
+			}
+	    	# TODO Finalise this implementation
+			print $output_file_handle "\t\t<property_value type=".$value->type().'>'.$value->head()->id()."</property_value>\n";
+		}
 
 		#
 		# def

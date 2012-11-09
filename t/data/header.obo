@@ -69,6 +69,15 @@ subset: Tomato
 synonym: "two period three" EXACT [FO:ea]
 is_a: APO:F0000002 ! dos
 
+[Term]
+id: APO:F0000005
+name: ghost town
+property_value: home_of APO:Casper
+property_value: lastest_modification_by "erick" xsd:string 
+property_value: number_of_human_permanent_residents "0" xsd:positiveInteger
+created_by: erick_antezana
+creation_date: 2012-11-08T08:55:12Z
+
 [Instance]
 id: APO:erick
 name: Erick Antezana
@@ -80,6 +89,8 @@ property_value: shoe_size "8" xsd:positiveInteger
 id: APO:cecilia
 name: Cecilia Rodriguez
 instance_of: APO:woman
+property_value: likes APO:icecream
+property_value: married_to APO:erick
 property_value: shoe_size "7" xsd:positiveInteger
 
 [Typedef]

@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 67;
+    plan tests => 75;
 }
 
 #########################
@@ -91,7 +91,36 @@ ok(!defined $tin2->name());
 ok($ins2->is_instance_of($tin2));
 ok($tin2->is_class_of($ins2));
 
-ok($mini_onto->get_number_of_instances() == 2);
+# property_values
+my @property_values_ins2 = sort {$a->id() cmp $b->id()} $ins2->property_value()->get_set();
+my $pv0_ins2  = $property_values_ins2[0];
+my $pv1_ins2  = $property_values_ins2[1];
+my $pv2_ins2  = $property_values_ins2[2];
+my $spv0_ins2 = "property_value: ".$pv0_ins2->type().' '.$pv0_ins2->head()->id();
+my $spv1_ins2 = "property_value: ".$pv1_ins2->type().' "'.$pv1_ins2->head()->id().'" '.$pv1_ins2->head()->instance_of()->id();
+my $spv2_ins2 = "property_value: ".$pv2_ins2->type().' "'.$pv2_ins2->head()->id().'" '.$pv2_ins2->head()->instance_of()->id();
+ok ($spv0_ins2 eq "property_value: likes APO:icecream");
+ok ($spv1_ins2 eq "property_value: married_to \"APO:erick\" APO:man"); # here, the "datatype", which is APO:man, is added by onto-perl since that instance (APO:erick) is known to be of that type...
+ok ($spv2_ins2 eq "property_value: shoe_size \"7\" xsd:positiveInteger");
+
+my $ins3 = $mini_onto->get_instance_by_id('APO:Casper');
+ok($mini_onto->has_instance($ins3));
+ok($ins3->name() eq '');
+
+ok($mini_onto->get_number_of_instances() == 4); # 2 + 1 (Casper) + 1 (icecream)
+
+# property_values
+my $ghost_town = $mini_onto->get_term_by_name('ghost town');
+my @property_values = sort {$a->id() cmp $b->id()} $ghost_town->property_value()->get_set();
+my $pv0  = $property_values[0];
+my $pv1  = $property_values[1];
+my $pv2  = $property_values[2];
+my $spv0 = "property_value: ".$pv0->type().' '.$pv0->head()->id();
+my $spv1 = "property_value: ".$pv1->type().' "'.$pv1->head()->id().'" '.$pv1->head()->instance_of()->id();
+my $spv2 = "property_value: ".$pv2->type().' "'.$pv2->head()->id().'" '.$pv2->head()->instance_of()->id();
+ok ($spv0 eq "property_value: home_of APO:Casper");
+ok ($spv1 eq "property_value: lastest_modification_by \"erick\" xsd:string");
+ok ($spv2 eq "property_value: number_of_human_permanent_residents \"0\" xsd:positiveInteger");
 
 # export to OBO
 open (FH, '>./t/data/test0.obo') || die 'Run as root the tests: ', $!;

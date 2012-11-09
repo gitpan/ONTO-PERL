@@ -1,10 +1,10 @@
 {
-   "abstract" : "PERL Modules for OBO-formatted ontologies such as the Gene Ontology (GO)",
+   "abstract" : "PERL modules for manipulating OBO-formatted ontologies, such as the Gene Ontology (GO)",
    "author" : [
       "Erick Antezana <erick.antezana -@- gmail.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.58, CPAN::Meta::Converter version 2.112150",
+   "generated_by" : "ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.112150",
    "license" : [
       "perl_5"
    ],
@@ -32,10 +32,11 @@
       },
       "runtime" : {
          "requires" : {
-            "Date::Manip" : "6.24"
+            "Date::Manip" : "6.24",
+            "perl" : "5"
          }
       }
    },
    "release_status" : "stable",
-   "version" : "1.36"
+   "version" : "1.40"
 }
