@@ -1,22 +1,17 @@
-#!/usr/local/bin/perl
-# $Id: obo2apo.pl 2010-09-29 erick.antezana $
+#!/usr/bin/env perl
+# $Id: obo2apo.pl 2013-09-29 erick.antezana $
 #
 # Script  : obo2apo.pl
-#
 # Purpose : Generates an OBO ontology that can be integrated in the Cell
 #           Cycle Ontology (APO). The terms from the input ontology will
 #           be given a APO-like ID. The original IDs will be added as
 #           cross references. The subnamespace by default is 'Z'. It is 
 #           possible to specify the root term from the subontology we are
 #           interested in (from input_file.obo).
-#
-# Usage:
-#           obo2apo.pl input_file.obo apo_z.ids Z MI:0190 > output_file.obo
-#
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# Usage:    obo2apo.pl input_file.obo apo_z.ids Z MI:0190 > output_file.obo
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ##############################################################################
@@ -42,6 +37,7 @@ if ($sub_ontology_root_id) {
 }
 
 my $ns = $onto->idspace_as_string("APO", "http://www.cellcycle.org/ontology/APO");
+$onto->default_relationship_id_prefix("OBO_REL");
 $onto->default_namespace("cellcycle_ontology");
 $onto->remarks("A Cell-Cycle Sub-Ontology");
 
@@ -93,7 +89,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

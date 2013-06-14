@@ -1,8 +1,8 @@
-# $Id: OBO_ID_Term_Map.pm 2012-10-26 erick.antezana $
+# $Id: OBO_ID_Term_Map.pm 2013-20-02 erick.antezana $
 #
 # Module  : OBO_ID_Term_Map.pm
 # Purpose : A (birectional) map OBO_ID vs Term name.
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -11,6 +11,8 @@ package OBO::XO::OBO_ID_Term_Map;
 
 use Carp;
 use strict;
+
+use open qw(:std :utf8); # Make All I/O Default to UTF-8
 
 use OBO::XO::OBO_ID_Set;
 
@@ -29,7 +31,7 @@ sub new {
 
     # if the file exists:
     if ( -e $self->{FILE} && -r $self->{FILE} ) {
-        open( OBO_ID_MAP_IN_FH, "<$self->{FILE}" );
+        open( OBO_ID_MAP_IN_FH, '<'.$self->{FILE} );
         while (<OBO_ID_MAP_IN_FH>) {
             chomp;
             if ( $_ =~ /(\w+:\d+)\s+(.*)/ ) {
@@ -68,7 +70,7 @@ sub _is_valid_id () {
 
 sub put {
 	my ( $self, $new_id, $new_name ) = @_;
-
+	
 	if ( $new_id && $new_name ) {
 		croak "The ID is not valid: '$new_id'\n" if ($self->_is_valid_id($new_id));
 
@@ -327,7 +329,7 @@ sub is_empty {
 
 sub write_map {
 	my $self = shift;
-	open( FH, '>' . $self->{FILE} ) || croak "Cannot write map into the file: '$self->{FILE}', $!";
+	open( FH, '>'.$self->{FILE} ) || croak "Cannot write map into the file: '$self->{FILE}', $!";
 	foreach ( sort keys %{ $self->{MAP_BY_ID} } ) {
 		if ($self->{MAP_BY_ID}->{$_}) {
 			print FH "$_\t$self->{MAP_BY_ID}->{$_}\n";
@@ -393,7 +395,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

@@ -1,4 +1,4 @@
-# $Id: UniProtParser.pm 2093 2010-09-29 Erick Antezana $
+# $Id: UniProtParser.pm 2093 2013-02-20 Erick Antezana $
 #
 # Module : UniProtParser.pm
 # Purpose : Parse UniProt files and add data to an ontology
@@ -12,6 +12,8 @@ package OBO::Parser::UniProtParser;
 use strict;
 use warnings;
 use Carp;
+
+use open qw(:std :utf8); # Make All I/O Default to UTF-8
 
 use OBO::Core::Term;
 use OBO::Core::Dbxref;

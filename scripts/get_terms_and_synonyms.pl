@@ -1,16 +1,12 @@
-#!/usr/local/bin/perl
-# $Id: get_terms_and_synonyms.pl 2010-12-01 erick.antezana $
+#!/usr/bin/env perl
+# $Id: get_terms_and_synonyms.pl 2013-12-01 erick.antezana $
 #
 # Script  : get_terms_and_synonyms.pl
-#
 # Purpose : Find all the terms and synonyms in a given ontology.
-#
 # Usage   : get_terms_and_synonyms.pl my_ontology.obo > term_and_its_synonyms.txt
-#
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ###############################################################################
@@ -67,7 +63,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

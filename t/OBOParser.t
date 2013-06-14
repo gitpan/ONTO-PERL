@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 75;
+    plan tests => 78;
 }
 
 #########################
@@ -24,6 +24,7 @@ ok($mini_onto->date() eq '28:03:2011 13:57');
 ok($mini_onto->saved_by() eq 'easr');
 ok(($mini_onto->imports()->get_set())[0] eq 'ulo.obo');
 ok(($mini_onto->idspaces()->get_set())[0]->as_string() eq 'APO http://www.cellcycleontology.org/ontology/APO "cell cycle ontology terms"');
+ok($mini_onto->default_relationship_id_prefix() eq 'OBO_REL');
 ok($mini_onto->default_namespace() eq 'apo');
 
 ok(($mini_onto->remarks()->get_set())[0] eq '<p>This file holds some fake terms.</p>');
@@ -31,6 +32,10 @@ ok(($mini_onto->remarks()->get_set())[0] eq '<p>This file holds some fake terms.
 my @txae = sort {lc($a) cmp lc($b)} $mini_onto->treat_xrefs_as_equivalent()->get_set();
 ok($txae[0] eq 'EQUI');
 ok($txae[1] eq 'TEST');
+
+my @txaia = sort {lc($a) cmp lc($b)} $mini_onto->treat_xrefs_as_is_a()->get_set();
+ok($txaia[0] eq 'CL');
+ok($txaia[1] eq 'LC');
 
 my %ssd = ('Arabidopsis' => 'Term used for Arabidopsis',
 			'Citrus'     => 'Term used for citrus',
@@ -105,7 +110,7 @@ ok ($spv2_ins2 eq "property_value: shoe_size \"7\" xsd:positiveInteger");
 
 my $ins3 = $mini_onto->get_instance_by_id('APO:Casper');
 ok($mini_onto->has_instance($ins3));
-ok($ins3->name() eq '');
+ok(!defined $ins3->name());
 
 ok($mini_onto->get_number_of_instances() == 4); # 2 + 1 (Casper) + 1 (icecream)
 

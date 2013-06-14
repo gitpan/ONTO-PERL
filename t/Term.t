@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 113;
+    plan tests => 115;
 }
 
 #########################
@@ -224,9 +224,12 @@ ok($xr_n2{'YAPO:ea'} eq 'YAPO:ea');
 @empty_refs = $n3->xref_set_as_string();
 ok($#empty_refs == -1);
 $n3->xref_set_as_string("[http://en.wikipedia.org/wiki/5'_UTR \"wiki\"]"); # from SO.obo
-my @xrefs_n3 = $n3->xref_set()->get_set();
-ok($xrefs_n3[0]->name()        eq "http://en.wikipedia.org/wiki/5'_UTR");
-ok($xrefs_n3[0]->description() eq "wiki");
+$n3->xref_set_as_string('[http://en.wikipedia.org/wiki/Bolivia\,_North_Carolina "town"]'); # URL's with comma's
+my @xrefs_n3 = sort {$a->description cmp $b->description} $n3->xref_set()->get_set();
+ok($xrefs_n3[0]->name()        eq 'http://en.wikipedia.org/wiki/Bolivia\,_North_Carolina');
+ok($xrefs_n3[0]->description() eq 'town');
+ok($xrefs_n3[1]->name()        eq "http://en.wikipedia.org/wiki/5'_UTR");
+ok($xrefs_n3[1]->description() eq "wiki");
 
 # def
 my $def = OBO::Core::Def->new();

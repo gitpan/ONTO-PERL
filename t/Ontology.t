@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 399;
+    plan tests => 400;
 }
 
 #########################
@@ -906,6 +906,9 @@ $sub_o = $alpha_onto->get_subontology_from($root);
 ok ($sub_o->get_number_of_terms() == 2);
 @roots = @{$sub_o->get_root_terms()};
 ok ($root->equals($roots[0])); # MYO:0000014
+
+my $ole = $alpha_onto->get_term_by_id('MYO:1000008');
+ok ($ole->def_as_string() eq '"" [src_code:NR]');
 
 # get paths from term1 to term2
 my $d5  = OBO::Core::Term->new();

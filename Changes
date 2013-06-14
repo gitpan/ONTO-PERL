@@ -110,3 +110,5 @@ Revision history for ONTO-PERL
 1.39 export2rdf bug fixed; SwissProtToRDF.t now checks if SWISS/Entry.pm is available. OBO::Core::(Instance|Relationship) were enhanced. Initial code to handle 'property_value' tags with instances. Fixed bug in Ontolome::transitive_reduction(). Experimental relationships composition implemented (for is_a and part_of).
 
 1.40 Bug fixed in the parsing of the synonym scope. 'property_value' for OBO::Core::Term.
+
+1.41 property_value code improved. dbxref bug fixed (URLs). UTF-8 support. onto-perl now understands 'default_relationship_id_prefix' and 'treat-xrefs-as-is_a'. All 'scripts (*.pl)' were cleaned.

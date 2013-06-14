@@ -1,13 +1,10 @@
-#!/usr/local/bin/perl
-# $Id: obo2rdf.pl 2012-09-02 erick.antezana $
+#!/usr/bin/env perl
+# $Id: obo2rdf.pl Copyright (c) 2013-2013-09-02 erick.antezana $
 #
 # Script  : obo2rdf.pl
-#
 # Purpose : Converts a file from OBO to RDF.
-#
 # Usage   : obo2rdf.pl my_ontology.obo "http://www.mydomain.com/ontology/rdf/" SSB > my_ontology.rdf
-#
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -53,7 +50,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

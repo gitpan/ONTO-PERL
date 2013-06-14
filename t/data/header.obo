@@ -19,10 +19,13 @@ synonymtypedef: scientific_name "scientific name" EXACT
 synonymtypedef: synonym "synonym" RELATED
 synonymtypedef: systematic_synonym "Systematic synonym" EXACT
 idspace: APO http://www.cellcycleontology.org/ontology/APO "cell cycle ontology terms"
+default_relationship_id_prefix: OBO_REL
 default-namespace: apo
 remark: <p>This file holds some fake terms.</p>
 treat-xrefs-as-equivalent: TEST
 treat-xrefs-as-equivalent: EQUI
+treat-xrefs-as-is_a: CL
+treat-xrefs-as-is_a: LC
 
 [Term]
 id: APO:F0000000
@@ -68,6 +71,7 @@ def: "two point three" [FO:ea]
 subset: Tomato
 synonym: "two period three" EXACT [FO:ea]
 is_a: APO:F0000002 ! dos
+property_value: latest_modification_date "2012-11-09T17:27:58Z" xsd:date
 
 [Term]
 id: APO:F0000005

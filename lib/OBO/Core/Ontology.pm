@@ -1,8 +1,8 @@
-# $Id: Ontology.pm 2012-10-03 erick.antezana $
+# $Id: Ontology.pm 2013-20-02 erick.antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -21,37 +21,41 @@ use Carp;
 use strict;
 use warnings;
 
-our $VERSION = '1.40';
+use open qw(:std :utf8); # Make All I/O Default to UTF-8
+
+our $VERSION = '1.41';
 
 sub new {
 	my $class  = shift;
 	my $self   = {};
         
-	$self->{ID}                        = undef;                          # not required, (1)
-	$self->{NAME}                      = undef;                          # not required, (0..1)
-	$self->{IMPORTS}                   = OBO::Util::Set->new();          # set (0..N)
-	$self->{TREAT_XREFS_AS_EQUIVALENT} = OBO::Util::Set->new();          # set (0..N)
-	$self->{IDSPACES_SET}              = OBO::Util::IDspaceSet->new();   # string (0..N)
-	$self->{DEFAULT_NAMESPACE}         = undef;                          # string (0..1)
-	$self->{DATA_VERSION}              = undef;                          # string (0..1)
-	$self->{DATE}                      = undef;                          # (1) The current date in dd:MM:yyyy HH:mm format
-	$self->{SAVED_BY}                  = undef;                          # string (0..1)
-	$self->{REMARKS}                   = OBO::Util::Set->new();          # set (0..N)
-	$self->{SUBSETDEF_MAP}             = OBO::Util::SubsetDefMap->new(); # map of SubsetDef's (0..N); A subset is a view over an ontology
-	$self->{SYNONYM_TYPE_DEF_SET}      = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
-        
-	$self->{TERMS}                     = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..N)
-	$self->{INSTANCES}                 = {}; # map: instance_id(string) vs. instance(OBO::Core::Instance)  (0..N)
-	$self->{RELATIONSHIP_TYPES}        = {}; # map: relationship_type_id(string) vs. relationship_type(OBO::Core::RelationshipType) (0..N)
-	$self->{RELATIONSHIPS}             = {}; # (0..N)
+	$self->{ID}                             = undef;                          # not required, (1)
+	$self->{NAME}                           = undef;                          # not required, (0..1)
+	$self->{IMPORTS}                        = OBO::Util::Set->new();          # set (0..N)
+	$self->{TREAT_XREFS_AS_EQUIVALENT}      = OBO::Util::Set->new();          # set (0..N)
+	$self->{TREAT_XREFS_AS_IS_A}            = OBO::Util::Set->new();          # set (0..N)
+	$self->{IDSPACES_SET}                   = OBO::Util::IDspaceSet->new();   # string (0..N)
+	$self->{DEFAULT_RELATIONSHIP_ID_PREFIX} = undef;                          # string (0..1)
+	$self->{DEFAULT_NAMESPACE}              = undef;                          # string (0..1)
+	$self->{DATA_VERSION}                   = undef;                          # string (0..1)
+	$self->{DATE}                           = undef;                          # (1) The current date in dd:MM:yyyy HH:mm format
+	$self->{SAVED_BY}                       = undef;                          # string (0..1)
+	$self->{REMARKS}                        = OBO::Util::Set->new();          # set (0..N)
+	$self->{SUBSETDEF_MAP}                  = OBO::Util::SubsetDefMap->new(); # map of SubsetDef's (0..N); A subset is a view over an ontology
+	$self->{SYNONYM_TYPE_DEF_SET}           = OBO::Util::SynonymTypeDefSet->new(); # set (0..N); A description of a user-defined synonym type
+
+	$self->{TERMS}                          = {}; # map: term_id(string) vs. term(OBO::Core::Term)  (0..N)
+	$self->{INSTANCES}                      = {}; # map: instance_id(string) vs. instance(OBO::Core::Instance)  (0..N)
+	$self->{RELATIONSHIP_TYPES}             = {}; # map: relationship_type_id(string) vs. relationship_type(OBO::Core::RelationshipType) (0..N)
+	$self->{RELATIONSHIPS}                  = {}; # (0..N)
 	
-	$self->{TERMS_SET}                 = OBO::Util::TermSet->new();      # Terms (0..n) # TODO Test this more deeply
-	#$self->{INSTANCES_SET}             = OBO::Util::TermSet->new();          # Instances (0..n) # TODO enable the instances_set
-	#$self->{RELATIONSHIP_SET}          = OBO::Util::RelationshipSet->new();  # TODO Implement RELATIONSHIP_SET
+	$self->{TERMS_SET}                      = OBO::Util::TermSet->new();      # Terms (0..n) # TODO Test this more deeply
+	#$self->{INSTANCES_SET}                 = OBO::Util::TermSet->new();          # Instances (0..n) # TODO enable the instances_set
+	#$self->{RELATIONSHIP_SET}              = OBO::Util::RelationshipSet->new();  # TODO Implement RELATIONSHIP_SET
 		
-	$self->{TARGET_RELATIONSHIPS}        = {}; # (0..N)
-	$self->{SOURCE_RELATIONSHIPS}        = {}; # (0..N)
-	$self->{TARGET_SOURCE_RELATIONSHIPS} = {}; # (0..N)
+	$self->{TARGET_RELATIONSHIPS}           = {}; # (0..N)
+	$self->{SOURCE_RELATIONSHIPS}           = {}; # (0..N)
+	$self->{TARGET_SOURCE_RELATIONSHIPS}    = {}; # (0..N)
         
 	bless ($self, $class);
 	return $self;
@@ -112,6 +116,7 @@ sub imports {
   Returns  - a set (OBO::Util::Set) of ontology id spaces
   Args     - an ontology ID space(s) (string) 
   Function - gets/sets the id spaces(s) of the ontologies that their xrefs are treated as equivalent
+  Remark   - Macro. Treats all xrefs coming from a particular ID-Space as being statements of exact equivalence.
   
 =cut
 
@@ -123,6 +128,26 @@ sub treat_xrefs_as_equivalent {
 		$self->{TREAT_XREFS_AS_EQUIVALENT}->add($_[0]);
 	}
 	return $self->{TREAT_XREFS_AS_EQUIVALENT};
+}
+
+=head2 treat_xrefs_as_is_a
+
+  Usage    - $onto->treat_xrefs_as_is_a() or $onto->treat_xrefs_as_is_a($xref1, $xref2, $xref3, ...)
+  Returns  - a set (OBO::Util::Set) of ontology id spaces
+  Args     - an ontology ID space(s) (string) 
+  Function - gets/sets the id spaces(s) of the ontologies that their xrefs are treated as equivalent
+  Remark   - Treats all xrefs coming from a particular ID-Space as being is_a relationships.
+  
+=cut
+
+sub treat_xrefs_as_is_a {
+	my $self = shift;
+	if (scalar(@_) > 1) {
+		$self->{TREAT_XREFS_AS_IS_A}->add_all(@_);
+	} elsif (scalar(@_) == 1) {
+		$self->{TREAT_XREFS_AS_IS_A}->add($_[0]);
+	}
+	return $self->{TREAT_XREFS_AS_IS_A};
 }
 
 =head2 date
@@ -139,6 +164,22 @@ sub date {
 	my ($self, $d) = @_;
 	if ($d) { $self->{DATE} = $d }
 	return $self->{DATE};
+}
+
+=head2 default_relationship_id_prefix
+
+  Usage    - print $ontology->default_relationship_id_prefix() or $ontology->default_relationship_id_prefix("OBO_REL")
+  Returns  - the default relationship ID prefix (string) of this ontology
+  Args     - the default relationship ID prefix (string) of this ontology
+  Function - gets/sets the default relationship ID prefix of this ontology
+  Remark   - Any relationship lacking an ID space will be prefixed with the value of this tag.
+
+=cut
+
+sub default_relationship_id_prefix {
+	my ($self, $drip) = @_;
+	if ($drip) { $self->{DEFAULT_RELATIONSHIP_ID_PREFIX} = $drip }
+	return $self->{DEFAULT_RELATIONSHIP_ID_PREFIX};
 }
 
 =head2 default_namespace
@@ -1632,6 +1673,10 @@ sub export2obo {
 		print $output_file_handle 'idspace: ', $idspace->as_string(), "\n";
 	}
 	
+	# default_relationship_id_prefix
+	my $dris = $self->default_relationship_id_prefix();
+	print $output_file_handle 'default_relationship_id_prefix: ', $dris, "\n" if (defined $dris);
+	
 	# default_namespace
 	my $dns = $self->default_namespace();
 	print $output_file_handle 'default-namespace: ', $dns, "\n" if (defined $dns);
@@ -1644,6 +1689,11 @@ sub export2obo {
 	# treat-xrefs-as-equivalent
 	foreach my $id_space_xref_eq (sort {lc($a) cmp lc($b)} $self->treat_xrefs_as_equivalent()->get_set()) {
 		print $output_file_handle 'treat-xrefs-as-equivalent: ', $id_space_xref_eq, "\n";
+	}
+	
+	# treat_xrefs_as_is_a
+	foreach my $id_space_xref_eq (sort {lc($a) cmp lc($b)} $self->treat_xrefs_as_is_a()->get_set()) {
+		print $output_file_handle 'treat-xrefs-as-is_a: ', $id_space_xref_eq, "\n";
 	}
 	
 	#######################################################################
@@ -2903,29 +2953,31 @@ sub export2owl {
 	
 	if ($oboInOwlUrl !~ /^http/) {
 		( $oboInOwlUrl = $oboContentUrl ) =~ s{/\w+/owl/\z}{/formats/oboInOwl#}xms;
-		carp "Using a default URI for OboInOwl '$oboInOwlUrl' ";
+		warn "Using a default URI for OboInOwl '$oboInOwlUrl' ";
 	}
-		
+
 	#
 	# preambule
 	#
-	print $output_file_handle "<?xml version=\"1.0\"?>\n";
-	print $output_file_handle "<rdf:RDF\n";
-	print $output_file_handle "\txmlns=\"".$oboContentUrl."\"\n";
-	print $output_file_handle "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
-	print $output_file_handle "\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n";
-	print $output_file_handle "\txmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n";
-	print $output_file_handle "\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n";
-	print $output_file_handle "\txmlns:oboInOwl=\"".$oboInOwlUrl."\"\n";
-	print $output_file_handle "\txmlns:oboContent=\"".$oboContentUrl."\"\n";
+	print $output_file_handle '<?xml version="1.0"?>'                                        ."\n";
+	print $output_file_handle '<rdf:RDF'                                                     ."\n";
+	print $output_file_handle "\t".'xmlns="'.$oboContentUrl.'"'                              ."\n";
+	print $output_file_handle "\t".'xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"' ."\n";
+	print $output_file_handle "\t".'xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"'      ."\n";
+	print $output_file_handle "\t".'xmlns:owl="http://www.w3.org/2002/07/owl#"'              ."\n";
+	print $output_file_handle "\t".'xmlns:xsd="http://www.w3.org/2001/XMLSchema#"'           ."\n";
+	print $output_file_handle "\t".'xmlns:oboInOwl="'.$oboInOwlUrl.'"'                       ."\n";
+	print $output_file_handle "\t".'xmlns:oboContent="'.$oboContentUrl.'"'                   ."\n";
+	
 	my $ontology_id_space = $self->id() || $self->get_terms_idspace();
-	print $output_file_handle "\txml:base=\"".$oboContentUrl.$ontology_id_space."\"\n";
+	print $output_file_handle "\t".'xml:base="'.$oboContentUrl.$ontology_id_space.'"'        ."\n";
 
 	#print $output_file_handle "\txmlns:p1=\"http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#\"\n";
 	#print $output_file_handle "\txmlns:dcterms=\"http://purl.org/dc/terms/\"\n";
 	#print $output_file_handle "\txmlns:xsp=\"http://www.owl-ontologies.com/2005/08/07/xsp.owl#\"\n";
 	#print $output_file_handle "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n";
-	print $output_file_handle ">\n";
+	
+	print $output_file_handle '>'."\n"; # rdf:RDF
 
 	#
 	# meta-data: oboInOwl elements
@@ -2954,6 +3006,7 @@ sub export2owl {
 	print $output_file_handle '\t\t<oboInOwl:ontology>', $self->id(), "</oboInOwl:ontology>\n" if ($self->id());
 	print $output_file_handle "\t<oboInOwl:savedBy>", $self->saved_by(), "</oboInOwl:savedBy>\n" if ($self->saved_by());
 	#print $output_file_handle "\t<rdfs:comment>autogenerated-by: ", $0, "</rdfs:comment>\n";
+	print $output_file_handle "\t<oboInOwl:hasDefaultRelationshipIDPrefix>", $self->default_relationship_id_prefix(), "</oboInOwl:hasDefaultRelationshipIDPrefix>\n" if ($self->default_relationship_id_prefix());
 	print $output_file_handle "\t<oboInOwl:hasDefaultNamespace>", $self->default_namespace(), "</oboInOwl:hasDefaultNamespace>\n" if ($self->default_namespace());
 	foreach my $remark ($self->remarks()->get_set()) {
 		print $output_file_handle "\t<rdfs:comment>", $remark, "</rdfs:comment>\n";
@@ -2964,6 +3017,11 @@ sub export2owl {
 		print $output_file_handle '\t\t<oboInOwl:treat-xrefs-as-equivalent>', $id_space_xref_eq, "</oboInOwl:treat-xrefs-as-equivalent>\n";
 	}
 	
+	# treat_xrefs_as_is_a
+	foreach my $id_space_xref_eq (sort {lc($a) cmp lc($b)} $self->treat_xrefs_as_is_a()->get_set()) {
+		print $output_file_handle '\t\t<oboInOwl:treat-xrefs-as-is_a>', $id_space_xref_eq, "</oboInOwl:treat-xrefs-as-is_a>\n";
+	}
+		
 	# subsetdef
 	foreach my $subsetdef (sort {lc($a->name()) cmp lc($b->name())} $self->subset_def_map()->values()) {
 		print $output_file_handle "\t<oboInOwl:hasSubset>\n";
@@ -3471,6 +3529,10 @@ sub export2xml {
 		print $output_file_handle "\t\t<idspace>", $idspace->as_string(), "</idspace>\n";
 	}
 	
+	# default_relationship_id_prefix
+	my $dris = $self->default_relationship_id_prefix();
+	print $output_file_handle "\t\t<default-relationship-id-prefix>", $dris, "</default-relationship-id-prefix>\n" if (defined $dris);
+	
 	# default_namespace
 	my $dns = $self->default_namespace();
 	print $output_file_handle "\t\t<default-namespace>", $dns, "</default-namespace>\n" if (defined $dns);
@@ -3485,6 +3547,11 @@ sub export2xml {
 		print $output_file_handle '\t\t<treat-xrefs-as-equivalent>', $id_space_xref_eq, "</treat-xrefs-as-equivalent>\n";
 	}
 	
+	# treat_xrefs_as_is_a
+	foreach my $id_space_xref_eq (sort {lc($a) cmp lc($b)} $self->treat_xrefs_as_is_a()->get_set()) {
+		print $output_file_handle '\t\t<treat-xrefs-as-is_a>', $id_space_xref_eq, "</treat-xrefs-as-is_a>\n";
+	}
+		
 	print $output_file_handle "\t</header>\n\n";
 	
 	#######################################################################
@@ -4290,10 +4357,12 @@ sub get_subontology_from {
 		$result->idspaces($self->idspaces()->get_set());
 		$result->subset_def_map($self->subset_def_map()); # add (by default) all the subset_def_map's
 		$result->synonym_type_def_set($self->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
+		$result->default_relationship_id_prefix($self->default_relationship_id_prefix());
 		$result->default_namespace($self->default_namespace());
 		$result->remarks($self->remarks()->get_set());
 		$result->treat_xrefs_as_equivalent($self->treat_xrefs_as_equivalent->get_set());
-
+		$result->treat_xrefs_as_is_a($self->treat_xrefs_as_is_a->get_set());
+		
 		if ( $rel_type_ids ) { #vlmir
 			foreach my $rel_type_id ( keys %{$rel_type_ids} ) {
 				$result->add_relationship_type_as_string( $rel_type_id, $rel_type_ids->{$rel_type_id} );
@@ -5592,7 +5661,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

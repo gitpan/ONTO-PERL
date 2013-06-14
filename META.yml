@@ -20,4 +20,4 @@ no_index:
 requires:
   Date::Manip: 6.24
   perl: 5
-version: 1.40
+version: 1.41

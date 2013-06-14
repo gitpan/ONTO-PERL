@@ -56,7 +56,7 @@ See also:
  
   1. ONTO-PERL: An API supporting the development and analysis of bio-ontologies
      Antezana E, Egana M, De Baets B, Kuiper M, Mironov V.
-     Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
+     Bioinformatics (2008) 24 (6): 885-887; doi: 10.1093/bioinformatics/btn042
 
   2. ONTO-Toolkit: A set of Galaxy tools to deal with OBO-formatted ontologies,
      Antezana E, Venkatesan A, Mungall C, Mironov V, Kuiper M.
@@ -69,7 +69,7 @@ If you use ONTO-PERL in your work, you are kindly requested to cite:
 
     ONTO-PERL: An API supporting the development and analysis of bio-ontologies
     Antezana E, Egana M, De Baets B, Kuiper M, Mironov V.
-    Bioinformatics 2008; doi: 10.1093/bioinformatics/btn042
+    Bioinformatics (2008) 24 (6): 885-887; doi: 10.1093/bioinformatics/btn042
 
 Third part modules
 ==================

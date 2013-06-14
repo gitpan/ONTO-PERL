@@ -1,19 +1,15 @@
-#!/usr/local/bin/perl
-# $Id: get_subontology_from.pl erick.antezana $
+#!/usr/bin/env perl
+# $Id: get_subontology_from.pl 2013-09-29 erick.antezana $
 #
 # Script  : get_subontology_from.pl
-#
 # Purpose : Given an OBO-formatted ontology (such as the Gene Ontology), this script 
 #           extracts a subontology (in OBO format) having as root node the provided term ID.
 #           This script can easily be adapted to get such a sub-ontology (branch) taking into
 #           account the name (or synonym) of a given term.
-#
 # Usage   : get_subontology_from.pl input_ontology.obo term_id > sub_ontology.obo
-#
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ###############################################################################
@@ -56,7 +52,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

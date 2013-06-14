@@ -31,6 +31,8 @@ use strict;
 use warnings;
 use Carp;
 
+use open qw(:std :utf8); # Make All I/O Default to UTF-8
+
 sub new {
 	my $class                   = shift;
 	my $self                    = {}; 

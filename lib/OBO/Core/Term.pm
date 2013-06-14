@@ -1,8 +1,8 @@
-# $Id: Term.pm 2011-06-06 erick.antezana $
+# $Id: Term.pm 2013-06-06 erick.antezana $
 #
 # Module  : Term.pm
 # Purpose : Term of an Ontology.
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -677,13 +677,13 @@ sub __dbxref () {
 		$l =~ s/,/;;;;/g; # trick to keep the comma's
 		$dbxref_as_string =~ s/\Q$cp\E/$l/;
 	}
-	
-	my @dbxrefs = split (',', $dbxref_as_string);
-	
-	my $r_db_acc      = qr/([ \*\.\w-]*):([ '\#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
+
+	my $r_db_acc      = qr/([ \*\.\w-]*):([ ;'\#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_-]*)/o;
 	my $r_desc        = qr/\s+\"([^\"]*)\"/o;
 	my $r_mod         = qr/\s+(\{[\w ]+=[\w ]+\})/o;
 	
+	my @dbxrefs = split (',', $dbxref_as_string);
+
 	foreach my $entry (@dbxrefs) {
 		my ($match, $db, $acc, $desc, $mod) = undef;
 		my $dbxref = OBO::Core::Dbxref->new();
@@ -713,8 +713,8 @@ sub __dbxref () {
 sub __unescape {
 	caller eq __PACKAGE__ or die;
 	my $match = $_[0];
-	$match =~ s/;;;;;/\\"/g;
-	$match =~ s/;;;;/\\,/g;
+	$match    =~ s/;;;;;/\\"/g;
+	$match    =~ s/;;;;/\\,/g;
 	return $match;
 }
 
@@ -941,7 +941,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

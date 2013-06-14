@@ -1,8 +1,8 @@
-# $Id: Ontolome.pm 2012-11-02 erick.antezana $
+# $Id: Ontolome.pm 2013-11-02 erick.antezana $
 #
 # Module  : Ontolome.pm
 # Purpose : A Set of ontologies.
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -36,13 +36,17 @@ sub union () {
 	$result->remarks('Union of ontologies');
 	
 	my $default_namespace;
+	my $default_relationship_id_prefix;
+	
 	foreach my $ontology (@ontos) {
 		$result->remarks($ontology->remarks()->get_set());    # add all the remark's of the ontologies
 		$result->treat_xrefs_as_equivalent($ontology->treat_xrefs_as_equivalent->get_set()); # treat-xrefs-as-equivalent
+		$result->treat_xrefs_as_is_a($ontology->treat_xrefs_as_is_a->get_set()); # treat_xrefs_as_is_a
 		$result->idspaces($ontology->idspaces()->get_set());  # assuming the same idspace
 		$result->subset_def_map($ontology->subset_def_map()); # add all subset_def_map's by default
 		$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set()); # add all synonym_type_def_set by default
 		$default_namespace = $ontology->default_namespace();  # keep the namespace of the last ontology argument
+		$default_relationship_id_prefix = $ontology->default_relationship_id_prefix();  # keep the default relationship ID prefix of the last ontology argument
 
 		my @terms = @{$ontology->get_terms()};
 		foreach my $term (@terms){
@@ -312,7 +316,9 @@ sub union () {
 		#TODO
 		}
 	}
+	$result->default_relationship_id_prefix($default_relationship_id_prefix) if (defined $default_relationship_id_prefix);
 	$result->default_namespace($default_namespace) if (defined $default_namespace);
+
 	return $result;
 }
 
@@ -334,7 +340,8 @@ sub intersection () {
 	my ($self, $onto1, $onto2) = @_;
 	my $result = OBO::Core::Ontology->new();
 	$result->saved_by('ONTO-perl');
-	$result->default_namespace($onto1->default_namespace()); # use the default_namespace of the first argument
+	$result->default_relationship_id_prefix($onto1->default_relationship_id_prefix()); # use the default_relationship_id_prefix of the first argument
+	$result->default_namespace($onto1->default_namespace());                           # use the default_namespace of the first argument
 	$result->remarks('Intersection of ontologies');
 	
 	#
@@ -348,6 +355,19 @@ sub intersection () {
 			$inter{$ids_xref}++;
 		}
 		$result->treat_xrefs_as_equivalent(keys %inter);
+	}
+	
+	#
+	# treat_xrefs_as_is_a
+	#
+	my @txaia1 = $onto1->treat_xrefs_as_is_a->get_set();
+	my @txaia2 = $onto2->treat_xrefs_as_is_a->get_set();
+	if ($#txaia1 > 0 && $#txaia2 > 0) {
+		my %inter = ();
+		foreach my $ids_xref (@txaia1, @txaia2) {
+			$inter{$ids_xref}++;
+		}
+		$result->treat_xrefs_as_is_a(keys %inter);
 	}
 	
 	# the IDspace's of both ontologies are added to the intersection ontology
@@ -517,9 +537,11 @@ sub transitive_closure () {
 	my $result = OBO::Core::Ontology->new();
 	$result->saved_by('ONTO-perl');
 	$result->idspaces($ontology->idspaces()->get_set());
+	$result->default_relationship_id_prefix($ontology->default_relationship_id_prefix());
 	$result->default_namespace($ontology->default_namespace());
 	$result->remarks('Ontology with transitive closures');
 	$result->treat_xrefs_as_equivalent($ontology->treat_xrefs_as_equivalent->get_set()); # treat-xrefs-as-equivalent
+	$result->treat_xrefs_as_is_a($ontology->treat_xrefs_as_is_a->get_set());             # treat_xrefs_as_is_a
 	$result->subset_def_map($ontology->subset_def_map());                                # add all subset_def_map's by default
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set());         # add all synonym_type_def_set by default
 	
@@ -693,9 +715,11 @@ sub transitive_reduction () {
 	my $result = OBO::Core::Ontology->new();
 	$result->saved_by('ONTO-perl');
 	$result->idspaces($ontology->idspaces()->get_set());
+	$result->default_relationship_id_prefix($ontology->default_relationship_id_prefix());
 	$result->default_namespace($ontology->default_namespace());
 	$result->remarks('Ontology with transitive reduction');
 	$result->treat_xrefs_as_equivalent($ontology->treat_xrefs_as_equivalent->get_set()); # treat-xrefs-as-equivalent
+	$result->treat_xrefs_as_is_a($ontology->treat_xrefs_as_is_a->get_set());             # treat_xrefs_as_is_a
 	$result->subset_def_map($ontology->subset_def_map());                                # add all subset_def_map's by default
 	$result->synonym_type_def_set($ontology->synonym_type_def_set()->get_set());         # add all synonym_type_def_set by default
 	
@@ -911,7 +935,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

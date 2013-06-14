@@ -1,8 +1,8 @@
-# $Id: OWLParser.pm 2011-02-02 erick.antezana $
+# $Id: OWLParser.pm 2013-02-20 erick.antezana $
 #
 # Module  : OWLParser.pm
 # Purpose : Parse OWL files (oboInOwl mapping).
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -18,6 +18,8 @@ use OBO::Core::RelationshipType;
 use Carp;
 use strict;
 use warnings;
+
+use open qw(:std :utf8); # Make All I/O Default to UTF-8
 
 sub new {
 	my $class = shift;
@@ -50,6 +52,7 @@ use constant RDFS_SUBPROPERTYOF              => 'rdfs:subPropertyOf';
 # oboInOwl
 #
 use constant OBOINOWL_HAS_DATE               => 'oboInOwl:hasDate';
+use constant OBOINOWL_HAS_DEFAULT_RELATIONSHIP_ID_PREFIX => 'oboInOwl:hasDefaultRelationshipIDPrefix';
 use constant OBOINOWL_HAS_DEFAULT_NAME_SPACE => 'oboInOwl:hasDefaultNamespace';
 use constant OBOINOWL_SUBSET                 => 'oboInOwl:Subset';
 use constant OBOINOWL_HAS_DEFINITION         => 'oboInOwl:hasDefinition';
@@ -762,7 +765,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

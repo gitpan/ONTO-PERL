@@ -32,7 +32,7 @@ is_a: APO:B0000000 ! entity
 [Term]
 id: APO:B9999997
 name: gene
-def: "A ± locatable \"region\" of genomic sequence, corresponding to a unit of inheritance, which is associated with regulatory regions, transcribed regions and/or other functional sequence regions." [SO:0000704]
+def: "A Â± locatable \"region\" of genomic sequence, corresponding to a unit of inheritance, which is associated with regulatory regions, transcribed regions and/or other functional sequence regions." [SO:0000704]
 is_a: APO:B9999999 ! continuant
 exact_synonym: "a gene" []
 exact_synonym: "un gene" []

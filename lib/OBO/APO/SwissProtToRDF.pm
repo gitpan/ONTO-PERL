@@ -37,6 +37,8 @@ use strict;
 use warnings;
 use Carp;
 
+use open qw(:std :utf8); # Make All I/O Default to UTF-8
+
 use SWISS::Entry;
 use Data::Dumper;
 

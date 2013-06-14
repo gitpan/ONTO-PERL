@@ -1,24 +1,18 @@
-#!/usr/local/bin/perl
-# $Id: goa2rdf.pl 2010-09-29 erick.antezana $
+#!/usr/bin/env perl
+# $Id: goa2rdf.pl 2013-09-29 erick.antezana $
 #
 # Script  : goa2rdf.pl
-#
 # Purpose : Generates a simple RDF graph from a given GOA file.
-#
 # Usage   : goa2rdf.pl /path/to/input_file.goa [base_URI] [namespace] > output_file.rdf
-#
 # Example : goa2rdf.pl /path/to/input_file.goa http://www.semantic-systems-biology.org SSB > output_file.rdf
-#
 # Arguments:
 #  			1. Full path to the GOA file
 #  			2. File handle for writing RDF: STDOUT
 # 			3. base URI (default: 'http://www.semantic-systems-biology.org/')
 # 			4. namespace (default: 'SSB')
-#
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ##############################################################################
@@ -55,7 +49,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This script is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

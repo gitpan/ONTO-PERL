@@ -1,16 +1,12 @@
-#!/usr/local/bin/perl
-# $Id: obo2xml.pl 2010-09-29 erick.antezana $
+#!/usr/bin/env perl
+# $Id: obo2xml.pl 2013-09-29 erick.antezana $
 #
 # Script  : obo2xml.pl
-#
 # Purpose : Converts a file from OBO to XML.
-#
 # Usage   : obo2xml.pl $pre_apo_obo_path > $pre_apo_xml_path
-#
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
-#
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
 ###############################################################################
@@ -42,7 +38,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

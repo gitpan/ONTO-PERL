@@ -1,5 +1,5 @@
-#!/usr/local/bin/perl
-# $Id: obo_union.pl 2010-10-29 erick.antezana $
+#!/usr/bin/env perl
+# $Id: obo_union.pl 2013-10-29 erick.antezana $
 #
 # Script  : obo_union.pl
 # Purpose : Finds the union ontology from the given OBO-formatted ontologies.
@@ -9,7 +9,7 @@
 #           Remark 3 - the default namespace is taken from the last ontology argument
 #           Remark 4 - the merging order is important while merging definitions: the one from the last ontology will be taken
 # Usage   : obo_union.pl my_first_ontology.obo my_second_ontology.obo > union.obo
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -58,7 +58,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

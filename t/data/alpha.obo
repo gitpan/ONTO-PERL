@@ -162,6 +162,12 @@ property_value: number_of_permanent_residents "0" xsd:positiveInteger
 created_by: erick_antezana
 creation_date: 2012-11-08T08:55:12Z
 
+[Term]
+id: MYO:1000008
+name: term without a definition
+def: "" [src_code:NR]
+is_obsolete: true
+
 [Instance]
 id: MYO:1000008
 name: Belgium

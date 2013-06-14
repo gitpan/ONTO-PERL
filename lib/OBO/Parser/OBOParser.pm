@@ -1,8 +1,8 @@
-# $Id: OBOParser.pm 2012-11-07 erick.antezana $
+# $Id: OBOParser.pm 2013-20-02 erick.antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO-formatted files.
-# License : Copyright (c) 2006-2012 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -25,6 +25,8 @@ use Carp;
 use Date::Manip qw(ParseDate UnixDate);
 use strict;
 use warnings;
+
+use open qw(:std :utf8); # Make All I/O Default to UTF-8
 
 $Carp::Verbose = 1;
 
@@ -175,13 +177,23 @@ sub work {
 		}
 		
 		#
+		# default-relationship-id-prefix
+		# e.g. default-relationship-id-prefix: OBO_REL
+		#
+		my $default_relationship_id_prefix;
+		if ($chunks[0] =~ /(^default_relationship_id_prefix:\s*(.*)\n?)/m) {
+			$default_relationship_id_prefix = $2;
+			$chunks[0] =~ s/$1//;
+		}
+		
+		#
 		# default-namespace
 		#
 		my $default_namespace;
 		if ($chunks[0] =~ /(^default-namespace:\s*(.*)\n?)/m) {
 			$default_namespace = $2;
 			$chunks[0] =~ s/$1//;
-		}
+		}		
 		
 		#
 		# remark
@@ -207,6 +219,15 @@ sub work {
 		}
 		
 		#
+		# treat-xrefs-as-is_a
+		#
+		my $treat_xrefs_as_is_a = OBO::Util::Set->new();
+		while ($chunks[0] =~ /(^treat-xrefs-as-is_a:\s*(.*)\n?)/m) {
+			$treat_xrefs_as_is_a->add($2);
+			$chunks[0] =~ s/$1//;
+		}
+		
+		#
 		# store the values in header tags
 		#
 		my $result = OBO::Core::Ontology->new();
@@ -220,9 +241,11 @@ sub work {
 		$result->imports($imports->get_set());
 		$result->synonym_type_def_set($synonym_type_def_set->get_set());
 		$result->idspaces($idspaces->get_set());
+		$result->default_relationship_id_prefix($default_relationship_id_prefix) if ($default_relationship_id_prefix);
 		$result->default_namespace($default_namespace) if ($default_namespace);
 		$result->remarks($remarks->get_set());
 		$result->treat_xrefs_as_equivalent($treat_xrefs_as_equivalent->get_set());
+		$result->treat_xrefs_as_is_a($treat_xrefs_as_is_a->get_set());
 
 		if ($chunks[0]) {
 			print STDERR "The following line(s) has been ignored from the header:\n", $chunks[0], "\n";
@@ -419,7 +442,7 @@ sub work {
 						$term->consider($1);
 					} elsif ($line =~ /^builtin:$r_true_false/) {
 						$term->builtin(($1 eq 'true')?1:0);
-					} elsif ($line =~ /^property_value:\s*(\w+)$r_db_acc/ || $line =~ /^property_value:\s*(\w+)\s+"(\w+)"$r_db_acc/) { # TODO some parts in this block might change later on...
+					} elsif ($line =~ /^property_value:\s*(\w+)$r_db_acc/ || $line =~ /^property_value:\s*(\w+)\s+"([ '\#~\w:\\\+\?\{\}\$\/\(\)\[\]\.=&!%_,-]+)"$r_db_acc/) { # TODO some parts in this block might change later on...
 
 						my $r2_type = $result->get_relationship_type_by_id($1); # Is this relationship type already in the ontology?
 						if (!defined $r2_type){
@@ -1036,7 +1059,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2012 by Erick Antezana
+Copyright (c) 2006-2013 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

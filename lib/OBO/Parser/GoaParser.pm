@@ -1,8 +1,8 @@
-# $Id: GoaParser.pm 2159 2010-11-29 Erick Antezana $
+# $Id: GoaParser.pm 2159 2013-02-20 Erick Antezana $
 #
 # Module  : GoaParser.pm
 # Purpose : Parse GOA files
-# License : Copyright (c) 2006-2012. All rights reserved.
+# License : Copyright (c) 2006-2013. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 # Contact : erick.antezana@gmail.com
@@ -13,6 +13,8 @@ package OBO::Parser::GoaParser;
 use strict;
 use warnings;
 use Carp;
+
+use open qw(:std :utf8); # Make All I/O Default to UTF-8
 
 use OBO::Core::Term;
 use OBO::APO::GoaAssociation;
@@ -254,7 +256,7 @@ Vladimir Mironov E<lt>vladimir.n.mironov@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2012 by Vladimir Mironov
+Copyright (C) 2006-Copyright (c) 2006-2013 by Vladimir Mironov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
