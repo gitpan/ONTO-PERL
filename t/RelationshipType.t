@@ -227,17 +227,17 @@ $r3->holds_over_chain($r1->id(), $r2->id());
 ok(scalar(@hoc) == 1);
 
 # functional and inverse functional
-ok(!$r1->functional());
-ok(!$r1->inverse_functional());
-ok(!$r2->functional());
-ok(!$r2->inverse_functional());
-$r1->functional(1);
-$r1->inverse_functional(1);
-$r2->functional(1);
-$r2->inverse_functional(1);
-ok($r1->functional());
-ok($r1->inverse_functional());
-ok($r2->functional());
-ok($r2->inverse_functional());
+ok(!$r1->is_functional());
+ok(!$r1->is_inverse_functional());
+ok(!$r2->is_functional());
+ok(!$r2->is_inverse_functional());
+$r1->is_functional(1);
+$r1->is_inverse_functional(1);
+$r2->is_functional(1);
+$r2->is_inverse_functional(1);
+ok($r1->is_functional());
+ok($r1->is_inverse_functional());
+ok($r2->is_functional());
+ok($r2->is_inverse_functional());
 
 ok(1);

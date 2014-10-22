@@ -1,4 +1,4 @@
-# $Id: Ontolome.t 1642 2013-02-05 14:10:35Z easr $
+# $Id: Ontolome.t 1642 2013-09-05 14:10:35Z easr $
 #
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
 #
@@ -10,7 +10,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 118;
+    plan tests => 192;
 }
 
 #########################
@@ -615,16 +615,121 @@ ok ($cc ==  2);
 #
 my $go_transitive_closure = $ome1->transitive_closure($go);
 
-ok($go_transitive_closure->has_relationship_id('59_is_a_29'));
-ok($go_transitive_closure->has_relationship_id('103_part_of_265'));
-ok($go_transitive_closure->has_relationship_id('60_is_a_242'));
-ok($go_transitive_closure->has_relationship_id('60_is_a_29'));
-ok($go_transitive_closure->has_relationship_id('60_part_of_117'));
-ok($go_transitive_closure->has_relationship_id('265_is_a_2'));
-ok($go_transitive_closure->has_relationship_id('265_is_a_10'));
-ok($go_transitive_closure->has_relationship_id('56_is_a_10'));
+# original relationships: 15
+ok($go_transitive_closure->has_relationship_id('60_is_a_59'));      # N
+ok($go_transitive_closure->has_relationship_id('59_is_a_242'));     # L
+ok($go_transitive_closure->has_relationship_id('242_is_a_29'));     # D
+ok($go_transitive_closure->has_relationship_id('29_part_of_265'));  # H
+ok($go_transitive_closure->has_relationship_id('265_is_a_56'));     # E
+ok($go_transitive_closure->has_relationship_id('56_is_a_2'));       # K
+ok($go_transitive_closure->has_relationship_id('2_is_a_10'));       # I
+ok($go_transitive_closure->has_relationship_id('59_part_of_117'));  # M
+ok($go_transitive_closure->has_relationship_id('60_part_of_118'));  # O
+ok($go_transitive_closure->has_relationship_id('118_part_of_117')); # C
+ok($go_transitive_closure->has_relationship_id('117_is_a_103'));    # B
+ok($go_transitive_closure->has_relationship_id('103_part_of_271')); # A
+ok($go_transitive_closure->has_relationship_id('271_is_a_38'));     # F
+ok($go_transitive_closure->has_relationship_id('271_part_of_265')); # G
+ok($go_transitive_closure->has_relationship_id('38_part_of_56'));   # J
 
-ok($go_transitive_closure->get_number_of_relationships() == 34 + 14); # many new rels: isa*partof=>partof and partof*isa=>partof
+# original rel's + new transitive closure rel's: 15 + 8 = 23
+ok($go_transitive_closure->has_relationship_id('103_part_of_265'));  # 1
+ok($go_transitive_closure->has_relationship_id('103_part_of_271'));  # A
+
+ok($go_transitive_closure->has_relationship_id('117_is_a_103'));     # B
+
+ok($go_transitive_closure->has_relationship_id('118_part_of_117'));  # C
+
+ok($go_transitive_closure->has_relationship_id('242_is_a_29'));      # D
+
+ok($go_transitive_closure->has_relationship_id('265_is_a_10'));      # 2
+ok($go_transitive_closure->has_relationship_id('265_is_a_2'));       # 3
+ok($go_transitive_closure->has_relationship_id('265_is_a_56'));      # E
+
+ok($go_transitive_closure->has_relationship_id('271_is_a_38'));      # F
+ok($go_transitive_closure->has_relationship_id('271_part_of_265'));  # G
+
+ok($go_transitive_closure->has_relationship_id('29_part_of_265'));   # H
+
+ok($go_transitive_closure->has_relationship_id('2_is_a_10'));        # I
+
+ok($go_transitive_closure->has_relationship_id('38_part_of_56'));    # J
+
+ok($go_transitive_closure->has_relationship_id('56_is_a_10'));       # 4
+ok($go_transitive_closure->has_relationship_id('56_is_a_2'));        # K
+
+ok($go_transitive_closure->has_relationship_id('59_is_a_242'));      # L
+ok($go_transitive_closure->has_relationship_id('59_is_a_29'));       # 5
+ok($go_transitive_closure->has_relationship_id('59_part_of_117'));   # M
+
+ok($go_transitive_closure->has_relationship_id('60_is_a_242'));      # 6
+ok($go_transitive_closure->has_relationship_id('60_is_a_29'));       # 7
+ok($go_transitive_closure->has_relationship_id('60_is_a_59'));       # N
+ok($go_transitive_closure->has_relationship_id('60_part_of_117'));   # 8
+ok($go_transitive_closure->has_relationship_id('60_part_of_118'));   # O
+
+# new composititionally created relationships: 26 [partof*isa=>partof and isa*partof=>partof]
+ok($go_transitive_closure->has_relationship_id('103_part_of_38'));
+
+ok($go_transitive_closure->has_relationship_id('117_part_of_271'));
+ok($go_transitive_closure->has_relationship_id('117_part_of_38'));
+
+ok($go_transitive_closure->has_relationship_id('118_part_of_103'));
+
+ok($go_transitive_closure->has_relationship_id('242_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('242_part_of_2'));
+ok($go_transitive_closure->has_relationship_id('242_part_of_265'));
+ok($go_transitive_closure->has_relationship_id('242_part_of_56'));
+
+ok($go_transitive_closure->has_relationship_id('271_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('271_part_of_2'));
+ok($go_transitive_closure->has_relationship_id('271_part_of_56'));
+
+ok($go_transitive_closure->has_relationship_id('29_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('29_part_of_2'));
+ok($go_transitive_closure->has_relationship_id('29_part_of_56'));
+
+ok($go_transitive_closure->has_relationship_id('38_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('38_part_of_2'));
+
+ok($go_transitive_closure->has_relationship_id('59_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('59_part_of_103'));
+ok($go_transitive_closure->has_relationship_id('59_part_of_2'));
+ok($go_transitive_closure->has_relationship_id('59_part_of_265'));
+ok($go_transitive_closure->has_relationship_id('59_part_of_56'));
+
+ok($go_transitive_closure->has_relationship_id('60_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('60_part_of_103'));
+ok($go_transitive_closure->has_relationship_id('60_part_of_2'));
+ok($go_transitive_closure->has_relationship_id('60_part_of_265'));
+ok($go_transitive_closure->has_relationship_id('60_part_of_56'));
+
+# after the composition, we get more posibilities to get transitivity over is_a and part_of: 17 new rel's
+ok($go_transitive_closure->has_relationship_id('103_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('103_part_of_2'));
+ok($go_transitive_closure->has_relationship_id('103_part_of_56'));
+
+ok($go_transitive_closure->has_relationship_id('117_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('117_part_of_2'));
+ok($go_transitive_closure->has_relationship_id('117_part_of_265'));
+ok($go_transitive_closure->has_relationship_id('117_part_of_56'));
+
+ok($go_transitive_closure->has_relationship_id('118_part_of_10'));
+ok($go_transitive_closure->has_relationship_id('118_part_of_2'));
+ok($go_transitive_closure->has_relationship_id('118_part_of_265'));
+ok($go_transitive_closure->has_relationship_id('118_part_of_271'));
+ok($go_transitive_closure->has_relationship_id('118_part_of_38'));
+ok($go_transitive_closure->has_relationship_id('118_part_of_56'));
+
+ok($go_transitive_closure->has_relationship_id('59_part_of_271'));
+ok($go_transitive_closure->has_relationship_id('59_part_of_38'));
+
+ok($go_transitive_closure->has_relationship_id('60_part_of_271'));
+ok($go_transitive_closure->has_relationship_id('60_part_of_38'));
+
+ok($go->get_number_of_relationships() == 15);
+ok($go_transitive_closure->get_number_of_relationships() == 23 + 26 + 17); # many new rels: isa*partof=>partof and partof*isa=>partof
+
 open (TC, ">./t/data/test_go_transitive_closure.obo") || die "Run as root the tests: ", $!;
 $go_transitive_closure->export('obo', \*TC);
 close TC;

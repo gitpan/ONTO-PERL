@@ -2,13 +2,13 @@
 
 <!-- $Id: names.xsl 1847 2011-06-06 12:38:58Z erick.antezana $
 
- Module  : names.xsl
- Purpose : Get the term names from APO (in XML) into HTML
- Usage: xsltproc names.xsl apo.xml > apo-names.html
- License : Copyright (c) 2006-Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
+# Module  : names.xsl
+# Purpose : Get the term names from APO (in XML) into HTML
+# Usage: xsltproc names.xsl apo.xml > apo-names.html
+# License : Copyright (c) 2006-2014 by Erick Antezana. All rights reserved.
            This program is free software; you can redistribute it and/or
            modify it under the same terms as Perl itself.
- Contact : Erick Antezana <erick.antezana -@- gmail.com>
+# Contact : Erick Antezana <erick.antezana -@- gmail.com>
 
 -->
 

@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 400;
+    plan tests => 416;
 }
 
 #########################
@@ -208,24 +208,28 @@ my $r23 = OBO::Core::Relationship->new();
 my $r13 = OBO::Core::Relationship->new();
 my $r14 = OBO::Core::Relationship->new();
 my $r35 = OBO::Core::Relationship->new();
+my $r15 = OBO::Core::Relationship->new();
 
 $r12->id('APO:P0000001_is_a_APO:P0000002');
 $r23->id('APO:P0000002_part_of_APO:P0000003');
 $r13->id('APO:P0000001_participates_in_APO:P0000003');
 $r14->id('APO:P0000001_participates_in_APO:P0000004');
 $r35->id('APO:P0000003_part_of_APO:P0000005');
+$r15->id('APO:P0000001_RO:0000001_APO:P0000005');
 
 $r12->type('is_a');
 $r23->type('part_of');
 $r13->type('participates_in');
 $r14->type('participates_in');
 $r35->type('part_of');
+$r15->type('RO:0000001');
 
 $r12->link($n1, $n2); 
 $r23->link($n2, $n3);
 $r13->link($n1, $n3);
 $r14->link($n1, $n4);
 $r35->link($n3, $n5);
+$r15->link($n1, $n5);
 
 # get all terms
 my $c = 0;
@@ -368,12 +372,12 @@ $n1->synonym_as_string('One', '[APO:ls, APO:vm]', 'BROAD');
 $n1->synonym_as_string('Een', '[APO:ab, APO:cd]', 'RELATED');
 
 ok($onto->get_term_by_name_or_synonym('Uno')->equals($n1));            # needs to be EXACT
-ok($onto->get_term_by_name_or_synonym('One') eq '');                   # undef due to BROAD
+ok(!$onto->get_term_by_name_or_synonym('One'));                        # undef due to BROAD
 ok($onto->get_term_by_name_or_synonym('One', 'ANY')->equals($n1));     # BROAD synonym
 ok($onto->get_term_by_name_or_synonym('One', 'BROAD')->equals($n1));   # BROAD synonym
 ok($onto->get_term_by_name_or_synonym('Een', 'RELATED')->equals($n1)); # RELATED synonym
-ok($onto->get_term_by_name_or_synonym('Een', 'BROAD') eq '');          # need to be RELATED
-ok($onto->get_term_by_name_or_synonym('Een') eq '');                   # need to be RELATED
+ok(!$onto->get_term_by_name_or_synonym('Een', 'BROAD'));               # need to be RELATED
+ok(!$onto->get_term_by_name_or_synonym('Een'));                        # need to be RELATED
 ok($onto->get_term_by_name_or_synonym('Een', 'ANY')->equals($n1));     # RELATED synonym
 
 ok($onto->get_term_by_name('Two')->equals($n2));
@@ -399,12 +403,12 @@ $in1->synonym_as_string('instance of One', '[APO:ls, APO:vm]', 'BROAD');
 $in1->synonym_as_string('instance of Een', '[APO:ab, APO:cd]', 'RELATED');
 
 ok($onto->get_instance_by_name_or_synonym('instance of Uno')->equals($in1));            # needs to be EXACT
-ok($onto->get_instance_by_name_or_synonym('instance of One') eq '');                   # undef due to BROAD
+ok(!$onto->get_instance_by_name_or_synonym('instance of One'));                         # undef due to BROAD
 ok($onto->get_instance_by_name_or_synonym('instance of One', 'ANY')->equals($in1));     # BROAD synonym
 ok($onto->get_instance_by_name_or_synonym('instance of One', 'BROAD')->equals($in1));   # BROAD synonym
 ok($onto->get_instance_by_name_or_synonym('instance of Een', 'RELATED')->equals($in1)); # RELATED synonym
-ok($onto->get_instance_by_name_or_synonym('instance of Een', 'BROAD') eq '');          # need to be RELATED
-ok($onto->get_instance_by_name_or_synonym('instance of Een') eq '');                   # need to be RELATED
+ok(!$onto->get_instance_by_name_or_synonym('instance of Een', 'BROAD'));                # need to be RELATED
+ok(!$onto->get_instance_by_name_or_synonym('instance of Een'));                         # need to be RELATED
 ok($onto->get_instance_by_name_or_synonym('instance of Een', 'ANY')->equals($in1));     # RELATED synonym
 
 ok($onto->get_instance_by_name('instance of Two')->equals($in2));
@@ -444,10 +448,13 @@ $onto->add_relationship($r23);
 $onto->add_relationship($r13);
 $onto->add_relationship($r14);
 $onto->add_relationship($r35);
+$onto->add_relationship($r15);
+
+ok($onto->has_relationship_id('APO:P0000001_RO:0000001_APO:P0000005'));
 
 ok($onto->get_number_of_terms() == 5);
 ok($onto->get_number_of_instances() == 5);
-ok($onto->get_number_of_relationships() == 5);
+ok($onto->get_number_of_relationships() == 6);
 
 # add relationships and terms linked by this relationship
 my $n11 = OBO::Core::Term->new();
@@ -460,7 +467,7 @@ $r11_21->link($n11, $n21);
 $onto->add_relationship($r11_21); # adds to the ontology the terms linked by this relationship
 $onto->get_relationship_type_by_id('r11-21')->name('r11-21');
 ok($onto->get_number_of_terms() == 7);
-ok($onto->get_number_of_relationships() == 6);
+ok($onto->get_number_of_relationships() == 7);
 
 # add some instances
 my $in11 = OBO::Core::Instance->new();
@@ -524,7 +531,7 @@ ok($children[0]->id eq 'APO:P0000001');
 my @parents = @{$onto->get_parent_terms($n3)};
 ok(scalar(@parents) == 1);
 @parents = @{$onto->get_parent_terms($n1)};
-ok(scalar(@parents) == 3);
+ok(scalar(@parents) == 4);
 @parents = @{$onto->get_parent_terms($n2)};
 ok(scalar(@parents) == 1);
 ok($parents[0]->id eq 'APO:P0000003');
@@ -589,43 +596,52 @@ ok(scalar(@ancestors3) == 0);
 my $r1 = OBO::Core::RelationshipType->new();
 my $r2 = OBO::Core::RelationshipType->new();
 my $r3 = OBO::Core::RelationshipType->new();
+my $r4 = OBO::Core::RelationshipType->new();
 
 $r1->id('is_a');
 $r2->id('part_of');
 $r3->id('participates_in');
+$r4->id('RO:0000001');
 
 $r1->name('is a');
 $r2->name('part_of');
 $r3->name('participates_in');
+$r4->name('prevents');
 
 # the rel types were already added while adding the relationships (but they have no names, only ID's)
 ok($onto->has_relationship_type_id('is_a'));
 ok($onto->has_relationship_type_id('part_of'));
 ok($onto->has_relationship_type_id('participates_in'));
+ok($onto->has_relationship_type_id('RO:0000001'));
 
 my @rts = @{$onto->get_relationship_types_sorted_by_id()};
-my @r = ('is_a', 'part_of', 'participates_in', 'r11-21');
+my @r = ('RO:0000001', 'is_a', 'part_of', 'participates_in', 'r11-21');
 foreach my $rt (@rts) {
 	ok($rt->id() eq shift @r);
 }
 
 # add relationship types and test if they were added
-ok($onto->get_number_of_relationship_types() == 4);
+ok($onto->get_number_of_relationship_types() == 5);
 $onto->add_relationship_type($r1);
-ok($onto->get_number_of_relationship_types() == 4);
+ok($onto->get_number_of_relationship_types() == 5);
 ok($onto->has_relationship_type($r1));
 ok($onto->has_relationship_type($onto->get_relationship_type_by_id('is_a')));
 ok($onto->has_relationship_type($onto->get_relationship_type_by_name('is a')));
 ok($onto->has_relationship_type_id('is_a'));
 $onto->add_relationship_type($r2);
-ok($onto->get_number_of_relationship_types() == 4);
+ok($onto->get_number_of_relationship_types() == 5);
 ok($onto->has_relationship_type($r2));
 ok($onto->has_relationship_type_id('part_of'));
 $onto->add_relationship_type($r3);
-ok($onto->get_number_of_relationship_types() == 4);
+ok($onto->get_number_of_relationship_types() == 5);
 ok($onto->has_relationship_type($r3));
 ok($onto->has_relationship_type_id('participates_in'));
-ok($onto->get_number_of_relationship_types() == 4);
+ok($onto->get_number_of_relationship_types() == 5);
+$onto->add_relationship_type($r4);
+ok($onto->get_number_of_relationship_types() == 5);
+ok($onto->has_relationship_type($r4));
+ok($onto->has_relationship_type_id('RO:0000001'));
+ok($onto->get_number_of_relationship_types() == 5);
 
 ok($onto->get_relationship_types_by_name('participates_in')->contains($r3));
 ok($onto->get_relationship_types_by_name('is a')->contains($r1));
@@ -663,12 +679,12 @@ ok(scalar(@ancestors7) == 2);
 my $relationship_type = $onto->add_relationship_type_as_string('has_participant', 'has_participant');
 ok($onto->has_relationship_type($relationship_type) == 1);
 ok($onto->get_relationship_type_by_id('has_participant')->equals($relationship_type));
-ok($onto->get_number_of_relationship_types() == 5);
+ok($onto->get_number_of_relationship_types() == 6);
 
 # get relationship types
 my @rt  = @{$onto->get_relationship_types()};
 my @srt = @{$onto->get_relationship_types_sorted_by_id()};
-ok(scalar @rt == 5);
+ok(scalar @rt == 6);
 ok($#rt == $#srt);
 my @RT = sort { $a->id() cmp $b->id() } @rt;
 for (my $i = 0; $i<=$#srt; $i++) {
@@ -870,9 +886,9 @@ $n3->union_of('GO:0001');
 $n3->union_of('GO:0002');
 $n2->intersection_of('GO:0003');
 $n2->intersection_of('part_of GO:0004');
-ok($onto->get_number_of_relationships() == 6);
-$onto->create_rel($n4, 'part_of', $n5);
 ok($onto->get_number_of_relationships() == 7);
+$onto->create_rel($n4, 'part_of', $n5);
+ok($onto->get_number_of_relationships() == 8);
 ok(1);
 
 # subontology tests and get_root tests
@@ -1006,6 +1022,30 @@ $o1->create_rel($d1,$p,$d25);
 
 my @ref_paths = $o1->get_paths_term1_term2($d5->id(), $d26->id());
 ok ($#ref_paths == 7);
+
+my $concat_paths = '5_is_a_2->2_is_a_7->7_is_a_8->8_is_a_27->27_is_a_26->'.
+					'5_is_a_2->2_is_a_6->6_is_a_20->20_part_of_25->25_is_a_26->'.
+					'5_is_a_2->2_is_a_6->6_is_a_20->20_is_a_21->21_is_a_25->25_is_a_26->'.
+					'5_is_a_2->2_is_a_1->1_is_a_8->8_is_a_27->27_is_a_26->'.
+					'5_is_a_2->2_is_a_1->1_part_of_25->25_is_a_26->'.
+					'5_is_a_2->2_is_a_1->1_part_of_20->20_part_of_25->25_is_a_26->'.
+					'5_is_a_2->2_is_a_1->1_part_of_20->20_is_a_21->21_is_a_25->25_is_a_26->'.
+					'5_is_a_2->2_is_a_1->1_is_a_10->10_is_a_24->24_is_a_25->25_is_a_26->';
+
+foreach my $ref_path (@ref_paths) {
+	
+	my $pattern = '';
+	foreach my $rp (@$ref_path) {
+	
+		my $entry_tail = $rp->tail();
+		my $entry_type = $rp->type();
+		my $entry_head = $rp->head();
+	
+		$pattern .= $entry_tail->id().'_'.$entry_type.'_'.$entry_head->id().'->';
+		
+	}
+	ok (index($concat_paths, $pattern) != -1); # 8 tests to match paths from '5' to '26'
+}
 
 @ref_paths = $o1->get_paths_term1_term2($d5->id(), $d29->id());
 ok ($#ref_paths == 0);

@@ -8,11 +8,8 @@ subsetdef: goslim_generic "Generic GO slim"
 subsetdef: goslim_goa "GOA and proteome slim"
 subsetdef: goslim_pir "PIR GO slim"
 subsetdef: goslim_plant "Plant GO slim"
-subsetdef: goslim_pombe "Fission yeast GO slim"
 subsetdef: goslim_yeast "Yeast GO slim"
 subsetdef: gosubset_prok "Prokaryotic GO subset"
-subsetdef: unvetted "unvetted"
-subsetdef: Drugable "Drugable Genome Project"
 subsetdef: PSI-MI_slim "Subset of PSI-MI"
 
 [Term]

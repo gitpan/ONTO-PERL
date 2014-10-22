@@ -1,8 +1,8 @@
-# $Id: Ontology.pm 2013-20-02 erick.antezana $
+# $Id: Ontology.pm 2014-10-07 erick.antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
-# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2014 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -23,7 +23,7 @@ use warnings;
 
 use open qw(:std :utf8); # Make All I/O Default to UTF-8
 
-our $VERSION = '1.41';
+our $VERSION = '1.42';
 
 sub new {
 	my $class  = shift;
@@ -667,7 +667,7 @@ sub equals {
 	my $result =  0; 
 	
 	# TODO Implement this method
-	croak 'Method: OBO::Core:Ontology::equals in not implemented yet, use OBO::Util::Ontolome meanwhile';
+	croak 'Function: OBO::Core:Ontology::equals in not implemented yet, use OBO::Util::Ontolome meanwhile';
 	
 	return $result;
 }
@@ -1125,7 +1125,7 @@ sub get_instance_by_name {
 =head2 get_term_by_name_or_synonym
 
   Usage    - $ontology->get_term_by_name_or_synonym($name, $scope)
-  Returns  - the term (OBO::Core::Term) associated to the given name or synonym (given its scope, EXACT by default)
+  Returns  - the term (OBO::Core::Term) associated to the given name or synonym (given its scope, EXACT by default); 'undef' is returned if no term is found.
   Args     - the term's name or synonym (string) and optionally the scope of the synonym (EXACT by default)
   Function - returns the term associated to the given name or synonym (given its scope, EXACT by default)
   Remark   - this function should be carefully used since among ontologies there may be homonyms at the level of the synonyms (e.g. genes)
@@ -1135,7 +1135,6 @@ sub get_instance_by_name {
 
 sub get_term_by_name_or_synonym {
     my ($self, $name_or_synonym, $scope) = ($_[0], $_[1], $_[2]);
-    my $result;
     if ($name_or_synonym) {
     	$scope = $scope || "EXACT";
 		foreach my $term (@{$self->get_terms()}) { # return the exact occurrence
@@ -1154,12 +1153,13 @@ sub get_term_by_name_or_synonym {
 			}
 		}
     }
+    return undef;
 }
 
 =head2 get_instance_by_name_or_synonym
 
   Usage    - $ontology->get_instance_by_name_or_synonym($name, $scope)
-  Returns  - the instance (OBO::Core::Instance) associated to the given name or synonym (given its scope, EXACT by default)
+  Returns  - the instance (OBO::Core::Instance) associated to the given name or synonym (given its scope, EXACT by default); 'undef' is returned if no instance is found.
   Args     - the instance's name or synonym (string) and optionally the scope of the synonym (EXACT by default)
   Function - returns the instance associated to the given name or synonym (given its scope, EXACT by default)
   Remark   - this function should be carefully used since among ontologies there may be homonyms at the level of the synonyms (e.g. locations)
@@ -1169,7 +1169,6 @@ sub get_term_by_name_or_synonym {
 
 sub get_instance_by_name_or_synonym {
     my ($self, $name_or_synonym, $scope) = ($_[0], $_[1], $_[2]);
-    my $result;
     if ($name_or_synonym) {
     	$scope = $scope || "EXACT";
 		foreach my $instance (@{$self->get_instances()}) { # return the exact occurrence
@@ -1188,6 +1187,7 @@ sub get_instance_by_name_or_synonym {
 			}
 		}
     }
+    return undef;
 }
 
 =head2 get_terms_by_name
@@ -1319,6 +1319,7 @@ sub add_relationship {
 	my $r              = $self->{RELATIONSHIPS}->{$rel_id};
 	my $target_element = $r->head();
 	my $source_element = $r->tail();
+	
 	if (eval { $target_element->isa('OBO::Core::Term') } && eval { $source_element->isa('OBO::Core::Term') }) {
 		$self->has_term($target_element)              || $self->add_term($target_element);
 		$self->has_term($source_element)              || $self->add_term($source_element);
@@ -1369,19 +1370,22 @@ sub get_relationship_by_id {
 
 =head2 create_rel
 
-  Usage    - $ontology->create_rel->($tail, $type, $head)
+  Usage    - $ontology->create_rel($tail, $type, $head)
   Returns  - the OBO::Core::Ontology object
-  Args     - an OBO::Core::(Term|Relationship) object, a relationship type string (e.g. 'is_a'), and an OBO::Core::(Term|Relationship) object, 
-  Function - creates and adds a new relationship to this ontology
+  Args     - an OBO::Core::(Term|Relationship) object, a relationship type string (e.g. 'is_a'), and an OBO::Core::(Term|Relationship) object
+  Function - creates and adds a new relationship (between two terms or relationships) to this ontology
   
 =cut
 
 sub create_rel {
-	my $self = shift;
-	my($tail, $type, $head) = @_;
+	my $self                 = shift;
+	my ($tail, $type, $head) = @_;
+	
 	croak "Not a valid relationship type: '", $type, "'" unless($self->{RELATIONSHIP_TYPES}->{$type});
+	
 	if ($tail && $head) {
 		my $id = $tail->id().'_'.$type.'_'.$head->id();
+		
 		if ($self->has_relationship_id($id)) {
 			#cluck 'The following rel ID already exists in the ontology: ', $id; # Implement a RelationshipSet?
 			
@@ -1397,7 +1401,7 @@ sub create_rel {
 			$self->add_relationship($rel);
 		}
 	} else {
-		croak 'To create a relationship, you must provide both a tail and a head object!';
+		croak 'To create a relationship, you must provide both a tail object and a head object!';
 	}
 	return $self;
 }
@@ -1463,7 +1467,6 @@ sub get_parent_terms {
 
 sub get_head_by_relationship_type {
 	my ($self, $element, $relationship_type) = @_;
-	# <EASR> Performance improvement
 	my @heads;
 	if ($element && $relationship_type) {
 		my $relationship_type_id = $relationship_type->id();
@@ -1473,21 +1476,11 @@ sub get_head_by_relationship_type {
 			my @rels = values %{$hash};
 			foreach my $rel (@rels) {
 				push @heads, $rel->head() if ($rel->type() eq $relationship_type_id);
-				#Fix? push @heads, $rel->head() if ($rel->type() eq $relationship_type->name());
+				#Fix for some cases: push @heads, $rel->head() if ($rel->type() eq $relationship_type->name());
 			}
 		}
 	}
 	return \@heads;
-	# </EASR>
-#	my $result = OBO::Util::Set->new();
-#	if ($element && $relationship_type) {
-#		my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
-#		foreach my $rel (@rels) {
-#			 $result->add($rel->head()) if ($rel->type() eq $relationship_type->id());
-#		}
-#	}
-#	my @arr = $result->get_set();
-#	return \@arr;
 }
 
 =head2 get_tail_by_relationship_type
@@ -1500,7 +1493,6 @@ sub get_head_by_relationship_type {
 =cut
 
 sub get_tail_by_relationship_type {
-	# <EASR> Performance improvement
 	my ($self, $element, $relationship_type) = @_;
 	my @tails;
 	if ($element && $relationship_type) {
@@ -1515,19 +1507,6 @@ sub get_tail_by_relationship_type {
 		}
 	}
 	return \@tails;
-	# </EASR>
-#	my $self = shift;
-#	my $result = OBO::Util::Set->new();
-#   if (@_) {
-#		my $element = shift;
-#		my $relationship_type = shift;
-#		my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
-#		foreach my $rel (@rels) {
-#			 $result->add($rel->tail()) if ($rel->type() eq $relationship_type->id());
-#		}
-#   }
-#    my @arr = $result->get_set();
-#    return \@arr;
 }
 
 =head2 get_root_terms
@@ -1540,22 +1519,21 @@ sub get_tail_by_relationship_type {
 =cut
 
 sub get_root_terms {
-	my $self  = shift;
-
-	# TODO Consider the addition of one extra argument to request the root terms filtering out the obsolete ones... 
-
-	my @roots = ();
+	my $self     = shift;
+	my @roots    = ();
 	my $term_set = OBO::Util::TermSet->new();
-	$term_set->add_all(values(%{$self->{TERMS}}));
 	
+	$term_set->add_all(values(%{$self->{TERMS}}));
 	my @arr = $term_set->get_set();
-	while ($term_set->size() > 0){
-		my $term = pop @arr;
+	
+	while ($term_set->size() > 0) {
+		my $term   = pop @arr;
 		my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
-		if ($#hashes  == -1) { # if there are no parents
-			push @roots, $term; # it is a root term
+		
+		if ($#hashes  == -1) {        # if there are no parents
+			push @roots, $term;       # it must be a root term
 			$term_set->remove($term);
-		} else { # it is NOT a root term
+		} else {                      # if it is NOT a root term
 			my @queue = ($term);
 			while (scalar(@queue) > 0) {
 				my $unqueued = shift @queue;
@@ -1776,7 +1754,7 @@ sub export2obo {
 		#
 		# subset
 		#
-		foreach my $sset_name ($term->subset()) {
+		foreach my $sset_name (sort {$a cmp $b} $term->subset()) {
 			if ($self->subset_def_map()->contains_key($sset_name)) {
 				print $output_file_handle "\nsubset: ", $sset_name;
 			} else {
@@ -1975,7 +1953,7 @@ sub export2obo {
 		#
 		# subset
 		#
-		foreach my $sset_name ($instance->subset()) {
+		foreach my $sset_name (sort {$a cmp $b} $instance->subset()) {
 			if ($self->subset_def_map()->contains_key($sset_name)) {
 				print $output_file_handle "\nsubset: ", $sset_name;
 			} else {
@@ -2306,14 +2284,14 @@ sub export2obo {
 		}
 		
 		#
-    	# functional
+    	# is_functional
     	#
-		print $output_file_handle "\nfunctional: true" if ($relationship_type->functional() == 1);
+		print $output_file_handle "\nis_functional: true" if ($relationship_type->is_functional() == 1);
 		
 		#
-    	# inverse_functional
+    	# is_inverse_functional
     	#
-		print $output_file_handle "\ninverse_functional: true" if ($relationship_type->inverse_functional() == 1);
+		print $output_file_handle "\nis_inverse_functional: true" if ($relationship_type->is_inverse_functional() == 1);
 
 		#
 		# created_by
@@ -2383,7 +2361,7 @@ sub export2rdf {
 	
 	if ($base && $base !~ /^http/) {
 		croak "RDF export: you must provide a valid URL, e.g. export('rdf', \*STDOUT, \*STDERR, 'http://www.cellcycleontology.org/ontology/rdf/')";
-	} elsif (!defined $namespace){
+	} elsif (!defined $namespace) {
 		croak "RDF export: you must provide a valid namespace (e.g. 'SSB')";
 	}
 
@@ -2490,7 +2468,7 @@ sub export2rdf {
 		#
 		# subset
 		#
-		foreach my $sset_name ($term->subset()) {
+		foreach my $sset_name (sort {$a cmp $b} $term->subset()) {
 			if ($self->subset_def_map()->contains_key($sset_name)) {
 				print $output_file_handle "\t\t<",$ns,":subset>",$sset_name,"</",$ns,":subset>\n";
 			} else {
@@ -2520,7 +2498,6 @@ sub export2rdf {
 			print $output_file_handle "\t\t\t</rdf:Description>\n";
 			print $output_file_handle "\t\t</",$ns,":synonym>\n";
 		}
-    	
     	
 		#
 		# xref
@@ -2865,14 +2842,14 @@ sub export2rdf {
 			}
 
 			#
-	    	# functional
+	    	# is_functional
 	    	#
-	    	print $output_file_handle "\t\t<",$ns,':functional>true</',$ns,":functional>\n" if ($relationship_type->functional() == 1);
+	    	print $output_file_handle "\t\t<",$ns,':is_functional>true</',$ns,":is_functional>\n" if ($relationship_type->is_functional() == 1);
 			
 			#
-	    	# inverse_functional
+	    	# is_inverse_functional
 	    	#
-			print $output_file_handle "\t\t<",$ns,':inverse_functional>true</',$ns,":inverse_functional>\n" if ($relationship_type->inverse_functional() == 1);
+			print $output_file_handle "\t\t<",$ns,':is_inverse_functional>true</',$ns,":is_inverse_functional>\n" if ($relationship_type->is_inverse_functional() == 1);
 		
 			#
 			# created_by
@@ -3095,7 +3072,7 @@ sub export2owl {
 		#
 		# subset
 		#
-		foreach my $sset_name ($term->subset()) {
+		foreach my $sset_name (sort {$a cmp $b} $term->subset()) {
 			if ($self->subset_def_map()->contains_key($sset_name)) {
 				print $output_file_handle "\t<oboInOwl:inSubset rdf:resource=\"", $oboContentUrl, &__get_name_without_whitespaces($sset_name), "\"/>\n";
 			} else {
@@ -3111,7 +3088,7 @@ sub export2owl {
 			print $output_file_handle "\t\t<oboInOwl:Definition>\n";
 			print $output_file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", &__char_hex_http($term->def()->text()), "</rdfs:label>\n";
 			
-			print_hasDbXref_for_owl($output_file_handle, $term->def()->dbxref_set(), $oboContentUrl, 3);
+			__print_hasDbXref_for_owl($output_file_handle, $term->def()->dbxref_set(), $oboContentUrl, 3);
 			
 			print $output_file_handle "\t\t</oboInOwl:Definition>\n";
 			print $output_file_handle "\t</oboInOwl:hasDefinition>\n";
@@ -3139,7 +3116,7 @@ sub export2owl {
 			print $output_file_handle "\t\t<oboInOwl:Synonym>\n";
 			print $output_file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
 			
-			print_hasDbXref_for_owl($output_file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
+			__print_hasDbXref_for_owl($output_file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
 			
 			print $output_file_handle "\t\t</oboInOwl:Synonym>\n";
 			print $output_file_handle "\t</oboInOwl:", $synonym_type, ">\n";
@@ -3162,7 +3139,7 @@ sub export2owl {
 		#
 		# xref's
 		#
-		print_hasDbXref_for_owl($output_file_handle, $term->xref_set(), $oboContentUrl, 1);
+		__print_hasDbXref_for_owl($output_file_handle, $term->xref_set(), $oboContentUrl, 1);
     	
 		#
 		# is_a:
@@ -3343,7 +3320,7 @@ sub export2owl {
 			print $output_file_handle "\t\t<oboInOwl:Definition>\n";
 			print $output_file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", &__char_hex_http($relationship_type->def()->text()), "</rdfs:label>\n";
 			
-			print_hasDbXref_for_owl($output_file_handle, $relationship_type->def()->dbxref_set(), $oboContentUrl, 3);
+			__print_hasDbXref_for_owl($output_file_handle, $relationship_type->def()->dbxref_set(), $oboContentUrl, 3);
 			
 			print $output_file_handle "\t\t</oboInOwl:Definition>\n";
 			print $output_file_handle "\t</oboInOwl:hasDefinition>\n";
@@ -3371,7 +3348,7 @@ sub export2owl {
 			print $output_file_handle "\t\t<oboInOwl:Synonym>\n";
 			print $output_file_handle "\t\t\t<rdfs:label xml:lang=\"en\">", $synonym->def()->text(), "</rdfs:label>\n";
 			
-			print_hasDbXref_for_owl($output_file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
+			__print_hasDbXref_for_owl($output_file_handle, $synonym->def()->dbxref_set(), $oboContentUrl, 3);
 			
 			print $output_file_handle "\t\t</oboInOwl:Synonym>\n";
 			print $output_file_handle "\t</oboInOwl:", $synonym_type, ">\n";
@@ -3414,7 +3391,7 @@ sub export2owl {
 		#
 		# xref's
 		#
-		print_hasDbXref_for_owl($output_file_handle, $relationship_type->xref_set(), $oboContentUrl, 1);
+		__print_hasDbXref_for_owl($output_file_handle, $relationship_type->xref_set(), $oboContentUrl, 1);
 			
 		## There is no way to code these rel's in OBO
 		##print $output_file_handle "\t<rdf:type rdf:resource=\"&owl;FunctionalProperty\"/>\n" if (${$relationship{$_}}{"TODO"});
@@ -3644,7 +3621,7 @@ sub export2xml {
 		#
 		# subset
 		#
-		foreach my $sset_name ($term->subset()) {
+		foreach my $sset_name (sort {$a cmp $b} $term->subset()) {
 			if ($self->subset_def_map()->contains_key($sset_name)) {
 				print $output_file_handle "\t\t<subset>", $sset_name, "</subset>\n";
 			} else {
@@ -3979,14 +3956,14 @@ sub export2xml {
 		}
 
 		#
-	    # functional
+	    # is_functional
 	    #
-	    print $output_file_handle "\t\t<functional>true</functional>\n" if ($relationship_type->functional() == 1);
+	    print $output_file_handle "\t\t<is_functional>true</is_functional>\n" if ($relationship_type->is_functional() == 1);
 			
 		#
-	    # inverse_functional
+	    # is_inverse_functional
 	    #
-		print $output_file_handle "\t\t<inverse_functional>true</inverse_functional>\n" if ($relationship_type->inverse_functional() == 1);
+		print $output_file_handle "\t\t<is_inverse_functional>true</is_inverse_functional>\n" if ($relationship_type->is_inverse_functional() == 1);
 			
 		#
 		# created_by
@@ -4443,33 +4420,6 @@ sub get_instances_idspace {
 		return ($NS)?$NS:'NN';
 	}
 }
-	
-sub print_hasDbXref_for_owl {
-	my ($output_file_handle, $set, $oboContentUrl, $tab_times) = @_;
-	my $tab0 = "\t"x$tab_times;
-	my $tab1 = "\t"x($tab_times + 1);
-	my $tab2 = "\t"x($tab_times + 2);
-	for my $ref ($set->get_set()) {
-		print $output_file_handle $tab0."<oboInOwl:hasDbXref>\n";
-		print $output_file_handle $tab1."<oboInOwl:DbXref>\n";
-		my $db = $ref->db();
-		my $acc = $ref->acc();
-
-		# Special case when db=http and acc=www.domain.com
-		# <rdfs:label>URL:http%3A%2F%2Fwww2.merriam-webster.com%2Fcgi-bin%2Fmwmednlm%3Fbook%3DMedical%26va%3Dforebrain</rdfs:label>
-		# <oboInOwl:hasURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http%3A%2F%2Fwww2.merriam-webster.com%2Fcgi-bin%2Fmwmednlm%3Fbook%3DMedical%26va%3Dforebrain</oboInOwl:hasURI>
-		if ($db eq 'http') {
-			my $http_location = &__char_hex_http($acc);
-			print $output_file_handle $tab2."<rdfs:label>URL:http%3A%2F%2F", $http_location, "</rdfs:label>\n";
-			print $output_file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$http_location,"</oboInOwl:hasURI>\n";	
-		} else {
-			print $output_file_handle $tab2."<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
-			print $output_file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,'#',$db,'_',$acc,"</oboInOwl:hasURI>\n";
-		}
-		print $output_file_handle $tab1."</oboInOwl:DbXref>\n";
-		print $output_file_handle $tab0."</oboInOwl:hasDbXref>\n";
-	}
-}
 
 =head2 get_descendent_terms
 
@@ -4686,7 +4636,7 @@ sub get_instance_by_xref {
 sub get_paths_term1_term2 () {
 	my ($self, $v, $bstop) = @_;
 	
-	my @nei = @{$self->get_parent_terms($self->get_term_by_id($v))};
+	my @nei  = sort {$a->id cmp $b->id} @{$self->get_parent_terms($self->get_term_by_id($v))};
 	
 	my $path = $v;
 	my @bk   = ($v);
@@ -4700,6 +4650,7 @@ sub get_paths_term1_term2 () {
 	my @result;
 	
 	my $target_source_rels = $self->{TARGET_SOURCE_RELATIONSHIPS};
+	
 	while ($#nei > -1) {
 		my @back;
 		my $n          = pop @nei; # neighbours
@@ -4708,8 +4659,8 @@ sub get_paths_term1_term2 () {
 		next if (!defined $p_id);  # TODO investigate cases where $p_id might not be defined
 		my $p          = $self->get_term_by_id($p_id);
 		 
-		my @ps         = @{$self->get_parent_terms($n)};
-		my @hi         = @{$self->get_parent_terms($p)};
+		my @ps         = sort {$a->id cmp $b->id} @{$self->get_parent_terms($n)};
+		my @hi         = sort {$a->id cmp $b->id} @{$self->get_parent_terms($p)};
 		
 		$hijos{$p_id}  = $#hi + 1;
 		$hijos{$n_id}  = $#ps + 1;
@@ -4719,11 +4670,13 @@ sub get_paths_term1_term2 () {
 		push @ruta, values(%{$target_source_rels->{$p}->{$n}});
 
 		if ($bstop eq $n_id) {
-			#warn "\nSTOP FOUND : ", $n_id;			
+			
+			#print STDERR "\n\nSTOP FOUND : ", $n_id if ($v == 103 && $bstop == 265); # DEBUG
+			#print STDERR "\nPATH       : ", $path if ($v == 103); # DEBUG
+			#print STDERR "\nBK         : ", map {$_.'->'} @bk if ($v == 103); # DEBUG
+			#print STDERR "\nRUTA       : ", map {$_->id()} @ruta if ($v == 103); # DEBUG
+						
 			$path .= '->'.$n_id;
-			#warn 'PATH       : ', $path;
-			#warn 'BK         : ', map {$_.'->'} @bk;
-			#warn 'RUTA       : ', map {$_->id()} @ruta;
 			push @result, [@ruta];
 		}
 		
@@ -4780,7 +4733,9 @@ sub get_paths_term1_term2 () {
 		} else {
 			$p_id = $n_id;
 		}
+		
 		push @nei, @ps; # add next level
+		
 		$p_id  = $bk[$#bk];
 		$path .= '->'.$n_id;
 
@@ -5084,21 +5039,7 @@ sub __char_hex_http {
 	$_[0] =~ s/\//&#47;/g; # slash
 	$_[0] =~ s/&/&#38;/g;  # ampersand
 	$_[0] =~ s/"/&#34;/g;  # double quotes
-	$_[0] =~ s/�/&#177;/g; # plus-or-minus sign
-	
-#	$_[0] =~ s/:/%3A/g;
-#	$_[0] =~ s/;/%3B/g;
-#	$_[0] =~ s/</%3C/g;
-#	$_[0] =~ s/=/%3D/g;
-#	$_[0] =~ s/>/%3E/g;
-#	$_[0] =~ s/\?/%3F/g;
-#	$_[0] =~ s/#/%23/g;
-#	$_[0] =~ s/$/%24/g;
-#	$_[0] =~ s/%/%25/g;
-#	$_[0] =~ s/\//%2F/g;
-#	$_[0] =~ s/&/%26/g;
-#	$_[0] =~ s/"/%22/g;
-#	$_[0] =~ s/�/%B1/g;
+	$_[0] =~ s/±/&#177;/g; # plus-or-minus sign
 
 	return $_[0];
 }
@@ -5247,13 +5188,42 @@ sub __sort_by_id {
 				@input;
 }
 
+
+sub __print_hasDbXref_for_owl {
+	caller eq __PACKAGE__ or croak;
+	my ($output_file_handle, $set, $oboContentUrl, $tab_times) = @_;
+	my $tab0 = "\t"x$tab_times;
+	my $tab1 = "\t"x($tab_times + 1);
+	my $tab2 = "\t"x($tab_times + 2);
+	for my $ref ($set->get_set()) {
+		print $output_file_handle $tab0."<oboInOwl:hasDbXref>\n";
+		print $output_file_handle $tab1."<oboInOwl:DbXref>\n";
+		my $db = $ref->db();
+		my $acc = $ref->acc();
+
+		# Special case when db=http and acc=www.domain.com
+		# <rdfs:label>URL:http%3A%2F%2Fwww2.merriam-webster.com%2Fcgi-bin%2Fmwmednlm%3Fbook%3DMedical%26va%3Dforebrain</rdfs:label>
+		# <oboInOwl:hasURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http%3A%2F%2Fwww2.merriam-webster.com%2Fcgi-bin%2Fmwmednlm%3Fbook%3DMedical%26va%3Dforebrain</oboInOwl:hasURI>
+		if ($db eq 'http') {
+			my $http_location = &__char_hex_http($acc);
+			print $output_file_handle $tab2."<rdfs:label>URL:http%3A%2F%2F", $http_location, "</rdfs:label>\n";
+			print $output_file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$http_location,"</oboInOwl:hasURI>\n";	
+		} else {
+			print $output_file_handle $tab2."<rdfs:label>", $db, ":", $acc, "</rdfs:label>\n";
+			print $output_file_handle $tab2."<oboInOwl:hasURI rdf:datatype=\"http://www.w3.org/2001/XMLSchema#anyURI\">",$oboContentUrl,$db,'#',$db,'_',$acc,"</oboInOwl:hasURI>\n";
+		}
+		print $output_file_handle $tab1."</oboInOwl:DbXref>\n";
+		print $output_file_handle $tab0."</oboInOwl:hasDbXref>\n";
+	}
+}
+
 1;
 
 __END__
 
 =head1 NAME
 
-OBO::Core::Ontology  - An ontology holding terms, instances and relationships.
+OBO::Core::Ontology  - An ontology of terms/concepts/universals, instances/individuals and relationships/properties.
  
 =head1 SYNOPSIS
 
@@ -5650,10 +5620,12 @@ foreach my $head (@heads_n1) {
 =head1 DESCRIPTION
 
 This module supports the manipulation of OBO-formatted ontologies, such as the 
-Gene Ontology (http://www.geneontology.org/) or the Cell Cycle Ontology (http://www.cellcycleontology.org). 
-Basically, it represents a directed acyclic graph (DAG) holding terms (OBO::Core::Term) which 
-in turn are linked by relationships (OBO::Core::Relationship). Those relationships have an associated 
-relationship type (OBO::Core::RelationshipType).
+Gene Ontology (http://www.geneontology.org/) or the Cell Cycle Ontology (http://www.cellcycleontology.org).
+For a longer list of OBO-formatted ontologies, look at http://www.obofoundry.org/.
+
+This module basically provides a representation of a directed acyclic graph (DAG) holding 
+terms (OBO::Core::Term) which in turn are linked by relationships (OBO::Core::Relationship).
+Those relationships have an associated relationship type (OBO::Core::RelationshipType).
 
 =head1 AUTHOR
 
@@ -5661,7 +5633,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2013 by Erick Antezana
+Copyright (c) 2006-2014 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

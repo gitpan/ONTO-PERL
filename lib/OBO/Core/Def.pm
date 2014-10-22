@@ -1,8 +1,8 @@
-# $Id: Def.pm 2011-06-06 erick.antezana $
+# $Id: Def.pm 2013-09-17 erick.antezana $
 #
 # Module  : Def.pm
 # Purpose : Definition structure.
-# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2014 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -56,7 +56,7 @@ sub dbxref_set {
 
 =head2 dbxref_set_as_string
 
-  Usage    - $definition->dbxref_set_as_string() or $definition->dbxref_set_as_string("[GOC:elh, PMID:9334324]")
+  Usage    - $definition->dbxref_set_as_string() or $definition->dbxref_set_as_string("[GOC:elh, PMID:9334324, UM-BBD_pathwayID:2\,4\,5-t]")
   Returns  - the dbxref set (string) of this definition; [] if the set is empty
   Args     - the dbxref set (string) describing the source(s) of this definition
   Function - gets/sets the dbxref set of this definition. The set operation actually *adds* the new dbxrefs to the existing set
@@ -267,7 +267,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2013 by Erick Antezana
+Copyright (c) 2006-2014 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

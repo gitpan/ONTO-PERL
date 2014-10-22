@@ -1,8 +1,8 @@
-# $Id: OBOParser.pm 2013-20-02 erick.antezana $
+# $Id: OBOParser.pm 2014-10-03 erick.antezana $
 #
 # Module  : OBOParser.pm
 # Purpose : Parse OBO-formatted files.
-# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2014 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -51,7 +51,11 @@ sub new {
 
 sub work {
 	my $self = shift;
-	$self->{OBO_FILE} = shift if (@_);
+	if (defined $_[0]) {
+		$self->{OBO_FILE} = shift;
+	} else {
+		croak 'You have to provide an OBO file as input';
+	}
 	
 	open (OBO_FILE, $self->{OBO_FILE}) || croak 'The OBO file (', $self->{OBO_FILE}, ') cannot be opened: ', $!;
 	
@@ -114,7 +118,7 @@ sub work {
 			$saved_by  = $2;
 			$chunks[0] =~ s/$1//;
 		}
-		
+
 		#
 		# auto_generated_by
 		#
@@ -123,7 +127,7 @@ sub work {
 			$auto_generated_by = $2;
 			$chunks[0]         =~ s/$1//;
 		}
-		
+
 		#
 		# imports
 		#
@@ -251,6 +255,12 @@ sub work {
 			print STDERR "The following line(s) has been ignored from the header:\n", $chunks[0], "\n";
 		}
 		
+		#
+		# Keep log's
+		#
+		my %used_subset; # of the used subsets to pin point nonused subsets defined in the header (subsetdef's)
+		
+		my %used_synonym_type_def; # of the used synonymtypedef to pin point nonused synonymtypedef's defined in the header (synonymtypedef's)
 		
 		#
 		# Regexps
@@ -265,6 +275,18 @@ sub work {
 		my $intersection_of_counter = 0;
 		my $union_of_counter        = 0;
 		
+		my %allowed_data_types = (	'xsd:simpleType' => 1,			# Indicates any primitive type (abstract)
+									'xsd:string' => 1,				# A string
+									'xsd:integer' => 1,				# Any integer
+									'xsd:decimal' => 1,				# Any real number
+									'xsd:negativeInteger' => 1,		# Any negative integer
+									'xsd:positiveInteger' => 1,		# Any integer > 0
+									'xsd:nonNegativeInteger' => 1,	# Any integer >= 0
+									'xsd:nonPositiveInteger' => 1,	# Any integer < 0
+									'xsd:boolean' => 1,				# True or false
+									'xsd:date' => 1					# An XML-Schema date
+		);
+		
 		foreach my $chunk (@chunks) {
 			my @entry  = split (/\n/, $chunk);
 			my $stanza = shift @entry;
@@ -272,7 +294,6 @@ sub work {
 			if ($stanza && $stanza =~ /\[Term\]/) { # treat [Term]'s
 				
 				my $term;
-				
 				#
 				# to check we have zero or at least two intersection_of's and zero or at least two union_of's
 				#
@@ -327,6 +348,8 @@ sub work {
 						my $ss = $1;
 						if ($result->subset_def_map()->contains_key($ss)) {
 							$term->subset($ss); # it is a Set (i.e. added to a Set)
+							
+							$used_subset{$ss}++; # check subsets usage
 						} else {
 							croak "The subset '", $ss, "' is not defined in the header! Check your OBO file line '", $file_line_number, "'";
 						}
@@ -349,8 +372,10 @@ sub work {
 								}
 							}
 							croak 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+							$used_synonym_type_def{$5}++; # check synonymtypedef usage
 						}
 						$term->synonym_as_string($1, $6, $scope, $5);
+						
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unknown:\s*(.*)/) {
 						$term->xref_set_as_string($1);
 					} elsif ($line =~ /^is_a:$r_db_acc$r_comments/) { # The comment is ignored here but generated later internally
@@ -399,12 +424,13 @@ sub work {
 						$union_of_counter++;
 					} elsif ($line =~ /^disjoint_from:$r_db_acc$r_comments/) {
 						$term->disjoint_from($1); # We are assuming that the other term exists or will exist; otherwise , we have to create it like in the is_a section.
-					} elsif ($line =~ /^relationship:\s*([\w\/]+)$r_db_acc$r_comments/) {
+					} elsif ($line =~ /^relationship:\s*([\w\/]+)$r_db_acc$r_comments/ || $line =~ /^relationship:\s*$r_db_acc$r_db_acc$r_comments/) {
 						my $rel = OBO::Core::Relationship->new();
-						my $id  = $term->id().'_'.$1.'_'.$2; 
+						my $id  = $term->id().'_'.$1.'_'.$2; # TODO: I have to standarise the id's: term_id1_db:acc_term_id2
 						$id     =~ s/\s+/_/g;
 						$rel->id($id);
 						$rel->type($1);
+						#warn "TYPE : '", $id, "'";
 						my $target = $result->get_term_by_id($2); # Is this term already in the ontology?
 						if (!defined $target) {
 							$target = OBO::Core::Term->new(); # if not, create a new term
@@ -492,6 +518,9 @@ sub work {
 								$target = OBO::Core::Instance->new();
 								$target->id($2);
 								
+								# data type check
+								warn "Unrecommended XML-schema pritive (data type) found: '", $3, "'" unless (exists $allowed_data_types{$3});
+								
 								my $data_type = OBO::Core::Term->new();
 								$data_type->id($3);
 								#$result->add_term($data_type);                 # TODO Think about it...
@@ -507,7 +536,7 @@ sub work {
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {					
-						warn 'A format problem has been detected (and ignored) in line: ', $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
+						warn 'Unknown syntax found (and ignored) in line: ', $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
 					}
 				}
 				# Check for required fields: id
@@ -531,7 +560,9 @@ sub work {
 				$intersection_of_counter = 0;
 				$union_of_counter        = 0;
 				
+				$file_line_number++;
 				foreach my $line (@entry) {
+					$file_line_number++;
 					if ($line =~ /^id:\s*(.*)/) { # get the type id
 						$type = $result->get_relationship_type_by_id($1); # Is this relationship type already in the ontology?
 						if (!defined $type){
@@ -568,6 +599,8 @@ sub work {
 						my $ss = $1;
 						if ($result->subset_def_map()->contains_key($ss)) {
 							$type->subset($ss); # it is a Set (i.e. added to a Set)
+							
+							$used_subset{$ss}++; # check subsets usage
 						} else {
 							croak "The subset '", $ss, "' is not defined in the header! Check your OBO file relationship type in line: '", $file_line_number, "'";
 						}
@@ -625,6 +658,7 @@ sub work {
 								}
 							}
 							croak 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+							$used_synonym_type_def{$5}++; # check synonymtypedef usage
 						}
 						$type->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unk:\s*(.*)/) {
@@ -690,10 +724,10 @@ sub work {
 						# TODO
 					} elsif ($line =~ /^disjoint_over:\s*(.*)/) {
 						# TODO
-					} elsif ($line =~ /^functional:$r_true_false/) {
-						$type->functional(($1 eq 'true')?1:0);
-					} elsif ($line =~ /^inverse_functional:$r_true_false/) {
-						$type->inverse_functional(($1 eq 'true')?1:0);
+					} elsif ($line =~ /^is_functional:$r_true_false/) {
+						$type->is_functional(($1 eq 'true')?1:0);
+					} elsif ($line =~ /^is_inverse_functional:$r_true_false/) {
+						$type->is_inverse_functional(($1 eq 'true')?1:0);
 					} elsif ($line =~ /^created_by:\s*(.*)/) {
 						$type->created_by($1);
 					} elsif ($line =~ /^creation_date:\s*(.*)/) {
@@ -723,7 +757,7 @@ sub work {
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {
-						warn "A format problem has been detected (and ignored) in the following entry:\n\n\t", $line, "\n\nfrom file '", $self->{OBO_FILE}, "'\n";
+						warn 'Unknown syntax found (and ignored) in line: ', $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
 					}	
 				}
 				# Check for required fields: id
@@ -797,6 +831,8 @@ sub work {
 						my $ss = $1;
 						if ($result->subset_def_map()->contains_key($ss)) {
 							$instance->subset($ss); # it is a Set (i.e. added to a Set)
+							
+							$used_subset{$ss}++; # check subsets usage
 						} else {
 							croak "The subset '", $ss, "' is not defined in the header! Check your OBO file line '", $file_line_number, "'";
 						}
@@ -818,6 +854,7 @@ sub work {
 								}
 							}
 							croak 'The synonym type name (', $5,') used in line ',  $file_line_number, " in the file '", $self->{OBO_FILE}, "' was not defined" if (!$found);
+							$used_synonym_type_def{$5}++; # check synonymtypedef usage
 						}
 						$instance->synonym_as_string($1, $6, $scope, $5);
 					} elsif ($line =~ /^xref:\s*(.*)/ || $line =~ /^xref_analog:\s*(.*)/ || $line =~ /^xref_unknown:\s*(.*)/) {
@@ -862,10 +899,10 @@ sub work {
 					} elsif ($line =~ /^disjoint_from:$r_db_acc$r_comments/) {
 						# TODO do INSTANCES have this tag?
 						$instance->disjoint_from($1); # We are assuming that the other instance exists or will exist; otherwise , we have to create it like in the is_a section.
-					} elsif ($line =~ /^relationship:\s*([\w\/]+)$r_db_acc$r_comments/) {
+					} elsif ($line =~ /^relationship:\s*([\w\/]+)$r_db_acc$r_comments/ || $line =~ /^relationship:\s*$r_db_acc$r_db_acc$r_comments/) {
 						# TODO do INSTANCES have this tag?
 						my $rel = OBO::Core::Relationship->new();
-						my $id  = $instance->id().'_'.$1.'_'.$2; 
+						my $id  = $instance->id().'_'.$1.'_'.$2; # TODO see the line (TODO) of the 'term' section
 						$id     =~ s/\s+/_/g;
 						$rel->id($id);
 						$rel->type($1);
@@ -954,6 +991,9 @@ sub work {
 								$target = OBO::Core::Instance->new();
 								$target->id($2);
 								
+								# data type check
+								warn "Unrecommended XML-schema pritive (data type) found: '", $3, "'" unless (exists $allowed_data_types{$3});
+								
 								my $data_type = OBO::Core::Term->new();
 								$data_type->id($3);
 								#$result->add_term($data_type);                 # TODO Think about it...
@@ -969,7 +1009,7 @@ sub work {
 					} elsif ($line =~ /^!/) {
 						# skip line
 					} else {					
-						warn 'A format problem has been detected (and ignored) in line: ', $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
+						warn 'Unknown syntax found (and ignored) in line: ', $file_line_number, " (in file '", $self->{OBO_FILE}, "'):\n\t", $line, "\n";
 					}
 				}
 				# Check for required fields: id
@@ -986,6 +1026,28 @@ sub work {
 				$file_line_number++;
 			} elsif ($stanza && $stanza =~ /\[Annotation\]/) { # treat [Annotation]
 				# TODO "Annotations are ignored by ONTO-PERL (they might be supported in the future).";
+			}
+		}
+		
+		#
+		# Warn (and delete) on non used subsets which were defined in the header (subsetdef's)
+		#
+		my @set_of_all_ss = $result->subset_def_map()->key_set()->get_set();
+		foreach my $pss (sort @set_of_all_ss) {
+			if (!$used_subset{$pss}) {
+				$result->subset_def_map()->remove($pss);
+				warn "Unused subset found (and removed): '", $pss, "' (in file '", $self->{OBO_FILE}, "')";
+			}
+		}
+		
+		#
+		# Warn (and delete) on non used synonym type def's which were defined in the header (synonymtypedef's)
+		#
+		my @set_of_all_synonymtypedef = $result->synonym_type_def_set()->get_set();
+		foreach my $st (@set_of_all_synonymtypedef) {
+			if (!$used_synonym_type_def{$st->name()}) {
+				$result->synonym_type_def_set()->remove($st);
+				warn "Unused synonym type def found (and removed): '", $st->name(), "' (in file '", $self->{OBO_FILE}, "')";
 			}
 		}
 		
@@ -1059,7 +1121,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2013 by Erick Antezana
+Copyright (c) 2006-2014 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

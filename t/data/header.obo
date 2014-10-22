@@ -5,18 +5,10 @@ date: 28:03:2011 13:57
 saved-by: easr
 auto-generated-by: ONTO-PERL 1.32
 import: ulo.obo
-subsetdef: Arabidopsis "Term used for Arabidopsis"
 subsetdef: Citrus "Term used for citrus"
-subsetdef: Maize "Term used for maize"
-subsetdef: Poaceae "Term used for grasses"
-subsetdef: reference "reference plant structure term"
 subsetdef: Rice "Term used for rice"
 subsetdef: Tomato "Term used for tomato"
-synonymtypedef: acronym "acronym" BROAD
 synonymtypedef: common_name "common name" EXACT
-synonymtypedef: equivalent_name "equivalent name" EXACT
-synonymtypedef: scientific_name "scientific name" EXACT
-synonymtypedef: synonym "synonym" RELATED
 synonymtypedef: systematic_synonym "Systematic synonym" EXACT
 idspace: APO http://www.cellcycleontology.org/ontology/APO "cell cycle ontology terms"
 default_relationship_id_prefix: OBO_REL
@@ -82,6 +74,20 @@ property_value: number_of_human_permanent_residents "0" xsd:positiveInteger
 created_by: erick_antezana
 creation_date: 2012-11-08T08:55:12Z
 
+[Term]
+id: APO:F0000006
+name: myoblast
+namespace: cell
+def: "A precursor cell of the myogenic lineage that develops from the mesoderm. They undergo proliferation, migrate to their various sites, and then differentiate into the appropriate form of myocytes." [GOC:tfm, MESH:A11.635]
+
+[Term]
+id: APO:F0000007
+name: fusion competent myoblast
+namespace: cell
+def: "A myoblast that is committed to a myotube-specific program of differentiation but not yet fused. It undergoes very limited additional proliferation. After fusion, it will take on a muscle identity specified by a `muscle founder cell` (CL:0008006)." [PMID:22274696]
+is_a: APO:F0000006 ! myoblast
+relationship: RO:0002203 CL:0008003 ! develops into somatic muscle myotube
+
 [Instance]
 id: APO:erick
 name: Erick Antezana
@@ -96,6 +102,12 @@ instance_of: APO:woman
 property_value: likes APO:icecream
 property_value: married_to APO:erick
 property_value: shoe_size "7" xsd:positiveInteger
+
+[Typedef]
+id: RO:0002203
+name: develops into
+is_transitive: true
+inverse_of: develops_from ! develops_from
 
 [Typedef]
 id: contained_in

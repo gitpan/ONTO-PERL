@@ -1,8 +1,8 @@
-# $Id: Ontolome.pm 2013-11-02 erick.antezana $
+# $Id: Ontolome.pm 2014-10-22 erick.antezana $
 #
 # Module  : Ontolome.pm
-# Purpose : A Set of ontologies.
-# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
+# Purpose : Management of a set of ontologies.
+# License : Copyright (c) 2006-2014 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -192,8 +192,8 @@ sub union () {
 					$rel_type->holds_over_chain(@{$holds_over_chain}[0], @{$holds_over_chain}[1]);
 				}
 				
-				$rel_type->functional($onto_rela_type->functional());
-				$rel_type->inverse_functional($onto_rela_type->inverse_functional());
+				$rel_type->is_functional($onto_rela_type->is_functional());
+				$rel_type->is_inverse_functional($onto_rela_type->is_inverse_functional());
 				
 				$rel_type->created_by($onto_rela_type->created_by());
 				$rel_type->creation_date($onto_rela_type->creation_date());
@@ -275,8 +275,8 @@ sub union () {
 				foreach ($relationship_type->holds_over_chain()) {
 					$current_relationship_type->holds_over_chain(@{$_}[0], @{$_}[1]);
 				}
-				$current_relationship_type->functional($relationship_type->functional());
-				$current_relationship_type->inverse_functional($relationship_type->inverse_functional());
+				$current_relationship_type->is_functional($relationship_type->is_functional());
+				$current_relationship_type->is_inverse_functional($relationship_type->is_inverse_functional());
 				foreach ($relationship_type->intersection_of()) {
 					$current_relationship_type->intersection_of($_);
 				}
@@ -518,8 +518,9 @@ sub intersection () {
 
   Usage    - $ome->transitive_closure($o, @transitive_relationship_types)
   Return   - an ontology (OBO::Core::Ontology) with the transitive closure
-  Args     - an ontology (OBO::Core::Ontology) to be expanded 
-  			 and optionally an array with the transitive relationship types (by default: 'is_a' and 'part_of') to be considered
+  Args     - the ontology (OBO::Core::Ontology) to be expanded and 
+  			 optionally an array with the transitive relationship 
+  			 types (by default: 'is_a' and 'part_of') to be considered
   Function - expands all the transitive relationships (e.g. is_a, part_of) along the
   			 hierarchy and generates a new ontology holding all possible paths
   Remark   - Performance issues with huge ontologies.
@@ -529,6 +530,7 @@ sub intersection () {
 
 sub transitive_closure () {
 	my ($self, $ontology, @trans_rts, $composition) = @_;
+	
 	my @default_trans_rts = ('is_a', 'part_of');
 	if (scalar @trans_rts > 0) {
 		@default_trans_rts = @trans_rts;
@@ -655,20 +657,32 @@ sub transitive_closure () {
 				my $f = @$ref_path[0]->tail();
 				my $l = @$ref_path[$#$ref_path]->head();
 				$result->create_rel($f, $type_of_rel, $l); # add the transitive closure relationship!
+				
+				my $new_rel_id = $f->id().'_'.$type_of_rel.'_'.$l->id();
+				#print STDERR "NEW_transitive_closure_relationship1: ".$new_rel_id."\n";
 			}
 		}
 	}
-	# composition of 'is_a' and 'part_of'
-	$composition = 1;
+	
+	#
+	# compositions: isa*partof=>partof and partof*isa=>partof
+	#
+	$composition = 1;   # experimental code: ENABLED !!!!!!!!!!!!!!!!!!!!
+	
 	if ($composition) { # http://wiki.geneontology.org/index.php/Relation_composition
+	
 		foreach my $term (@terms) {
-			my $term_id = $term->id();
+			my $term1_id = $term->id();
+			
 			foreach my $term2_id ($stop->get_set()) {
-				next if ($term_id eq $term2_id); # reflexive
-				my @ref_paths = $result->get_paths_term1_term2($term_id, $term2_id);
-				#print STDERR "PATH:".$term_id."->".$term2_id."\n" if @ref_paths;
+				
+				next if ($term1_id eq $term2_id); # reflexive relationships are skipped
+				
+				my @ref_paths = $result->get_paths_term1_term2($term1_id, $term2_id);
+				
 				foreach my $ref_path (@ref_paths) {
-					next if !defined @$ref_path[0]; # reflexive relationships (e.g. GO:0000011_is_a_GO:0000011) are problematic... 
+					
+					next if !defined @$ref_path[0]; 
 					next if !defined @$ref_path[1]; # two elements (at least) are needed to make the composition
 					
 					my $left_entry  = @$ref_path[0]->tail();
@@ -676,15 +690,46 @@ sub transitive_closure () {
 					my $right_entry = @$ref_path[1]->head();
 					my $right_type  = @$ref_path[1]->type();
 					
-					next if ($left_type eq $right_type);
-					
+					next if ($left_type eq $right_type); # done above already
+
 					my $new_rel_id = $left_entry->id()."_part_of_".$right_entry->id();
 					
 					if (!$result->has_relationship_id($new_rel_id)) {
 						$result->create_rel($left_entry, 'part_of', $right_entry); # add the composed relationship!
-						#print STDERR "\tNEW:".$new_rel_id."\n";
+						#print STDERR "\tNEW_COMPOSITION: ".$new_rel_id."\n";
 					}
+				}
+			}
+		}
+		
+		#
+		# second transitivity pass on the NEW ontology so far!
+		#
+		@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
+	
+		my $stop = OBO::Util::Set->new();
+		map {$stop->add($_->id())} @terms;
+	
+		# link the common terms
+		foreach my $term (@terms) {
+			my $term_id = $term->id();
+			# path of references:
+			foreach my $type_of_rel (@default_trans_rts) {
+				#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one reflexive relationship)
+	
+				# take the paths from the original ontology
+				my @ref_paths = $result->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
+	
+				foreach my $ref_path (@ref_paths) {
+					next if !defined @$ref_path[0]; # reflexive relationships (e.g. GO:0000011_is_a_GO:0000011) are problematic... 
+					my $f = @$ref_path[0]->tail();
+					my $l = @$ref_path[$#$ref_path]->head();
+					my $new_rel_id = $f->id().'_'.$type_of_rel.'_'.$l->id();
 					
+					if (!$result->has_relationship_id($new_rel_id)) {
+						$result->create_rel($f, $type_of_rel, $l); # add the transitive closure relationship!
+						#print STDERR "NEW_transitive_closure_relationship2: ".$new_rel_id."\n";
+					}
 				}
 			}
 		}
@@ -896,7 +941,7 @@ __END__
 
 =head1 NAME
 
-OBO::Util::Ontolome  - A set of ontologies.
+OBO::Util::Ontolome  - A set of ontologies. This module supports the management of a set of ontologies.
     
 =head1 SYNOPSIS
 
@@ -922,11 +967,18 @@ my $ome2 = OBO::Util::Ontolome->new();
 
 $ome2->add_all($o1, $o2, $o3);
 
+my $inter_o1_and_o2 = $ome1->intersection($o1, $o2);
+
+my $union_o1_and_o2 = $ome1->union($o1, $o2);
+
+my $o1_transitive_reduction = $ome1->transitive_reduction($o1);
+
+my $o2_transitive_closure = $ome1->transitive_closure($o2);
 
 =head1 DESCRIPTION
 
-A collection that contains no duplicate ontology elements. More formally, an
-ontolome contains no pair of ontologies $e1 and $e2 such that $e1->equals($e2). 
+An Ontolome is a collection of ontologies that contains no duplicate ontology elements. 
+More formally, an Ontolome contains no pair of ontologies $e1 and $e2 such that $e1->equals($e2). 
 As implied by its name, this package models the set of ontologies.
 
 =head1 AUTHOR
@@ -935,7 +987,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2013 by Erick Antezana
+Copyright (c) 2006-2014 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,

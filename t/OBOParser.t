@@ -6,7 +6,7 @@
 BEGIN {
     eval { require Test; };
     use Test;    
-    plan tests => 78;
+    plan tests => 71;
 }
 
 #########################
@@ -37,26 +37,31 @@ my @txaia = sort {lc($a) cmp lc($b)} $mini_onto->treat_xrefs_as_is_a()->get_set(
 ok($txaia[0] eq 'CL');
 ok($txaia[1] eq 'LC');
 
-my %ssd = ('Arabidopsis' => 'Term used for Arabidopsis',
-			'Citrus'     => 'Term used for citrus',
-			'Maize'      => 'Term used for maize',
-			'Poaceae'    => 'Term used for grasses',
+my %ssd = ( 'Citrus'     => 'Term used for citrus',
 			'Rice'       => 'Term used for rice',
-			'Tomato'     => 'Term used for tomato',
-			'reference'  => 'reference plant structure term');
+			'Tomato'     => 'Term used for tomato'
+			);
 my @ss = sort {lc($a) cmp lc($b)} keys %ssd;
-ok($mini_onto->subset_def_map()->size() == 7);
+ok($mini_onto->subset_def_map()->size() == 3);
 my $i = 0;
 foreach my $ssd (sort {lc($a) cmp lc($b)} $mini_onto->subset_def_map()->key_set()->get_set()) {
 	ok($ssd eq $ss[$i]);
 	ok($mini_onto->subset_def_map()->get($ssd)->description() eq $ssd{$ss[$i++]});
 }
-ok(scalar $mini_onto->synonym_type_def_set()->get_set() == 6);
+ok(scalar $mini_onto->synonym_type_def_set()->get_set() == 2);
 
 $i = 0;
 foreach my $subsetdef (sort {lc($a->name()) cmp lc($b->name())} $mini_onto->subset_def_map()->values()) {
 	ok($subsetdef->as_string() eq $ss[$i]." \"".$ssd{$ss[$i++]}."\"");
 }
+
+# tests over the relationships
+ok($mini_onto->has_relationship_id('APO:F0000007_is_a_APO:F0000006'));
+ok($mini_onto->has_relationship_id('APO:F0000007_RO:0002203_CL:0008003'));
+my $rbi = $mini_onto->get_relationship_by_id('APO:F0000007_RO:0002203_CL:0008003');
+ok($rbi->head()->id() eq 'CL:0008003');
+ok($rbi->type eq 'RO:0002203');
+ok($rbi->tail()->id() eq 'APO:F0000007');
 
 # test on comments
 my $F4 = $mini_onto->get_term_by_id('APO:F0000004');

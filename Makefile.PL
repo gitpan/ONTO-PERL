@@ -1,8 +1,9 @@
-# $Id: Makefile.PL 2012-03-05 14:49:23Z erick.antezana $
+# $Id: Makefile.PL 2014-01-17 09:22:13Z erick.antezana $
 use 5.006;
-use ExtUtils::MakeMaker 6.56;
+use ExtUtils::MakeMaker 6.84;
+use strict;
 
-$p = 'Date::Manip';
+my $p = 'Date::Manip';
 if (!eval "require $p") {
     print <<MSG;
 
@@ -61,14 +62,14 @@ my @license = $ExtUtils::MakeMaker::VERSION > 6.56
 
 
 WriteMakefile(
-	NAME              => 'ONTO-PERL',
+	NAME              => 'Ontology',
 	DISTNAME          => 'ONTO-PERL',
 	ABSTRACT          => 'PERL modules for manipulating OBO-formatted ontologies, such as the Gene Ontology (GO)',
 	VERSION_FROM      => 'lib/OBO/Core/Ontology.pm',
 	MIN_PERL_VERSION  => '5',
 	@license,
 	PREREQ_PM         => {
-						'Date::Manip'   => 6.24,
+						'Date::Manip'   => 6.42,
 						#'SWISS::Entry' => 1.67, # optional
 						#'XML::Parser'  => 2.41, # optional
 						#'XML::XPath'   => 1.13  # optional

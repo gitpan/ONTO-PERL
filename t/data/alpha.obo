@@ -2,10 +2,7 @@ format-version: 1.0
 date: 11:05:2007 12:52
 saved-by: easr
 synonymtypedef: FORMULA "FORMULA" RELATED
-synonymtypedef: InChI "InChI"
 synonymtypedef: IUPAC_NAME "IUPAC NAME"
-synonymtypedef: SMILES "SMILES"
-synonymtypedef: systematic_synonym "Systematic synonym" EXACT
 idspace: CCO http://www.cellcycleontology.org/ontology/CCO "cell cycle ontology terms"
 idspace: GO urn:lsid:bioontology.org:GO: "gene ontology terms"
 default-namespace: test_namespace

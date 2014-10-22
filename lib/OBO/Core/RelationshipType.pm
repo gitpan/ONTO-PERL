@@ -2,7 +2,7 @@
 #
 # Module  : RelationshipType.pm
 # Purpose : Type of relationship in the Ontology: is_a, part_of, etc.
-# License : Copyright (c) 2006-2013 by Erick Antezana. All rights reserved.
+# License : Copyright (c) 2006-2014 by Erick Antezana. All rights reserved.
 #           This program is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 # Contact : Erick Antezana <erick.antezana -@- gmail.com>
@@ -44,8 +44,8 @@ sub new {
 	$self->{TRANSITIVE_OVER}    = OBO::Util::Set->new();        # set of scalars (0..N)
 
 	$self->{HOLDS_OVER_CHAIN}   = OBO::Util::Map->new();        # map of scalars-->ref's to arrays (0..N)
-	$self->{FUNCTIONAL}         = undef;                        # [1|0], 0 by default
-	$self->{INVERSE_FUNCTIONAL} = undef;                        # [1|0], 0 by default
+	$self->{IS_FUNCTIONAL}         = undef;                        # [1|0], 0 by default
+	$self->{IS_INVERSE_FUNCTIONAL} = undef;                        # [1|0], 0 by default
 	
 	$self->{INTERSECTION_OF}    = OBO::Util::Set->new();        # (0..N)
 	$self->{UNION_OF}           = OBO::Util::Set->new();        # (0..N)
@@ -559,32 +559,32 @@ sub holds_over_chain {
 	return $self->{HOLDS_OVER_CHAIN}->values();
 }
 
-=head2 functional
+=head2 is_functional
 
-  Usage    - $relationship_type->functional() or $relationship_type->functional(1) or $relationship_type->functional(0)
+  Usage    - $relationship_type->is_functional() or $relationship_type->is_functional(1) or $relationship_type->is_functional(0)
   Returns  - tells if this relationship type is functional; false by default
   Args     - 1 (true) or 0 (false)
   Function - gets/sets the value indicating whether this relationship type is functional
   
 =cut
 
-sub functional {
-	if (defined $_[1] && ($_[1] == 1 || $_[1] == 0)) { $_[0]->{FUNCTIONAL} = $_[1] }
-    return ($_[0]->{FUNCTIONAL} && $_[0]->{FUNCTIONAL} == 1)?1:0;
+sub is_functional {
+	if (defined $_[1] && ($_[1] == 1 || $_[1] == 0)) { $_[0]->{IS_FUNCTIONAL} = $_[1] }
+    return ($_[0]->{IS_FUNCTIONAL} && $_[0]->{IS_FUNCTIONAL} == 1)?1:0;
 }
 
-=head2 inverse_functional
+=head2 is_inverse_functional
 
-  Usage    - $relationship_type->inverse_functional() or $relationship_type->inverse_functional(1) or $relationship_type->inverse_functional(0)
+  Usage    - $relationship_type->is_inverse_functional() or $relationship_type->is_inverse_functional(1) or $relationship_type->is_inverse_functional(0)
   Returns  - tells if this relationship type is inverse functional; false by default
   Args     - 1 (true) or 0 (false)
   Function - gets/sets the value indicating whether this relationship type is inverse functional
   
 =cut
 
-sub inverse_functional {
-	if (defined $_[1] && ($_[1] == 1 || $_[1] == 0)) { $_[0]->{INVERSE_FUNCTIONAL} = $_[1] }
-    return ($_[0]->{INVERSE_FUNCTIONAL} && $_[0]->{INVERSE_FUNCTIONAL} == 1)?1:0;
+sub is_inverse_functional {
+	if (defined $_[1] && ($_[1] == 1 || $_[1] == 0)) { $_[0]->{IS_INVERSE_FUNCTIONAL} = $_[1] }
+    return ($_[0]->{IS_INVERSE_FUNCTIONAL} && $_[0]->{IS_INVERSE_FUNCTIONAL} == 1)?1:0;
 }
 
 =head2 intersection_of
@@ -928,7 +928,7 @@ Erick Antezana, E<lt>erick.antezana -@- gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2006-2013 by Erick Antezana
+Copyright (c) 2006-2014 by Erick Antezana
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
