@@ -1,4 +1,4 @@
-# $Id: TermSet.pm 2011-09-29 erick.antezana $
+# $Id: TermSet.pm 2014-09-29 erick.antezana $
 #
 # Module  : TermSet.pm
 # Purpose : Term set.
@@ -44,7 +44,7 @@ sub contains_name {
 	if (@_) {
 		my $term_id = shift;
 		
-		foreach my $ele (values %{$self->{MAP}}){
+		foreach my $ele (sort values %{$self->{MAP}}){
 			if ($ele->name() eq $term_id) {
 				$result = 1;
 				last;

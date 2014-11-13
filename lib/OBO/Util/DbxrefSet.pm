@@ -1,4 +1,4 @@
-# $Id: DbxrefSet.pm 2011-06-06 erick.antezana $
+# $Id: DbxrefSet.pm 2014-06-06 erick.antezana $
 #
 # Module  : DbxrefSet.pm
 # Purpose : Reference structure set.
@@ -33,7 +33,7 @@ sub equals {
 		my $other_set = shift;
 		my %count = ();
 		
-		my @this = values %{$self->{MAP}};
+		my @this = sort values %{$self->{MAP}};
 		my @that = $other_set->get_set();
 
 		if ($#this == $#that) {
@@ -41,7 +41,7 @@ sub equals {
 				foreach (@this, @that) {
 					$count{$_->name().$_->description().$_->modifier()}++;
 				}
-				foreach my $count (values %count) {
+				foreach my $count (sort values %count) {
 					if ($count != 2) {
 						$result = 0;
 						last;

@@ -354,7 +354,7 @@ sub intersection () {
 		foreach my $ids_xref (@txae1, @txae2) {
 			$inter{$ids_xref}++;
 		}
-		$result->treat_xrefs_as_equivalent(keys %inter);
+		$result->treat_xrefs_as_equivalent(sort keys %inter);
 	}
 	
 	#
@@ -367,7 +367,7 @@ sub intersection () {
 		foreach my $ids_xref (@txaia1, @txaia2) {
 			$inter{$ids_xref}++;
 		}
-		$result->treat_xrefs_as_is_a(keys %inter);
+		$result->treat_xrefs_as_is_a(sort keys %inter);
 	}
 	
 	# the IDspace's of both ontologies are added to the intersection ontology
@@ -464,7 +464,7 @@ sub intersection () {
 	}
 	
 	# cleaning candidates
-	foreach (keys (%cand)) {
+	foreach (sort keys (%cand)) {
 		delete $cand{$_} if ($cand{$_} < 2);
 	}
 	
@@ -640,7 +640,9 @@ sub transitive_closure () {
 	@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
 	
 	my $stop = OBO::Util::Set->new();
-	map {$stop->add($_->id())} @terms;
+	map { $stop->add($_->id()) } @terms;
+
+#print STDERR "\nNUMBER OF RELS BEFORE = ", $result->get_number_of_relationships();
 
 	# link the common terms
 	foreach my $term (@terms) {
@@ -671,6 +673,15 @@ sub transitive_closure () {
 	
 	if ($composition) { # http://wiki.geneontology.org/index.php/Relation_composition
 	
+	#
+	#
+	#
+#print STDERR "\n\nNUMBER OF RELS AFTER 1 = ", $result->get_number_of_relationships();
+	
+	#@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
+	#my $stop = OBO::Util::Set->new();
+	#map {$stop->add($_->id())} @terms;
+	
 		foreach my $term (@terms) {
 			my $term1_id = $term->id();
 			
@@ -680,6 +691,7 @@ sub transitive_closure () {
 				
 				my @ref_paths = $result->get_paths_term1_term2($term1_id, $term2_id);
 				
+				#print STDERR "\n\tNUMBER_OF_PATHS: ", scalar @ref_paths;
 				foreach my $ref_path (@ref_paths) {
 					
 					next if !defined @$ref_path[0]; 
@@ -690,50 +702,115 @@ sub transitive_closure () {
 					my $right_entry = @$ref_path[1]->head();
 					my $right_type  = @$ref_path[1]->type();
 					
-					next if ($left_type eq $right_type); # done above already
-
-					my $new_rel_id = $left_entry->id()."_part_of_".$right_entry->id();
-					
-					if (!$result->has_relationship_id($new_rel_id)) {
-						$result->create_rel($left_entry, 'part_of', $right_entry); # add the composed relationship!
-						#print STDERR "\tNEW_COMPOSITION: ".$new_rel_id."\n";
+					if ($left_type eq $right_type) {
+						
+						my $new_rel_id = $left_entry->id().'_'.$left_type.'_'.$right_entry->id();
+						if (!$result->has_relationship_id($new_rel_id)) {
+							$result->create_rel($left_entry, $left_type, $right_entry); # add a missed transitivity relationship!
+							#print STDERR "\nNEW_TRANSITIVITY: ".$new_rel_id;
+						}
+					} else {
+						my $new_rel_id = $left_entry->id()."_part_of_".$right_entry->id();
+						
+						if (!$result->has_relationship_id($new_rel_id)) {
+							$result->create_rel($left_entry, 'part_of', $right_entry); # add the composed relationship!
+							#print STDERR "\tNEW_COMPOSITION: ".$new_rel_id."\n";
+						}
 					}
 				}
 			}
 		}
+
+#print STDERR "\n\nNUMBER OF RELS AFTER 2 = ", $result->get_number_of_relationships();
+
 		
 		#
 		# second transitivity pass on the NEW ontology so far!
 		#
-		@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
-	
-		my $stop = OBO::Util::Set->new();
-		map {$stop->add($_->id())} @terms;
-	
-		# link the common terms
-		foreach my $term (@terms) {
-			my $term_id = $term->id();
-			# path of references:
-			foreach my $type_of_rel (@default_trans_rts) {
-				#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one reflexive relationship)
-	
-				# take the paths from the original ontology
-				my @ref_paths = $result->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
-	
-				foreach my $ref_path (@ref_paths) {
-					next if !defined @$ref_path[0]; # reflexive relationships (e.g. GO:0000011_is_a_GO:0000011) are problematic... 
-					my $f = @$ref_path[0]->tail();
-					my $l = @$ref_path[$#$ref_path]->head();
-					my $new_rel_id = $f->id().'_'.$type_of_rel.'_'.$l->id();
-					
-					if (!$result->has_relationship_id($new_rel_id)) {
-						$result->create_rel($f, $type_of_rel, $l); # add the transitive closure relationship!
-						#print STDERR "NEW_transitive_closure_relationship2: ".$new_rel_id."\n";
+		{
+			@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
+		
+			my $stop = OBO::Util::Set->new();
+			map {$stop->add($_->id())} @terms;
+		
+			# link the common terms
+			foreach my $term (@terms) {
+				my $term_id = $term->id();
+				# path of references:
+				foreach my $type_of_rel (@default_trans_rts) {
+					#$result->create_rel($term, $type_of_rel, $term); # reflexive one (not working line since ONTO-PERL does not allow more that one reflexive relationship)
+		
+					# take the paths from the original ontology
+					my @ref_paths = $result->get_paths_term_terms_same_rel($term_id, $stop, $type_of_rel);
+		
+					foreach my $ref_path (@ref_paths) {
+						next if !defined @$ref_path[0]; # reflexive relationships (e.g. GO:0000011_is_a_GO:0000011) are problematic... 
+						my $f = @$ref_path[0]->tail();
+						my $l = @$ref_path[$#$ref_path]->head();
+						my $new_rel_id = $f->id().'_'.$type_of_rel.'_'.$l->id();
+						
+						if (!$result->has_relationship_id($new_rel_id)) {
+							$result->create_rel($f, $type_of_rel, $l); # add the transitive closure relationship!
+							#print STDERR "\nNEW_transitive_closure_relationship2: ".$new_rel_id;
+						}
 					}
 				}
 			}
 		}
+
+#print STDERR "\n\nNUMBER OF RELS AFTER 3 = ", $result->get_number_of_relationships();
+		
+		#
+		# second composition pass: needed?
+		#
+		if (1) {
+			@terms = @{$result->get_terms()}; # set 'terms' (avoding the pushed ones)
+		
+			my $stop = OBO::Util::Set->new();
+			map {$stop->add($_->id())} @terms;
+		
+			foreach my $term (@terms) {
+				my $term1_id = $term->id();
+				
+				foreach my $term2_id ($stop->get_set()) {
+					
+					next if ($term1_id eq $term2_id); # reflexive relationships are skipped
+					
+					my @ref_paths = $result->get_paths_term1_term2($term1_id, $term2_id);
+					
+					foreach my $ref_path (@ref_paths) {
+						
+						next if !defined @$ref_path[0]; 
+						next if !defined @$ref_path[1]; # two elements (at least) are needed to make the composition
+						
+						my $left_entry  = @$ref_path[0]->tail();
+						my $left_type   = @$ref_path[0]->type();
+						my $right_entry = @$ref_path[1]->head();
+						my $right_type  = @$ref_path[1]->type();
+						
+						#next if ($left_type eq $right_type); # done above already
+						if ($left_type eq $right_type) {
+							
+							my $new_rel_id = $left_entry->id().'_'.$left_type.'_'.$right_entry->id();
+							if (!$result->has_relationship_id($new_rel_id)) {
+								$result->create_rel($left_entry, $left_type, $right_entry); # add a missed transitivity relationship!
+								print STDERR "\nNEW_TRANSITIVITY: ".$new_rel_id;
+							}
+						} else {
+							my $new_rel_id = $left_entry->id()."_part_of_".$right_entry->id();
+							
+							if (!$result->has_relationship_id($new_rel_id)) {
+								$result->create_rel($left_entry, 'part_of', $right_entry); # add the composed relationship!
+								print STDERR "\tNEW_COMPOSITION: ".$new_rel_id."\n";
+							}
+						}
+					}
+				}
+			}
+#print STDERR "\n\nNUMBER OF RELS AFTER 4 = ", $result->get_number_of_relationships();
+		}
 	}
+#print STDERR "\n\nNUMBER OF RELS AFTER 5 = ", $result->get_number_of_relationships();
 	
 	return $result;
 }

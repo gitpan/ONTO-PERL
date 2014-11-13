@@ -1,4 +1,4 @@
-# $Id: OBO_ID_Term_Map.pm 2013-20-02 erick.antezana $
+# $Id: OBO_ID_Term_Map.pm 2014-20-02 erick.antezana $
 #
 # Module  : OBO_ID_Term_Map.pm
 # Purpose : A (birectional) map OBO_ID vs Term name.
@@ -49,7 +49,7 @@ sub new {
         close OBO_ID_MAP_IN_FH;
     }
 
-    $self->{KEYS}->add_all_as_string( keys( %{ $self->{MAP_BY_ID} } ) );
+    $self->{KEYS}->add_all_as_string( sort keys( %{ $self->{MAP_BY_ID} } ) );
     return $self;
 }
 
@@ -166,7 +166,7 @@ sub get_id_by_term {
 
 sub keys_set {
 	my $self = shift;
-	return keys( %{ $self->{MAP_BY_ID} } );
+	return sort keys( %{ $self->{MAP_BY_ID} } );
 }
 
 =head2 values_set
@@ -180,7 +180,7 @@ sub keys_set {
 
 sub values_set {
 	my $self = shift;
-	return values( %{ $self->{MAP_BY_ID} } );
+	return sort values( %{ $self->{MAP_BY_ID} } );
 }
 
 =head2 contains_key
@@ -233,8 +233,8 @@ sub equals {
 	#
 	# get keys and values
 	#
-	my @keys_set   = keys( %{ $self->{MAP_BY_ID} } );
-	my @values_set = values( %{ $self->{MAP_BY_ID} } );
+	my @keys_set   = sort keys( %{ $self->{MAP_BY_ID} } );
+	my @values_set = sort values( %{ $self->{MAP_BY_ID} } );
 
 	foreach my $id (@keys_set) {
 		my $tmp_name = $self->{MAP_BY_ID}->{$id};

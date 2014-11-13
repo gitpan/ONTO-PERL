@@ -1,4 +1,4 @@
-# $Id: Set.pm 2010-09-29 erick.antezana $
+# $Id: Set.pm 2014-09-29 erick.antezana $
 #
 # Module  : Set.pm
 # Purpose : An implementation of a Set of scalars.
@@ -185,7 +185,7 @@ sub equals {
 			foreach (@this, @that) {
 				$count{$_}++;
 			}
-			foreach my $count (values %count) {
+			foreach my $count (sort values %count) {
 				if ($count != 2) {
 					$result = 0;
 					last;

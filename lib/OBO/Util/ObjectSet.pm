@@ -1,4 +1,4 @@
-# $Id: ObjectSet.pm 2010-09-29 erick.antezana $
+# $Id: ObjectSet.pm 2014-09-29 erick.antezana $
 #
 # Module  : ObjectSet.pm
 # Purpose : A generic set of ontology objects (terms, relationships, dbxrefs, etc.).
@@ -106,14 +106,14 @@ sub equals {
 	my $other_set = shift;
 	my %count = ();
 
-	my @this = map ({$_->id();} values (%{$self->{MAP}}));
+	my @this = map ({$_->id();} sort values (%{$self->{MAP}}));
 	my @that = map ({$_->id();} $other_set->get_set());
 	
 	if ($#this == $#that) {
 		foreach (@this, @that) {
 			$count{$_}++;
 		}
-		foreach my $count (values %count) {
+		foreach my $count (sort values %count) {
 			if ($count != 2) {
 				$result = 0;
 				last;

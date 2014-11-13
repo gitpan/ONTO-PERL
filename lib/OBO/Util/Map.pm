@@ -1,4 +1,4 @@
-# $Id: Map.pm 2011-06-06 erick.antezana $
+# $Id: Map.pm 2014-06-06 erick.antezana $
 #
 # Module  : Map.pm
 # Purpose : An implementation of a Map. An object that maps keys to values.
@@ -65,7 +65,7 @@ sub contains_key {
 sub contains_value {
 	my ($self, $value) = @_;
 	my $found = 0;
-	foreach my $key ( keys %{$self->{MAP}} ) {
+	foreach my $key ( sort keys %{$self->{MAP}} ) {
 		if ($self->{MAP}->{$key} eq $value) {
 			$found = 1;
 			last;
@@ -89,7 +89,7 @@ sub equals {
 	if (@_) {
 		my $other_map = shift;
 		if ($self->size() == $other_map->size()) {
-			my %cmp = map { $_ => 1 } keys %{$self->{MAP}};
+			my %cmp = map { $_ => 1 } sort keys %{$self->{MAP}};
 			for my $key ($other_map->key_set()->get_set()) {
 				last unless exists $cmp{$key};
 				last unless $self->{MAP}->{$key} eq $other_map->get($key);
@@ -149,7 +149,7 @@ sub is_empty {
 sub key_set {
 	my $self = shift;
 	my $set = OBO::Util::Set->new();
-	$set->add_all(keys %{$self->{MAP}});
+	$set->add_all(sort keys %{$self->{MAP}});
 	return $set;
 }
 
@@ -240,7 +240,7 @@ sub size {
 
 sub values  {
 	my $self       = shift;
-	my @collection = values %{$self->{MAP}};
+	my @collection = sort values %{$self->{MAP}};
 	return @collection;
 }
 

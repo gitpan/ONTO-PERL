@@ -1,4 +1,4 @@
-# $Id: ObjectIdSet.pm 2010-09-29 erick.antezana $
+# $Id: ObjectIdSet.pm 2014-09-29 erick.antezana $
 #
 # Module  : ObjectIdSet.pm
 # Purpose : A generic set of ontology objects.
@@ -9,6 +9,7 @@
 #
 package OBO::Util::ObjectIdSet;
 
+use Carp;
 use strict;
 use warnings;
 
@@ -72,9 +73,18 @@ sub add_all {
 =cut
 
 sub get_set {
-	my $self = shift;
-	my @the_set = values %{$self->{MAP}};
+	my $self = shift;	
+	my @the_set = __sort_by_id(sub {shift}, values (%{$self->{MAP}})); # I know, it is an ordered "set".
 	return (!$self->is_empty())?@the_set:();
+}
+
+sub __sort_by_id {
+	caller eq __PACKAGE__ or croak;
+	my ($subRef, @input) = @_;
+	my @result = map { $_->[0] }                           # restore original values
+				sort { $a->[1] cmp $b->[1] }               # sort
+				map  { [$_, &$subRef($_->id())] }          # transform: value, sortkey
+				@input;
 }
 
 =head2 contains
@@ -167,14 +177,14 @@ sub equals {
 		
 		my %count = ();
 	
-		my @this = map ({scalar $_;} values %{$self->{MAP}});
+		my @this = map ({scalar $_;} sort values %{$self->{MAP}});
 		my @that = map ({scalar $_;} $other_set->get_set());
 		
 		if ($#this == $#that) {
 			foreach (@this, @that) {
 				$count{$_}++;
 			}
-			foreach my $count (values %count) {
+			foreach my $count (sort values %count) {
 				if ($count != 2) {
 					$result = 0;
 					last;

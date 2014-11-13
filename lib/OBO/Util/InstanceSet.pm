@@ -1,4 +1,4 @@
-# $Id: InstanceSet.pm 2011-06-06 erick.antezana $
+# $Id: InstanceSet.pm 2014-06-06 erick.antezana $
 #
 # Module  : InstanceSet.pm
 # Purpose : Instance set.
@@ -44,7 +44,7 @@ sub contains_name {
 	if (@_) {
 		my $term_id = shift;
 		
-		foreach my $ele (values %{$self->{MAP}}){
+		foreach my $ele (sort values %{$self->{MAP}}){
 			if ($ele->name() eq $term_id) {
 				$result = 1;
 				last;

@@ -1,4 +1,4 @@
-# $Id: SubsetDefMap.pm 2011-10-29 erick.antezana $
+# $Id: SubsetDefMap.pm 2014-10-29 erick.antezana $
 #
 # Module  : SubsetDefMap.pm
 # Purpose : Subset Definition Map.
@@ -37,7 +37,7 @@ sub equals {
 		my $other_map = shift;
 		if ($other_map && eval { $other_map->isa('OBO::Util::SubsetDefMap') }) {
 			if ($self->size() == $other_map->size()) {
-				my %cmp = map { $_ => 1 } keys %{$self->{MAP}};
+				my %cmp = map { $_ => 1 } sort keys %{$self->{MAP}};
 				for my $key ($other_map->key_set()->get_set()) {
 					last unless exists $cmp{$key};
 					last unless $self->{MAP}->{$key}->equals($other_map->get($key)); # 'equals'

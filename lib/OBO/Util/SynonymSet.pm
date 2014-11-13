@@ -1,4 +1,4 @@
-# $Id: SynonymSet.pm 2010-09-29 erick.antezana $
+# $Id: SynonymSet.pm 2014-09-29 erick.antezana $
 #
 # Module  : SynonymSet.pm
 # Purpose : Synonym set.
@@ -95,7 +95,7 @@ sub equals {
 			foreach (@this, @that) {
 				$count{$_}++;
 			}
-			foreach my $count (values %count) {
+			foreach my $count (sort values %count) {
 				if ($count != 2) {
 					$result = 0;
 					last;

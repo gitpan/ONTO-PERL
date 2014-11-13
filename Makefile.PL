@@ -1,6 +1,6 @@
 # $Id: Makefile.PL 2014-01-17 09:22:13Z erick.antezana $
 use 5.006;
-use ExtUtils::MakeMaker 6.84;
+use ExtUtils::MakeMaker;
 use strict;
 
 my $p = 'Date::Manip';
@@ -20,8 +20,8 @@ if (!eval "require $p") {
 
    SWISS::Entry is missing. This module is only required in order to
    perform parsing operations with UniProt files. However, this 
-   module is not required for using ONTO-PERL. If you do not intend 
-   to use UniProt files, then you may continue, and install 
+   module is not required for using the rest of ONTO-PERL. If you do 
+   not intend to use UniProt files, then you may continue, and install 
    SWISS::Entry in the future.
 
 MSG
@@ -34,9 +34,9 @@ if (!eval "require $p") {
 
    XML::Parser is missing. This module is only required in order to
    perform parsing operations with XML files (obo2owl). However, this 
-   module is not fully required for using ONTO-PERL. If you do not intend 
-   to convert your files to OWL, then you may continue, and install 
-   XML::Parser in the future.
+   module is not fully required for using the rest of ONTO-PERL. If you 
+   do not intend to convert your files to OWL, then you may continue, 
+   and install XML::Parser in the future.
 
 MSG
       
@@ -48,35 +48,55 @@ if (!eval "require $p") {
 
    XML::XPath is missing. This module is only required in order to
    perform parsing operations with IntAct-XML files. However, this 
-   module is not required for using ONTO-PERL. If you do not intend 
-   to use IntAct XML files, then you may continue, and install 
-   XML::XPath in the future.
+   module is not required for using the rest of ONTO-PERL. If you do 
+   not intend to use IntAct XML files, then you may continue, and 
+   install XML::XPath in the future.
 
 MSG
       
 }
 
-my @license = $ExtUtils::MakeMaker::VERSION > 6.56
+$p = 'Text::CSV';
+if (!eval "require $p") {
+    print <<MSG;
+
+   Text::CSV is missing. This module is only required in order to
+   generate an OBO-formatted file from any CSV file found at the 
+   BioPortal (http://bioportal.bioontology.org/). However, this 
+   module is not required for using the rest of ONTO-PERL. If you do 
+   not intend to use those CSV files, then you may continue, and 
+   install Text::CSV in the future.
+
+MSG
+      
+}
+
+my @license = $ExtUtils::MakeMaker::VERSION > 6.84
 ? qw(LICENSE perl)
 : ();
 
+my @authors = ('Erick Antezana <erick.antezana -@- gmail.com>, Vladimir Mironov <vladimir.n.mironov -@- gmail.com>');
 
 WriteMakefile(
-	NAME              => 'Ontology',
-	DISTNAME          => 'ONTO-PERL',
-	ABSTRACT          => 'PERL modules for manipulating OBO-formatted ontologies, such as the Gene Ontology (GO)',
-	VERSION_FROM      => 'lib/OBO/Core/Ontology.pm',
-	MIN_PERL_VERSION  => '5',
+	NAME               => 'Ontology',
+	DISTNAME           => 'ONTO-PERL',
+	ABSTRACT           => 'PERL modules for manipulating OBO-formatted ontologies, such as the Gene Ontology (GO)',
+	VERSION_FROM       => 'lib/OBO/Core/Ontology.pm',
+	MIN_PERL_VERSION   => '5.005',
 	@license,
-	PREREQ_PM         => {
-						'Date::Manip'   => 6.42,
-						#'SWISS::Entry' => 1.67, # optional
-						#'XML::Parser'  => 2.41, # optional
-						#'XML::XPath'   => 1.13  # optional
+	PREREQ_PM          => {
+						'Date::Manip'         => 6.42,
+						#'SWISS::Entry'       => 1.67, # optional
+						#'XML::Parser'        => 2.41, # optional
+						#'XML::XPath'         => 1.13, # optional
+						#'Text::CSV'          => 1.32  # optional
 						},
-	PREREQ_FATAL      => '1',
-	EXE_FILES         => [
+	PREREQ_PRINT       => 'TRUE',
+	BUILD_REQUIRES     => { 'Date::Manip' => 6.42, 'ExtUtils::MakeMaker' => 6.84 },
+	CONFIGURE_REQUIRES => { 'Date::Manip' => 6.42, 'ExtUtils::MakeMaker' => 6.84 },
+	EXE_FILES          => [
 							qw(
+								scripts/bioportal_csv2obo.pl
 								scripts/get_ancestor_terms.pl
 								scripts/get_child_terms.pl
 								scripts/get_descendent_terms.pl
@@ -115,7 +135,7 @@ WriteMakefile(
 						],
 			
 	($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-	(AUTHOR   => 'Erick Antezana <erick.antezana -@- gmail.com>') : ()),
+	(AUTHOR   => @authors) : ()),
 	dist      => { 
 					'SUFFIX'       => '.gz',
 					'DIST_DEFAULT' => 'all tardist',

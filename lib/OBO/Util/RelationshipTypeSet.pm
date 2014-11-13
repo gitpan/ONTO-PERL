@@ -1,4 +1,4 @@
-# $Id: RelationshipTypeSet.pm 2011-02-02 erick.antezana $
+# $Id: RelationshipTypeSet.pm 2014-02-02 erick.antezana $
 #
 # Module  : RelationshipTypeSet.pm
 # Purpose : RelationshipType set.
@@ -44,7 +44,7 @@ sub contains_name {
 	if (@_) {
 		my $relationship_type_id = shift;
 		
-		foreach my $ele (values %{$self->{MAP}}){
+		foreach my $ele (sort values %{$self->{MAP}}){
 			if ($ele->name() eq $relationship_type_id) {
 				$result = 1;
 				last;

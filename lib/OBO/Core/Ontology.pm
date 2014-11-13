@@ -23,7 +23,7 @@ use warnings;
 
 use open qw(:std :utf8); # Make All I/O Default to UTF-8
 
-our $VERSION = '1.42';
+our $VERSION = '1.43';
 
 sub new {
 	my $class  = shift;
@@ -685,12 +685,15 @@ sub get_terms {
     my $self = shift;
     my @terms;
     if (@_) {
-		foreach my $term (values(%{$self->{TERMS}})) {
+		foreach my $term (__sort_by_id(sub {shift}, values(%{$self->{TERMS}}))) {
 			push @terms, $term if ($term->id() =~ /$_[0]/);
 		}
     } else {
-		#@terms = $self->{TERMS_SET}->get_set(); # TODO Is this faster than:
-		@terms = values(%{$self->{TERMS}});
+		#@terms = $self->{TERMS_SET}->get_set();                            # TODO Is this faster than using 'values'?		
+		#@terms = __sort_by_id(sub {shift}, $self->{TERMS_SET}->get_set());
+		
+		#@terms = values(%{$self->{TERMS}}); # TODO sort or not?
+		@terms = __sort_by_id(sub {shift}, values(%{$self->{TERMS}}));
     }
     return \@terms;
 }
@@ -708,12 +711,14 @@ sub get_instances {
     my $self = shift;
     my @instances;
     if (@_) {
-		foreach my $instance (values(%{$self->{INSTANCES}})) {
+		foreach my $instance (sort values(%{$self->{INSTANCES}})) {
 			push @instances, $instance if ($instance->id() =~ /$_[0]/);
 		}
     } else {
-		@instances = values(%{$self->{INSTANCES}});
 		#@instances = $self->{INSTANCES_SET}->get_set(); # TODO This INSTANCES_SET was giving wrong results....
+		
+		#@instances = sort values(%{$self->{INSTANCES}}); # TODO sort or not?
+		@instances =__sort_by_id(sub {shift}, values(%{$self->{INSTANCES}}));
     }
     return \@instances;
 }
@@ -806,7 +811,7 @@ sub get_instances_by_subnamespace {
 sub get_terms_by_subset {
 	my ($self, $subset) = @_;
 	my @terms;
-	foreach my $term (values(%{$self->{TERMS}})) {
+	foreach my $term (__sort_by_id(sub {shift}, values(%{$self->{TERMS}}))) {
 		foreach my $ss ($term->subset()) {
 			push @terms, $term if ($ss =~ /$subset/);
 		}
@@ -826,7 +831,7 @@ sub get_terms_by_subset {
 sub get_instances_by_subset {
 	my ($self, $subset) = @_;
 	my @instances;
-	foreach my $instance (values(%{$self->{INSTANCES}})) {
+	foreach my $instance (sort values(%{$self->{INSTANCES}})) {
 		foreach my $ss ($instance->subset()) {
 			push @instances, $instance if ($ss =~ /$subset/);
 		}
@@ -845,7 +850,7 @@ sub get_instances_by_subset {
 
 sub get_relationships {
     my $self = shift;
-    my @relationships = values(%{$self->{RELATIONSHIPS}});
+    my @relationships = sort values(%{$self->{RELATIONSHIPS}});
     return \@relationships;
 }
 
@@ -860,7 +865,7 @@ sub get_relationships {
 
 sub get_relationship_types {
 	my $self = shift;
-	my @relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
+	my @relationship_types = sort values(%{$self->{RELATIONSHIP_TYPES}});
 	return \@relationship_types;
 }
 
@@ -875,7 +880,7 @@ sub get_relationship_types {
 
 sub get_relationship_types_sorted_by_id {
 	my $self = shift;
-    my @sorted_relationship_types = __sort_by_id(sub {shift}, values(%{$self->{RELATIONSHIP_TYPES}})); 
+    my @sorted_relationship_types = __sort_by_id(sub {shift}, sort values(%{$self->{RELATIONSHIP_TYPES}}));
 	return \@sorted_relationship_types;
 }
 
@@ -908,14 +913,14 @@ sub get_relationships_by_source_term {
 	my $result = OBO::Util::Set->new();
 	if ($term) {
 		if ($rel_type) {
-			my @rels = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}->{$rel_type}});
+			my @rels = sort values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}->{$rel_type}});
 			foreach my $rel (@rels) {
 				$result->add($rel);
 			}
 		} else {
-			my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
+			my @hashes = sort values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
 			foreach my $hash (@hashes) {
-				my @rels = values %{$hash};
+				my @rels = sort values %{$hash};
 				foreach my $rel (@rels) {
 					$result->add($rel);
 				}
@@ -937,17 +942,18 @@ sub get_relationships_by_source_term {
 
 sub get_relationships_by_target_term {
 	my ($self, $term, $rel_type) = @_;
+	
 	my $result = OBO::Util::Set->new();
 	if ($term) {
 		if ($rel_type) {
-			my @rels = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}->{$rel_type}});
+			my @rels = sort values(%{$self->{TARGET_RELATIONSHIPS}->{$term}->{$rel_type}});
 			foreach my $rel (@rels) {
 				$result->add($rel);
 			}
 		} else {
-			my @hashes = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
+			my @hashes = sort values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
 			foreach my $hash (@hashes) {
-				my @rels = values %{$hash};
+				my @rels = sort values %{$hash};
 				foreach my $rel (@rels) {
 					$result->add($rel);
 				}
@@ -1421,7 +1427,7 @@ sub get_child_terms {
 	if ($term) {
 		my @hashes = values(%{$self->{TARGET_RELATIONSHIPS}->{$term}});
 		foreach my $hash (@hashes) {
-			my @rels = values %{$hash};
+			my @rels = sort values %{$hash};
 			foreach my $rel (@rels) {
 				$result->add($rel->tail());
 			}
@@ -1444,9 +1450,9 @@ sub get_parent_terms {
 	my ($self, $term) = @_;
 	my $result = OBO::Util::TermSet->new();
 	if ($term) {		
-		my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
+		my @hashes = sort values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
 		foreach my $hash (@hashes) {
-			my @rels = values %{$hash};
+			my @rels = sort values %{$hash};
 			foreach my $rel (@rels) {
 				$result->add($rel->head());
 			}
@@ -1471,9 +1477,9 @@ sub get_head_by_relationship_type {
 	if ($element && $relationship_type) {
 		my $relationship_type_id = $relationship_type->id();
 		
-		my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
+		my @hashes = sort values(%{$self->{SOURCE_RELATIONSHIPS}->{$element}});
 		foreach my $hash (@hashes) {
-			my @rels = values %{$hash};
+			my @rels = sort values %{$hash};
 			foreach my $rel (@rels) {
 				push @heads, $rel->head() if ($rel->type() eq $relationship_type_id);
 				#Fix for some cases: push @heads, $rel->head() if ($rel->type() eq $relationship_type->name());
@@ -1498,9 +1504,9 @@ sub get_tail_by_relationship_type {
 	if ($element && $relationship_type) {
 		my $relationship_type_id = $relationship_type->id();
 		
-		my @hashes = values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
+		my @hashes = sort values(%{$self->{TARGET_RELATIONSHIPS}->{$element}});
 		foreach my $hash (@hashes) {
-			my @rels = values %{$hash};
+			my @rels = sort values %{$hash};
 			foreach my $rel (@rels) {
 				push @tails, $rel->tail() if ($rel->type() eq $relationship_type_id);
 			}
@@ -1523,12 +1529,12 @@ sub get_root_terms {
 	my @roots    = ();
 	my $term_set = OBO::Util::TermSet->new();
 	
-	$term_set->add_all(values(%{$self->{TERMS}}));
+	$term_set->add_all(__sort_by_id(sub {shift}, values(%{$self->{TERMS}})));
 	my @arr = $term_set->get_set();
 	
 	while ($term_set->size() > 0) {
 		my $term   = pop @arr;
-		my @hashes = values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
+		my @hashes = sort values(%{$self->{SOURCE_RELATIONSHIPS}->{$term}});
 		
 		if ($#hashes  == -1) {        # if there are no parents
 			push @roots, $term;       # it must be a root term
@@ -2638,7 +2644,7 @@ sub export2rdf {
 	#
 	#######################################################################
 	unless ($skip) { # for integration processes and using biometarel for example.
-		my @all_relationship_types = values(%{$self->{RELATIONSHIP_TYPES}});
+		my @all_relationship_types = sort values(%{$self->{RELATIONSHIP_TYPES}});
 		foreach my $relationship_type (@all_relationship_types) {
 			my $relationship_type_id = $relationship_type->id();
 			$relationship_type_id =~ tr/:/_/;
@@ -4189,6 +4195,7 @@ sub export2gml {
            -   'owl':
            -     1. URI for content
            -     2. URI for OboInOwl (optional)
+           -     3. note: the OWL export is broken!
 
 =cut
 
@@ -4341,7 +4348,7 @@ sub get_subontology_from {
 		$result->treat_xrefs_as_is_a($self->treat_xrefs_as_is_a->get_set());
 		
 		if ( $rel_type_ids ) { #vlmir
-			foreach my $rel_type_id ( keys %{$rel_type_ids} ) {
+			foreach my $rel_type_id ( sort keys %{$rel_type_ids} ) {
 				$result->add_relationship_type_as_string( $rel_type_id, $rel_type_ids->{$rel_type_id} );
 			} #vlmir
 		}
@@ -4383,9 +4390,9 @@ sub get_terms_idspace {
 		return $self->id();
 	} else {
 		# TODO Find an efficient way to get it...
-		#my $is = (values(%{$self->{TERMS}}))[0]->idspace();
+		#my $is = (sort values(%{$self->{TERMS}}))[0]->idspace();
 		my $NS = undef;
-		my @all_terms = values(%{$self->{TERMS}});
+		my @all_terms = __sort_by_id(sub {shift}, values(%{$self->{TERMS}}));
 		foreach my $term (@all_terms) {
 			$NS = $term->idspace();
 			last if(defined $NS);
@@ -4410,9 +4417,9 @@ sub get_instances_idspace {
 		return $self->id();
 	} else {
 		# TODO Find an efficient way to get it...
-		#my $is = (values(%{$self->{INSTANCES}}))[0]->idspace();
+		#my $is = (sort values(%{$self->{INSTANCES}}))[0]->idspace();
 		my $NS = undef;
-		my @all_instances = values(%{$self->{INSTANCES}});
+		my @all_instances = sort values(%{$self->{INSTANCES}});
 		foreach my $instance (@all_instances) {
 			$NS = $instance->idspace();
 			last if(defined $NS);
@@ -4636,7 +4643,7 @@ sub get_instance_by_xref {
 sub get_paths_term1_term2 () {
 	my ($self, $v, $bstop) = @_;
 	
-	my @nei  = sort {$a->id cmp $b->id} @{$self->get_parent_terms($self->get_term_by_id($v))};
+	my @nei  = __sort_by_id(sub {shift}, @{$self->get_parent_terms($self->get_term_by_id($v))});
 	
 	my $path = $v;
 	my @bk   = ($v);
@@ -4659,15 +4666,15 @@ sub get_paths_term1_term2 () {
 		next if (!defined $p_id);  # TODO investigate cases where $p_id might not be defined
 		my $p          = $self->get_term_by_id($p_id);
 		 
-		my @ps         = sort {$a->id cmp $b->id} @{$self->get_parent_terms($n)};
-		my @hi         = sort {$a->id cmp $b->id} @{$self->get_parent_terms($p)};
+		my @ps         = __sort_by_id(sub {shift}, @{$self->get_parent_terms($n)});
+		my @hi         = __sort_by_id(sub {shift}, @{$self->get_parent_terms($p)});
 		
 		$hijos{$p_id}  = $#hi + 1;
 		$hijos{$n_id}  = $#ps + 1;
 		push @bk, $n_id;
 		
 		# add the (candidate) relationship
-		push @ruta, values(%{$target_source_rels->{$p}->{$n}});
+		push @ruta, __sort_by_id(sub {shift}, values(%{$target_source_rels->{$p}->{$n}}));
 
 		if ($bstop eq $n_id) {
 			
@@ -4691,7 +4698,7 @@ sub get_paths_term1_term2 () {
 			# banned relationship
 			#my $source = $self->get_term_by_id($sou);
 			#my $target = $self->get_term_by_id($p_id);
-			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
+			#my $rr     = sort values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
 			my $hijos_sou  = $hijos{$sou};
@@ -4790,7 +4797,7 @@ sub get_paths_term_terms () {
 		push @bk, $n_id;
 		
 		# add the (candidate) relationship
-		push @ruta, values(%{$target_source_rels->{$p}->{$n}});
+		push @ruta, sort values(%{$target_source_rels->{$p}->{$n}});
 		
 		if ($bstop->contains($n_id)) {
 			#warn "\nSTOP FOUND : ", $n_id;			
@@ -4812,7 +4819,7 @@ sub get_paths_term_terms () {
 			# banned relationship
 			#my $source = $self->get_term_by_id($sou);
 			#my $target = $self->get_term_by_id($p_id);
-			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
+			#my $rr     = sort values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
 			my $hijos_sou  = $hijos{$sou};
@@ -4914,7 +4921,7 @@ sub get_paths_term_terms_same_rel () {
 		push @bk, $n_id;
 		
 		# add the (candidate) relationship
-		push @ruta, values(%{$target_source_rels->{$p}->{$n}});
+		push @ruta, sort values(%{$target_source_rels->{$p}->{$n}});
 		
 		if ($bstop->contains($n_id)) {
 			#warn "\nSTOP FOUND : ", $n_id;			
@@ -4936,7 +4943,7 @@ sub get_paths_term_terms_same_rel () {
 			# banned relationship
 			#my $source = $self->get_term_by_id($sou);
 			#my $target = $self->get_term_by_id($p_id);
-			#my $rr     = values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
+			#my $rr     = sort values(%{$self->{TARGET_SOURCE_RELATIONSHIPS}->{$source}->{$target}});
 			
 			$banned{$sou}++;
 			my $hijos_sou  = $hijos{$sou};
@@ -5018,32 +5025,6 @@ sub owl_id2obo_id {
 	return $_[0];
 }
 
-=head2 __char_hex_http
-
-  Usage    - $ontology->__char_hex_http($seq)
-  Returns  - the sequence with the numeric HTML representation for the given special character
-  Args     - the sequence of characters
-  Function - Transforms a character into its equivalent HTML number, e.g. : -> &#58;
-  
-=cut
-
-sub __char_hex_http {
-	caller eq __PACKAGE__ or croak;
-	
-	$_[0] =~ s/:/&#58;/g;  # colon
-	$_[0] =~ s/;/&#59;/g;  # semicolon
-	$_[0] =~ s/</&#60;/g;  # less than sign
-	$_[0] =~ s/=/&#61;/g;  # equal sign
-	$_[0] =~ s/>/&#62;/g;  # greater than sign
-	$_[0] =~ s/\?/&#63;/g; # question mark
-	$_[0] =~ s/\//&#47;/g; # slash
-	$_[0] =~ s/&/&#38;/g;  # ampersand
-	$_[0] =~ s/"/&#34;/g;  # double quotes
-	$_[0] =~ s/±/&#177;/g; # plus-or-minus sign
-
-	return $_[0];
-}
-
 sub __date {
 	caller eq __PACKAGE__ or croak;
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
@@ -5069,7 +5050,7 @@ sub __dfs () {
 		my $n    = pop @nei; # neighbors
 		my $n_id = $n->id();
 		if ($blist->contains($n_id) || 
-			$brels->contains(values(%{$onto->{TARGET_SOURCE_RELATIONSHIPS}->
+			$brels->contains(sort values(%{$onto->{TARGET_SOURCE_RELATIONSHIPS}->
 				                     {$onto->get_term_by_id($p_id)}->
 				                     {$onto->get_term_by_id($n_id)}}))) {
 			next;
@@ -5188,7 +5169,6 @@ sub __sort_by_id {
 				@input;
 }
 
-
 sub __print_hasDbXref_for_owl {
 	caller eq __PACKAGE__ or croak;
 	my ($output_file_handle, $set, $oboContentUrl, $tab_times) = @_;
@@ -5215,6 +5195,32 @@ sub __print_hasDbXref_for_owl {
 		print $output_file_handle $tab1."</oboInOwl:DbXref>\n";
 		print $output_file_handle $tab0."</oboInOwl:hasDbXref>\n";
 	}
+}
+
+=head2 __char_hex_http
+
+  Usage    - $ontology->__char_hex_http($seq)
+  Returns  - the sequence with the numeric HTML representation for the given special character
+  Args     - the sequence of characters
+  Function - Transforms a character into its equivalent HTML number, e.g. : -> &#58;
+  
+=cut
+
+sub __char_hex_http {
+	caller eq __PACKAGE__ or croak;
+	
+	$_[0] =~ s/:/&#58;/g;  # colon
+	$_[0] =~ s/;/&#59;/g;  # semicolon
+	$_[0] =~ s/</&#60;/g;  # less than sign
+	$_[0] =~ s/=/&#61;/g;  # equal sign
+	$_[0] =~ s/>/&#62;/g;  # greater than sign
+	$_[0] =~ s/\?/&#63;/g; # question mark
+	$_[0] =~ s/\//&#47;/g; # slash
+	$_[0] =~ s/&/&#38;/g;  # ampersand
+	$_[0] =~ s/"/&#34;/g;  # double quotes
+	$_[0] =~ s/±/&#177;/g; # plus-or-minus sign
+
+	return $_[0];
 }
 
 1;

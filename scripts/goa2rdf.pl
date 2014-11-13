@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: goa2rdf.pl 2013-09-29 erick.antezana $
+# $Id: goa2rdf.pl 2014-11-11 erick.antezana $
 #
 # Script  : goa2rdf.pl
 # Purpose : Generates a simple RDF graph from a given GOA file.
