@@ -1,4 +1,4 @@
-# $Id: Synonym.pm 2014-19-06 erick.antezana $
+# $Id: Synonym.pm 2014-11-14 erick.antezana $
 #
 # Module  : Synonym.pm
 # Purpose : A synonym for this term.
@@ -201,7 +201,7 @@ sub __dbxref () {
 }
 
 sub __unescape {
-	caller eq __PACKAGE__ or die;
+	caller eq __PACKAGE__ or croak "You cannot call this (__unescape) prived method!";
 	my $match = $_[0];
 	$match =~ s/;;;;;/\\"/g;
 	$match =~ s/;;;;/\\,/g;

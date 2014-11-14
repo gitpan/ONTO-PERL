@@ -1,4 +1,4 @@
-# $Id: Ontology.pm 2014-10-07 erick.antezana $
+# $Id: Ontology.pm 2014-11-14 erick.antezana $
 #
 # Module  : Ontology.pm
 # Purpose : OBO ontologies handling.
@@ -23,7 +23,7 @@ use warnings;
 
 use open qw(:std :utf8); # Make All I/O Default to UTF-8
 
-our $VERSION = '1.43';
+our $VERSION = '1.44';
 
 sub new {
 	my $class  = shift;

@@ -1,4 +1,4 @@
-# $Id: Relationship.pm 2013-11-08 erick.antezana $
+# $Id: Relationship.pm 2014-11-14 erick.antezana $
 #
 # Module  : Relationship.pm
 # Purpose : Relationship in the Ontology.
@@ -225,7 +225,7 @@ OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Term (1)
       ||                 ||                            ||
 OBO::Core::Term or OBO::Core::RelationshipType or OBO::Core::Instance (1)
 
-Relationships must have a unique ID (e.g. "APO:P0000028_is_a_APO:P0000005"), 
+Relationships must have a unique ID (e.g. 'APO:P0000028_is_a_APO:P0000005'), 
 a type (e.g. 'is_a') and it must known the linking terms (tail and head).
 
 =head1 AUTHOR

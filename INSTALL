@@ -3,8 +3,8 @@ INSTALL
 
 There are two typical ways:
 
-Using CPAN.  
-==========
+(1) Using CPAN  
+==============
 
 You'll want to use CPAN to install the modules by performing the 
 following steps:
@@ -28,8 +28,8 @@ Now, enter the following command to retrieve all of the required modules:
 
 cpan> install OBO::Core::Ontology
 
-Manually
-========
+(2) Manually
+============
 
 By typing the following mantra:
 
@@ -94,8 +94,18 @@ Optional modules:
 
    ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife/
 
+4. Text::CSV (> v1.32) is used by 'bioportal_csv2obo.pl':
+
+   http://search.cpan.org/~makamaka/Text-CSV/
+
 Bugs/comments/questions/etc
 ===========================
 
 We are regularly improving this API, please report any bugs 
 or send your comments to erick.antezana -@- gmail.com
+
+Contributions
+=============
+
+If you have any module or piece of code you believe it should 
+be part of ONTO-perl, contact erick.antezana -@- gmail.com

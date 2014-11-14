@@ -116,3 +116,5 @@ Revision history for ONTO-PERL
 1.42 Makefile.PL improved. Subsets for Terms and Instances are now sorted in exports. Unused subsets and synonym type definitions: checked and removed while parsing. Refactoring: is_functional, is_inverse_functional. Check of recommended XML-parser primitives. Bug fix in Ontolome::transitive_closure().
 
 1.43 Makefile.PL adapted: required modules, versions. Improvements in Ontolome::transitive_closure() and Ontology::export2rdf(). New script: bioportal_csv2obo.pl
+
+1.43 Added missing file (bioportal_csv2obo.pl). Update of README and INSTALL.
